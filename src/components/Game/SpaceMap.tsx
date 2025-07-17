@@ -2066,19 +2066,11 @@ const SpaceMapComponent: React.FC = () => {
   // Generate default planets (fallback)
   const generateDefaultPlanets = useCallback(() => {
     const planets: Planet[] = [];
-    const colors = [
-      "#ff6b6b",
-      "#4ecdc4",
-      "#45b7d1",
-      "#96ceb4",
-      "#ffeaa7",
-      "#dda0dd",
-    ];
+    const colors = ["#ff6b6b", "#4ecdc4", "#96ceb4", "#ffeaa7", "#dda0dd"];
 
     const planetImages = [
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfdbc589c3f344eea7b33af316e83b41?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fd42810aa3d45429d93d8c58c52827326?format=webp&width=800",
-      "https://cdn.builder.io/api/v1/image/assets%2F8ec9b1b631094c4a90f6526f2a2446cc%2F1192080bbca44c28b40c7df4984132da?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F8e6b96287f6448089ed602d82e2839bc?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2F7a1b7c8172a5446b9a22ffd65d22a6f7?format=webp&width=800",
       "https://cdn.builder.io/api/v1/image/assets%2F9116099af5104b05bb8ec173428706be%2F53dbf5154a144566a9f2df4e9ce385b0?format=webp&width=800",
@@ -2087,14 +2079,13 @@ const SpaceMapComponent: React.FC = () => {
     const planetNames = [
       "Estação Galáctica",
       "Base Orbital",
-      "Mundo Alienígena",
       "Terra Verdejante",
       "Reino Gelado",
       "Vila Ancestral",
     ];
 
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
       const radius = 250;
       const planetX = CENTER_X + Math.cos(angle) * radius;
       const planetY = CENTER_Y + Math.sin(angle) * radius;
