@@ -479,6 +479,86 @@ export class RoomExperience {
     return null;
   }
 
+  // Generate thumbnail image for furniture
+  public generateThumbnail(objectId: string): string {
+    const furniture = this.furnitureManager.getFurnitureById(objectId);
+    if (!furniture) return "";
+
+    // Create a temporary scene for thumbnail rendering
+    const thumbScene = new THREE.Scene();
+    const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+
+    // Clone the furniture object for thumbnail
+    const clonedObject = furniture.object.clone();
+    thumbScene.add(clonedObject);
+
+    // Add lighting for thumbnail
+    const light1 = new THREE.DirectionalLight(0xffffff, 1);
+    light1.position.set(1, 1, 1);
+    thumbScene.add(light1);
+
+    const light2 = new THREE.AmbientLight(0xffffff, 0.4);
+    thumbScene.add(light2);
+
+    // Position camera to frame the object
+    const box = new THREE.Box3().setFromObject(clonedObject);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    thumbCamera.position.set(
+      center.x + maxDim,
+      center.y + maxDim * 0.5,
+      center.z + maxDim,
+    );
+    thumbCamera.lookAt(center);
+
+    // Create render target for thumbnail
+    const renderTarget = new THREE.WebGLRenderTarget(128, 128);
+
+    // Render thumbnail
+    this.renderer.setRenderTarget(renderTarget);
+    this.renderer.render(thumbScene, thumbCamera);
+    this.renderer.setRenderTarget(null);
+
+    // Get image data
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+
+    if (context) {
+      const imageData = new Uint8Array(128 * 128 * 4);
+      this.renderer.readRenderTargetPixels(
+        renderTarget,
+        0,
+        0,
+        128,
+        128,
+        imageData,
+      );
+
+      // Convert to ImageData and draw on canvas
+      const imgData = context.createImageData(128, 128);
+      imgData.data.set(imageData);
+      context.putImageData(imgData, 0, 0);
+
+      // Clean up
+      renderTarget.dispose();
+
+      return canvas.toDataURL();
+    }
+
+    // Clean up
+    renderTarget.dispose();
+    return "";
+  }
+
+  // Toggle furniture light (for lamps)
+  public toggleFurnitureLight(objectId: string, isOn: boolean): void {
+    this.furnitureManager.toggleFurnitureLight(objectId, isOn);
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
