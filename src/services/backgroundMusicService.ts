@@ -358,15 +358,7 @@ class BackgroundMusicService {
             "https://images.pexels.com/photos/3694341/pexels-photo-3694341.jpeg",
         },
       ],
-      "planet-2": [
-        {
-          id: "synthetic-planet-2",
-          name: "Ocean World Waves",
-          path: "synthetic",
-          coverImage:
-            "https://images.pexels.com/photos/47480/pexels-photo-47480.jpeg",
-        },
-      ],
+
       "planet-3": [
         {
           id: "synthetic-planet-3",
@@ -487,7 +479,7 @@ class BackgroundMusicService {
         await this.currentTrack.play();
       } else {
         // Inicia nova faixa
-        console.log("🎼 Iniciando nova faixa...");
+        console.log("�� Iniciando nova faixa...");
         await this.playTrack(this.currentTrackIndex);
       }
 
