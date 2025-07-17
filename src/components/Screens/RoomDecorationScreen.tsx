@@ -1499,15 +1499,23 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           {/* Currency Display */}
           <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
             <div className="flex items-center gap-2">
-              <Coins size={20} className="text-yellow-500" />
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                alt="Xenocoins"
+                className="w-5 h-5"
+              />
               <span className="font-bold text-gray-700">
-                {playerCurrency.xenocoins} Xenocoins
+                {xenocoins.toLocaleString()} Xenocoins
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <DollarSign size={20} className="text-green-500" />
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
+                alt="Xenocash"
+                className="w-5 h-5"
+              />
               <span className="font-bold text-gray-700">
-                {playerCurrency.xenocash} Xenocash
+                {cash.toLocaleString()} Xenocash
               </span>
             </div>
           </div>
