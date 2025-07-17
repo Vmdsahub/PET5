@@ -556,4 +556,103 @@ export class FurnitureFactory {
 
     return light;
   }
+
+  /**
+   * Create custom furniture from GLB file
+   */
+  private async createCustomFurniture(
+    furnitureId: string,
+  ): Promise<THREE.Group | null> {
+    try {
+      // Check cache first
+      if (this.customFurnitureCache.has(furnitureId)) {
+        const cached = this.customFurnitureCache.get(furnitureId)!;
+        return cached.clone();
+      }
+
+      // Get furniture data
+      const customFurniture = await furnitureService.getAllCustomFurniture();
+      const furniture = customFurniture.find((f) => f.id === furnitureId);
+
+      if (!furniture) {
+        console.warn(`Custom furniture not found: ${furnitureId}`);
+        return null;
+      }
+
+      // Load GLB model
+      const model = await furnitureService.loadGLBModel(furniture.glb_url);
+      if (!model) {
+        console.warn(`Failed to load GLB model: ${furniture.glb_url}`);
+        return null;
+      }
+
+      // Apply metadata settings if available
+      if (furniture.metadata) {
+        this.applyMetadataToModel(model, furniture.metadata);
+      }
+
+      // Cache the model
+      this.customFurnitureCache.set(furnitureId, model.clone());
+
+      return model;
+    } catch (error) {
+      console.error(`Error creating custom furniture ${furnitureId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Apply metadata settings to a model
+   */
+  private applyMetadataToModel(model: THREE.Group, metadata: any): void {
+    // Apply scale constraints if specified
+    if (metadata.scale) {
+      const { min = 0.5, max = 2.0 } = metadata.scale;
+      const currentScale = model.scale.x;
+      const clampedScale = Math.max(min, Math.min(max, currentScale));
+      model.scale.setScalar(clampedScale);
+    }
+
+    // Apply lighting settings
+    if (metadata.lighting !== undefined) {
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = metadata.lighting;
+          child.receiveShadow = metadata.lighting;
+        }
+      });
+    }
+
+    // Apply other custom metadata properties
+    model.userData = { ...model.userData, ...metadata };
+  }
+
+  /**
+   * Clear custom furniture cache
+   */
+  public clearCustomFurnitureCache(): void {
+    this.customFurnitureCache.clear();
+  }
+
+  /**
+   * Preload custom furniture for better performance
+   */
+  public async preloadCustomFurniture(): Promise<void> {
+    try {
+      const customFurniture = await furnitureService.getAllCustomFurniture();
+      const loadPromises = customFurniture.map(async (furniture) => {
+        if (!this.customFurnitureCache.has(furniture.id)) {
+          const model = await furnitureService.loadGLBModel(furniture.glb_url);
+          if (model) {
+            this.customFurnitureCache.set(furniture.id, model);
+          }
+        }
+      });
+
+      await Promise.all(loadPromises);
+      console.log(`Preloaded ${loadPromises.length} custom furniture models`);
+    } catch (error) {
+      console.error("Error preloading custom furniture:", error);
+    }
+  }
 }
