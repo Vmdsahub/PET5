@@ -73,6 +73,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [catalogTab, setCatalogTab] = useState<"store" | "admin">("store");
 
   // GLB Upload state
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
