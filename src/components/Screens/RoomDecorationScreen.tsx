@@ -153,10 +153,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       case "catalog":
         setShowCatalogModal(!showCatalogModal);
         if (showInventoryModal) setShowInventoryModal(false);
+        setActiveNav(showCatalogModal ? "" : "catalog");
         break;
       case "inventory":
         setShowInventoryModal(!showInventoryModal);
         if (showCatalogModal) setShowCatalogModal(false);
+        setActiveNav(showInventoryModal ? "" : "inventory");
         break;
       case "edit":
         setIsEditMode(!isEditMode);
@@ -1747,7 +1749,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               "0 8px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
           }}
         >
-          🖱��� Use o mouse para navegar pela casa • 🎨 Clique em Editar para
+          🖱️ Use o mouse para navegar pela casa • 🎨 Clique em Editar para
           decorar
         </motion.div>
       )}
