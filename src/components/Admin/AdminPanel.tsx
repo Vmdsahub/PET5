@@ -152,7 +152,7 @@ export const AdminPanel: React.FC = () => {
     addNotification({
       type: "success",
       title: "Copiado!",
-      message: "Código copiado para a área de transfer��ncia.",
+      message: "Código copiado para a área de transferência.",
     });
   };
 

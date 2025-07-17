@@ -1,10 +1,18 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import {
+  furnitureService,
+  CustomFurniture,
+} from "../../services/furnitureService";
 
 export class FurnitureFactory {
   private materials: { [key: string]: THREE.Material };
+  private gltfLoader: GLTFLoader;
+  private customFurnitureCache: Map<string, THREE.Group> = new Map();
 
   constructor() {
     this.createMaterials();
+    this.gltfLoader = new GLTFLoader();
   }
 
   private createMaterials(): void {
@@ -73,8 +81,8 @@ export class FurnitureFactory {
     };
   }
 
-  public getAvailableTypes(): string[] {
-    return [
+  public async getAvailableTypes(): Promise<string[]> {
+    const builtInTypes = [
       "sofa",
       "table",
       "diningTable",
@@ -90,41 +98,63 @@ export class FurnitureFactory {
       "wallClock",
       "pendantLight",
     ];
+
+    // Add custom furniture types
+    const customFurniture = await furnitureService.getAllCustomFurniture();
+    const customTypes = customFurniture.map((f) => `custom_${f.id}`);
+
+    return [...builtInTypes, ...customTypes];
   }
 
-  public create(type: string): THREE.Object3D | null {
-    switch (type) {
-      case "sofa":
-        return this.createSofa();
-      case "table":
-        return this.createCoffeeTable();
-      case "diningTable":
-        return this.createDiningTable();
-      case "chair":
-        return this.createChair();
-      case "bookshelf":
-        return this.createBookshelf();
-      case "lamp":
-        return this.createFloorLamp();
-      case "tableLamp":
-        return this.createTableLamp();
-      case "plant":
-        return this.createPlant();
-      case "tvStand":
-        return this.createTVStand();
-      case "sideTable":
-        return this.createSideTable();
-      case "wallShelf":
-        return this.createWallShelf();
-      case "pictureFrame":
-        return this.createPictureFrame();
-      case "wallClock":
-        return this.createWallClock();
-      case "pendantLight":
-        return this.createPendantLight();
-      default:
-        console.warn(`Unknown furniture type: ${type}`);
-        return null;
+  public async getCustomFurnitureList(): Promise<CustomFurniture[]> {
+    return await furnitureService.getAllCustomFurniture();
+  }
+
+  public async create(type: string): Promise<THREE.Object3D | null> {
+    try {
+      // Check if it's a custom furniture type
+      if (type.startsWith("custom_")) {
+        const furnitureId = type.replace("custom_", "");
+        return await this.createCustomFurniture(furnitureId);
+      }
+
+      // Handle built-in furniture types
+      switch (type) {
+        case "sofa":
+          return this.createSofa();
+        case "table":
+          return this.createCoffeeTable();
+        case "diningTable":
+          return this.createDiningTable();
+        case "chair":
+          return this.createChair();
+        case "bookshelf":
+          return this.createBookshelf();
+        case "lamp":
+          return this.createFloorLamp();
+        case "tableLamp":
+          return this.createTableLamp();
+        case "plant":
+          return this.createPlant();
+        case "tvStand":
+          return this.createTVStand();
+        case "sideTable":
+          return this.createSideTable();
+        case "wallShelf":
+          return this.createWallShelf();
+        case "pictureFrame":
+          return this.createPictureFrame();
+        case "wallClock":
+          return this.createWallClock();
+        case "pendantLight":
+          return this.createPendantLight();
+        default:
+          console.warn(`Unknown furniture type: ${type}`);
+          return null;
+      }
+    } catch (error) {
+      console.error(`Error creating furniture of type ${type}:`, error);
+      return null;
     }
   }
 
@@ -530,5 +560,104 @@ export class FurnitureFactory {
     light.add(shade);
 
     return light;
+  }
+
+  /**
+   * Create custom furniture from GLB file
+   */
+  private async createCustomFurniture(
+    furnitureId: string,
+  ): Promise<THREE.Group | null> {
+    try {
+      // Check cache first
+      if (this.customFurnitureCache.has(furnitureId)) {
+        const cached = this.customFurnitureCache.get(furnitureId)!;
+        return cached.clone();
+      }
+
+      // Get furniture data
+      const customFurniture = await furnitureService.getAllCustomFurniture();
+      const furniture = customFurniture.find((f) => f.id === furnitureId);
+
+      if (!furniture) {
+        console.warn(`Custom furniture not found: ${furnitureId}`);
+        return null;
+      }
+
+      // Load GLB model
+      const model = await furnitureService.loadGLBModel(furniture.glb_url);
+      if (!model) {
+        console.warn(`Failed to load GLB model: ${furniture.glb_url}`);
+        return null;
+      }
+
+      // Apply metadata settings if available
+      if (furniture.metadata) {
+        this.applyMetadataToModel(model, furniture.metadata);
+      }
+
+      // Cache the model
+      this.customFurnitureCache.set(furnitureId, model.clone());
+
+      return model;
+    } catch (error) {
+      console.error(`Error creating custom furniture ${furnitureId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Apply metadata settings to a model
+   */
+  private applyMetadataToModel(model: THREE.Group, metadata: any): void {
+    // Apply scale constraints if specified
+    if (metadata.scale) {
+      const { min = 0.5, max = 2.0 } = metadata.scale;
+      const currentScale = model.scale.x;
+      const clampedScale = Math.max(min, Math.min(max, currentScale));
+      model.scale.setScalar(clampedScale);
+    }
+
+    // Apply lighting settings
+    if (metadata.lighting !== undefined) {
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = metadata.lighting;
+          child.receiveShadow = metadata.lighting;
+        }
+      });
+    }
+
+    // Apply other custom metadata properties
+    model.userData = { ...model.userData, ...metadata };
+  }
+
+  /**
+   * Clear custom furniture cache
+   */
+  public clearCustomFurnitureCache(): void {
+    this.customFurnitureCache.clear();
+  }
+
+  /**
+   * Preload custom furniture for better performance
+   */
+  public async preloadCustomFurniture(): Promise<void> {
+    try {
+      const customFurniture = await furnitureService.getAllCustomFurniture();
+      const loadPromises = customFurniture.map(async (furniture) => {
+        if (!this.customFurnitureCache.has(furniture.id)) {
+          const model = await furnitureService.loadGLBModel(furniture.glb_url);
+          if (model) {
+            this.customFurnitureCache.set(furniture.id, model);
+          }
+        }
+      });
+
+      await Promise.all(loadPromises);
+      console.log(`Preloaded ${loadPromises.length} custom furniture models`);
+    } catch (error) {
+      console.error("Error preloading custom furniture:", error);
+    }
   }
 }

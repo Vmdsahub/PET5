@@ -9,6 +9,7 @@ import { BottomPillNavigation } from "./components/Layout/BottomPillNavigation";
 import { ModalManager } from "./components/Layout/ModalManager";
 
 import { StoreScreen } from "./components/Store/StoreScreen";
+import { AdminCatalogStore } from "./components/Store/AdminCatalogStore";
 import { OtherUserInventoryScreen } from "./components/Screens/OtherUserInventoryScreen";
 import { OtherUserAchievementsScreen } from "./components/Screens/OtherUserAchievementsScreen";
 import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserCollectiblesScreen";
@@ -192,6 +193,8 @@ function App() {
         );
       case "store":
         return <StoreScreen />;
+      case "admin-catalog":
+        return <AdminCatalogStore />;
       case "otherUserInventory":
         return <OtherUserInventoryScreen />;
       case "otherUserAchievements":

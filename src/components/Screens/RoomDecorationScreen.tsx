@@ -14,12 +14,21 @@ import {
   RefreshCcw,
   Coins,
   DollarSign,
+  Upload,
+  Plus,
+  X,
+  Trash2,
+  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
 import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
+import {
+  furnitureService,
+  CustomFurniture,
+} from "../../services/furnitureService";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -64,8 +73,134 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [catalogTab, setCatalogTab] = useState<"store" | "admin">("store");
+
+  // GLB Upload state
+  const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadData, setUploadData] = useState({
+    name: "",
+    description: "",
+    price: 10,
+    currency: "xenocoins" as "xenocoins" | "cash",
+    category: "admin" as "admin" | "premium" | "seasonal",
+    tags: [] as string[],
+  });
+  const [isUploading, setIsUploading] = useState(false);
+
   const { user } = useAuthStore();
-  const { xenocoins, cash, updateCurrency } = useGameStore();
+  const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
+
+  // Load custom furniture on component mount
+  useEffect(() => {
+    loadCustomFurniture();
+  }, []);
+
+  // Reload custom furniture when switching to admin tab
+  useEffect(() => {
+    if (catalogTab === "admin") {
+      console.log("Admin tab selected, reloading custom furniture...");
+      loadCustomFurniture();
+    }
+  }, [catalogTab]);
+
+  const loadCustomFurniture = async () => {
+    try {
+      console.log("Loading custom furniture...");
+      const furniture = await furnitureService.getAllCustomFurniture();
+      console.log("Loaded custom furniture:", furniture);
+      setCustomFurniture(furniture);
+    } catch (error) {
+      console.error("Error loading custom furniture:", error);
+    }
+  };
+
+  const handleFurnitureUpload = async () => {
+    if (!uploadFile || !uploadData.name.trim()) {
+      addNotification({
+        type: "error",
+        title: "Erro",
+        message: "Arquivo GLB e nome são obrigatórios.",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await furnitureService.uploadFurniture(
+        uploadFile,
+        uploadData,
+      );
+
+      if (result.success) {
+        addNotification({
+          type: "success",
+          title: "Sucesso!",
+          message: "Móvel adicionado ao catálogo com sucesso.",
+        });
+        setShowUploadModal(false);
+        resetUploadData();
+        loadCustomFurniture(); // Reload furniture list
+      } else {
+        addNotification({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao fazer upload do móvel.",
+        });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      addNotification({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteFurniture = async (furnitureId: string) => {
+    if (confirm("Tem certeza que deseja deletar este móvel?")) {
+      try {
+        const result = await furnitureService.deleteFurniture(furnitureId);
+        if (result.success) {
+          addNotification({
+            type: "success",
+            title: "Sucesso!",
+            message: "Móvel deletado com sucesso.",
+          });
+          loadCustomFurniture();
+        } else {
+          addNotification({
+            type: "error",
+            title: "Erro",
+            message: result.error || "Erro ao deletar móvel.",
+          });
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        addNotification({
+          type: "error",
+          title: "Erro",
+          message: "Erro ao deletar móvel.",
+        });
+      }
+    }
+  };
+
+  const resetUploadData = () => {
+    setUploadFile(null);
+    setUploadData({
+      name: "",
+      description: "",
+      price: 10,
+      currency: "xenocoins",
+      category: "admin",
+      tags: [],
+    });
+  };
 
   // Function to generate item thumbnails
   const getItemThumbnail = (itemId: string) => {
@@ -301,7 +436,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
   };
 
-  const handleInventoryItemDrop = (
+  const handleInventoryItemDrop = async (
     item: any,
     dropPosition: { x: number; y: number },
   ) => {
@@ -330,16 +465,25 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         );
 
         if (worldPosition) {
-          experienceRef.current.addFurnitureFromInventory(item.id, {
-            x: worldPosition.x,
-            y: worldPosition.y,
-            z: worldPosition.z,
-          });
+          try {
+            const success =
+              await experienceRef.current.addFurnitureFromInventory(item.id, {
+                x: worldPosition.x,
+                y: worldPosition.y,
+                z: worldPosition.z,
+              });
 
-          // Remove from inventory
-          setInventory((prev) =>
-            prev.filter((invItem) => invItem.id !== item.id),
-          );
+            if (success) {
+              // Remove from inventory
+              setInventory((prev) =>
+                prev.filter((invItem) => invItem.id !== item.id),
+              );
+            } else {
+              console.warn(`Failed to place furniture: ${item.id}`);
+            }
+          } catch (error) {
+            console.error(`Error placing furniture ${item.id}:`, error);
+          }
         }
       }
     }
@@ -1511,6 +1655,34 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         zIndex={100}
       >
         <div className="p-6 h-full bg-white">
+          {/* Tabs */}
+          <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setCatalogTab("store")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${
+                catalogTab === "store"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Loja
+            </button>
+            {user?.isAdmin && (
+              <button
+                onClick={() => setCatalogTab("admin")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${
+                  catalogTab === "admin"
+                    ? "bg-white text-purple-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Crown className="w-4 h-4" />
+                Admin GLB
+              </button>
+            )}
+          </div>
+
           {/* Currency Display */}
           <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
             <div className="flex items-center gap-2">
@@ -1535,93 +1707,208 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             </div>
           </div>
 
-          {/* Catalog Items */}
-          <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
-            {catalogItems.map((item) => (
-              <motion.div
-                key={item.id}
-                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {/* Thumbnail */}
-                <div className="w-16 h-16 mb-2">
-                  {getItemThumbnail(item.id) ? (
-                    <img
-                      src={getItemThumbnail(item.id)}
-                      alt={item.name}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <Package size={20} className="text-blue-500 mb-1" />
-                  )}
-                </div>
-
-                {/* Name */}
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight mb-2">
-                  {item.name}
-                </span>
-
-                {/* Price */}
-                <div className="flex items-center gap-1 mb-2">
-                  {item.currency === "xenocoins" ? (
-                    <img
-                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
-                      alt="Xenocoins"
-                      className="w-3 h-3"
-                    />
-                  ) : (
-                    <img
-                      src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
-                      alt="Xenocash"
-                      className="w-3 h-3"
-                    />
-                  )}
-                  <span className="font-bold text-gray-700 text-xs">
-                    {item.price.toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Buy Button */}
-                <motion.button
-                  onClick={() => handlePurchase(item)}
-                  className={`px-3 py-1 rounded-lg font-medium text-xs transition-all ${
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
-                  whileHover={
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? { scale: 1.05 }
-                      : {}
-                  }
-                  whileTap={
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? { scale: 0.95 }
-                      : {}
-                  }
-                  disabled={
-                    (item.currency === "xenocoins" ? xenocoins : cash) <
-                    item.price
-                  }
+          {/* Tab Content */}
+          {catalogTab === "store" ? (
+            /* Store Catalog Items */
+            <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
+              {catalogItems.map((item) => (
+                <motion.div
+                  key={item.id}
+                  className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  🛒 Comprar
-                </motion.button>
-              </motion.div>
-            ))}
-          </div>
+                  {/* Thumbnail */}
+                  <div className="w-16 h-16 mb-2">
+                    {getItemThumbnail(item.id) ? (
+                      <img
+                        src={getItemThumbnail(item.id)}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <Package size={20} className="text-blue-500 mb-1" />
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <span className="text-xs text-center font-medium text-gray-700 leading-tight mb-2">
+                    {item.name}
+                  </span>
+
+                  {/* Price */}
+                  <div className="flex items-center gap-1 mb-2">
+                    {item.currency === "xenocoins" ? (
+                      <img
+                        src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                        alt="Xenocoins"
+                        className="w-3 h-3"
+                      />
+                    ) : (
+                      <img
+                        src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
+                        alt="Xenocash"
+                        className="w-3 h-3"
+                      />
+                    )}
+                    <span className="font-bold text-gray-700 text-xs">
+                      {item.price.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Buy Button */}
+                  <motion.button
+                    onClick={() => handlePurchase(item)}
+                    className={`px-3 py-1 rounded-lg font-medium text-xs transition-all ${
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                    whileHover={
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? { scale: 1.05 }
+                        : {}
+                    }
+                    whileTap={
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? { scale: 0.95 }
+                        : {}
+                    }
+                    disabled={
+                      (item.currency === "xenocoins" ? xenocoins : cash) <
+                      item.price
+                    }
+                  >
+                    🛒 Comprar
+                  </motion.button>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            /* Admin GLB Management */
+            <div className="space-y-4 overflow-y-auto h-full">
+              {/* Upload Button */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Móveis GLB Customizados ({customFurniture.length})
+                  </h3>
+                  <div className="text-xs text-gray-500">
+                    Admin: {user?.isAdmin ? "Sim" : "Não"} | Tab: {catalogTab} |
+                    Items: {JSON.stringify(customFurniture.map((f) => f.name))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      console.log("Force reload custom furniture...");
+                      loadCustomFurniture();
+                    }}
+                    className="px-3 py-1 bg-gray-500 text-white rounded text-sm"
+                  >
+                    Recarregar
+                  </button>
+                  <motion.button
+                    onClick={() => setShowUploadModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-semibold shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <Upload className="w-4 h-4" />
+                    Adicionar GLB
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Custom Furniture List */}
+              <div className="grid grid-cols-1 gap-3">
+                {customFurniture.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600">
+                      Nenhum móvel GLB adicionado ainda.
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Use o botão acima para fazer upload de arquivos GLB.
+                    </p>
+                  </div>
+                ) : (
+                  customFurniture.map((furniture, index) => (
+                    <motion.div
+                      key={furniture.id}
+                      className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-all bg-white"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800">
+                            {furniture.name}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            {furniture.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                              {furniture.category}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <img
+                                src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                                alt="Xenocoins"
+                                className="w-4 h-4"
+                              />
+                              <span className="text-sm font-medium">
+                                {furniture.price}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            onClick={() =>
+                              window.open(furniture.glb_url, "_blank")
+                            }
+                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Ver arquivo GLB"
+                          >
+                            <Package className="w-4 h-4 text-blue-600" />
+                          </motion.button>
+                          <motion.button
+                            onClick={() => handleDeleteFurniture(furniture.id)}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Deletar móvel"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Instructions */}
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              🏠 Móveis comprados vão automaticamente para o inventário
-              <br />
-              💰 Ganhe Xenocoins e Xenocash explorando o jogo!
-            </p>
-          </div>
+          {catalogTab === "store" && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 text-center">
+                🏠 Móveis comprados vão automaticamente para o inventário
+                <br />
+                💰 Ganhe Xenocoins e Xenocash explorando o jogo!
+              </p>
+            </div>
+          )}
         </div>
       </DraggableModal>
 
@@ -1649,12 +1936,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 onDragStart={() => {
                   setIsDraggingFromInventory(true);
                 }}
-                onDragEnd={(e, info) => {
+                onDragEnd={async (e, info) => {
                   setIsDraggingFromInventory(false);
                   // Use clientX/Y for global screen position
                   const dropX = e.clientX;
                   const dropY = e.clientY;
-                  handleInventoryItemDrop(item, { x: dropX, y: dropY });
+                  await handleInventoryItemDrop(item, { x: dropX, y: dropY });
                 }}
               >
                 {item.thumbnail ? (
@@ -1767,9 +2054,189 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               "0 8px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
           }}
         >
-          🖱️ Use o mouse para navegar pela casa • 🎨 Clique em Editar para
+          🖱�� Use o mouse para navegar pela casa • 🎨 Clique em Editar para
           decorar
         </motion.div>
+      )}
+
+      {/* GLB Upload Modal */}
+      {showUploadModal && user?.isAdmin && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div
+            className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                Adicionar Móvel GLB
+              </h3>
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* File Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Arquivo GLB *
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
+                  <input
+                    type="file"
+                    accept=".glb"
+                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                    id="glb-upload"
+                  />
+                  <label
+                    htmlFor="glb-upload"
+                    className="cursor-pointer flex flex-col items-center space-y-2"
+                  >
+                    <Upload className="w-8 h-8 text-gray-400" />
+                    <span className="text-sm text-gray-600">
+                      {uploadFile
+                        ? uploadFile.name
+                        : "Clique para selecionar arquivo GLB"}
+                    </span>
+                    <span className="text-xs text-gray-500">Máximo: 10MB</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  value={uploadData.name}
+                  onChange={(e) =>
+                    setUploadData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Nome do móvel"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Descrição
+                </label>
+                <textarea
+                  value={uploadData.description}
+                  onChange={(e) =>
+                    setUploadData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Descrição do móvel..."
+                />
+              </div>
+
+              {/* Price and Currency */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preço
+                  </label>
+                  <input
+                    type="number"
+                    value={uploadData.price}
+                    onChange={(e) =>
+                      setUploadData((prev) => ({
+                        ...prev,
+                        price: parseInt(e.target.value) || 10,
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Moeda
+                  </label>
+                  <select
+                    value={uploadData.currency}
+                    onChange={(e) =>
+                      setUploadData((prev) => ({
+                        ...prev,
+                        currency: e.target.value as "xenocoins" | "cash",
+                      }))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="xenocoins">Xenocoins</option>
+                    <option value="cash">Cash</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tags (separadas por vírgula)
+                </label>
+                <input
+                  type="text"
+                  value={uploadData.tags.join(", ")}
+                  onChange={(e) =>
+                    setUploadData((prev) => ({
+                      ...prev,
+                      tags: e.target.value
+                        .split(",")
+                        .map((tag) => tag.trim())
+                        .filter(Boolean),
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="mesa, cadeira, moderno"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <motion.button
+                onClick={() => setShowUploadModal(false)}
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Cancelar
+              </motion.button>
+              <motion.button
+                onClick={handleFurnitureUpload}
+                disabled={isUploading || !uploadFile || !uploadData.name.trim()}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all font-semibold shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isUploading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" />
+                    <span>Adicionar</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   );

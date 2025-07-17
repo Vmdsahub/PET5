@@ -50,11 +50,13 @@ export const StoreScreen: React.FC = () => {
     xenocoins,
     cash,
     addNotification,
+    setCurrentScreen,
   } = useGameStore();
 
   const stores = getAllStores();
   const categories = [
     { id: "all", name: "All Stores", icon: Store },
+    { id: "admin-catalog", name: "Móveis GLB", icon: Star, special: true },
     { id: "general", name: "General", icon: Package },
     { id: "equipment", name: "Equipment", icon: Shield },
     { id: "food", name: "Food", icon: Heart },
@@ -391,20 +393,33 @@ export const StoreScreen: React.FC = () => {
         </div>
 
         <div className="flex space-x-2 overflow-x-auto pb-2">
-          {categories.map(({ id, name, icon: Icon }) => (
+          {categories.map(({ id, name, icon: Icon, special }) => (
             <motion.button
               key={id}
-              onClick={() => setSelectedCategory(id)}
+              onClick={() => {
+                if (id === "admin-catalog") {
+                  setCurrentScreen("admin-catalog");
+                } else {
+                  setSelectedCategory(id);
+                }
+              }}
               className={`flex items-center space-x-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                selectedCategory === id
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                special
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-2 border-purple-300 ring-2 ring-purple-200"
+                  : selectedCategory === id
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               <Icon className="w-4 h-4" />
               <span className="font-medium text-sm">{name}</span>
+              {special && (
+                <span className="ml-1 text-xs bg-yellow-400 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                  GLB Upload
+                </span>
+              )}
             </motion.button>
           ))}
         </div>

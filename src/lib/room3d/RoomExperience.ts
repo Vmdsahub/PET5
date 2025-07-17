@@ -431,11 +431,11 @@ export class RoomExperience {
     this.furnitureManager.removeFurniture(objectId);
   }
 
-  public addFurnitureFromInventory(
+  public async addFurnitureFromInventory(
     objectId: string,
     position: { x: number; y: number; z: number },
-  ): void {
-    this.furnitureManager.addFurnitureFromInventory(
+  ): Promise<boolean> {
+    return await this.furnitureManager.addFurnitureFromInventory(
       objectId,
       new THREE.Vector3(position.x, position.y, position.z),
     );

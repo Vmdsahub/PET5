@@ -26,41 +26,66 @@ export class FurnitureManager {
     this.furnitureFactory = new FurnitureFactory();
     this.furnitureLights = new Map();
 
-    this.createDefaultFurniture();
+    // Initialize furniture asynchronously
+    this.initializeFurniture();
   }
 
-  private createDefaultFurniture(): void {
+  private async initializeFurniture(): Promise<void> {
+    try {
+      await this.createDefaultFurniture();
+      console.log("Default furniture created successfully");
+    } catch (error) {
+      console.error("Error creating default furniture:", error);
+    }
+  }
+
+  private async createDefaultFurniture(): Promise<void> {
     // Create a cozy living room setup
-    this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
-    this.addFurniture("coffee-table", "table", new THREE.Vector3(-3, 0, 1), 0);
-    this.addFurniture(
+    await this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
+    await this.addFurniture(
+      "coffee-table",
+      "table",
+      new THREE.Vector3(-3, 0, 1),
+      0,
+    );
+    await this.addFurniture(
       "bookshelf",
       "bookshelf",
       new THREE.Vector3(-9.5, 0, -5),
       Math.PI / 2,
     );
-    this.addFurniture("floor-lamp", "lamp", new THREE.Vector3(-7, 0, 4), 0);
-    this.addFurniture(
+    await this.addFurniture(
+      "floor-lamp",
+      "lamp",
+      new THREE.Vector3(-7, 0, 4),
+      0,
+    );
+    await this.addFurniture(
       "dining-table",
       "diningTable",
       new THREE.Vector3(4, 0, -3),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "chair-1",
       "chair",
       new THREE.Vector3(5, 0, -1.5),
       Math.PI,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "chair-2",
       "chair",
       new THREE.Vector3(3, 0, -1.5),
       Math.PI,
     );
-    this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
-    this.addFurniture("tv-stand", "tvStand", new THREE.Vector3(0, 0, -9.5), 0);
-    this.addFurniture(
+    await this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
+    await this.addFurniture(
+      "tv-stand",
+      "tvStand",
+      new THREE.Vector3(0, 0, -9.5),
+      0,
+    );
+    await this.addFurniture(
       "side-table",
       "sideTable",
       new THREE.Vector3(-8, 0, 1),
@@ -68,19 +93,19 @@ export class FurnitureManager {
     );
 
     // Wall furniture
-    this.addFurniture(
+    await this.addFurniture(
       "wall-shelf",
       "wallShelf",
       new THREE.Vector3(5, 5, -9.8),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "picture-frame",
       "pictureFrame",
       new THREE.Vector3(-3, 6, -9.8),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "wall-clock",
       "wallClock",
       new THREE.Vector3(3, 7, -9.8),
@@ -88,13 +113,13 @@ export class FurnitureManager {
     );
 
     // Lighting fixtures
-    this.addFurniture(
+    await this.addFurniture(
       "table-lamp",
       "tableLamp",
       new THREE.Vector3(-8, 1.2, 1),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "pendant-light",
       "pendantLight",
       new THREE.Vector3(4, 8, -3),
@@ -102,13 +127,13 @@ export class FurnitureManager {
     );
   }
 
-  private addFurniture(
+  private async addFurniture(
     id: string,
     type: string,
     position: THREE.Vector3,
     rotationY: number = 0,
-  ): void {
-    const furnitureObject = this.furnitureFactory.create(type);
+  ): Promise<void> {
+    const furnitureObject = await this.furnitureFactory.create(type);
 
     if (!furnitureObject) {
       console.warn(`Failed to create furniture of type: ${type}`);
@@ -302,10 +327,10 @@ export class FurnitureManager {
     return true;
   }
 
-  public addFurnitureFromInventory(
+  public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
-  ): boolean {
+  ): Promise<boolean> {
     // Check if furniture already exists
     if (this.furniture.has(id)) {
       console.warn(`Furniture with id ${id} already exists`);
@@ -338,8 +363,11 @@ export class FurnitureManager {
       type = typeMapping[type];
     }
 
+    // Get available types asynchronously
+    const availableTypes = await this.furnitureFactory.getAvailableTypes();
+
     // If still no match, try to infer from the full id
-    if (!this.furnitureFactory.getAvailableTypes().includes(type)) {
+    if (!availableTypes.includes(type)) {
       if (id.includes("sofa")) type = "sofa";
       else if (id.includes("lamp")) type = "lamp";
       else if (id.includes("table")) type = "table";
@@ -348,7 +376,7 @@ export class FurnitureManager {
     }
 
     // Create the furniture
-    this.addFurniture(id, type, position, 0);
+    await this.addFurniture(id, type, position, 0);
     return true;
   }
 
