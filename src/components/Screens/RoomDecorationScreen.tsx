@@ -14,6 +14,11 @@ import {
   RefreshCcw,
   Coins,
   DollarSign,
+  Upload,
+  Plus,
+  X,
+  Trash2,
+  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
