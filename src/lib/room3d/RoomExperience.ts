@@ -251,7 +251,67 @@ export class RoomExperience {
     return this.lighting.getAllLights();
   }
 
-  // Room geometry controls for admin
+  // Room geometry controls for admin - Individual controls
+
+  // Floor controls
+  public updateFloorWidth(newWidth: number): void {
+    this.world.updateFloorWidth(newWidth);
+  }
+
+  public updateFloorDepth(newDepth: number): void {
+    this.world.updateFloorDepth(newDepth);
+  }
+
+  public updateFloorThickness(newThickness: number): void {
+    this.world.updateFloorThickness(newThickness);
+  }
+
+  // Ceiling controls
+  public updateCeilingWidth(newWidth: number): void {
+    this.world.updateCeilingWidth(newWidth);
+  }
+
+  public updateCeilingDepth(newDepth: number): void {
+    this.world.updateCeilingDepth(newDepth);
+  }
+
+  public updateCeilingThickness(newThickness: number): void {
+    this.world.updateCeilingThickness(newThickness);
+  }
+
+  // Back wall controls
+  public updateBackWallWidth(newWidth: number): void {
+    this.world.updateBackWallWidth(newWidth);
+  }
+
+  public updateBackWallHeight(newHeight: number): void {
+    this.world.updateBackWallHeight(newHeight);
+  }
+
+  // Left wall controls
+  public updateLeftWallDepth(newDepth: number): void {
+    this.world.updateLeftWallDepth(newDepth);
+  }
+
+  public updateLeftWallHeight(newHeight: number): void {
+    this.world.updateLeftWallHeight(newHeight);
+  }
+
+  // Right wall controls
+  public updateRightWallDepth(newDepth: number): void {
+    this.world.updateRightWallDepth(newDepth);
+  }
+
+  public updateRightWallHeight(newHeight: number): void {
+    this.world.updateRightWallHeight(newHeight);
+  }
+
+  // Wall thickness (affects all walls)
+  public updateWallThickness(newThickness: number): void {
+    this.world.updateWallThickness(newThickness);
+  }
+
+  // Legacy methods for backward compatibility
   public updateRoomSize(newSize: number): void {
     this.world.updateRoomSize(newSize);
   }
@@ -260,24 +320,22 @@ export class RoomExperience {
     this.world.updateRoomHeight(newHeight);
   }
 
-  public updateWallThickness(newThickness: number): void {
-    this.world.updateWallThickness(newThickness);
-  }
-
-  public updateFloorThickness(newThickness: number): void {
-    this.world.updateFloorThickness(newThickness);
-  }
-
-  public updateCeilingThickness(newThickness: number): void {
-    this.world.updateCeilingThickness(newThickness);
-  }
-
   public getRoomDimensions(): {
     size: number;
     height: number;
     wallThickness: number;
     floorThickness: number;
     ceilingThickness: number;
+    floorWidth: number;
+    floorDepth: number;
+    ceilingWidth: number;
+    ceilingDepth: number;
+    backWallWidth: number;
+    backWallHeight: number;
+    leftWallDepth: number;
+    leftWallHeight: number;
+    rightWallDepth: number;
+    rightWallHeight: number;
   } {
     return this.world.getRoomDimensions();
   }
