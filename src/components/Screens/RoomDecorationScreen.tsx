@@ -69,6 +69,26 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   });
   const { user } = useAuthStore();
 
+  // Catalog items for sale
+  const catalogItems = [
+    {
+      id: "premium-sofa",
+      name: "Sofá Premium",
+      type: "furniture",
+      price: 500,
+      currency: "xenocoins",
+      description: "Um sofá luxuoso e confortável",
+    },
+    {
+      id: "crystal-lamp",
+      name: "Luminária de Cristal",
+      type: "furniture",
+      price: 25,
+      currency: "xenocash",
+      description: "Luminária elegante de cristal",
+    },
+  ];
+
   const navigationItems: NavigationItem[] = [
     { id: "globe", icon: <Globe size={20} />, label: "Explorar" },
     { id: "catalog", icon: <ShoppingCart size={20} />, label: "Catálogo" },
@@ -132,9 +152,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       case "globe":
         onNavigateBack();
         break;
-      case "store":
-        // TODO: Implement store navigation
-        console.log("Navigate to store");
+      case "catalog":
+        setShowCatalogModal(true);
         break;
       case "inventory":
         setShowInventoryModal(true);
@@ -340,7 +359,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              ��� Modo Decoração
+              🏠 Modo Decoração
             </span>
           </div>
 
@@ -1492,7 +1511,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           {/* Instructions */}
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 text-center">
-              🖱️ Clique com o bot��o direito nos móveis para guardá-los aqui
+              🖱️ Clique com o botão direito nos móveis para guardá-los aqui
               <br />
               🎨 Arraste do inventário para o quarto para colocar móveis
             </p>
