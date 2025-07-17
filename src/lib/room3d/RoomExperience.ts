@@ -441,6 +441,44 @@ export class RoomExperience {
     );
   }
 
+  // Convert screen coordinates to 3D world position using raycasting
+  public getWorldPositionFromScreen(
+    normalizedX: number,
+    normalizedY: number,
+  ): THREE.Vector3 | null {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(normalizedX, normalizedY);
+
+    raycaster.setFromCamera(mouse, this.camera);
+
+    // Create a plane at y=0 (floor level) to intersect with
+    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const intersectionPoint = new THREE.Vector3();
+
+    // Calculate intersection with floor plane
+    const intersection = raycaster.ray.intersectPlane(
+      floorPlane,
+      intersectionPoint,
+    );
+
+    if (intersection) {
+      // Constrain position to room bounds
+      const roomSize = 9; // Keep furniture within room bounds
+      const constrainedX = Math.max(
+        -roomSize,
+        Math.min(roomSize, intersection.x),
+      );
+      const constrainedZ = Math.max(
+        -roomSize,
+        Math.min(roomSize, intersection.z),
+      );
+
+      return new THREE.Vector3(constrainedX, 0, constrainedZ);
+    }
+
+    return null;
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
