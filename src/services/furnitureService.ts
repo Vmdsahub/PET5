@@ -98,22 +98,28 @@ export class FurnitureService {
       const thumbnailUrl = await this.generateThumbnail(file);
 
       // Create database record
+      const insertData = {
+        name: furnitureData.name,
+        description: furnitureData.description,
+        glb_url: publicUrl,
+        thumbnail_url: thumbnailUrl,
+        price: furnitureData.price || 10,
+        currency: furnitureData.currency || "xenocoins",
+        category: furnitureData.category || "admin",
+        tags: furnitureData.tags || [],
+        metadata: furnitureData.metadata || {},
+        created_by: (await supabase.auth.getUser()).data.user?.id,
+      };
+
+      console.log("Inserting furniture data:", insertData);
+
       const { data: furniture, error: dbError } = await supabase
         .from("custom_furniture")
-        .insert({
-          name: furnitureData.name,
-          description: furnitureData.description,
-          glb_url: publicUrl,
-          thumbnail_url: thumbnailUrl,
-          price: furnitureData.price || 10,
-          currency: furnitureData.currency || "xenocoins",
-          category: furnitureData.category || "admin",
-          tags: furnitureData.tags || [],
-          metadata: furnitureData.metadata || {},
-          created_by: (await supabase.auth.getUser()).data.user?.id,
-        })
+        .insert(insertData)
         .select()
         .single();
+
+      console.log("Database insert result:", { furniture, dbError });
 
       if (dbError) {
         console.error("Database error:", dbError);
