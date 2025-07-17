@@ -1793,18 +1793,29 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               {/* Upload Button */}
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-bold text-gray-800">
-                  Móveis GLB Customizados
+                  Móveis GLB Customizados ({customFurniture.length})
                 </h3>
-                <motion.button
-                  onClick={() => setShowUploadModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-semibold shadow-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Plus className="w-4 h-4" />
-                  <Upload className="w-4 h-4" />
-                  Adicionar GLB
-                </motion.button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      console.log("Force reload custom furniture...");
+                      loadCustomFurniture();
+                    }}
+                    className="px-3 py-1 bg-gray-500 text-white rounded text-sm"
+                  >
+                    Recarregar
+                  </button>
+                  <motion.button
+                    onClick={() => setShowUploadModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-semibold shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <Upload className="w-4 h-4" />
+                    Adicionar GLB
+                  </motion.button>
+                </div>
               </div>
 
               {/* Custom Furniture List */}
