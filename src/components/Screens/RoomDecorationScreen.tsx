@@ -249,6 +249,38 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     setContextMenu(null);
   };
 
+  const handlePurchase = (item: any) => {
+    // Check if player has enough currency
+    const hasEnoughCurrency =
+      item.currency === "xenocoins"
+        ? playerCurrency.xenocoins >= item.price
+        : playerCurrency.xenocash >= item.price;
+
+    if (!hasEnoughCurrency) {
+      alert(`Você não tem ${item.currency} suficiente!`);
+      return;
+    }
+
+    // Deduct currency
+    setPlayerCurrency((prev) => ({
+      ...prev,
+      [item.currency]: prev[item.currency as keyof typeof prev] - item.price,
+    }));
+
+    // Add to inventory
+    setInventory((prev) => [
+      ...prev,
+      {
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        thumbnail: "", // Will be generated when placed
+      },
+    ]);
+
+    alert(`${item.name} comprado com sucesso!`);
+  };
+
   const handleInventoryItemDrop = (
     item: any,
     dropPosition: { x: number; y: number },
