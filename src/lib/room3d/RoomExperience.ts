@@ -138,15 +138,19 @@ export class RoomExperience {
     this.controls.maxDistance = 25;
     this.controls.target.set(0, 2, 0);
 
-    // Desabilitar zoom nativo para implementar nosso próprio
-    this.controls.enableZoom = false;
+    // Configurações de zoom nativo otimizadas
+    this.controls.enableZoom = true;
+    this.controls.zoomSpeed = 0.7; // Velocidade moderada
     this.controls.enablePan = true;
     this.controls.panSpeed = 0.8;
     this.controls.rotateSpeed = 1.0;
+
+    // Configurações para suavidade
+    this.controls.zoomToCursor = false;
     this.controls.screenSpacePanning = false;
 
-    // Implementar zoom suave personalizado
-    this.setupSmoothZoom();
+    // Aumentar damping para mais suavidade
+    this.controls.dampingFactor = 0.12;
   }
 
   private setupSmoothZoom(): void {
