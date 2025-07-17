@@ -220,10 +220,22 @@ export class RoomExperience {
   }
 
   private updateSmoothZoom(): void {
-    // Interpolação suave entre distância atual e target
-    const lerpFactor = 0.08; // Fator de suavização
+    // Velocity-based smooth zoom com easing
+    const distanceDiff = this.targetDistance - this.currentDistance;
+
+    // Adicionar velocity baseada na diferença
+    this.zoomVelocity += distanceDiff * 0.015;
+
+    // Aplicar damping à velocity
+    this.zoomVelocity *= this.zoomDamping;
+
+    // Atualizar a distância atual
+    this.currentDistance += this.zoomVelocity;
+
+    // Easing quadrático para suavidade extra
+    const easingFactor = 0.15;
     this.currentDistance +=
-      (this.targetDistance - this.currentDistance) * lerpFactor;
+      (this.targetDistance - this.currentDistance) * easingFactor;
 
     // Aplicar a nova distância à câmera
     const direction = new THREE.Vector3()
