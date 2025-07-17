@@ -208,10 +208,31 @@ export class RoomExperience {
         (this as any).skyboxMaterial.uniforms.time.value += 0.01;
       }
 
+      // Smooth zoom interpolation
+      this.updateSmoothZoom();
+
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
     };
     animate();
+  }
+
+  private updateSmoothZoom(): void {
+    // Interpolação suave entre distância atual e target
+    const lerpFactor = 0.08; // Fator de suavização
+    this.currentDistance +=
+      (this.targetDistance - this.currentDistance) * lerpFactor;
+
+    // Aplicar a nova distância à câmera
+    const direction = new THREE.Vector3()
+      .subVectors(this.camera.position, this.controls.target)
+      .normalize();
+
+    this.camera.position.copy(
+      this.controls.target
+        .clone()
+        .add(direction.multiplyScalar(this.currentDistance)),
+    );
   }
 
   private handleResize(): void {
