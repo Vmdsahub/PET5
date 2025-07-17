@@ -165,4 +165,49 @@ export default class SimpleRoom {
       });
     }
   }
+
+  updateRoomGeometry() {
+    const { roomWidth, roomDepth, roomHeight } = this.geometryParams;
+
+    // Update floor
+    this.room.floor.geometry.dispose();
+    this.room.floor.geometry = new THREE.PlaneGeometry(roomWidth, roomDepth);
+    this.room.floor.mesh.geometry = this.room.floor.geometry;
+
+    // Update back wall
+    this.room.backWall.geometry.dispose();
+    this.room.backWall.geometry = new THREE.PlaneGeometry(
+      roomWidth,
+      roomHeight,
+    );
+    this.room.backWall.mesh.geometry = this.room.backWall.geometry;
+    this.room.backWall.mesh.position.z = -roomDepth / 2;
+    this.room.backWall.mesh.position.y = roomHeight / 2;
+
+    // Update left wall
+    this.room.leftWall.geometry.dispose();
+    this.room.leftWall.geometry = new THREE.PlaneGeometry(
+      roomDepth,
+      roomHeight,
+    );
+    this.room.leftWall.mesh.geometry = this.room.leftWall.geometry;
+    this.room.leftWall.mesh.position.x = -roomWidth / 2;
+    this.room.leftWall.mesh.position.y = roomHeight / 2;
+
+    // Update right wall
+    this.room.rightWall.geometry.dispose();
+    this.room.rightWall.geometry = new THREE.PlaneGeometry(
+      roomDepth,
+      roomHeight,
+    );
+    this.room.rightWall.mesh.geometry = this.room.rightWall.geometry;
+    this.room.rightWall.mesh.position.x = roomWidth / 2;
+    this.room.rightWall.mesh.position.y = roomHeight / 2;
+
+    // Update ceiling
+    this.room.ceiling.geometry.dispose();
+    this.room.ceiling.geometry = new THREE.PlaneGeometry(roomWidth, roomDepth);
+    this.room.ceiling.mesh.geometry = this.room.ceiling.geometry;
+    this.room.ceiling.mesh.position.y = roomHeight;
+  }
 }
