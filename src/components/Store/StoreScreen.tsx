@@ -50,6 +50,7 @@ export const StoreScreen: React.FC = () => {
     xenocoins,
     cash,
     addNotification,
+    setCurrentScreen,
   } = useGameStore();
 
   const stores = getAllStores();
