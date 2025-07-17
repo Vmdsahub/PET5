@@ -484,6 +484,172 @@ export const AdminPanel: React.FC = () => {
     </div>
   );
 
+  const renderFurnitureTab = () => (
+    <div className="space-y-6">
+      {/* Header with Upload Button */}
+      <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">
+              Móveis Customizados
+            </h3>
+            <p className="text-gray-600">Gerencie móveis GLB para o catálogo</p>
+          </div>
+          <motion.button
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all font-semibold shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Upload className="w-5 h-5" />
+            <span>Upload GLB</span>
+          </motion.button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <p className="text-2xl font-bold text-blue-800">
+              {customFurniture.length}
+            </p>
+            <p className="text-xs text-blue-600">Total de Móveis</p>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-xl border border-green-200">
+            <p className="text-2xl font-bold text-green-800">
+              {customFurniture.filter((f) => f.is_active).length}
+            </p>
+            <p className="text-xs text-green-600">Móveis Ativos</p>
+          </div>
+          <div className="text-center p-3 bg-purple-50 rounded-xl border border-purple-200">
+            <p className="text-2xl font-bold text-purple-800">
+              {customFurniture.filter((f) => f.category === "admin").length}
+            </p>
+            <p className="text-xs text-purple-600">Catálogo Admin</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Furniture List */}
+      <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+        <h4 className="text-lg font-bold text-gray-900 mb-4">
+          Todos os Móveis
+        </h4>
+
+        {customFurniture.length === 0 ? (
+          <div className="text-center py-8">
+            <Sofa className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600">Nenhum móvel adicionado ainda.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {customFurniture.map((furniture, index) => (
+              <motion.div
+                key={furniture.id}
+                className={`p-4 rounded-2xl border-2 transition-all ${
+                  furniture.is_active
+                    ? "border-green-300 bg-green-50"
+                    : "border-gray-300 bg-gray-50"
+                }`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h5 className="font-bold text-gray-900 text-lg">
+                        {furniture.name}
+                      </h5>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          furniture.is_active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {furniture.is_active ? "Ativo" : "Inativo"}
+                      </span>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                        {furniture.category}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-2">
+                      {furniture.description}
+                    </p>
+
+                    {/* Tags */}
+                    {furniture.tags && furniture.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {furniture.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <motion.button
+                      onClick={() => window.open(furniture.glb_url, "_blank")}
+                      className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title="Ver GLB"
+                    >
+                      <Package className="w-4 h-4 text-blue-600" />
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleDeleteFurniture(furniture.id)}
+                      className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">Preço:</span>
+                    <div className="flex items-center space-x-1">
+                      {furniture.currency === "xenocoins" ? (
+                        <img
+                          src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                          alt="Xenocoins"
+                          className="w-5 h-5"
+                        />
+                      ) : (
+                        <img
+                          src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
+                          alt="Xenocash"
+                          className="w-5 h-5"
+                        />
+                      )}
+                      <span className="font-bold">{furniture.price}</span>
+                      <span className="text-gray-600">
+                        {furniture.currency}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-gray-600">
+                    Criado:{" "}
+                    {new Date(furniture.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-md mx-auto space-y-6">
       {/* Header */}
