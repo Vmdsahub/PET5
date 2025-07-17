@@ -36,6 +36,19 @@ export const AdminCatalogStore: React.FC = () => {
   );
   const [loading, setLoading] = useState(true);
 
+  // Admin upload functionality
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadData, setUploadData] = useState({
+    name: "",
+    description: "",
+    price: 10,
+    currency: "xenocoins" as "xenocoins" | "cash",
+    category: "admin" as "admin" | "premium" | "seasonal",
+    tags: [] as string[],
+  });
+  const [isUploading, setIsUploading] = useState(false);
+
   const { user, xenocoins, addNotification, updateCurrency } = useGameStore();
 
   useEffect(() => {
