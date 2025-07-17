@@ -1645,6 +1645,34 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         zIndex={100}
       >
         <div className="p-6 h-full bg-white">
+          {/* Tabs */}
+          <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setCatalogTab("store")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${
+                catalogTab === "store"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Loja
+            </button>
+            {user?.isAdmin && (
+              <button
+                onClick={() => setCatalogTab("admin")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-medium transition-all ${
+                  catalogTab === "admin"
+                    ? "bg-white text-purple-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                }`}
+              >
+                <Crown className="w-4 h-4" />
+                Admin GLB
+              </button>
+            )}
+          </div>
+
           {/* Currency Display */}
           <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
             <div className="flex items-center gap-2">
