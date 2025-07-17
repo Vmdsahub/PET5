@@ -13,9 +13,6 @@ import {
   Ticket,
   Copy,
   Calendar,
-  Upload,
-  Sofa,
-  Image,
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { RedeemCode } from "../../types/game";
