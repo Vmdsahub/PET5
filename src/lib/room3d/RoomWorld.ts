@@ -80,9 +80,9 @@ export class RoomWorld {
 
   private createFloor(): void {
     const floorGeometry = new THREE.BoxGeometry(
-      this.roomSize,
+      this.floorWidth,
       this.floorThickness,
-      this.roomSize,
+      this.floorDepth,
     );
     const floor = new THREE.Mesh(floorGeometry, this.materials.floor);
 
