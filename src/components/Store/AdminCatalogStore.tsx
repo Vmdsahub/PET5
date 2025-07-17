@@ -325,6 +325,36 @@ export const AdminCatalogStore: React.FC = () => {
                     <div className="text-right">
                       <div className="w-3 h-3 rounded-full bg-green-400 mb-2"></div>
                       <span className="text-xs font-medium">Disponível</span>
+
+                      {/* Admin Controls */}
+                      {user?.isAdmin && (
+                        <div className="flex items-center space-x-1 mt-2">
+                          <motion.button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteFurniture(furniture.id);
+                            }}
+                            className="p-1 hover:bg-red-100 rounded transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Deletar móvel"
+                          >
+                            <X className="w-3 h-3 text-red-600" />
+                          </motion.button>
+                          <motion.button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(furniture.glb_url, "_blank");
+                            }}
+                            className="p-1 hover:bg-blue-100 rounded transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Ver arquivo GLB"
+                          >
+                            <Package className="w-3 h-3 text-blue-600" />
+                          </motion.button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
