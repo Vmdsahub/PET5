@@ -117,13 +117,13 @@ export class FurnitureManager {
     );
   }
 
-  private addFurniture(
+  private async addFurniture(
     id: string,
     type: string,
     position: THREE.Vector3,
     rotationY: number = 0,
-  ): void {
-    const furnitureObject = this.furnitureFactory.create(type);
+  ): Promise<void> {
+    const furnitureObject = await this.furnitureFactory.create(type);
 
     if (!furnitureObject) {
       console.warn(`Failed to create furniture of type: ${type}`);
