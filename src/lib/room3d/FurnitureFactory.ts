@@ -73,6 +73,25 @@ export class FurnitureFactory {
     };
   }
 
+  public getAvailableTypes(): string[] {
+    return [
+      "sofa",
+      "table",
+      "diningTable",
+      "chair",
+      "bookshelf",
+      "lamp",
+      "tableLamp",
+      "plant",
+      "tvStand",
+      "sideTable",
+      "wallShelf",
+      "pictureFrame",
+      "wallClock",
+      "pendantLight",
+    ];
+  }
+
   public create(type: string): THREE.Object3D | null {
     switch (type) {
       case "sofa":
