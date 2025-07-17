@@ -265,4 +265,70 @@ export class FurnitureManager {
   public getFurnitureGroup(): THREE.Group {
     return this.furnitureGroup;
   }
+
+  // Inventory management methods
+  public removeFurniture(id: string): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Remove from scene
+    this.furnitureGroup.remove(item.object);
+
+    // Dispose of geometry and materials to free memory
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((mat) => mat.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      }
+    });
+
+    // Remove from furniture map
+    this.furniture.delete(id);
+    return true;
+  }
+
+  public addFurnitureFromInventory(
+    id: string,
+    position: THREE.Vector3,
+  ): boolean {
+    // Check if furniture already exists
+    if (this.furniture.has(id)) {
+      console.warn(`Furniture with id ${id} already exists`);
+      return false;
+    }
+
+    // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
+    let type = id.split("-")[0]; // Get first part of hyphenated id
+
+    // Map some common ids to furniture types
+    const typeMapping: { [key: string]: string } = {
+      coffee: "table",
+      dining: "diningTable",
+      side: "sideTable",
+      floor: "lamp",
+      table: "tableLamp",
+      pendant: "pendantLight",
+      picture: "pictureFrame",
+      wall: id.includes("shelf")
+        ? "wallShelf"
+        : id.includes("clock")
+          ? "wallClock"
+          : "wall",
+      tv: "tvStand",
+    };
+
+    if (typeMapping[type]) {
+      type = typeMapping[type];
+    }
+
+    // Create the furniture
+    this.addFurniture(id, type, position, 0);
+    return true;
+  }
 }
