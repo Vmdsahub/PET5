@@ -137,25 +137,42 @@ export class RoomExperience {
   private initControls(): void {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
+    this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI / 2.2;
     this.controls.minDistance = 5;
     this.controls.maxDistance = 25;
     this.controls.target.set(0, 2, 0);
 
-    // Configurações suaves para todos os controles
-    this.controls.enableZoom = true;
-    this.controls.zoomSpeed = 0.3; // Zoom mais lento e suave
+    // Desabilitar zoom nativo para implementar nosso próprio
+    this.controls.enableZoom = false;
     this.controls.enablePan = true;
     this.controls.panSpeed = 0.8;
     this.controls.rotateSpeed = 1.0;
-
-    // Configurações para suavidade máxima
-    this.controls.zoomToCursor = false;
     this.controls.screenSpacePanning = false;
 
-    // Damping factor maior para zoom mais suave
-    this.controls.dampingFactor = 0.15;
+    // Implementar zoom suave personalizado
+    this.setupSmoothZoom();
+  }
+
+  private setupSmoothZoom(): void {
+    // Inicializar distância
+    this.targetDistance = this.camera.position.distanceTo(this.controls.target);
+    this.currentDistance = this.targetDistance;
+
+    // Interceptar eventos de wheel para zoom suave
+    this.renderer.domElement.addEventListener(
+      "wheel",
+      (event) => {
+        event.preventDefault();
+
+        const delta = event.deltaY;
+        const zoomFactor = delta > 0 ? 1.08 : 0.92;
+
+        this.targetDistance *= zoomFactor;
+        this.targetDistance = Math.max(5, Math.min(25, this.targetDistance));
+      },
+      { passive: false },
+    );
   }
 
   private initWorld(): void {
