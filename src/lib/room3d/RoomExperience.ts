@@ -8,6 +8,10 @@ import { InteractionManager } from "./InteractionManager";
 interface RoomExperienceOptions {
   targetElement: HTMLElement;
   onObjectSelect?: (objectId: string | null) => void;
+  onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
   editMode?: boolean;
 }
 
@@ -23,10 +27,15 @@ export class RoomExperience {
   private targetElement: HTMLElement;
   private animationId: number | null = null;
   private onObjectSelect?: (objectId: string | null) => void;
+  private onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
 
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
     this.onObjectSelect = options.onObjectSelect;
+    this.onRightClickFurniture = options.onRightClickFurniture;
 
     this.initScene();
     this.initCamera();
@@ -179,6 +188,7 @@ export class RoomExperience {
       this.renderer.domElement,
       {
         onObjectSelect: this.onObjectSelect,
+        onRightClickFurniture: this.onRightClickFurniture,
         furnitureManager: this.furnitureManager,
       },
     );
