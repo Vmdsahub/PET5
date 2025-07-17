@@ -261,12 +261,30 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           }}
         >
           <div className="flex items-center gap-3 mb-4">
+            <Settings size={20} className="text-blue-400" />
+            <span className="text-white font-bold">🔧 Admin Controls</span>
+          </div>
+
+          <div className="flex gap-2 mb-4">
             <button
               onClick={() => setShowLightingPanel(!showLightingPanel)}
-              className="flex items-center gap-2 text-white font-bold"
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                showLightingPanel
+                  ? "bg-blue-500 text-white shadow-lg"
+                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              }`}
             >
-              <Settings size={20} className="text-blue-400" />
-              <span>🔧 Admin Controls</span>
+              💡 Iluminação
+            </button>
+            <button
+              onClick={() => setShowGeometryPanel(!showGeometryPanel)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                showGeometryPanel
+                  ? "bg-purple-500 text-white shadow-lg"
+                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              }`}
+            >
+              🏗️ Geometria
             </button>
           </div>
 
@@ -391,77 +409,441 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-4 w-80"
             >
-              {/* Room Size Control */}
+              {/* Floor Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-green-400" />
+                  <span className="text-white font-medium">🟫 Piso</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Floor Width */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Largura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.floorWidth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateFloorWidth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              floorWidth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.floorWidth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Floor Depth */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Profundidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.floorDepth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateFloorDepth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              floorDepth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.floorDepth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Floor Thickness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Espessura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1"
+                        step="0.05"
+                        defaultValue={roomDimensions.floorThickness || 0.2}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateFloorThickness(
+                              parseFloat(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              floorThickness: parseFloat(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(roomDimensions.floorThickness || 0.2).toFixed(2)}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ceiling Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-blue-400" />
+                  <span className="text-white font-medium">⬜ Teto</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Ceiling Width */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Largura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.ceilingWidth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateCeilingWidth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              ceilingWidth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.ceilingWidth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ceiling Depth */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Profundidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.ceilingDepth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateCeilingDepth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              ceilingDepth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.ceilingDepth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ceiling Thickness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Espessura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1"
+                        step="0.05"
+                        defaultValue={roomDimensions.ceilingThickness || 0.2}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateCeilingThickness(
+                              parseFloat(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              ceilingThickness: parseFloat(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(roomDimensions.ceilingThickness || 0.2).toFixed(2)}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Back Wall Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-orange-400" />
+                  <span className="text-white font-medium">
+                    🧱 Parede Traseira
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Back Wall Width */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Largura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.backWallWidth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateBackWallWidth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              backWallWidth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.backWallWidth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Back Wall Height */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Altura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="3"
+                        max="20"
+                        step="0.5"
+                        defaultValue={roomDimensions.backWallHeight || 10}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateBackWallHeight(
+                              parseFloat(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              backWallHeight: parseFloat(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.backWallHeight || 10}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Left Wall Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-red-400" />
+                  <span className="text-white font-medium">
+                    🧱 Parede Esquerda
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Left Wall Depth */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Profundidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.leftWallDepth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLeftWallDepth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              leftWallDepth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.leftWallDepth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Left Wall Height */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Altura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="3"
+                        max="20"
+                        step="0.5"
+                        defaultValue={roomDimensions.leftWallHeight || 10}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLeftWallHeight(
+                              parseFloat(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              leftWallHeight: parseFloat(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.leftWallHeight || 10}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Wall Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-yellow-400" />
+                  <span className="text-white font-medium">
+                    🧱 Parede Direita
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Right Wall Depth */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Profundidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        step="1"
+                        defaultValue={roomDimensions.rightWallDepth || 20}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateRightWallDepth(
+                              parseInt(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              rightWallDepth: parseInt(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.rightWallDepth || 20}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right Wall Height */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Altura
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="3"
+                        max="20"
+                        step="0.5"
+                        defaultValue={roomDimensions.rightWallHeight || 10}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateRightWallHeight(
+                              parseFloat(e.target.value),
+                            );
+                            setRoomDimensions((prev) => ({
+                              ...prev,
+                              rightWallHeight: parseFloat(e.target.value),
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {roomDimensions.rightWallHeight || 10}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wall Thickness Control (Global) */}
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-purple-400" />
                   <span className="text-white font-medium">
-                    Room Size (Width/Length)
+                    📏 Espessura das Paredes
                   </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="5"
-                    max="50"
-                    step="1"
-                    defaultValue={roomDimensions.size || 20}
-                    onChange={(e) => {
-                      if (experienceRef.current) {
-                        experienceRef.current.updateRoomSize(
-                          parseInt(e.target.value),
-                        );
-                        setRoomDimensions((prev) => ({
-                          ...prev,
-                          size: parseInt(e.target.value),
-                        }));
-                      }
-                    }}
-                    className="flex-1 slider"
-                  />
-                  <span className="text-slate-300 text-sm min-w-[3rem]">
-                    {roomDimensions.size || 20}m
-                  </span>
-                </div>
-              </div>
-
-              {/* Room Height Control */}
-              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
-                <div className="flex items-center gap-2 mb-3">
-                  <Settings size={16} className="text-purple-400" />
-                  <span className="text-white font-medium">Room Height</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="3"
-                    max="20"
-                    step="0.5"
-                    defaultValue={roomDimensions.height || 10}
-                    onChange={(e) => {
-                      if (experienceRef.current) {
-                        experienceRef.current.updateRoomHeight(
-                          parseFloat(e.target.value),
-                        );
-                        setRoomDimensions((prev) => ({
-                          ...prev,
-                          height: parseFloat(e.target.value),
-                        }));
-                      }
-                    }}
-                    className="flex-1 slider"
-                  />
-                  <span className="text-slate-300 text-sm min-w-[3rem]">
-                    {roomDimensions.height || 10}m
-                  </span>
-                </div>
-              </div>
-
-              {/* Wall Thickness Control */}
-              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
-                <div className="flex items-center gap-2 mb-3">
-                  <Settings size={16} className="text-purple-400" />
-                  <span className="text-white font-medium">Wall Thickness</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <input
@@ -485,74 +867,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   />
                   <span className="text-slate-300 text-sm min-w-[3rem]">
                     {(roomDimensions.wallThickness || 0.2).toFixed(2)}m
-                  </span>
-                </div>
-              </div>
-
-              {/* Floor Thickness Control */}
-              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
-                <div className="flex items-center gap-2 mb-3">
-                  <Settings size={16} className="text-purple-400" />
-                  <span className="text-white font-medium">
-                    Floor Thickness
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="0.1"
-                    max="1"
-                    step="0.05"
-                    defaultValue={roomDimensions.floorThickness || 0.2}
-                    onChange={(e) => {
-                      if (experienceRef.current) {
-                        experienceRef.current.updateFloorThickness(
-                          parseFloat(e.target.value),
-                        );
-                        setRoomDimensions((prev) => ({
-                          ...prev,
-                          floorThickness: parseFloat(e.target.value),
-                        }));
-                      }
-                    }}
-                    className="flex-1 slider"
-                  />
-                  <span className="text-slate-300 text-sm min-w-[3rem]">
-                    {(roomDimensions.floorThickness || 0.2).toFixed(2)}m
-                  </span>
-                </div>
-              </div>
-
-              {/* Ceiling Thickness Control */}
-              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
-                <div className="flex items-center gap-2 mb-3">
-                  <Settings size={16} className="text-purple-400" />
-                  <span className="text-white font-medium">
-                    Ceiling Thickness
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="0.1"
-                    max="1"
-                    step="0.05"
-                    defaultValue={roomDimensions.ceilingThickness || 0.2}
-                    onChange={(e) => {
-                      if (experienceRef.current) {
-                        experienceRef.current.updateCeilingThickness(
-                          parseFloat(e.target.value),
-                        );
-                        setRoomDimensions((prev) => ({
-                          ...prev,
-                          ceilingThickness: parseFloat(e.target.value),
-                        }));
-                      }
-                    }}
-                    className="flex-1 slider"
-                  />
-                  <span className="text-slate-300 text-sm min-w-[3rem]">
-                    {(roomDimensions.ceilingThickness || 0.2).toFixed(2)}m
                   </span>
                 </div>
               </div>
