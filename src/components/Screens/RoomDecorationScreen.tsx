@@ -1480,6 +1480,113 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         </motion.div>
       )}
 
+      {/* Catalog Modal */}
+      <DraggableModal
+        isOpen={showCatalogModal}
+        onClose={() => setShowCatalogModal(false)}
+        title="Catálogo de Móveis"
+        modalId="catalog"
+        width={600}
+        height={700}
+        zIndex={100}
+      >
+        <div className="p-6 h-full bg-white">
+          {/* Currency Display */}
+          <div className="flex justify-between items-center mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+            <div className="flex items-center gap-2">
+              <Coins size={20} className="text-yellow-500" />
+              <span className="font-bold text-gray-700">
+                {playerCurrency.xenocoins} Xenocoins
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign size={20} className="text-green-500" />
+              <span className="font-bold text-gray-700">
+                {playerCurrency.xenocash} Xenocash
+              </span>
+            </div>
+          </div>
+
+          {/* Catalog Items */}
+          <div className="space-y-4 overflow-y-auto h-full">
+            {catalogItems.map((item) => (
+              <motion.div
+                key={item.id}
+                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800 text-lg">
+                      {item.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-2">
+                      {item.description}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      {item.currency === "xenocoins" ? (
+                        <Coins size={16} className="text-yellow-500" />
+                      ) : (
+                        <DollarSign size={16} className="text-green-500" />
+                      )}
+                      <span className="font-bold text-gray-700">
+                        {item.price}{" "}
+                        {item.currency === "xenocoins"
+                          ? "Xenocoins"
+                          : "Xenocash"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="ml-4">
+                    <motion.button
+                      onClick={() => handlePurchase(item)}
+                      className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                        (item.currency === "xenocoins"
+                          ? playerCurrency.xenocoins
+                          : playerCurrency.xenocash) >= item.price
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
+                      whileHover={
+                        (item.currency === "xenocoins"
+                          ? playerCurrency.xenocoins
+                          : playerCurrency.xenocash) >= item.price
+                          ? { scale: 1.05 }
+                          : {}
+                      }
+                      whileTap={
+                        (item.currency === "xenocoins"
+                          ? playerCurrency.xenocoins
+                          : playerCurrency.xenocash) >= item.price
+                          ? { scale: 0.95 }
+                          : {}
+                      }
+                      disabled={
+                        (item.currency === "xenocoins"
+                          ? playerCurrency.xenocoins
+                          : playerCurrency.xenocash) < item.price
+                      }
+                    >
+                      🛍️ Comprar
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Instructions */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 text-center">
+              🏠 Móveis comprados vão automaticamente para o inventário
+              <br />
+              💰 Ganhe Xenocoins e Xenocash explorando o jogo!
+            </p>
+          </div>
+        </div>
+      </DraggableModal>
+
       {/* Inventory Modal */}
       <DraggableModal
         isOpen={showInventoryModal}
