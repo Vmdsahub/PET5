@@ -281,6 +281,12 @@ export const AdminPanel: React.FC = () => {
       icon: Ticket,
       count: allCodes.length,
     },
+    {
+      id: "furniture",
+      name: "Móveis GLB",
+      icon: Sofa,
+      count: customFurniture.length,
+    },
     { id: "users", name: "Usuários", icon: Users, count: 0 },
     { id: "items", name: "Itens", icon: Package, count: 0 },
     { id: "achievements", name: "Conquistas", icon: Trophy, count: 0 },
