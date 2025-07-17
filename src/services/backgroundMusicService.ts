@@ -56,15 +56,7 @@ class BackgroundMusicService {
           "https://images.pexels.com/photos/3694341/pexels-photo-3694341.jpeg",
       },
     ],
-    "planet-2": [
-      {
-        id: "galaxy-5",
-        name: "Ocean World",
-        path: "/sounds/galaxy-music-5.mp3",
-        coverImage:
-          "https://images.pexels.com/photos/47480/pexels-photo-47480.jpeg",
-      },
-    ],
+
     "planet-3": [
       {
         id: "galaxy-6",
