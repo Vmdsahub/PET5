@@ -137,6 +137,13 @@ export class RoomExperience {
     this.controls.minDistance = 5;
     this.controls.maxDistance = 25;
     this.controls.target.set(0, 2, 0);
+
+    // Suavizar zoom
+    this.controls.enableZoom = true;
+    this.controls.zoomSpeed = 0.5;
+    this.controls.enablePan = true;
+    this.controls.panSpeed = 0.5;
+    this.controls.rotateSpeed = 0.5;
   }
 
   private initWorld(): void {
