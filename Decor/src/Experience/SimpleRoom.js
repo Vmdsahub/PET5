@@ -40,6 +40,13 @@ export default class SimpleRoom {
       metalness: 0.05,
     });
 
+    // Ceiling material (separate from walls)
+    this.room.materials.ceiling = new THREE.MeshStandardMaterial({
+      color: "#F5F5F5",
+      roughness: 0.85,
+      metalness: 0.02,
+    });
+
     // Initialize geometry parameters
     this.geometryParams = {
       roomWidth: 20,
@@ -114,7 +121,7 @@ export default class SimpleRoom {
     );
     this.room.ceiling.mesh = new THREE.Mesh(
       this.room.ceiling.geometry,
-      this.room.materials.wall,
+      this.room.materials.ceiling,
     );
     this.room.ceiling.mesh.rotation.x = Math.PI * 0.5;
     this.room.ceiling.mesh.position.y = this.geometryParams.roomHeight;
@@ -173,8 +180,38 @@ export default class SimpleRoom {
         max: 1,
       });
 
+      materialFolder.addInput(this.room.materials.floor, "metalness", {
+        label: "Floor Metalness",
+        min: 0,
+        max: 1,
+      });
+
       materialFolder.addInput(this.room.materials.wall, "roughness", {
         label: "Wall Roughness",
+        min: 0,
+        max: 1,
+      });
+
+      materialFolder.addInput(this.room.materials.wall, "metalness", {
+        label: "Wall Metalness",
+        min: 0,
+        max: 1,
+      });
+
+      // Ceiling material controls
+      materialFolder.addInput(this.room.materials.ceiling, "color", {
+        view: "color",
+        label: "Ceiling Color",
+      });
+
+      materialFolder.addInput(this.room.materials.ceiling, "roughness", {
+        label: "Ceiling Roughness",
+        min: 0,
+        max: 1,
+      });
+
+      materialFolder.addInput(this.room.materials.ceiling, "metalness", {
+        label: "Ceiling Metalness",
         min: 0,
         max: 1,
       });
@@ -224,5 +261,38 @@ export default class SimpleRoom {
     this.room.ceiling.geometry = new THREE.PlaneGeometry(roomWidth, roomDepth);
     this.room.ceiling.mesh.geometry = this.room.ceiling.geometry;
     this.room.ceiling.mesh.position.y = roomHeight;
+  }
+
+  // Admin methods for material control
+  updateFloorMaterial(properties) {
+    Object.assign(this.room.materials.floor, properties);
+  }
+
+  updateWallMaterial(properties) {
+    Object.assign(this.room.materials.wall, properties);
+  }
+
+  updateCeilingMaterial(properties) {
+    Object.assign(this.room.materials.ceiling, properties);
+  }
+
+  getMaterialProperties() {
+    return {
+      floor: {
+        color: this.room.materials.floor.color.getHexString(),
+        roughness: this.room.materials.floor.roughness,
+        metalness: this.room.materials.floor.metalness,
+      },
+      wall: {
+        color: this.room.materials.wall.color.getHexString(),
+        roughness: this.room.materials.wall.roughness,
+        metalness: this.room.materials.wall.metalness,
+      },
+      ceiling: {
+        color: this.room.materials.ceiling.color.getHexString(),
+        roughness: this.room.materials.ceiling.roughness,
+        metalness: this.room.materials.ceiling.metalness,
+      },
+    };
   }
 }

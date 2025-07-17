@@ -8,6 +8,10 @@ import { InteractionManager } from "./InteractionManager";
 interface RoomExperienceOptions {
   targetElement: HTMLElement;
   onObjectSelect?: (objectId: string | null) => void;
+  onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
   editMode?: boolean;
 }
 
@@ -23,10 +27,15 @@ export class RoomExperience {
   private targetElement: HTMLElement;
   private animationId: number | null = null;
   private onObjectSelect?: (objectId: string | null) => void;
+  private onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
 
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
     this.onObjectSelect = options.onObjectSelect;
+    this.onRightClickFurniture = options.onRightClickFurniture;
 
     this.initScene();
     this.initCamera();
@@ -179,6 +188,7 @@ export class RoomExperience {
       this.renderer.domElement,
       {
         onObjectSelect: this.onObjectSelect,
+        onRightClickFurniture: this.onRightClickFurniture,
         furnitureManager: this.furnitureManager,
       },
     );
@@ -359,6 +369,213 @@ export class RoomExperience {
     rightWallHeight: number;
   } {
     return this.world.getRoomDimensions();
+  }
+
+  // Material property controls for admin
+  public updateFloorMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateFloorMaterial(properties);
+  }
+
+  public updateWallMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateWallMaterial(properties);
+  }
+
+  public updateCeilingMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateCeilingMaterial(properties);
+  }
+
+  public updateBaseboardMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateBaseboardMaterial(properties);
+  }
+
+  public getMaterialProperties(): {
+    floor: { color: string; roughness: number; metalness: number };
+    wall: { color: string; roughness: number; metalness: number };
+    ceiling: { color: string; roughness: number; metalness: number };
+    baseboard: { color: string; roughness: number; metalness: number };
+  } {
+    return this.world.getMaterialProperties();
+  }
+
+  // Reset methods for admin controls
+  public resetLightingToDefaults(): void {
+    this.lighting.resetToDefaults();
+  }
+
+  public resetGeometryToDefaults(): void {
+    this.world.resetGeometryToDefaults();
+  }
+
+  public resetMaterialsToDefaults(): void {
+    this.world.resetMaterialsToDefaults();
+  }
+
+  // Furniture management methods
+  public removeFurniture(objectId: string): void {
+    this.furnitureManager.removeFurniture(objectId);
+  }
+
+  public addFurnitureFromInventory(
+    objectId: string,
+    position: { x: number; y: number; z: number },
+  ): void {
+    this.furnitureManager.addFurnitureFromInventory(
+      objectId,
+      new THREE.Vector3(position.x, position.y, position.z),
+    );
+  }
+
+  // Convert screen coordinates to 3D world position using raycasting
+  public getWorldPositionFromScreen(
+    normalizedX: number,
+    normalizedY: number,
+  ): THREE.Vector3 | null {
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(normalizedX, normalizedY);
+
+    raycaster.setFromCamera(mouse, this.camera);
+
+    // Create a plane at y=0 (floor level) to intersect with
+    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const intersectionPoint = new THREE.Vector3();
+
+    // Calculate intersection with floor plane
+    const intersection = raycaster.ray.intersectPlane(
+      floorPlane,
+      intersectionPoint,
+    );
+
+    if (intersection) {
+      // Constrain position to room bounds
+      const roomSize = 9; // Keep furniture within room bounds
+      const constrainedX = Math.max(
+        -roomSize,
+        Math.min(roomSize, intersection.x),
+      );
+      const constrainedZ = Math.max(
+        -roomSize,
+        Math.min(roomSize, intersection.z),
+      );
+
+      return new THREE.Vector3(constrainedX, 0, constrainedZ);
+    }
+
+    return null;
+  }
+
+  // Generate thumbnail image for furniture
+  public generateThumbnail(objectId: string): string {
+    const furniture = this.furnitureManager.getFurnitureById(objectId);
+    if (!furniture) return "";
+
+    // Create a temporary scene for thumbnail rendering
+    const thumbScene = new THREE.Scene();
+    thumbScene.background = new THREE.Color(0xf0f0f0); // Light gray background
+    const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+
+    // Clone the furniture object for thumbnail
+    const clonedObject = furniture.object.clone();
+    thumbScene.add(clonedObject);
+
+    // Add bright lighting for thumbnail
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+    light1.position.set(2, 3, 2);
+    thumbScene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0xffffff, 1);
+    light2.position.set(-2, 2, -1);
+    thumbScene.add(light2);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    thumbScene.add(ambientLight);
+
+    // Position camera to frame the object
+    const box = new THREE.Box3().setFromObject(clonedObject);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    thumbCamera.position.set(
+      center.x + maxDim * 1.2,
+      center.y + maxDim * 0.8,
+      center.z + maxDim * 1.2,
+    );
+    thumbCamera.lookAt(center);
+
+    // Create render target for thumbnail
+    const renderTarget = new THREE.WebGLRenderTarget(128, 128, {
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+    });
+
+    // Render thumbnail
+    this.renderer.setRenderTarget(renderTarget);
+    this.renderer.render(thumbScene, thumbCamera);
+    this.renderer.setRenderTarget(null);
+
+    // Get image data
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext("2d");
+
+    if (context) {
+      const imageData = new Uint8Array(128 * 128 * 4);
+      this.renderer.readRenderTargetPixels(
+        renderTarget,
+        0,
+        0,
+        128,
+        128,
+        imageData,
+      );
+
+      // Create ImageData and flip vertically (WebGL coordinates are flipped)
+      const imgData = context.createImageData(128, 128);
+      for (let y = 0; y < 128; y++) {
+        for (let x = 0; x < 128; x++) {
+          const sourceIndex = (y * 128 + x) * 4;
+          const targetIndex = ((127 - y) * 128 + x) * 4; // Flip Y coordinate
+
+          imgData.data[targetIndex] = imageData[sourceIndex]; // R
+          imgData.data[targetIndex + 1] = imageData[sourceIndex + 1]; // G
+          imgData.data[targetIndex + 2] = imageData[sourceIndex + 2]; // B
+          imgData.data[targetIndex + 3] = imageData[sourceIndex + 3]; // A
+        }
+      }
+
+      context.putImageData(imgData, 0, 0);
+
+      // Clean up
+      renderTarget.dispose();
+
+      return canvas.toDataURL();
+    }
+
+    // Clean up
+    renderTarget.dispose();
+    return "";
+  }
+
+  // Toggle furniture light (for lamps)
+  public toggleFurnitureLight(objectId: string, isOn: boolean): void {
+    this.furnitureManager.toggleFurnitureLight(objectId, isOn);
   }
 
   public destroy(): void {

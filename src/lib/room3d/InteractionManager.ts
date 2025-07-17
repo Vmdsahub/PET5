@@ -3,6 +3,10 @@ import { FurnitureManager } from "./FurnitureManager";
 
 interface InteractionOptions {
   onObjectSelect?: (objectId: string | null) => void;
+  onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
   furnitureManager: FurnitureManager;
 }
 
@@ -16,6 +20,10 @@ export class InteractionManager {
   private selectedObject: string | null = null;
   private editMode: boolean = false;
   private onObjectSelect?: (objectId: string | null) => void;
+  private onRightClickFurniture?: (
+    objectId: string,
+    position: { x: number; y: number },
+  ) => void;
   private furnitureManager: FurnitureManager;
   private dragPlane: THREE.Plane;
   private intersection: THREE.Vector3;
@@ -32,6 +40,7 @@ export class InteractionManager {
     this.domElement = domElement;
     this.furnitureManager = options.furnitureManager;
     this.onObjectSelect = options.onObjectSelect;
+    this.onRightClickFurniture = options.onRightClickFurniture;
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -60,15 +69,27 @@ export class InteractionManager {
   }
 
   private onMouseClick(event: MouseEvent): void {
-    if (!this.editMode || this.isDragging) return;
+    if (this.isDragging) return;
 
     this.updateMouse(event);
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     const objectId = this.furnitureManager.getFurnitureAt(this.raycaster);
 
-    if (objectId !== this.selectedObject) {
-      this.selectObject(objectId);
+    if (objectId) {
+      // Show context menu for furniture
+      if (this.onRightClickFurniture) {
+        const rect = this.domElement.getBoundingClientRect();
+        this.onRightClickFurniture(objectId, {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        });
+      }
+    } else if (this.editMode) {
+      // Only select objects in edit mode when clicking empty space
+      if (objectId !== this.selectedObject) {
+        this.selectObject(objectId);
+      }
     }
   }
 
@@ -131,18 +152,7 @@ export class InteractionManager {
 
   private onContextMenu(event: MouseEvent): void {
     event.preventDefault();
-
-    if (!this.editMode) return;
-
-    this.updateMouse(event);
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    const objectId = this.furnitureManager.getFurnitureAt(this.raycaster);
-
-    if (objectId) {
-      // Rotate object on right click
-      this.furnitureManager.rotateObject(objectId, Math.PI / 4);
-    }
+    // Context menu now handled by left click
   }
 
   private selectObject(objectId: string | null): void {

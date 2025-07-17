@@ -16,6 +16,7 @@ export class FurnitureManager {
   private furnitureGroup: THREE.Group;
   private furniture: Map<string, FurnitureItem>;
   private furnitureFactory: FurnitureFactory;
+  private furnitureLights: Map<string, THREE.PointLight>;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -23,6 +24,7 @@ export class FurnitureManager {
     this.scene.add(this.furnitureGroup);
     this.furniture = new Map();
     this.furnitureFactory = new FurnitureFactory();
+    this.furnitureLights = new Map();
 
     this.createDefaultFurniture();
   }
@@ -264,5 +266,121 @@ export class FurnitureManager {
 
   public getFurnitureGroup(): THREE.Group {
     return this.furnitureGroup;
+  }
+
+  // Inventory management methods
+  public removeFurniture(id: string): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Remove associated light if it's a lamp
+    if (id.includes("lamp") && this.furnitureLights.has(id)) {
+      const light = this.furnitureLights.get(id)!;
+      this.scene.remove(light);
+      this.furnitureLights.delete(id);
+    }
+
+    // Remove from scene
+    this.furnitureGroup.remove(item.object);
+
+    // Dispose of geometry and materials to free memory
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((mat) => mat.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      }
+    });
+
+    // Remove from furniture map
+    this.furniture.delete(id);
+    return true;
+  }
+
+  public addFurnitureFromInventory(
+    id: string,
+    position: THREE.Vector3,
+  ): boolean {
+    // Check if furniture already exists
+    if (this.furniture.has(id)) {
+      console.warn(`Furniture with id ${id} already exists`);
+      return false;
+    }
+
+    // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
+    let type = id.split("-")[0]; // Get first part of hyphenated id
+
+    // Map some common ids to furniture types
+    const typeMapping: { [key: string]: string } = {
+      coffee: "table",
+      dining: "diningTable",
+      side: "sideTable",
+      floor: "lamp",
+      table: "tableLamp",
+      pendant: "pendantLight",
+      picture: "pictureFrame",
+      wall: id.includes("shelf")
+        ? "wallShelf"
+        : id.includes("clock")
+          ? "wallClock"
+          : "wall",
+      tv: "tvStand",
+      premium: "sofa", // Premium sofa maps to regular sofa
+      crystal: "lamp", // Crystal lamp maps to regular lamp
+    };
+
+    if (typeMapping[type]) {
+      type = typeMapping[type];
+    }
+
+    // If still no match, try to infer from the full id
+    if (!this.furnitureFactory.getAvailableTypes().includes(type)) {
+      if (id.includes("sofa")) type = "sofa";
+      else if (id.includes("lamp")) type = "lamp";
+      else if (id.includes("table")) type = "table";
+      else if (id.includes("chair")) type = "chair";
+      else type = "table"; // Default fallback
+    }
+
+    // Create the furniture
+    this.addFurniture(id, type, position, 0);
+    return true;
+  }
+
+  // Toggle furniture light (for lamps)
+  public toggleFurnitureLight(objectId: string, isOn: boolean): void {
+    const furniture = this.furniture.get(objectId);
+    if (!furniture || !objectId.includes("lamp")) return;
+
+    if (isOn) {
+      // Create and add light if it doesn't exist
+      if (!this.furnitureLights.has(objectId)) {
+        const light = new THREE.PointLight(0xffffff, 1.5, 12, 2); // White light
+        light.position.copy(furniture.object.position);
+        light.position.y += 1.5; // Position above the lamp
+        light.castShadow = true;
+        light.shadow.mapSize.width = 512;
+        light.shadow.mapSize.height = 512;
+        light.shadow.bias = -0.0001;
+
+        this.furnitureLights.set(objectId, light);
+        this.scene.add(light);
+      } else {
+        // Enable existing light
+        const light = this.furnitureLights.get(objectId)!;
+        light.intensity = 1.5;
+      }
+    } else {
+      // Disable light
+      const light = this.furnitureLights.get(objectId);
+      if (light) {
+        light.intensity = 0;
+      }
+    }
   }
 }

@@ -4,6 +4,41 @@ export class RoomLighting {
   private scene: THREE.Scene;
   private lights: { [key: string]: THREE.Light };
 
+  // Default lighting values for reset functionality
+  private readonly defaultLightSettings = {
+    ambient: { intensity: 0.3, color: "#ffffff" },
+    directional: {
+      intensity: 0.8,
+      color: "#fff8e1",
+      position: { x: 8, y: 12, z: 8 },
+      castShadow: true,
+    },
+    ceiling: {
+      intensity: 0.6,
+      color: "#ffffff",
+      position: { x: 0, y: 9.5, z: 0 },
+      castShadow: true,
+    },
+    corner1: {
+      intensity: 0.4,
+      color: "#ffb366",
+      position: { x: -8, y: 3, z: -8 },
+      castShadow: true,
+    },
+    corner2: {
+      intensity: 0.4,
+      color: "#ffb366",
+      position: { x: 8, y: 3, z: -8 },
+      castShadow: true,
+    },
+    fill: {
+      intensity: 0.2,
+      color: "#e3f2fd",
+      position: { x: 0, y: 5, z: 15 },
+      castShadow: false,
+    },
+  };
+
   constructor(scene: THREE.Scene) {
     this.scene = scene;
     this.lights = {};
@@ -220,5 +255,102 @@ export class RoomLighting {
       };
     });
     return lightData;
+  }
+
+  // Reset lighting to default values
+  public resetToDefaults(): void {
+    // Reset ambient light
+    this.updateLightIntensity(
+      "ambient",
+      this.defaultLightSettings.ambient.intensity,
+    );
+    this.updateLightColor("ambient", this.defaultLightSettings.ambient.color);
+
+    // Reset directional light
+    this.updateLightIntensity(
+      "directional",
+      this.defaultLightSettings.directional.intensity,
+    );
+    this.updateLightColor(
+      "directional",
+      this.defaultLightSettings.directional.color,
+    );
+    this.updateLightPosition(
+      "directional",
+      new THREE.Vector3(
+        this.defaultLightSettings.directional.position.x,
+        this.defaultLightSettings.directional.position.y,
+        this.defaultLightSettings.directional.position.z,
+      ),
+    );
+
+    // Reset ceiling light
+    this.updateLightIntensity(
+      "ceiling",
+      this.defaultLightSettings.ceiling.intensity,
+    );
+    this.updateLightColor("ceiling", this.defaultLightSettings.ceiling.color);
+    this.updateLightPosition(
+      "ceiling",
+      new THREE.Vector3(
+        this.defaultLightSettings.ceiling.position.x,
+        this.defaultLightSettings.ceiling.position.y,
+        this.defaultLightSettings.ceiling.position.z,
+      ),
+    );
+
+    // Reset corner lights
+    this.updateLightIntensity(
+      "corner1",
+      this.defaultLightSettings.corner1.intensity,
+    );
+    this.updateLightColor("corner1", this.defaultLightSettings.corner1.color);
+    this.updateLightPosition(
+      "corner1",
+      new THREE.Vector3(
+        this.defaultLightSettings.corner1.position.x,
+        this.defaultLightSettings.corner1.position.y,
+        this.defaultLightSettings.corner1.position.z,
+      ),
+    );
+
+    this.updateLightIntensity(
+      "corner2",
+      this.defaultLightSettings.corner2.intensity,
+    );
+    this.updateLightColor("corner2", this.defaultLightSettings.corner2.color);
+    this.updateLightPosition(
+      "corner2",
+      new THREE.Vector3(
+        this.defaultLightSettings.corner2.position.x,
+        this.defaultLightSettings.corner2.position.y,
+        this.defaultLightSettings.corner2.position.z,
+      ),
+    );
+
+    // Reset fill light
+    this.updateLightIntensity("fill", this.defaultLightSettings.fill.intensity);
+    this.updateLightColor("fill", this.defaultLightSettings.fill.color);
+    this.updateLightPosition(
+      "fill",
+      new THREE.Vector3(
+        this.defaultLightSettings.fill.position.x,
+        this.defaultLightSettings.fill.position.y,
+        this.defaultLightSettings.fill.position.z,
+      ),
+    );
+
+    // Reset shadow settings
+    Object.keys(this.lights).forEach((lightName) => {
+      const defaultSettings =
+        this.defaultLightSettings[
+          lightName as keyof typeof this.defaultLightSettings
+        ];
+      if (defaultSettings && "castShadow" in defaultSettings) {
+        this.updateShadowSettings(lightName, {
+          enabled: defaultSettings.castShadow,
+        });
+      }
+    });
   }
 }
