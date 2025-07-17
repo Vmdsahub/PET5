@@ -356,6 +356,94 @@ export class RoomWorld {
     this.createRoom();
   }
 
+  // Material property controls for admin
+  public updateFloorMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    const material = this.materials.floor as THREE.MeshStandardMaterial;
+    if (properties.color) material.color.set(properties.color);
+    if (properties.roughness !== undefined)
+      material.roughness = Math.max(0, Math.min(1, properties.roughness));
+    if (properties.metalness !== undefined)
+      material.metalness = Math.max(0, Math.min(1, properties.metalness));
+  }
+
+  public updateWallMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    const material = this.materials.wall as THREE.MeshStandardMaterial;
+    if (properties.color) material.color.set(properties.color);
+    if (properties.roughness !== undefined)
+      material.roughness = Math.max(0, Math.min(1, properties.roughness));
+    if (properties.metalness !== undefined)
+      material.metalness = Math.max(0, Math.min(1, properties.metalness));
+  }
+
+  public updateCeilingMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    const material = this.materials.ceiling as THREE.MeshStandardMaterial;
+    if (properties.color) material.color.set(properties.color);
+    if (properties.roughness !== undefined)
+      material.roughness = Math.max(0, Math.min(1, properties.roughness));
+    if (properties.metalness !== undefined)
+      material.metalness = Math.max(0, Math.min(1, properties.metalness));
+  }
+
+  public updateBaseboardMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    const material = this.materials.baseboard as THREE.MeshStandardMaterial;
+    if (properties.color) material.color.set(properties.color);
+    if (properties.roughness !== undefined)
+      material.roughness = Math.max(0, Math.min(1, properties.roughness));
+    if (properties.metalness !== undefined)
+      material.metalness = Math.max(0, Math.min(1, properties.metalness));
+  }
+
+  public getMaterialProperties(): {
+    floor: { color: string; roughness: number; metalness: number };
+    wall: { color: string; roughness: number; metalness: number };
+    ceiling: { color: string; roughness: number; metalness: number };
+    baseboard: { color: string; roughness: number; metalness: number };
+  } {
+    const floorMat = this.materials.floor as THREE.MeshStandardMaterial;
+    const wallMat = this.materials.wall as THREE.MeshStandardMaterial;
+    const ceilingMat = this.materials.ceiling as THREE.MeshStandardMaterial;
+    const baseboardMat = this.materials.baseboard as THREE.MeshStandardMaterial;
+
+    return {
+      floor: {
+        color: `#${floorMat.color.getHexString()}`,
+        roughness: floorMat.roughness,
+        metalness: floorMat.metalness,
+      },
+      wall: {
+        color: `#${wallMat.color.getHexString()}`,
+        roughness: wallMat.roughness,
+        metalness: wallMat.metalness,
+      },
+      ceiling: {
+        color: `#${ceilingMat.color.getHexString()}`,
+        roughness: ceilingMat.roughness,
+        metalness: ceilingMat.metalness,
+      },
+      baseboard: {
+        color: `#${baseboardMat.color.getHexString()}`,
+        roughness: baseboardMat.roughness,
+        metalness: baseboardMat.metalness,
+      },
+    };
+  }
+
   public getRoomDimensions(): {
     size: number; // Legacy
     height: number; // Legacy
