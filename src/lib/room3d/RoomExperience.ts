@@ -186,9 +186,6 @@ export class RoomExperience {
         (this as any).skyboxMaterial.uniforms.time.value += 0.01;
       }
 
-      // Smooth zoom interpolation
-      this.updateSmoothZoom();
-
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
     };
