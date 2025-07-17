@@ -167,7 +167,8 @@ export class RoomExperience {
         event.preventDefault();
 
         const delta = event.deltaY;
-        const zoomFactor = delta > 0 ? 1.08 : 0.92;
+        // Fatores de zoom mais suaves e responsivos
+        const zoomFactor = delta > 0 ? 1.04 : 0.96;
 
         this.targetDistance *= zoomFactor;
         this.targetDistance = Math.max(5, Math.min(25, this.targetDistance));
