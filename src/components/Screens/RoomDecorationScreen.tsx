@@ -116,27 +116,38 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       {/* Vertical Navigation Pill */}
       <motion.div
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-md rounded-2xl p-2 shadow-xl border border-white/20"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-3 shadow-2xl border-4 border-yellow-200/50"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
+        style={{
+          background: "linear-gradient(145deg, #fefce8, #fef3c7)",
+          boxShadow:
+            "0 20px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
+        }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {navigationItems.map((item) => (
             <motion.button
               key={item.id}
               onClick={() => handleNavigation(item.id)}
               className={`
-                relative p-3 rounded-xl transition-all duration-200
+                relative p-4 rounded-2xl transition-all duration-300 font-medium
                 ${
                   item.active || activeNav === item.id
-                    ? "bg-blue-500 text-white shadow-lg"
-                    : "bg-white/50 text-gray-600 hover:bg-white/80 hover:text-blue-500"
+                    ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-lg border-2 border-green-300"
+                    : "bg-gradient-to-br from-white to-yellow-50 text-amber-700 hover:from-yellow-100 hover:to-yellow-200 hover:text-amber-800 border-2 border-yellow-200/50 hover:border-yellow-300"
                 }
               `}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.08, y: -2 }}
               whileTap={{ scale: 0.95 }}
               title={item.label}
+              style={{
+                boxShadow:
+                  item.active || activeNav === item.id
+                    ? "0 8px 16px rgba(34, 197, 94, 0.3)"
+                    : "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.7)",
+              }}
             >
               {item.icon}
             </motion.button>
