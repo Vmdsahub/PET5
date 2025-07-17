@@ -29,38 +29,53 @@ export class FurnitureManager {
     this.createDefaultFurniture();
   }
 
-  private createDefaultFurniture(): void {
+  private async createDefaultFurniture(): Promise<void> {
     // Create a cozy living room setup
-    this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
-    this.addFurniture("coffee-table", "table", new THREE.Vector3(-3, 0, 1), 0);
-    this.addFurniture(
+    await this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
+    await this.addFurniture(
+      "coffee-table",
+      "table",
+      new THREE.Vector3(-3, 0, 1),
+      0,
+    );
+    await this.addFurniture(
       "bookshelf",
       "bookshelf",
       new THREE.Vector3(-9.5, 0, -5),
       Math.PI / 2,
     );
-    this.addFurniture("floor-lamp", "lamp", new THREE.Vector3(-7, 0, 4), 0);
-    this.addFurniture(
+    await this.addFurniture(
+      "floor-lamp",
+      "lamp",
+      new THREE.Vector3(-7, 0, 4),
+      0,
+    );
+    await this.addFurniture(
       "dining-table",
       "diningTable",
       new THREE.Vector3(4, 0, -3),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "chair-1",
       "chair",
       new THREE.Vector3(5, 0, -1.5),
       Math.PI,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "chair-2",
       "chair",
       new THREE.Vector3(3, 0, -1.5),
       Math.PI,
     );
-    this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
-    this.addFurniture("tv-stand", "tvStand", new THREE.Vector3(0, 0, -9.5), 0);
-    this.addFurniture(
+    await this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
+    await this.addFurniture(
+      "tv-stand",
+      "tvStand",
+      new THREE.Vector3(0, 0, -9.5),
+      0,
+    );
+    await this.addFurniture(
       "side-table",
       "sideTable",
       new THREE.Vector3(-8, 0, 1),
@@ -68,19 +83,19 @@ export class FurnitureManager {
     );
 
     // Wall furniture
-    this.addFurniture(
+    await this.addFurniture(
       "wall-shelf",
       "wallShelf",
       new THREE.Vector3(5, 5, -9.8),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "picture-frame",
       "pictureFrame",
       new THREE.Vector3(-3, 6, -9.8),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "wall-clock",
       "wallClock",
       new THREE.Vector3(3, 7, -9.8),
@@ -88,13 +103,13 @@ export class FurnitureManager {
     );
 
     // Lighting fixtures
-    this.addFurniture(
+    await this.addFurniture(
       "table-lamp",
       "tableLamp",
       new THREE.Vector3(-8, 1.2, 1),
       0,
     );
-    this.addFurniture(
+    await this.addFurniture(
       "pendant-light",
       "pendantLight",
       new THREE.Vector3(4, 8, -3),
