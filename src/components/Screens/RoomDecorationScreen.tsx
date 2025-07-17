@@ -1439,7 +1439,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             {inventory.map((item) => (
               <motion.div
                 key={item.id}
-                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors"
+                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 draggable
