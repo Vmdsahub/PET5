@@ -8,9 +8,13 @@ import {
   Move,
   ZoomIn,
   ZoomOut,
+  Settings,
+  Sun,
+  Lightbulb,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
+import { useAuthStore } from "../../store/authStore";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -31,6 +35,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [activeNav, setActiveNav] = useState("room");
+  const [showLightingPanel, setShowLightingPanel] = useState(false);
+  const [showGeometryPanel, setShowGeometryPanel] = useState(false);
+  const [lightSettings, setLightSettings] = useState<any>({});
+  const [roomDimensions, setRoomDimensions] = useState<any>({});
+  const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
     { id: "globe", icon: <Globe size={24} />, label: "Explorar" },
@@ -66,8 +75,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   useEffect(() => {
     if (experienceRef.current) {
       experienceRef.current.setEditMode(isEditMode);
+      // Load initial light settings and room dimensions for admin
+      if (user?.isAdmin) {
+        const lights = experienceRef.current.getAllLights();
+        const dimensions = experienceRef.current.getRoomDimensions();
+        setLightSettings(lights);
+        setRoomDimensions(dimensions);
+      }
     }
-  }, [isEditMode]);
+  }, [isEditMode, user?.isAdmin]);
 
   const handleNavigation = (id: string) => {
     switch (id) {
@@ -106,7 +122,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   };
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-b from-sky-200 via-green-200 to-yellow-100 overflow-hidden">
+    <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* 3D Canvas Container */}
       <div
         ref={canvasRef}
@@ -116,7 +132,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       {/* Vertical Navigation Pill */}
       <motion.div
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-3 shadow-2xl border-4 border-yellow-200/50"
+        className="fixed left-4 top-1/2 transform -translate-y-1/2 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-3 shadow-2xl border-4 border-yellow-200/50 z-30"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
@@ -158,7 +174,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Edit Mode UI */}
       {isEditMode && (
         <motion.div
-          className="absolute top-4 right-4 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-yellow-200/50"
+          className="fixed top-20 right-4 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-yellow-200/50 z-40"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
@@ -231,12 +247,326 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         </motion.div>
       )}
 
+      {/* Admin Lighting Panel */}
+      {user?.isAdmin && (
+        <motion.div
+          className="fixed top-20 right-4 bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-slate-700/50 z-50 max-h-[80vh] overflow-y-auto"
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
+          style={{
+            background: "linear-gradient(145deg, #1e293b, #334155)",
+            boxShadow:
+              "0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+          }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => setShowLightingPanel(!showLightingPanel)}
+              className="flex items-center gap-2 text-white font-bold"
+            >
+              <Settings size={20} className="text-blue-400" />
+              <span>🔧 Admin Controls</span>
+            </button>
+          </div>
+
+          {showLightingPanel && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Time of Day Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sun size={16} className="text-yellow-400" />
+                  <span className="text-white font-medium">Time of Day</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  defaultValue="12"
+                  onChange={(e) => {
+                    if (experienceRef.current) {
+                      experienceRef.current.setTimeOfDay(
+                        parseInt(e.target.value),
+                      );
+                    }
+                  }}
+                  className="w-full slider"
+                />
+              </div>
+
+              {/* Light Controls */}
+              {Object.entries(lightSettings).map(
+                ([lightName, settings]: [string, any]) => (
+                  <div
+                    key={lightName}
+                    className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lightbulb size={16} className="text-yellow-400" />
+                      <span className="text-white font-medium capitalize">
+                        {lightName} Light
+                      </span>
+                    </div>
+
+                    {/* Intensity Control */}
+                    <div className="mb-3">
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Intensity
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        defaultValue={settings.intensity}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLightIntensity(
+                              lightName,
+                              parseFloat(e.target.value),
+                            );
+                          }
+                        }}
+                        className="w-full slider"
+                      />
+                    </div>
+
+                    {/* Color Control */}
+                    <div className="mb-3">
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Color
+                      </label>
+                      <input
+                        type="color"
+                        defaultValue={settings.color}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLightColor(
+                              lightName,
+                              e.target.value,
+                            );
+                          }
+                        }}
+                        className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                      />
+                    </div>
+
+                    {/* Shadow Toggle */}
+                    <div>
+                      <label className="flex items-center gap-2 text-slate-300 text-xs">
+                        <input
+                          type="checkbox"
+                          defaultChecked={settings.castShadow}
+                          onChange={(e) => {
+                            if (experienceRef.current) {
+                              experienceRef.current.updateShadowSettings(
+                                lightName,
+                                {
+                                  enabled: e.target.checked,
+                                },
+                              );
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        Cast Shadows
+                      </label>
+                    </div>
+                  </div>
+                ),
+              )}
+            </motion.div>
+          )}
+
+          {showGeometryPanel && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Room Size Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Room Size (Width/Length)
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="1"
+                    defaultValue={roomDimensions.size || 20}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateRoomSize(
+                          parseInt(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          size: parseInt(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {roomDimensions.size || 20}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Room Height Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Room Height</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="3"
+                    max="20"
+                    step="0.5"
+                    defaultValue={roomDimensions.height || 10}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateRoomHeight(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          height: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {roomDimensions.height || 10}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Wall Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Wall Thickness</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.wallThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateWallThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          wallThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.wallThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Floor Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Floor Thickness
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.floorThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateFloorThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          floorThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.floorThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Ceiling Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Ceiling Thickness
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.ceilingThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateCeilingThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          ceilingThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.ceilingThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+
       {/* Instructions */}
       {!isEditMode && (
         <motion.div
-          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          className="fixed bottom-20 left-4 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200 z-40 max-w-xs"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 1, type: "spring", bounce: 0.3 }}
           style={{
             boxShadow:

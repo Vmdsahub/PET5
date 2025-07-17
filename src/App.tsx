@@ -205,12 +205,7 @@ function App() {
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
-      case "room-decoration":
-        return (
-          <RoomDecorationScreen
-            onNavigateBack={() => setCurrentScreen("world")}
-          />
-        );
+
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "profile":
@@ -298,9 +293,13 @@ function App() {
           </button>
         )}
 
-        {["world", "planet", "exploration", "fishing"].includes(
-          currentScreen,
-        ) ? (
+        {[
+          "world",
+          "planet",
+          "exploration",
+          "fishing",
+          "room-decoration",
+        ].includes(currentScreen) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
             <TopPillNavigation
@@ -319,6 +318,11 @@ function App() {
               {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
               {currentScreen === "fishing" && <FishingScreen />}
+              {currentScreen === "room-decoration" && (
+                <RoomDecorationScreen
+                  onNavigateBack={() => setCurrentScreen("world")}
+                />
+              )}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager

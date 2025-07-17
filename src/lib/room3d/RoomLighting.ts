@@ -158,4 +158,67 @@ export class RoomLighting {
     this.updateLightIntensity("directional", directionalIntensity);
     this.updateLightColor("directional", directionalColor);
   }
+
+  public getLightIntensity(lightName: string): number {
+    return this.lights[lightName]?.intensity || 0;
+  }
+
+  public getLightColor(lightName: string): string {
+    return this.lights[lightName]?.color.getHexString() || "#ffffff";
+  }
+
+  public updateLightPosition(lightName: string, position: THREE.Vector3): void {
+    if (this.lights[lightName]) {
+      this.lights[lightName].position.copy(position);
+    }
+  }
+
+  public getLightPosition(lightName: string): THREE.Vector3 {
+    return this.lights[lightName]?.position.clone() || new THREE.Vector3();
+  }
+
+  public updateShadowSettings(
+    lightName: string,
+    settings: {
+      mapSize?: number;
+      bias?: number;
+      enabled?: boolean;
+    },
+  ): void {
+    const light = this.lights[lightName];
+    if (light && "shadow" in light) {
+      const shadowLight = light as THREE.DirectionalLight | THREE.PointLight;
+      if (settings.mapSize) {
+        shadowLight.shadow.mapSize.width = settings.mapSize;
+        shadowLight.shadow.mapSize.height = settings.mapSize;
+      }
+      if (settings.bias !== undefined) {
+        shadowLight.shadow.bias = settings.bias;
+      }
+      if (settings.enabled !== undefined) {
+        shadowLight.castShadow = settings.enabled;
+      }
+    }
+  }
+
+  public getAllLights(): {
+    [key: string]: {
+      intensity: number;
+      color: string;
+      position: THREE.Vector3;
+      castShadow: boolean;
+    };
+  } {
+    const lightData: any = {};
+    Object.keys(this.lights).forEach((name) => {
+      const light = this.lights[name];
+      lightData[name] = {
+        intensity: light.intensity,
+        color: "#" + light.color.getHexString(),
+        position: light.position.clone(),
+        castShadow: "castShadow" in light ? light.castShadow : false,
+      };
+    });
+    return lightData;
+  }
 }
