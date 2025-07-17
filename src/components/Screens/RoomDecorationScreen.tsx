@@ -128,7 +128,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       {/* Vertical Navigation Pill */}
       <motion.div
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-3 shadow-2xl border-4 border-yellow-200/50"
+        className="fixed left-4 top-1/2 transform -translate-y-1/2 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-3 shadow-2xl border-4 border-yellow-200/50 z-30"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
