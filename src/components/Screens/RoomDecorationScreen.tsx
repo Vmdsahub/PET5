@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Globe,
-  Store,
+  ShoppingCart,
   Package,
   Edit3,
   RotateCw,
@@ -12,6 +12,8 @@ import {
   Sun,
   Lightbulb,
   RefreshCcw,
+  Coins,
+  DollarSign,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
@@ -60,11 +62,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [playerCurrency, setPlayerCurrency] = useState({
+    xenocoins: 1000,
+    xenocash: 50,
+  });
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
     { id: "globe", icon: <Globe size={20} />, label: "Explorar" },
-    { id: "store", icon: <Store size={20} />, label: "Loja" },
+    { id: "catalog", icon: <ShoppingCart size={20} />, label: "Catálogo" },
     { id: "inventory", icon: <Package size={20} />, label: "Inventário" },
     {
       id: "edit",
@@ -333,7 +340,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              🏠 Modo Decoração
+              ��� Modo Decoração
             </span>
           </div>
 
@@ -1485,7 +1492,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           {/* Instructions */}
           <div className="mt-4 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 text-center">
-              🖱️ Clique com o botão direito nos móveis para guardá-los aqui
+              🖱️ Clique com o bot��o direito nos móveis para guardá-los aqui
               <br />
               🎨 Arraste do inventário para o quarto para colocar móveis
             </p>
