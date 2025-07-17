@@ -177,6 +177,35 @@ export const AdminCatalogStore: React.FC = () => {
     });
   };
 
+  const handleDeleteFurniture = async (furnitureId: string) => {
+    if (confirm("Tem certeza que deseja deletar este móvel?")) {
+      try {
+        const result = await furnitureService.deleteFurniture(furnitureId);
+        if (result.success) {
+          addNotification({
+            type: "success",
+            title: "Sucesso!",
+            message: "Móvel deletado com sucesso.",
+          });
+          loadCustomFurniture();
+        } else {
+          addNotification({
+            type: "error",
+            title: "Erro",
+            message: result.error || "Erro ao deletar móvel.",
+          });
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        addNotification({
+          type: "error",
+          title: "Erro",
+          message: "Erro ao deletar móvel.",
+        });
+      }
+    }
+  };
+
   const getCategoryColor = (category: string) => {
     const colors = {
       admin: "from-purple-500 to-indigo-500",
