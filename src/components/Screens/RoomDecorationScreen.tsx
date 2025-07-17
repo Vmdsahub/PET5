@@ -72,7 +72,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
-    const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [catalogTab, setCatalogTab] = useState<"store" | "admin">("store");
 
   // GLB Upload state
@@ -1644,7 +1644,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         height={700}
         zIndex={100}
       >
-                <div className="p-6 h-full bg-white">
+        <div className="p-6 h-full bg-white">
           {/* Tabs */}
           <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
             <button
@@ -1697,95 +1697,191 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             </div>
           </div>
 
-                    {/* Tab Content */}
+          {/* Tab Content */}
           {catalogTab === "store" ? (
             /* Store Catalog Items */
             <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
               {catalogItems.map((item) => (
                 <motion.div
-                key={item.id}
-                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {/* Thumbnail */}
-                <div className="w-16 h-16 mb-2">
-                  {getItemThumbnail(item.id) ? (
-                    <img
-                      src={getItemThumbnail(item.id)}
-                      alt={item.name}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <Package size={20} className="text-blue-500 mb-1" />
-                  )}
-                </div>
-
-                {/* Name */}
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight mb-2">
-                  {item.name}
-                </span>
-
-                {/* Price */}
-                <div className="flex items-center gap-1 mb-2">
-                  {item.currency === "xenocoins" ? (
-                    <img
-                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
-                      alt="Xenocoins"
-                      className="w-3 h-3"
-                    />
-                  ) : (
-                    <img
-                      src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
-                      alt="Xenocash"
-                      className="w-3 h-3"
-                    />
-                  )}
-                  <span className="font-bold text-gray-700 text-xs">
-                    {item.price.toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Buy Button */}
-                <motion.button
-                  onClick={() => handlePurchase(item)}
-                  className={`px-3 py-1 rounded-lg font-medium text-xs transition-all ${
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
-                  whileHover={
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? { scale: 1.05 }
-                      : {}
-                  }
-                  whileTap={
-                    (item.currency === "xenocoins" ? xenocoins : cash) >=
-                    item.price
-                      ? { scale: 0.95 }
-                      : {}
-                  }
-                  disabled={
-                    (item.currency === "xenocoins" ? xenocoins : cash) <
-                    item.price
-                  }
+                  key={item.id}
+                  className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  🛒 Comprar
+                  {/* Thumbnail */}
+                  <div className="w-16 h-16 mb-2">
+                    {getItemThumbnail(item.id) ? (
+                      <img
+                        src={getItemThumbnail(item.id)}
+                        alt={item.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <Package size={20} className="text-blue-500 mb-1" />
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <span className="text-xs text-center font-medium text-gray-700 leading-tight mb-2">
+                    {item.name}
+                  </span>
+
+                  {/* Price */}
+                  <div className="flex items-center gap-1 mb-2">
+                    {item.currency === "xenocoins" ? (
+                      <img
+                        src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                        alt="Xenocoins"
+                        className="w-3 h-3"
+                      />
+                    ) : (
+                      <img
+                        src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
+                        alt="Xenocash"
+                        className="w-3 h-3"
+                      />
+                    )}
+                    <span className="font-bold text-gray-700 text-xs">
+                      {item.price.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Buy Button */}
+                  <motion.button
+                    onClick={() => handlePurchase(item)}
+                    className={`px-3 py-1 rounded-lg font-medium text-xs transition-all ${
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                    whileHover={
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? { scale: 1.05 }
+                        : {}
+                    }
+                    whileTap={
+                      (item.currency === "xenocoins" ? xenocoins : cash) >=
+                      item.price
+                        ? { scale: 0.95 }
+                        : {}
+                    }
+                    disabled={
+                      (item.currency === "xenocoins" ? xenocoins : cash) <
+                      item.price
+                    }
+                  >
+                    🛒 Comprar
+                  </motion.button>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            /* Admin GLB Management */
+            <div className="space-y-4 overflow-y-auto h-full">
+              {/* Upload Button */}
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gray-800">
+                  Móveis GLB Customizados
+                </h3>
+                <motion.button
+                  onClick={() => setShowUploadModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-semibold shadow-lg"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Plus className="w-4 h-4" />
+                  <Upload className="w-4 h-4" />
+                  Adicionar GLB
                 </motion.button>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+
+              {/* Custom Furniture List */}
+              <div className="grid grid-cols-1 gap-3">
+                {customFurniture.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600">
+                      Nenhum móvel GLB adicionado ainda.
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Use o botão acima para fazer upload de arquivos GLB.
+                    </p>
+                  </div>
+                ) : (
+                  customFurniture.map((furniture, index) => (
+                    <motion.div
+                      key={furniture.id}
+                      className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-all bg-white"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800">
+                            {furniture.name}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            {furniture.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                              {furniture.category}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <img
+                                src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                                alt="Xenocoins"
+                                className="w-4 h-4"
+                              />
+                              <span className="text-sm font-medium">
+                                {furniture.price}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            onClick={() =>
+                              window.open(furniture.glb_url, "_blank")
+                            }
+                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Ver arquivo GLB"
+                          >
+                            <Package className="w-4 h-4 text-blue-600" />
+                          </motion.button>
+                          <motion.button
+                            onClick={() => handleDeleteFurniture(furniture.id)}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Deletar móvel"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Instructions */}
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              🏠 Móveis comprados vão automaticamente para o inventário
-              <br />
-              💰 Ganhe Xenocoins e Xenocash explorando o jogo!
-            </p>
-          </div>
+          {catalogTab === "store" && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 text-center">
+                🏠 Móveis comprados vão automaticamente para o inventário
+                <br />
+                💰 Ganhe Xenocoins e Xenocash explorando o jogo!
+              </p>
+            </div>
+          )}
         </div>
       </DraggableModal>
 
