@@ -120,6 +120,63 @@ export const AdminCatalogStore: React.FC = () => {
     }
   };
 
+  const handleFurnitureUpload = async () => {
+    if (!uploadFile || !uploadData.name.trim()) {
+      addNotification({
+        type: "error",
+        title: "Erro",
+        message: "Arquivo GLB e nome são obrigatórios.",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await furnitureService.uploadFurniture(
+        uploadFile,
+        uploadData,
+      );
+
+      if (result.success) {
+        addNotification({
+          type: "success",
+          title: "Sucesso!",
+          message: "Móvel adicionado ao catálogo com sucesso.",
+        });
+        setShowUploadModal(false);
+        resetUploadData();
+        loadCustomFurniture(); // Reload furniture list
+      } else {
+        addNotification({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao fazer upload do móvel.",
+        });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      addNotification({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const resetUploadData = () => {
+    setUploadFile(null);
+    setUploadData({
+      name: "",
+      description: "",
+      price: 10,
+      currency: "xenocoins",
+      category: "admin",
+      tags: [],
+    });
+  };
+
   const getCategoryColor = (category: string) => {
     const colors = {
       admin: "from-purple-500 to-indigo-500",
