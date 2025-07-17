@@ -1,14 +1,6 @@
 import { supabase } from "../lib/supabase";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
-
-// Dynamic import for GLTFLoader to handle potential import issues
-let GLTFLoader: any;
-try {
-  const gltfModule = await import("three/examples/jsm/loaders/GLTFLoader");
-  GLTFLoader = gltfModule.GLTFLoader;
-} catch (error) {
-  console.error("Failed to load GLTFLoader:", error);
-}
 
 export interface CustomFurniture {
   id: string;
