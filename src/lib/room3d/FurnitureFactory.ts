@@ -110,7 +110,14 @@ export class FurnitureFactory {
     return await furnitureService.getAllCustomFurniture();
   }
 
-  public create(type: string): THREE.Object3D | null {
+  public async create(type: string): Promise<THREE.Object3D | null> {
+    // Check if it's a custom furniture type
+    if (type.startsWith("custom_")) {
+      const furnitureId = type.replace("custom_", "");
+      return await this.createCustomFurniture(furnitureId);
+    }
+
+    // Handle built-in furniture types
     switch (type) {
       case "sofa":
         return this.createSofa();
