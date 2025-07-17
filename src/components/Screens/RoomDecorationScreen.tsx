@@ -209,13 +209,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   <ZoomIn size={18} />
                 </motion.button>
 
-                                <motion.button
+                <motion.button
                   onClick={() => handleObjectTransform("scale-down")}
                   className="p-3 bg-gradient-to-br from-red-400 to-red-500 text-white rounded-xl border-2 border-red-300 font-medium shadow-lg"
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.9 }}
                   title="Diminuir"
-                  style={{ boxShadow: '0 6px 12px rgba(239, 68, 68, 0.4)' }}
+                  style={{ boxShadow: "0 6px 12px rgba(239, 68, 68, 0.4)" }}
                 >
                   <ZoomOut size={18} />
                 </motion.button>
@@ -224,8 +224,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           ) : (
             <div className="bg-white/60 rounded-2xl p-4 border-2 border-yellow-200 text-center">
               <p className="text-amber-700 font-medium">
-                🎯 Clique em um móvel para decorar!</p>
-            </p>
+                🎯 Clique em um móvel para decorar!
+              </p>
+            </div>
           )}
         </motion.div>
       )}
