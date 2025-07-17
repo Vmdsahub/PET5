@@ -39,6 +39,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [showGeometryPanel, setShowGeometryPanel] = useState(false);
   const [lightSettings, setLightSettings] = useState<any>({});
   const [roomDimensions, setRoomDimensions] = useState<any>({});
+  const [materialProperties, setMaterialProperties] = useState<any>({});
+  const [showMaterialPanel, setShowMaterialPanel] = useState(false);
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
@@ -75,12 +77,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   useEffect(() => {
     if (experienceRef.current) {
       experienceRef.current.setEditMode(isEditMode);
-      // Load initial light settings and room dimensions for admin
+      // Load initial light settings, room dimensions, and material properties for admin
       if (user?.isAdmin) {
         const lights = experienceRef.current.getAllLights();
         const dimensions = experienceRef.current.getRoomDimensions();
+        const materials = experienceRef.current.getMaterialProperties();
         setLightSettings(lights);
         setRoomDimensions(dimensions);
+        setMaterialProperties(materials);
       }
     }
   }, [isEditMode, user?.isAdmin]);
@@ -265,7 +269,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <span className="text-white font-bold">🔧 Admin Controls</span>
           </div>
 
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 flex-wrap">
             <button
               onClick={() => setShowLightingPanel(!showLightingPanel)}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
@@ -285,6 +289,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               }`}
             >
               🏗️ Geometria
+            </button>
+            <button
+              onClick={() => setShowMaterialPanel(!showMaterialPanel)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                showMaterialPanel
+                  ? "bg-green-500 text-white shadow-lg"
+                  : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              }`}
+            >
+              🎨 Materiais
             </button>
           </div>
 
@@ -868,6 +882,342 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   <span className="text-slate-300 text-sm min-w-[3rem]">
                     {(roomDimensions.wallThickness || 0.2).toFixed(2)}m
                   </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {showMaterialPanel && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Floor Material Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-amber-400" />
+                  <span className="text-white font-medium">🟫 Piso</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Floor Color */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      defaultValue={
+                        materialProperties.floor?.color || "#8B7355"
+                      }
+                      onChange={(e) => {
+                        if (experienceRef.current) {
+                          experienceRef.current.updateFloorMaterial({
+                            color: e.target.value,
+                          });
+                          setMaterialProperties((prev) => ({
+                            ...prev,
+                            floor: { ...prev.floor, color: e.target.value },
+                          }));
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+
+                  {/* Floor Roughness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Rugosidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={
+                          materialProperties.floor?.roughness || 0.8
+                        }
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateFloorMaterial({
+                              roughness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              floor: {
+                                ...prev.floor,
+                                roughness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(materialProperties.floor?.roughness || 0.8).toFixed(
+                          2,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Floor Metalness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Metalicidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={
+                          materialProperties.floor?.metalness || 0.1
+                        }
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateFloorMaterial({
+                              metalness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              floor: {
+                                ...prev.floor,
+                                metalness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(materialProperties.floor?.metalness || 0.1).toFixed(
+                          2,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wall Material Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-blue-400" />
+                  <span className="text-white font-medium">🧱 Paredes</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Wall Color */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      defaultValue={materialProperties.wall?.color || "#F5F5F0"}
+                      onChange={(e) => {
+                        if (experienceRef.current) {
+                          experienceRef.current.updateWallMaterial({
+                            color: e.target.value,
+                          });
+                          setMaterialProperties((prev) => ({
+                            ...prev,
+                            wall: { ...prev.wall, color: e.target.value },
+                          }));
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+
+                  {/* Wall Roughness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Rugosidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={materialProperties.wall?.roughness || 0.9}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateWallMaterial({
+                              roughness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              wall: {
+                                ...prev.wall,
+                                roughness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(materialProperties.wall?.roughness || 0.9).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Wall Metalness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Metalicidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={
+                          materialProperties.wall?.metalness || 0.05
+                        }
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateWallMaterial({
+                              metalness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              wall: {
+                                ...prev.wall,
+                                metalness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(materialProperties.wall?.metalness || 0.05).toFixed(
+                          2,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ceiling Material Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">⬜ Teto</span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Ceiling Color */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      defaultValue={
+                        materialProperties.ceiling?.color || "#FFFFFF"
+                      }
+                      onChange={(e) => {
+                        if (experienceRef.current) {
+                          experienceRef.current.updateCeilingMaterial({
+                            color: e.target.value,
+                          });
+                          setMaterialProperties((prev) => ({
+                            ...prev,
+                            ceiling: { ...prev.ceiling, color: e.target.value },
+                          }));
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+
+                  {/* Ceiling Roughness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Rugosidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={
+                          materialProperties.ceiling?.roughness || 0.9
+                        }
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateCeilingMaterial({
+                              roughness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              ceiling: {
+                                ...prev.ceiling,
+                                roughness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(materialProperties.ceiling?.roughness || 0.9).toFixed(
+                          2,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ceiling Metalness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Metalicidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        defaultValue={
+                          materialProperties.ceiling?.metalness || 0.02
+                        }
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateCeilingMaterial({
+                              metalness: parseFloat(e.target.value),
+                            });
+                            setMaterialProperties((prev) => ({
+                              ...prev,
+                              ceiling: {
+                                ...prev.ceiling,
+                                metalness: parseFloat(e.target.value),
+                              },
+                            }));
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {(
+                          materialProperties.ceiling?.metalness || 0.02
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
