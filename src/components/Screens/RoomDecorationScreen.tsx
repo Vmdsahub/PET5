@@ -1454,8 +1454,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   handleInventoryItemDrop(item, { x: dropX, y: dropY });
                 }}
               >
-                <Package size={20} className="text-blue-500 mb-1" />
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">
+                {item.thumbnail ? (
+                  <img
+                    src={item.thumbnail}
+                    alt={item.name}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                ) : (
+                  <Package size={20} className="text-blue-500 mb-1" />
+                )}
+                <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
                   {item.name}
                 </span>
               </motion.div>
@@ -1511,6 +1519,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             >
               🔍 Inspecionar
             </button>
+
+            {/* Show light toggle for lamps */}
+            {contextMenu.objectId.includes("lamp") && (
+              <button
+                onClick={() => handleContextMenuAction("toggle-light")}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+              >
+                {lampStates[contextMenu.objectId] ? "💡 Desligar" : "🔦 Ligar"}
+              </button>
+            )}
+
             <button
               onClick={() => handleContextMenuAction("store")}
               className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
