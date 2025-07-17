@@ -134,12 +134,14 @@ export class FurnitureService {
    */
   async getAllCustomFurniture(): Promise<CustomFurniture[]> {
     try {
+      console.log("Fetching custom furniture from database...");
       const { data, error } = await supabase
         .from("custom_furniture")
         .select("*")
         .eq("is_active", true)
         .order("created_at", { ascending: false });
 
+      console.log("Database response:", { data, error });
       if (error) throw error;
       return data || [];
     } catch (error) {
