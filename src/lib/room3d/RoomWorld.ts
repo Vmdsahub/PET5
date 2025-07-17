@@ -9,6 +9,18 @@ export class RoomWorld {
   private wallThickness: number = 0.2;
   private floorThickness: number = 0.2;
   private ceilingThickness: number = 0.2;
+
+  // Individual dimensions for each element
+  private floorWidth: number = 20;
+  private floorDepth: number = 20;
+  private ceilingWidth: number = 20;
+  private ceilingDepth: number = 20;
+  private backWallWidth: number = 20;
+  private backWallHeight: number = 10;
+  private leftWallDepth: number = 20;
+  private leftWallHeight: number = 10;
+  private rightWallDepth: number = 20;
+  private rightWallHeight: number = 10;
   private roomMeshes: { [key: string]: THREE.Mesh } = {};
 
   constructor(scene: THREE.Scene) {
