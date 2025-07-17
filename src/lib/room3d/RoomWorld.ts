@@ -180,7 +180,7 @@ export class RoomWorld {
     const halfFloorDepth = this.floorDepth / 2;
     const floorTop = 0;
 
-    // Back baseboard - alinhado com a parede traseira
+    // Back baseboard - na frente da parede traseira
     const backBaseboardGeometry = new THREE.BoxGeometry(
       this.backWallWidth,
       baseboardHeight,
@@ -193,13 +193,13 @@ export class RoomWorld {
     backBaseboard.position.set(
       0,
       floorTop + baseboardHeight / 2,
-      -halfFloorDepth - baseboardDepth / 2,
+      -halfFloorDepth + this.wallThickness + baseboardDepth / 2,
     );
     backBaseboard.castShadow = true;
     this.roomMeshes.backBaseboard = backBaseboard;
     this.roomGroup.add(backBaseboard);
 
-    // Left baseboard - alinhado com a parede esquerda
+    // Left baseboard - na frente da parede esquerda
     const leftBaseboardGeometry = new THREE.BoxGeometry(
       baseboardDepth,
       baseboardHeight,
@@ -210,7 +210,7 @@ export class RoomWorld {
       this.materials.baseboard,
     );
     leftBaseboard.position.set(
-      -halfFloorWidth - baseboardDepth / 2,
+      -halfFloorWidth + this.wallThickness + baseboardDepth / 2,
       floorTop + baseboardHeight / 2,
       0,
     );
@@ -218,7 +218,7 @@ export class RoomWorld {
     this.roomMeshes.leftBaseboard = leftBaseboard;
     this.roomGroup.add(leftBaseboard);
 
-    // Right baseboard - alinhado com a parede direita
+    // Right baseboard - na frente da parede direita
     const rightBaseboardGeometry = new THREE.BoxGeometry(
       baseboardDepth,
       baseboardHeight,
@@ -229,7 +229,7 @@ export class RoomWorld {
       this.materials.baseboard,
     );
     rightBaseboard.position.set(
-      halfFloorWidth + baseboardDepth / 2,
+      halfFloorWidth - this.wallThickness - baseboardDepth / 2,
       floorTop + baseboardHeight / 2,
       0,
     );
