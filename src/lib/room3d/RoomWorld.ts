@@ -163,11 +163,12 @@ export class RoomWorld {
   private createBaseboards(): void {
     const baseboardHeight = 0.3;
     const baseboardDepth = 0.1;
-    const halfSize = this.roomSize / 2;
+    const halfFloorWidth = this.floorWidth / 2;
+    const halfFloorDepth = this.floorDepth / 2;
 
     // Back baseboard
     const backBaseboardGeometry = new THREE.BoxGeometry(
-      this.roomSize,
+      this.backWallWidth,
       baseboardHeight,
       baseboardDepth,
     );
@@ -178,7 +179,7 @@ export class RoomWorld {
     backBaseboard.position.set(
       0,
       baseboardHeight / 2,
-      -halfSize + baseboardDepth / 2,
+      -halfFloorDepth + baseboardDepth / 2,
     );
     backBaseboard.castShadow = true;
     this.roomMeshes.backBaseboard = backBaseboard;
@@ -188,14 +189,14 @@ export class RoomWorld {
     const leftBaseboardGeometry = new THREE.BoxGeometry(
       baseboardDepth,
       baseboardHeight,
-      this.roomSize,
+      this.leftWallDepth,
     );
     const leftBaseboard = new THREE.Mesh(
       leftBaseboardGeometry,
       this.materials.baseboard,
     );
     leftBaseboard.position.set(
-      -halfSize + baseboardDepth / 2,
+      -halfFloorWidth + baseboardDepth / 2,
       baseboardHeight / 2,
       0,
     );
@@ -207,14 +208,14 @@ export class RoomWorld {
     const rightBaseboardGeometry = new THREE.BoxGeometry(
       baseboardDepth,
       baseboardHeight,
-      this.roomSize,
+      this.rightWallDepth,
     );
     const rightBaseboard = new THREE.Mesh(
       rightBaseboardGeometry,
       this.materials.baseboard,
     );
     rightBaseboard.position.set(
-      halfSize - baseboardDepth / 2,
+      halfFloorWidth - baseboardDepth / 2,
       baseboardHeight / 2,
       0,
     );
