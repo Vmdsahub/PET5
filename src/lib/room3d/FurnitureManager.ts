@@ -330,10 +330,21 @@ export class FurnitureManager {
           ? "wallClock"
           : "wall",
       tv: "tvStand",
+      premium: "sofa", // Premium sofa maps to regular sofa
+      crystal: "lamp", // Crystal lamp maps to regular lamp
     };
 
     if (typeMapping[type]) {
       type = typeMapping[type];
+    }
+
+    // If still no match, try to infer from the full id
+    if (!this.furnitureFactory.getAvailableTypes().includes(type)) {
+      if (id.includes("sofa")) type = "sofa";
+      else if (id.includes("lamp")) type = "lamp";
+      else if (id.includes("table")) type = "table";
+      else if (id.includes("chair")) type = "chair";
+      else type = "table"; // Default fallback
     }
 
     // Create the furniture
