@@ -10,6 +10,9 @@ import {
   X,
   Crown,
   Sparkles,
+  Upload,
+  Plus,
+  Settings,
 } from "lucide-react";
 import {
   furnitureService,
