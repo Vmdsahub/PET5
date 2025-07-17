@@ -327,10 +327,10 @@ export class FurnitureManager {
     return true;
   }
 
-  public addFurnitureFromInventory(
+  public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
-  ): boolean {
+  ): Promise<boolean> {
     // Check if furniture already exists
     if (this.furniture.has(id)) {
       console.warn(`Furniture with id ${id} already exists`);
@@ -363,8 +363,11 @@ export class FurnitureManager {
       type = typeMapping[type];
     }
 
+    // Get available types asynchronously
+    const availableTypes = await this.furnitureFactory.getAvailableTypes();
+
     // If still no match, try to infer from the full id
-    if (!this.furnitureFactory.getAvailableTypes().includes(type)) {
+    if (!availableTypes.includes(type)) {
       if (id.includes("sofa")) type = "sofa";
       else if (id.includes("lamp")) type = "lamp";
       else if (id.includes("table")) type = "table";
@@ -373,7 +376,7 @@ export class FurnitureManager {
     }
 
     // Create the furniture
-    this.addFurniture(id, type, position, 0);
+    await this.addFurniture(id, type, position, 0);
     return true;
   }
 
