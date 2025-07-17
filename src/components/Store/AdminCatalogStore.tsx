@@ -484,6 +484,230 @@ export const AdminCatalogStore: React.FC = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Upload Furniture Modal - Only visible to admins */}
+      <AnimatePresence>
+        {showUploadModal && user?.isAdmin && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowUploadModal(false)}
+            />
+            <motion.div
+              className="fixed inset-0 flex items-center justify-center p-4 z-50"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+            >
+              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Adicionar Móvel GLB
+                  </h3>
+                  <button
+                    onClick={() => setShowUploadModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* File Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Arquivo GLB *
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
+                      <input
+                        type="file"
+                        accept=".glb"
+                        onChange={(e) =>
+                          setUploadFile(e.target.files?.[0] || null)
+                        }
+                        className="hidden"
+                        id="glb-upload"
+                      />
+                      <label
+                        htmlFor="glb-upload"
+                        className="cursor-pointer flex flex-col items-center space-y-2"
+                      >
+                        <Upload className="w-8 h-8 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {uploadFile
+                            ? uploadFile.name
+                            : "Clique para selecionar arquivo GLB"}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          Máximo: 10MB
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nome *
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadData.name}
+                      onChange={(e) =>
+                        setUploadData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Nome do móvel"
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Descrição
+                    </label>
+                    <textarea
+                      value={uploadData.description}
+                      onChange={(e) =>
+                        setUploadData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      rows={3}
+                      placeholder="Descrição do móvel..."
+                    />
+                  </div>
+
+                  {/* Price and Currency */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Preço
+                      </label>
+                      <input
+                        type="number"
+                        value={uploadData.price}
+                        onChange={(e) =>
+                          setUploadData((prev) => ({
+                            ...prev,
+                            price: parseInt(e.target.value) || 10,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        min="1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Moeda
+                      </label>
+                      <select
+                        value={uploadData.currency}
+                        onChange={(e) =>
+                          setUploadData((prev) => ({
+                            ...prev,
+                            currency: e.target.value as "xenocoins" | "cash",
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      >
+                        <option value="xenocoins">Xenocoins</option>
+                        <option value="cash">Cash</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Categoria
+                    </label>
+                    <select
+                      value={uploadData.category}
+                      onChange={(e) =>
+                        setUploadData((prev) => ({
+                          ...prev,
+                          category: e.target.value as
+                            | "admin"
+                            | "premium"
+                            | "seasonal",
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="premium">Premium</option>
+                      <option value="seasonal">Sazonal</option>
+                    </select>
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tags (separadas por vírgula)
+                    </label>
+                    <input
+                      type="text"
+                      value={uploadData.tags.join(", ")}
+                      onChange={(e) =>
+                        setUploadData((prev) => ({
+                          ...prev,
+                          tags: e.target.value
+                            .split(",")
+                            .map((tag) => tag.trim())
+                            .filter(Boolean),
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="mesa, cadeira, moderno"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 mt-6">
+                  <motion.button
+                    onClick={() => setShowUploadModal(false)}
+                    className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Cancelar
+                  </motion.button>
+                  <motion.button
+                    onClick={handleFurnitureUpload}
+                    disabled={
+                      isUploading || !uploadFile || !uploadData.name.trim()
+                    }
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all font-semibold shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span>Adicionar</span>
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
