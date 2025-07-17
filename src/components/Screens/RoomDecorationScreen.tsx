@@ -1525,8 +1525,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             {catalogItems.map((item) => (
               <motion.div
                 key={item.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-                whileHover={{ scale: 1.02 }}
+                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -1746,7 +1747,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               "0 8px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
           }}
         >
-          🖱️ Use o mouse para navegar pela casa • 🎨 Clique em Editar para
+          🖱��� Use o mouse para navegar pela casa • 🎨 Clique em Editar para
           decorar
         </motion.div>
       )}
