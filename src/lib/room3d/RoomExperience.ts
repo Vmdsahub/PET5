@@ -27,7 +27,8 @@ export class RoomExperience {
   // Smooth zoom variables
   private targetDistance: number = 15;
   private currentDistance: number = 15;
-  private zoomSpeed: number = 0.1;
+  private zoomVelocity: number = 0;
+  private zoomDamping: number = 0.85;
 
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
