@@ -361,6 +361,48 @@ export class RoomExperience {
     return this.world.getRoomDimensions();
   }
 
+  // Material property controls for admin
+  public updateFloorMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateFloorMaterial(properties);
+  }
+
+  public updateWallMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateWallMaterial(properties);
+  }
+
+  public updateCeilingMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateCeilingMaterial(properties);
+  }
+
+  public updateBaseboardMaterial(properties: {
+    color?: string;
+    roughness?: number;
+    metalness?: number;
+  }): void {
+    this.world.updateBaseboardMaterial(properties);
+  }
+
+  public getMaterialProperties(): {
+    floor: { color: string; roughness: number; metalness: number };
+    wall: { color: string; roughness: number; metalness: number };
+    ceiling: { color: string; roughness: number; metalness: number };
+    baseboard: { color: string; roughness: number; metalness: number };
+  } {
+    return this.world.getMaterialProperties();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
