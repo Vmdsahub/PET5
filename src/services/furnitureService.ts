@@ -66,9 +66,9 @@ export class FurnitureService {
         return { success: false, error: "Apenas arquivos GLB são suportados" };
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        // 10MB limit
-        return { success: false, error: "Arquivo muito grande. Máximo: 10MB" };
+      if (file.size > 100 * 1024 * 1024) {
+        // 100MB limit
+        return { success: false, error: "Arquivo muito grande. Máximo: 100MB" };
       }
 
       // Generate unique filename
