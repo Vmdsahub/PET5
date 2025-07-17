@@ -72,7 +72,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
-  const [showCatalogModal, setShowCatalogModal] = useState(false);
+    const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [catalogTab, setCatalogTab] = useState<"store" | "admin">("store");
 
   // GLB Upload state
@@ -1644,7 +1644,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         height={700}
         zIndex={100}
       >
-        <div className="p-6 h-full bg-white">
+                <div className="p-6 h-full bg-white">
           {/* Tabs */}
           <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
             <button
@@ -1697,10 +1697,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             </div>
           </div>
 
-          {/* Catalog Items */}
-          <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
-            {catalogItems.map((item) => (
-              <motion.div
+                    {/* Tab Content */}
+          {catalogTab === "store" ? (
+            /* Store Catalog Items */
+            <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
+              {catalogItems.map((item) => (
+                <motion.div
                 key={item.id}
                 className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-3 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
                 whileHover={{ scale: 1.05 }}
