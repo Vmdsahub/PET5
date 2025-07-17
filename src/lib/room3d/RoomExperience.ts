@@ -403,6 +403,19 @@ export class RoomExperience {
     return this.world.getMaterialProperties();
   }
 
+  // Reset methods for admin controls
+  public resetLightingToDefaults(): void {
+    this.lighting.resetToDefaults();
+  }
+
+  public resetGeometryToDefaults(): void {
+    this.world.resetGeometryToDefaults();
+  }
+
+  public resetMaterialsToDefaults(): void {
+    this.world.resetMaterialsToDefaults();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
