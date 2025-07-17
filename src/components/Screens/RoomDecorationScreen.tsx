@@ -20,6 +20,10 @@ import { RoomExperience } from "../../lib/room3d/RoomExperience";
 import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
+import {
+  furnitureService,
+  CustomFurniture,
+} from "../../services/furnitureService";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
