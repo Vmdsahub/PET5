@@ -74,8 +74,8 @@ export class RoomExperience {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // Enable realistic lighting
-    this.renderer.physicallyCorrectLights = true;
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.useLegacyLights = false;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ReinhardToneMapping;
     this.renderer.toneMappingExposure = 1.2;
 
