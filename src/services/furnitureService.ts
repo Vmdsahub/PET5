@@ -181,6 +181,17 @@ export class FurnitureService {
       // Run database test first
       await this.testDatabaseConnection();
 
+      // Try with RLS bypass first
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        "get_custom_furniture",
+      );
+
+      if (!rpcError && rpcData) {
+        console.log("RPC response:", rpcData);
+        return rpcData;
+      }
+
+      // Fallback to regular query
       const { data, error } = await supabase
         .from("custom_furniture")
         .select("*")
