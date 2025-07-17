@@ -1521,7 +1521,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           </div>
 
           {/* Catalog Items */}
-          <div className="space-y-4 overflow-y-auto h-full">
+          <div className="grid grid-cols-2 gap-4 overflow-y-auto h-full">
             {catalogItems.map((item) => (
               <motion.div
                 key={item.id}
