@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Globe,
   Store,
-  Home,
+  Package,
   Edit3,
   RotateCw,
   Move,
@@ -11,6 +11,7 @@ import {
   Settings,
   Sun,
   Lightbulb,
+  RefreshCcw,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
@@ -41,15 +42,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [roomDimensions, setRoomDimensions] = useState<any>({});
   const [materialProperties, setMaterialProperties] = useState<any>({});
   const [showMaterialPanel, setShowMaterialPanel] = useState(false);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
-    { id: "globe", icon: <Globe size={24} />, label: "Explorar" },
-    { id: "store", icon: <Store size={24} />, label: "Loja" },
-    { id: "inventory", icon: <Home size={24} />, label: "Inventário" },
+    { id: "globe", icon: <Globe size={20} />, label: "Explorar" },
+    { id: "store", icon: <Store size={20} />, label: "Loja" },
+    { id: "inventory", icon: <Package size={20} />, label: "Inventário" },
     {
       id: "edit",
-      icon: <Edit3 size={24} />,
+      icon: <Edit3 size={20} />,
       label: "Editar",
       active: isEditMode,
     },
@@ -99,8 +101,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         console.log("Navigate to store");
         break;
       case "inventory":
-        // TODO: Implement inventory navigation
-        console.log("Navigate to inventory");
+        setShowInventoryModal(true);
         break;
       case "edit":
         setIsEditMode(!isEditMode);
@@ -266,7 +267,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         >
           <div className="flex items-center gap-3 mb-4">
             <Settings size={20} className="text-blue-400" />
-            <span className="text-white font-bold">🔧 Admin Controls</span>
+            <span className="text-white font-bold">�� Admin Controls</span>
           </div>
 
           <div className="flex gap-2 mb-4 flex-wrap">
