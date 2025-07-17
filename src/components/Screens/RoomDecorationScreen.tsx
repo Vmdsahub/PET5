@@ -1485,8 +1485,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         </>
       )}
 
+      {/* Drag and Drop Indicator */}
+      {isDraggingFromInventory && (
+        <motion.div
+          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-6 py-4 rounded-2xl text-lg font-bold z-50 pointer-events-none"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          🎯 Solte aqui para posicionar o móvel!
+        </motion.div>
+      )}
+
       {/* Instructions */}
-      {!isEditMode && (
+      {!isEditMode && !isDraggingFromInventory && (
         <motion.div
           className="fixed bottom-20 left-4 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200 z-40 max-w-xs"
           initial={{ x: -100, opacity: 0 }}
