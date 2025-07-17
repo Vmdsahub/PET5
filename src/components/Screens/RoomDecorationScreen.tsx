@@ -170,18 +170,52 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureName = objectId
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase());
+
+        // Generate thumbnail for inventory
+        let thumbnail = "";
+        if (experienceRef.current) {
+          thumbnail = experienceRef.current.generateThumbnail(objectId);
+        }
+
         setInventory((prev) => [
           ...prev,
           {
             id: objectId,
             name: furnitureName,
             type: "furniture",
+            thumbnail,
           },
         ]);
 
         // Remove from 3D scene
         if (experienceRef.current) {
           experienceRef.current.removeFurniture(objectId);
+        }
+
+        // Remove lamp state if it's a lamp
+        if (objectId.includes("lamp")) {
+          setLampStates((prev) => {
+            const newStates = { ...prev };
+            delete newStates[objectId];
+            return newStates;
+          });
+        }
+        break;
+      case "toggle-light":
+        // Toggle lamp light
+        if (objectId.includes("lamp")) {
+          const isCurrentlyOn = lampStates[objectId] || false;
+          const newState = !isCurrentlyOn;
+
+          setLampStates((prev) => ({
+            ...prev,
+            [objectId]: newState,
+          }));
+
+          // Update 3D scene light
+          if (experienceRef.current) {
+            experienceRef.current.toggleFurnitureLight(objectId, newState);
+          }
         }
         break;
     }
