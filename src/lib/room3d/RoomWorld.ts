@@ -343,18 +343,41 @@ export class RoomWorld {
   }
 
   public getRoomDimensions(): {
-    size: number;
-    height: number;
+    size: number; // Legacy
+    height: number; // Legacy
     wallThickness: number;
     floorThickness: number;
     ceilingThickness: number;
+    // Individual dimensions
+    floorWidth: number;
+    floorDepth: number;
+    ceilingWidth: number;
+    ceilingDepth: number;
+    backWallWidth: number;
+    backWallHeight: number;
+    leftWallDepth: number;
+    leftWallHeight: number;
+    rightWallDepth: number;
+    rightWallHeight: number;
   } {
     return {
+      // Legacy values (for backward compatibility)
       size: this.roomSize,
       height: this.roomHeight,
       wallThickness: this.wallThickness,
       floorThickness: this.floorThickness,
       ceilingThickness: this.ceilingThickness,
+      // Individual dimensions
+      floorWidth: this.floorWidth,
+      floorDepth: this.floorDepth,
+      ceilingWidth: this.ceilingWidth,
+      ceilingDepth: this.ceilingDepth,
+      backWallWidth: this.backWallWidth,
+      backWallHeight: this.backWallHeight,
+      leftWallDepth: this.leftWallDepth,
+      leftWallHeight: this.leftWallHeight,
+      rightWallDepth: this.rightWallDepth,
+      rightWallHeight: this.rightWallHeight,
     };
   }
 }
