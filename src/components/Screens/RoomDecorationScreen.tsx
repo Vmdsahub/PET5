@@ -44,6 +44,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [materialProperties, setMaterialProperties] = useState<any>({});
   const [showMaterialPanel, setShowMaterialPanel] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    show: boolean;
+    objectId: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const [inventory, setInventory] = useState<
+    Array<{
+      id: string;
+      name: string;
+      type: string;
+    }>
+  >([]);
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
@@ -64,6 +77,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         targetElement: canvasRef.current,
         onObjectSelect: (objectId: string | null) => {
           setSelectedObject(objectId);
+          setContextMenu(null); // Close context menu when selecting object
+        },
+        onRightClickFurniture: (
+          objectId: string,
+          position: { x: number; y: number },
+        ) => {
+          setContextMenu({
+            show: true,
+            objectId,
+            x: position.x,
+            y: position.y,
+          });
         },
         editMode: isEditMode,
       });
@@ -124,6 +149,58 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           experienceRef.current.scaleObject(selectedObject, 0.9);
           break;
       }
+    }
+  };
+
+  const handleContextMenuAction = (action: string) => {
+    if (!contextMenu) return;
+
+    const { objectId } = contextMenu;
+
+    switch (action) {
+      case "inspect":
+        // TODO: Implement inspection modal
+        console.log(`Inspecting ${objectId}`);
+        break;
+      case "store":
+        // Add to inventory and remove from scene
+        const furnitureName = objectId
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
+        setInventory((prev) => [
+          ...prev,
+          {
+            id: objectId,
+            name: furnitureName,
+            type: "furniture",
+          },
+        ]);
+
+        // Remove from 3D scene
+        if (experienceRef.current) {
+          experienceRef.current.removeFurniture(objectId);
+        }
+        break;
+    }
+
+    setContextMenu(null);
+  };
+
+  const handleInventoryItemDrop = (
+    item: any,
+    dropPosition: { x: number; y: number },
+  ) => {
+    // Convert screen position to 3D world position and place furniture
+    if (experienceRef.current) {
+      // Simple placement logic - place at origin for now
+      experienceRef.current.addFurnitureFromInventory(item.id, {
+        x: 0,
+        y: 0,
+        z: 0,
+      });
+
+      // Remove from inventory
+      setInventory((prev) => prev.filter((invItem) => invItem.id !== item.id));
     }
   };
 
@@ -1291,15 +1368,38 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         <div className="p-6 h-full bg-white">
           {/* Inventory Grid */}
           <div className="grid grid-cols-4 gap-4 h-full">
-            {/* Empty inventory slots */}
-            {Array.from({ length: 20 }).map((_, index) => (
-              <div
-                key={index}
-                className="aspect-square border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors"
+            {/* Inventory items */}
+            {inventory.map((item) => (
+              <motion.div
+                key={item.id}
+                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                draggable
+                onDragEnd={(e) => {
+                  const dropX = e.clientX;
+                  const dropY = e.clientY;
+                  handleInventoryItemDrop(item, { x: dropX, y: dropY });
+                }}
               >
-                <Package size={24} className="opacity-50" />
-              </div>
+                <Package size={20} className="text-blue-500 mb-1" />
+                <span className="text-xs text-center font-medium text-gray-700 leading-tight">
+                  {item.name}
+                </span>
+              </motion.div>
             ))}
+
+            {/* Empty inventory slots */}
+            {Array.from({ length: Math.max(0, 20 - inventory.length) }).map(
+              (_, index) => (
+                <div
+                  key={`empty-${index}`}
+                  className="aspect-square border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors"
+                >
+                  <Package size={24} className="opacity-50" />
+                </div>
+              ),
+            )}
           </div>
 
           {/* Instructions */}
@@ -1312,6 +1412,42 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           </div>
         </div>
       </DraggableModal>
+
+      {/* Context Menu */}
+      {contextMenu?.show && (
+        <>
+          {/* Overlay to close menu */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setContextMenu(null)}
+          />
+
+          {/* Context Menu */}
+          <motion.div
+            className="fixed bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 min-w-[150px]"
+            style={{
+              left: contextMenu.x,
+              top: contextMenu.y,
+            }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.1 }}
+          >
+            <button
+              onClick={() => handleContextMenuAction("inspect")}
+              className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            >
+              🔍 Inspecionar
+            </button>
+            <button
+              onClick={() => handleContextMenuAction("store")}
+              className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
+            >
+              📦 Guardar
+            </button>
+          </motion.div>
+        </>
+      )}
 
       {/* Instructions */}
       {!isEditMode && (
