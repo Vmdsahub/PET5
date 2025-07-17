@@ -251,6 +251,37 @@ export class RoomExperience {
     return this.lighting.getAllLights();
   }
 
+  // Room geometry controls for admin
+  public updateRoomSize(newSize: number): void {
+    this.world.updateRoomSize(newSize);
+  }
+
+  public updateRoomHeight(newHeight: number): void {
+    this.world.updateRoomHeight(newHeight);
+  }
+
+  public updateWallThickness(newThickness: number): void {
+    this.world.updateWallThickness(newThickness);
+  }
+
+  public updateFloorThickness(newThickness: number): void {
+    this.world.updateFloorThickness(newThickness);
+  }
+
+  public updateCeilingThickness(newThickness: number): void {
+    this.world.updateCeilingThickness(newThickness);
+  }
+
+  public getRoomDimensions(): {
+    size: number;
+    height: number;
+    wallThickness: number;
+    floorThickness: number;
+    ceilingThickness: number;
+  } {
+    return this.world.getRoomDimensions();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
