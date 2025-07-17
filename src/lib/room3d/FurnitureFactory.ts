@@ -111,45 +111,50 @@ export class FurnitureFactory {
   }
 
   public async create(type: string): Promise<THREE.Object3D | null> {
-    // Check if it's a custom furniture type
-    if (type.startsWith("custom_")) {
-      const furnitureId = type.replace("custom_", "");
-      return await this.createCustomFurniture(furnitureId);
-    }
+    try {
+      // Check if it's a custom furniture type
+      if (type.startsWith("custom_")) {
+        const furnitureId = type.replace("custom_", "");
+        return await this.createCustomFurniture(furnitureId);
+      }
 
-    // Handle built-in furniture types
-    switch (type) {
-      case "sofa":
-        return this.createSofa();
-      case "table":
-        return this.createCoffeeTable();
-      case "diningTable":
-        return this.createDiningTable();
-      case "chair":
-        return this.createChair();
-      case "bookshelf":
-        return this.createBookshelf();
-      case "lamp":
-        return this.createFloorLamp();
-      case "tableLamp":
-        return this.createTableLamp();
-      case "plant":
-        return this.createPlant();
-      case "tvStand":
-        return this.createTVStand();
-      case "sideTable":
-        return this.createSideTable();
-      case "wallShelf":
-        return this.createWallShelf();
-      case "pictureFrame":
-        return this.createPictureFrame();
-      case "wallClock":
-        return this.createWallClock();
-      case "pendantLight":
-        return this.createPendantLight();
-      default:
-        console.warn(`Unknown furniture type: ${type}`);
-        return null;
+      // Handle built-in furniture types
+      switch (type) {
+        case "sofa":
+          return this.createSofa();
+        case "table":
+          return this.createCoffeeTable();
+        case "diningTable":
+          return this.createDiningTable();
+        case "chair":
+          return this.createChair();
+        case "bookshelf":
+          return this.createBookshelf();
+        case "lamp":
+          return this.createFloorLamp();
+        case "tableLamp":
+          return this.createTableLamp();
+        case "plant":
+          return this.createPlant();
+        case "tvStand":
+          return this.createTVStand();
+        case "sideTable":
+          return this.createSideTable();
+        case "wallShelf":
+          return this.createWallShelf();
+        case "pictureFrame":
+          return this.createPictureFrame();
+        case "wallClock":
+          return this.createWallClock();
+        case "pendantLight":
+          return this.createPendantLight();
+        default:
+          console.warn(`Unknown furniture type: ${type}`);
+          return null;
+      }
+    } catch (error) {
+      console.error(`Error creating furniture of type ${type}:`, error);
+      return null;
     }
   }
 
