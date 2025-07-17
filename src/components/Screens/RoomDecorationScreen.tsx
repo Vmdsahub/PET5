@@ -8,9 +8,13 @@ import {
   Move,
   ZoomIn,
   ZoomOut,
+  Settings,
+  Sun,
+  Lightbulb,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
+import { useAuthStore } from "../../store/authStore";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -31,6 +35,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [activeNav, setActiveNav] = useState("room");
+  const [showLightingPanel, setShowLightingPanel] = useState(false);
+  const [lightSettings, setLightSettings] = useState<any>({});
+  const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
     { id: "globe", icon: <Globe size={24} />, label: "Explorar" },
@@ -66,8 +73,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   useEffect(() => {
     if (experienceRef.current) {
       experienceRef.current.setEditMode(isEditMode);
+      // Load initial light settings for admin
+      if (user?.isAdmin) {
+        const lights = experienceRef.current.getAllLights();
+        setLightSettings(lights);
+      }
     }
-  }, [isEditMode]);
+  }, [isEditMode, user?.isAdmin]);
 
   const handleNavigation = (id: string) => {
     switch (id) {
@@ -227,6 +239,145 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 🎯 Clique em um móvel para decorar!
               </p>
             </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Admin Lighting Panel */}
+      {user?.isAdmin && (
+        <motion.div
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-slate-700/50"
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
+          style={{
+            background: "linear-gradient(145deg, #1e293b, #334155)",
+            boxShadow:
+              "0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+          }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => setShowLightingPanel(!showLightingPanel)}
+              className="flex items-center gap-2 text-white font-bold"
+            >
+              <Settings size={20} className="text-blue-400" />
+              <span>🔧 Admin Controls</span>
+            </button>
+          </div>
+
+          {showLightingPanel && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Time of Day Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sun size={16} className="text-yellow-400" />
+                  <span className="text-white font-medium">Time of Day</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  defaultValue="12"
+                  onChange={(e) => {
+                    if (experienceRef.current) {
+                      experienceRef.current.setTimeOfDay(
+                        parseInt(e.target.value),
+                      );
+                    }
+                  }}
+                  className="w-full slider"
+                />
+              </div>
+
+              {/* Light Controls */}
+              {Object.entries(lightSettings).map(
+                ([lightName, settings]: [string, any]) => (
+                  <div
+                    key={lightName}
+                    className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lightbulb size={16} className="text-yellow-400" />
+                      <span className="text-white font-medium capitalize">
+                        {lightName} Light
+                      </span>
+                    </div>
+
+                    {/* Intensity Control */}
+                    <div className="mb-3">
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Intensity
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        defaultValue={settings.intensity}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLightIntensity(
+                              lightName,
+                              parseFloat(e.target.value),
+                            );
+                          }
+                        }}
+                        className="w-full slider"
+                      />
+                    </div>
+
+                    {/* Color Control */}
+                    <div className="mb-3">
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Color
+                      </label>
+                      <input
+                        type="color"
+                        defaultValue={settings.color}
+                        onChange={(e) => {
+                          if (experienceRef.current) {
+                            experienceRef.current.updateLightColor(
+                              lightName,
+                              e.target.value,
+                            );
+                          }
+                        }}
+                        className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                      />
+                    </div>
+
+                    {/* Shadow Toggle */}
+                    <div>
+                      <label className="flex items-center gap-2 text-slate-300 text-xs">
+                        <input
+                          type="checkbox"
+                          defaultChecked={settings.castShadow}
+                          onChange={(e) => {
+                            if (experienceRef.current) {
+                              experienceRef.current.updateShadowSettings(
+                                lightName,
+                                {
+                                  enabled: e.target.checked,
+                                },
+                              );
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        Cast Shadows
+                      </label>
+                    </div>
+                  </div>
+                ),
+              )}
+            </motion.div>
           )}
         </motion.div>
       )}
