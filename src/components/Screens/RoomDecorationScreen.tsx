@@ -97,6 +97,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     loadCustomFurniture();
   }, []);
 
+  // Reload custom furniture when switching to admin tab
+  useEffect(() => {
+    if (catalogTab === "admin") {
+      console.log("Admin tab selected, reloading custom furniture...");
+      loadCustomFurniture();
+    }
+  }, [catalogTab]);
+
   const loadCustomFurniture = async () => {
     try {
       console.log("Loading custom furniture...");
