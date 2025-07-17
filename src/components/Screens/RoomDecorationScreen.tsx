@@ -1536,9 +1536,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     <h3 className="font-semibold text-gray-800 text-lg">
                       {item.name}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-2">
-                      {item.description}
-                    </p>
+
                     <div className="flex items-center gap-2">
                       {item.currency === "xenocoins" ? (
                         <img
