@@ -7,9 +7,12 @@ import {
 
 export class FurnitureFactory {
   private materials: { [key: string]: THREE.Material };
+  private gltfLoader: GLTFLoader;
+  private customFurnitureCache: Map<string, THREE.Group> = new Map();
 
   constructor() {
     this.createMaterials();
+    this.gltfLoader = new GLTFLoader();
   }
 
   private createMaterials(): void {
