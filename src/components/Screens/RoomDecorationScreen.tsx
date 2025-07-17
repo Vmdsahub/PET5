@@ -1658,12 +1658,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 onDragStart={() => {
                   setIsDraggingFromInventory(true);
                 }}
-                onDragEnd={(e, info) => {
+                onDragEnd={async (e, info) => {
                   setIsDraggingFromInventory(false);
                   // Use clientX/Y for global screen position
                   const dropX = e.clientX;
                   const dropY = e.clientY;
-                  handleInventoryItemDrop(item, { x: dropX, y: dropY });
+                  await handleInventoryItemDrop(item, { x: dropX, y: dropY });
                 }}
               >
                 {item.thumbnail ? (
