@@ -153,28 +153,6 @@ export class RoomExperience {
     this.controls.dampingFactor = 0.12;
   }
 
-  private setupSmoothZoom(): void {
-    // Inicializar distância
-    this.targetDistance = this.camera.position.distanceTo(this.controls.target);
-    this.currentDistance = this.targetDistance;
-
-    // Interceptar eventos de wheel para zoom suave
-    this.renderer.domElement.addEventListener(
-      "wheel",
-      (event) => {
-        event.preventDefault();
-
-        const delta = event.deltaY;
-        // Fatores de zoom mais responsivos
-        const zoomFactor = delta > 0 ? 1.12 : 0.88;
-
-        this.targetDistance *= zoomFactor;
-        this.targetDistance = Math.max(5, Math.min(25, this.targetDistance));
-      },
-      { passive: false },
-    );
-  }
-
   private initWorld(): void {
     this.world = new RoomWorld(this.scene);
   }
