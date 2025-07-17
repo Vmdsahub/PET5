@@ -1792,9 +1792,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <div className="space-y-4 overflow-y-auto h-full">
               {/* Upload Button */}
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-gray-800">
-                  Móveis GLB Customizados ({customFurniture.length})
-                </h3>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Móveis GLB Customizados ({customFurniture.length})
+                  </h3>
+                  <div className="text-xs text-gray-500">
+                    Admin: {user?.isAdmin ? "Sim" : "Não"} | Tab: {catalogTab} |
+                    Items: {JSON.stringify(customFurniture.map((f) => f.name))}
+                  </div>
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
