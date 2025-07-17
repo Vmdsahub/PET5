@@ -349,12 +349,12 @@ export class FurnitureManager {
     if (isOn) {
       // Create and add light if it doesn't exist
       if (!this.furnitureLights.has(objectId)) {
-        const light = new THREE.PointLight(0xffeb3b, 2, 15, 2); // Bright yellow light
+        const light = new THREE.PointLight(0xffffff, 1.5, 12, 2); // White light
         light.position.copy(furniture.object.position);
-        light.position.y += 2; // Position above the lamp
+        light.position.y += 1.5; // Position above the lamp
         light.castShadow = true;
-        light.shadow.mapSize.width = 1024;
-        light.shadow.mapSize.height = 1024;
+        light.shadow.mapSize.width = 512;
+        light.shadow.mapSize.height = 512;
         light.shadow.bias = -0.0001;
 
         this.furnitureLights.set(objectId, light);
@@ -362,52 +362,14 @@ export class FurnitureManager {
       } else {
         // Enable existing light
         const light = this.furnitureLights.get(objectId)!;
-        light.intensity = 2;
+        light.intensity = 1.5;
       }
-
-      // Add visual glow effect to the lamp
-      this.addLampGlow(furniture.object);
     } else {
       // Disable light
       const light = this.furnitureLights.get(objectId);
       if (light) {
         light.intensity = 0;
       }
-
-      // Remove glow effect
-      this.removeLampGlow(furniture.object);
     }
-  }
-
-  private addLampGlow(lampObject: THREE.Object3D): void {
-    // Add a glowing effect to the lamp bulb/shade
-    lampObject.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        // Store original material if not already stored
-        if (!child.userData.originalEmissive) {
-          child.userData.originalEmissive =
-            child.material.emissive?.clone() || new THREE.Color(0x000000);
-        }
-
-        // Add emissive glow
-        if (child.material.emissive) {
-          child.material.emissive.setHex(0xffeb3b);
-          child.material.emissiveIntensity = 0.3;
-        }
-      }
-    });
-  }
-
-  private removeLampGlow(lampObject: THREE.Object3D): void {
-    // Remove glowing effect from the lamp
-    lampObject.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.userData.originalEmissive) {
-        // Restore original emissive color
-        if (child.material.emissive) {
-          child.material.emissive.copy(child.userData.originalEmissive);
-          child.material.emissiveIntensity = 0;
-        }
-      }
-    });
   }
 }
