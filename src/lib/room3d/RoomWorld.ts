@@ -97,41 +97,54 @@ export class RoomWorld {
   private createWalls(): void {
     const halfFloorWidth = this.floorWidth / 2;
     const halfFloorDepth = this.floorDepth / 2;
+    const floorTop = 0; // Topo do chão está em y=0
 
-    // Back wall
+    // Back wall - posicionada para se encaixar perfeitamente com o chão
     const backWallGeometry = new THREE.BoxGeometry(
       this.backWallWidth,
       this.backWallHeight,
       this.wallThickness,
     );
     const backWall = new THREE.Mesh(backWallGeometry, this.materials.wall);
-    backWall.position.set(0, this.backWallHeight / 2, -halfFloorDepth);
+    backWall.position.set(
+      0,
+      floorTop + this.backWallHeight / 2,
+      -halfFloorDepth - this.wallThickness / 2,
+    );
     backWall.castShadow = true;
     backWall.receiveShadow = true;
     this.roomMeshes.backWall = backWall;
     this.roomGroup.add(backWall);
 
-    // Left wall
+    // Left wall - posicionada para se encaixar perfeitamente com o chão
     const leftWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
       this.leftWallHeight,
       this.leftWallDepth,
     );
     const leftWall = new THREE.Mesh(leftWallGeometry, this.materials.wall);
-    leftWall.position.set(-halfFloorWidth, this.leftWallHeight / 2, 0);
+    leftWall.position.set(
+      -halfFloorWidth - this.wallThickness / 2,
+      floorTop + this.leftWallHeight / 2,
+      0,
+    );
     leftWall.castShadow = true;
     leftWall.receiveShadow = true;
     this.roomMeshes.leftWall = leftWall;
     this.roomGroup.add(leftWall);
 
-    // Right wall
+    // Right wall - posicionada para se encaixar perfeitamente com o chão
     const rightWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
       this.rightWallHeight,
       this.rightWallDepth,
     );
     const rightWall = new THREE.Mesh(rightWallGeometry, this.materials.wall);
-    rightWall.position.set(halfFloorWidth, this.rightWallHeight / 2, 0);
+    rightWall.position.set(
+      halfFloorWidth + this.wallThickness / 2,
+      floorTop + this.rightWallHeight / 2,
+      0,
+    );
     rightWall.castShadow = true;
     rightWall.receiveShadow = true;
     this.roomMeshes.rightWall = rightWall;
