@@ -138,12 +138,16 @@ export class RoomExperience {
     this.controls.maxDistance = 25;
     this.controls.target.set(0, 2, 0);
 
-    // Suavizar zoom
+    // Configurações suaves para todos os controles
     this.controls.enableZoom = true;
-    this.controls.zoomSpeed = 0.5;
+    this.controls.zoomSpeed = 0.3; // Mais devagar
     this.controls.enablePan = true;
-    this.controls.panSpeed = 0.5;
-    this.controls.rotateSpeed = 0.5;
+    this.controls.panSpeed = 0.3;
+    this.controls.rotateSpeed = 0.3;
+
+    // Aplicar damping ao zoom também
+    this.controls.zoomToCursor = false; // Desabilita zoom para cursor
+    this.controls.screenSpacePanning = false; // Pan suave
   }
 
   private initWorld(): void {
