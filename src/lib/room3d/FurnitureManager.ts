@@ -26,7 +26,17 @@ export class FurnitureManager {
     this.furnitureFactory = new FurnitureFactory();
     this.furnitureLights = new Map();
 
-    this.createDefaultFurniture();
+    // Initialize furniture asynchronously
+    this.initializeFurniture();
+  }
+
+  private async initializeFurniture(): Promise<void> {
+    try {
+      await this.createDefaultFurniture();
+      console.log("Default furniture created successfully");
+    } catch (error) {
+      console.error("Error creating default furniture:", error);
+    }
   }
 
   private async createDefaultFurniture(): Promise<void> {
