@@ -99,7 +99,7 @@ export class RoomWorld {
     const halfFloorDepth = this.floorDepth / 2;
     const floorTop = 0; // Topo do chão está em y=0
 
-    // Back wall - posicionada para se encaixar perfeitamente com o chão
+    // Back wall - posicionada na borda do chão, voltada para dentro
     const backWallGeometry = new THREE.BoxGeometry(
       this.backWallWidth,
       this.backWallHeight,
@@ -109,14 +109,14 @@ export class RoomWorld {
     backWall.position.set(
       0,
       floorTop + this.backWallHeight / 2,
-      -halfFloorDepth - this.wallThickness / 2,
+      -halfFloorDepth + this.wallThickness / 2,
     );
     backWall.castShadow = true;
     backWall.receiveShadow = true;
     this.roomMeshes.backWall = backWall;
     this.roomGroup.add(backWall);
 
-    // Left wall - posicionada para se encaixar perfeitamente com o chão
+    // Left wall - posicionada na borda do chão, voltada para dentro
     const leftWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
       this.leftWallHeight,
@@ -124,7 +124,7 @@ export class RoomWorld {
     );
     const leftWall = new THREE.Mesh(leftWallGeometry, this.materials.wall);
     leftWall.position.set(
-      -halfFloorWidth - this.wallThickness / 2,
+      -halfFloorWidth + this.wallThickness / 2,
       floorTop + this.leftWallHeight / 2,
       0,
     );
@@ -133,7 +133,7 @@ export class RoomWorld {
     this.roomMeshes.leftWall = leftWall;
     this.roomGroup.add(leftWall);
 
-    // Right wall - posicionada para se encaixar perfeitamente com o chão
+    // Right wall - posicionada na borda do chão, voltada para dentro
     const rightWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
       this.rightWallHeight,
@@ -141,7 +141,7 @@ export class RoomWorld {
     );
     const rightWall = new THREE.Mesh(rightWallGeometry, this.materials.wall);
     rightWall.position.set(
-      halfFloorWidth + this.wallThickness / 2,
+      halfFloorWidth - this.wallThickness / 2,
       floorTop + this.rightWallHeight / 2,
       0,
     );
