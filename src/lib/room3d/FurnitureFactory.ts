@@ -81,8 +81,8 @@ export class FurnitureFactory {
     };
   }
 
-  public getAvailableTypes(): string[] {
-    return [
+  public async getAvailableTypes(): Promise<string[]> {
+    const builtInTypes = [
       "sofa",
       "table",
       "diningTable",
@@ -98,6 +98,16 @@ export class FurnitureFactory {
       "wallClock",
       "pendantLight",
     ];
+
+    // Add custom furniture types
+    const customFurniture = await furnitureService.getAllCustomFurniture();
+    const customTypes = customFurniture.map((f) => `custom_${f.id}`);
+
+    return [...builtInTypes, ...customTypes];
+  }
+
+  public async getCustomFurnitureList(): Promise<CustomFurniture[]> {
+    return await furnitureService.getAllCustomFurniture();
   }
 
   public create(type: string): THREE.Object3D | null {
