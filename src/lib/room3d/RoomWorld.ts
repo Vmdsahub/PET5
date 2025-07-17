@@ -140,13 +140,19 @@ export class RoomWorld {
 
   private createCeiling(): void {
     const ceilingGeometry = new THREE.BoxGeometry(
-      this.roomSize,
+      this.ceilingWidth,
       this.ceilingThickness,
-      this.roomSize,
+      this.ceilingDepth,
     );
     const ceiling = new THREE.Mesh(ceilingGeometry, this.materials.ceiling);
 
-    ceiling.position.y = this.roomHeight + this.ceilingThickness / 2;
+    // Use the highest wall as reference for ceiling position
+    const maxWallHeight = Math.max(
+      this.backWallHeight,
+      this.leftWallHeight,
+      this.rightWallHeight,
+    );
+    ceiling.position.y = maxWallHeight + this.ceilingThickness / 2;
     ceiling.receiveShadow = true;
     ceiling.castShadow = true;
 
