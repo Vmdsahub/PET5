@@ -130,11 +130,51 @@ export class FurnitureService {
   }
 
   /**
+   * Test database connection and permissions
+   */
+  async testDatabaseConnection(): Promise<void> {
+    try {
+      // Check if user is authenticated
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      console.log("Current user:", user, userError);
+
+      // Check if user is admin
+      if (user?.user?.id) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.user.id)
+          .single();
+        console.log("User profile:", profile, profileError);
+      }
+
+      // Test table access
+      const { data: tableTest, error: tableError } = await supabase
+        .from("custom_furniture")
+        .select("count(*)")
+        .limit(1);
+      console.log("Table access test:", tableTest, tableError);
+
+      // Test without filters
+      const { data: allData, error: allError } = await supabase
+        .from("custom_furniture")
+        .select("*");
+      console.log("All custom furniture (no filters):", allData, allError);
+    } catch (error) {
+      console.error("Database test error:", error);
+    }
+  }
+
+  /**
    * Get all custom furniture
    */
   async getAllCustomFurniture(): Promise<CustomFurniture[]> {
     try {
       console.log("Fetching custom furniture from database...");
+
+      // Run database test first
+      await this.testDatabaseConnection();
+
       const { data, error } = await supabase
         .from("custom_furniture")
         .select("*")
