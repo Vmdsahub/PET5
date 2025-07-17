@@ -122,14 +122,6 @@ export default class SimpleRoom {
 
     // Debug
     if (this.debug) {
-      // Geometry controls
-      this.geometryParams = {
-        roomWidth: 20,
-        roomDepth: 20,
-        roomHeight: 10,
-        wallThickness: 0.1,
-      };
-
       const geometryFolder = this.debugFolder.addFolder({
         title: "Geometry",
         expanded: true,
