@@ -1079,17 +1079,7 @@ export class GameService {
         image_url:
           "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fd42810aa3d45429d93d8c58c52827326?format=webp&width=800",
       },
-      {
-        id: "planet-2",
-        name: "Mundo Alienígena",
-        x: 7750,
-        y: 8000,
-        size: 60,
-        rotation: 0,
-        color: "#45b7d1",
-        image_url:
-          "https://cdn.builder.io/api/v1/image/assets%2Ff94d2a386a444693b9fbdff90d783a66%2Fdfce7132f868407eb4d7afdf27d09a77?format=webp&width=800",
-      },
+
       {
         id: "planet-3",
         name: "Terra Verdejante",
