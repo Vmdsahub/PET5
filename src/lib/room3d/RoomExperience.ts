@@ -132,25 +132,32 @@ export class RoomExperience {
   private initControls(): void {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.08;
+    this.controls.dampingFactor = 0.2; // Muito damping para suavidade máxima
     this.controls.maxPolarAngle = Math.PI / 2.2;
     this.controls.minDistance = 5;
     this.controls.maxDistance = 25;
     this.controls.target.set(0, 2, 0);
 
-    // Configurações de zoom nativo otimizadas
+    // Configurações de zoom ultra suaves
     this.controls.enableZoom = true;
-    this.controls.zoomSpeed = 0.7; // Velocidade moderada
+    this.controls.zoomSpeed = 0.3; // Muito lento e suave
     this.controls.enablePan = true;
-    this.controls.panSpeed = 0.8;
-    this.controls.rotateSpeed = 1.0;
+    this.controls.panSpeed = 0.5; // Também mais suave
+    this.controls.rotateSpeed = 0.8; // Levemente mais suave
 
-    // Configurações para suavidade
+    // Configurações para máxima suavidade
     this.controls.zoomToCursor = false;
     this.controls.screenSpacePanning = false;
 
-    // Aumentar damping para mais suavidade
-    this.controls.dampingFactor = 0.12;
+    // Configurações adicionais para imperceptibilidade
+    this.controls.minZoom = 0;
+    this.controls.maxZoom = Infinity;
+    this.controls.enableKeys = false;
+    this.controls.mouseButtons = {
+      LEFT: THREE.MOUSE.ROTATE,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN,
+    };
   }
 
   private initWorld(): void {
