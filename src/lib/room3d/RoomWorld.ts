@@ -236,29 +236,97 @@ export class RoomWorld {
     }
   }
 
-  // Geometry editing methods for admin
-  public updateRoomSize(newSize: number): void {
-    this.roomSize = Math.max(5, Math.min(50, newSize)); // Limit between 5 and 50
+  // Individual geometry editing methods for admin
+
+  // Floor controls
+  public updateFloorWidth(newWidth: number): void {
+    this.floorWidth = Math.max(5, Math.min(50, newWidth));
     this.rebuildRoom();
   }
 
-  public updateRoomHeight(newHeight: number): void {
-    this.roomHeight = Math.max(3, Math.min(20, newHeight)); // Limit between 3 and 20
-    this.rebuildRoom();
-  }
-
-  public updateWallThickness(newThickness: number): void {
-    this.wallThickness = Math.max(0.1, Math.min(1, newThickness)); // Limit between 0.1 and 1
+  public updateFloorDepth(newDepth: number): void {
+    this.floorDepth = Math.max(5, Math.min(50, newDepth));
     this.rebuildRoom();
   }
 
   public updateFloorThickness(newThickness: number): void {
-    this.floorThickness = Math.max(0.1, Math.min(1, newThickness)); // Limit between 0.1 and 1
+    this.floorThickness = Math.max(0.1, Math.min(1, newThickness));
+    this.rebuildRoom();
+  }
+
+  // Ceiling controls
+  public updateCeilingWidth(newWidth: number): void {
+    this.ceilingWidth = Math.max(5, Math.min(50, newWidth));
+    this.rebuildRoom();
+  }
+
+  public updateCeilingDepth(newDepth: number): void {
+    this.ceilingDepth = Math.max(5, Math.min(50, newDepth));
     this.rebuildRoom();
   }
 
   public updateCeilingThickness(newThickness: number): void {
-    this.ceilingThickness = Math.max(0.1, Math.min(1, newThickness)); // Limit between 0.1 and 1
+    this.ceilingThickness = Math.max(0.1, Math.min(1, newThickness));
+    this.rebuildRoom();
+  }
+
+  // Back wall controls
+  public updateBackWallWidth(newWidth: number): void {
+    this.backWallWidth = Math.max(5, Math.min(50, newWidth));
+    this.rebuildRoom();
+  }
+
+  public updateBackWallHeight(newHeight: number): void {
+    this.backWallHeight = Math.max(3, Math.min(20, newHeight));
+    this.rebuildRoom();
+  }
+
+  // Left wall controls
+  public updateLeftWallDepth(newDepth: number): void {
+    this.leftWallDepth = Math.max(5, Math.min(50, newDepth));
+    this.rebuildRoom();
+  }
+
+  public updateLeftWallHeight(newHeight: number): void {
+    this.leftWallHeight = Math.max(3, Math.min(20, newHeight));
+    this.rebuildRoom();
+  }
+
+  // Right wall controls
+  public updateRightWallDepth(newDepth: number): void {
+    this.rightWallDepth = Math.max(5, Math.min(50, newDepth));
+    this.rebuildRoom();
+  }
+
+  public updateRightWallHeight(newHeight: number): void {
+    this.rightWallHeight = Math.max(3, Math.min(20, newHeight));
+    this.rebuildRoom();
+  }
+
+  // Wall thickness control (affects all walls)
+  public updateWallThickness(newThickness: number): void {
+    this.wallThickness = Math.max(0.1, Math.min(1, newThickness));
+    this.rebuildRoom();
+  }
+
+  // Legacy methods for backward compatibility
+  public updateRoomSize(newSize: number): void {
+    this.floorWidth =
+      this.floorDepth =
+      this.ceilingWidth =
+      this.ceilingDepth =
+      this.backWallWidth =
+      this.leftWallDepth =
+      this.rightWallDepth =
+        Math.max(5, Math.min(50, newSize));
+    this.rebuildRoom();
+  }
+
+  public updateRoomHeight(newHeight: number): void {
+    this.backWallHeight =
+      this.leftWallHeight =
+      this.rightWallHeight =
+        Math.max(3, Math.min(20, newHeight));
     this.rebuildRoom();
   }
 
