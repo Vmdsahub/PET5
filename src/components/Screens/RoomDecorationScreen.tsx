@@ -118,7 +118,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   };
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-b from-sky-200 via-green-200 to-yellow-100 overflow-hidden">
+    <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* 3D Canvas Container */}
       <div
         ref={canvasRef}
