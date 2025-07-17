@@ -234,12 +234,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Instructions */}
       {!isEditMode && (
         <motion.div
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg text-sm"
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1 }}
+          transition={{ duration: 0.5, delay: 1, type: "spring", bounce: 0.3 }}
+          style={{
+            boxShadow:
+              "0 8px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
+          }}
         >
-          Use o mouse para navegar pela casa • Clique em Editar para decorar
+          🖱️ Use o mouse para navegar pela casa • 🎨 Clique em Editar para
+          decorar
         </motion.div>
       )}
     </div>
