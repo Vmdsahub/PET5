@@ -65,12 +65,13 @@ export class RoomWorld {
   }
 
   private createFloor(size: number): void {
-    const floorGeometry = new THREE.PlaneGeometry(size, size);
+    const floorThickness = 0.2;
+    const floorGeometry = new THREE.BoxGeometry(size, floorThickness, size);
     const floor = new THREE.Mesh(floorGeometry, this.materials.floor);
 
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0;
+    floor.position.y = -floorThickness / 2;
     floor.receiveShadow = true;
+    floor.castShadow = true;
 
     this.roomGroup.add(floor);
   }
@@ -104,12 +105,13 @@ export class RoomWorld {
   }
 
   private createCeiling(size: number, height: number): void {
-    const ceilingGeometry = new THREE.PlaneGeometry(size, size);
+    const ceilingThickness = 0.2;
+    const ceilingGeometry = new THREE.BoxGeometry(size, ceilingThickness, size);
     const ceiling = new THREE.Mesh(ceilingGeometry, this.materials.ceiling);
 
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.y = height;
+    ceiling.position.y = height + ceilingThickness / 2;
     ceiling.receiveShadow = true;
+    ceiling.castShadow = true;
 
     this.roomGroup.add(ceiling);
   }
