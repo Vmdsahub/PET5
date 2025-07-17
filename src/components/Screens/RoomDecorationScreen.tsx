@@ -419,7 +419,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <div className="space-y-4">
               <div className="bg-white/60 rounded-2xl p-3 border-2 border-yellow-200">
                 <p className="text-sm text-amber-700 mb-1 font-medium">
-                  ����️ Móvel Selecionado:
+                  🪑 Móvel Selecionado:
                 </p>
                 <p className="font-bold text-amber-900 capitalize">
                   {selectedObject.replace(/-/g, " ")}
@@ -1544,65 +1544,72 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 text-lg">
-                      {item.name}
-                    </h3>
-
-                    <div className="flex items-center gap-2">
-                      {item.currency === "xenocoins" ? (
-                        <img
-                          src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
-                          alt="Xenocoins"
-                          className="w-4 h-4"
-                        />
-                      ) : (
-                        <img
-                          src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
-                          alt="Xenocash"
-                          className="w-4 h-4"
-                        />
-                      )}
-                      <span className="font-bold text-gray-700">
-                        {item.price.toLocaleString()}{" "}
-                        {item.currency === "xenocoins"
-                          ? "Xenocoins"
-                          : "Xenocash"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="ml-4">
-                    <motion.button
-                      onClick={() => handlePurchase(item)}
-                      className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                        (item.currency === "xenocoins" ? xenocoins : cash) >=
-                        item.price
-                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
-                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      }`}
-                      whileHover={
-                        (item.currency === "xenocoins" ? xenocoins : cash) >=
-                        item.price
-                          ? { scale: 1.05 }
-                          : {}
-                      }
-                      whileTap={
-                        (item.currency === "xenocoins" ? xenocoins : cash) >=
-                        item.price
-                          ? { scale: 0.95 }
-                          : {}
-                      }
-                      disabled={
-                        (item.currency === "xenocoins" ? xenocoins : cash) <
-                        item.price
-                      }
-                    >
-                      ����️ Comprar
-                    </motion.button>
-                  </div>
+                {/* Thumbnail */}
+                <div className="w-16 h-16 mb-2">
+                  {getItemThumbnail(item.id) ? (
+                    <img
+                      src={getItemThumbnail(item.id)}
+                      alt={item.name}
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <Package size={20} className="text-blue-500 mb-1" />
+                  )}
                 </div>
+
+                {/* Name */}
+                <span className="text-xs text-center font-medium text-gray-700 leading-tight mb-2">
+                  {item.name}
+                </span>
+
+                {/* Price */}
+                <div className="flex items-center gap-1 mb-2">
+                  {item.currency === "xenocoins" ? (
+                    <img
+                      src="https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=800"
+                      alt="Xenocoins"
+                      className="w-3 h-3"
+                    />
+                  ) : (
+                    <img
+                      src="https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=800"
+                      alt="Xenocash"
+                      className="w-3 h-3"
+                    />
+                  )}
+                  <span className="font-bold text-gray-700 text-xs">
+                    {item.price.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Buy Button */}
+                <motion.button
+                  onClick={() => handlePurchase(item)}
+                  className={`px-3 py-1 rounded-lg font-medium text-xs transition-all ${
+                    (item.currency === "xenocoins" ? xenocoins : cash) >=
+                    item.price
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
+                  whileHover={
+                    (item.currency === "xenocoins" ? xenocoins : cash) >=
+                    item.price
+                      ? { scale: 1.05 }
+                      : {}
+                  }
+                  whileTap={
+                    (item.currency === "xenocoins" ? xenocoins : cash) >=
+                    item.price
+                      ? { scale: 0.95 }
+                      : {}
+                  }
+                  disabled={
+                    (item.currency === "xenocoins" ? xenocoins : cash) <
+                    item.price
+                  }
+                >
+                  🛒 Comprar
+                </motion.button>
               </motion.div>
             ))}
           </div>
