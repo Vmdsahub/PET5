@@ -57,6 +57,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       type: string;
     }>
   >([]);
+  const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
@@ -235,7 +236,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* 3D Canvas Container */}
       <div
         ref={canvasRef}
-        className="w-full h-full"
+        className={`w-full h-full transition-all duration-200 ${
+          isDraggingFromInventory
+            ? "ring-4 ring-blue-400 ring-opacity-50 bg-blue-50/10"
+            : ""
+        }`}
         style={{ cursor: isEditMode ? "crosshair" : "default" }}
       />
 
@@ -1402,7 +1407,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 draggable
+                onDragStart={() => {
+                  setIsDraggingFromInventory(true);
+                }}
                 onDragEnd={(e, info) => {
+                  setIsDraggingFromInventory(false);
                   // Use clientX/Y for global screen position
                   const dropX = e.clientX;
                   const dropY = e.clientY;
