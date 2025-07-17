@@ -1555,33 +1555,29 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     <motion.button
                       onClick={() => handlePurchase(item)}
                       className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                        (item.currency === "xenocoins"
-                          ? playerCurrency.xenocoins
-                          : playerCurrency.xenocash) >= item.price
+                        (item.currency === "xenocoins" ? xenocoins : cash) >=
+                        item.price
                           ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg"
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
                       whileHover={
-                        (item.currency === "xenocoins"
-                          ? playerCurrency.xenocoins
-                          : playerCurrency.xenocash) >= item.price
+                        (item.currency === "xenocoins" ? xenocoins : cash) >=
+                        item.price
                           ? { scale: 1.05 }
                           : {}
                       }
                       whileTap={
-                        (item.currency === "xenocoins"
-                          ? playerCurrency.xenocoins
-                          : playerCurrency.xenocash) >= item.price
+                        (item.currency === "xenocoins" ? xenocoins : cash) >=
+                        item.price
                           ? { scale: 0.95 }
                           : {}
                       }
                       disabled={
-                        (item.currency === "xenocoins"
-                          ? playerCurrency.xenocoins
-                          : playerCurrency.xenocash) < item.price
+                        (item.currency === "xenocoins" ? xenocoins : cash) <
+                        item.price
                       }
                     >
-                      ���️ Comprar
+                      ����️ Comprar
                     </motion.button>
                   </div>
                 </div>
