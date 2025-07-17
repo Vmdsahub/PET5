@@ -24,12 +24,6 @@ export class RoomExperience {
   private animationId: number | null = null;
   private onObjectSelect?: (objectId: string | null) => void;
 
-  // Smooth zoom variables
-  private targetDistance: number = 15;
-  private currentDistance: number = 15;
-  private zoomVelocity: number = 0;
-  private zoomDamping: number = 0.85;
-
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
     this.onObjectSelect = options.onObjectSelect;
