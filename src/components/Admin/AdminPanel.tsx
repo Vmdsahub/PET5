@@ -16,10 +16,6 @@ import {
 } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { RedeemCode } from "../../types/game";
-import {
-  furnitureService,
-  CustomFurniture,
-} from "../../services/furnitureService";
 
 export const AdminPanel: React.FC = () => {
   const {
