@@ -223,17 +223,17 @@ export class RoomExperience {
     // Velocity-based smooth zoom com easing
     const distanceDiff = this.targetDistance - this.currentDistance;
 
-    // Adicionar velocity baseada na diferença
-    this.zoomVelocity += distanceDiff * 0.015;
+    // Adicionar velocity baseada na diferença (mais rápido)
+    this.zoomVelocity += distanceDiff * 0.04;
 
-    // Aplicar damping à velocity
-    this.zoomVelocity *= this.zoomDamping;
+    // Aplicar damping à velocity (menos damping para mais velocidade)
+    this.zoomVelocity *= 0.9;
 
     // Atualizar a distância atual
     this.currentDistance += this.zoomVelocity;
 
-    // Easing quadrático para suavidade extra
-    const easingFactor = 0.15;
+    // Easing quadrático mais rápido
+    const easingFactor = 0.25;
     this.currentDistance +=
       (this.targetDistance - this.currentDistance) * easingFactor;
 
