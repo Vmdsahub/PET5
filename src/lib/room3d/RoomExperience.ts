@@ -140,17 +140,17 @@ export class RoomExperience {
 
     // Configurações suaves para todos os controles
     this.controls.enableZoom = true;
-    this.controls.zoomSpeed = 1.0; // Velocidade normal, mas com damping
+    this.controls.zoomSpeed = 0.3; // Zoom mais lento e suave
     this.controls.enablePan = true;
     this.controls.panSpeed = 0.8;
     this.controls.rotateSpeed = 1.0;
 
-    // Configurações para suavidade
+    // Configurações para suavidade máxima
     this.controls.zoomToCursor = false;
     this.controls.screenSpacePanning = false;
 
-    // Aumentar o damping factor para mais suavidade
-    this.controls.dampingFactor = 0.08;
+    // Damping factor maior para zoom mais suave
+    this.controls.dampingFactor = 0.15;
   }
 
   private initWorld(): void {
