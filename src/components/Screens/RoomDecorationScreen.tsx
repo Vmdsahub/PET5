@@ -191,16 +191,42 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     dropPosition: { x: number; y: number },
   ) => {
     // Convert screen position to 3D world position and place furniture
-    if (experienceRef.current) {
-      // Simple placement logic - place at origin for now
-      experienceRef.current.addFurnitureFromInventory(item.id, {
-        x: 0,
-        y: 0,
-        z: 0,
-      });
+    if (experienceRef.current && canvasRef.current) {
+      const canvasRect = canvasRef.current.getBoundingClientRect();
 
-      // Remove from inventory
-      setInventory((prev) => prev.filter((invItem) => invItem.id !== item.id));
+      // Check if drop position is within the 3D canvas area
+      const isWithinCanvas =
+        dropPosition.x >= canvasRect.left &&
+        dropPosition.x <= canvasRect.right &&
+        dropPosition.y >= canvasRect.top &&
+        dropPosition.y <= canvasRect.bottom;
+
+      if (isWithinCanvas) {
+        // Convert screen coordinates to normalized device coordinates
+        const x =
+          ((dropPosition.x - canvasRect.left) / canvasRect.width) * 2 - 1;
+        const y =
+          -((dropPosition.y - canvasRect.top) / canvasRect.height) * 2 + 1;
+
+        // Get 3D position using raycasting
+        const worldPosition = experienceRef.current.getWorldPositionFromScreen(
+          x,
+          y,
+        );
+
+        if (worldPosition) {
+          experienceRef.current.addFurnitureFromInventory(item.id, {
+            x: worldPosition.x,
+            y: worldPosition.y,
+            z: worldPosition.z,
+          });
+
+          // Remove from inventory
+          setInventory((prev) =>
+            prev.filter((invItem) => invItem.id !== item.id),
+          );
+        }
+      }
     }
   };
 
@@ -1376,7 +1402,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 draggable
-                onDragEnd={(e) => {
+                onDragEnd={(e, info) => {
+                  // Use clientX/Y for global screen position
                   const dropX = e.clientX;
                   const dropY = e.clientY;
                   handleInventoryItemDrop(item, { x: dropX, y: dropY });
