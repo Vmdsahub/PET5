@@ -16,6 +16,7 @@ import {
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
 import { useAuthStore } from "../../store/authStore";
+import { DraggableModal } from "../Layout/DraggableModal";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -306,6 +307,23 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-4 w-80"
             >
+              {/* Reset Button */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <button
+                  onClick={() => {
+                    if (experienceRef.current) {
+                      experienceRef.current.resetLightingToDefaults();
+                      const lights = experienceRef.current.getAllLights();
+                      setLightSettings(lights);
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw size={16} />
+                  Restaurar Padrões
+                </button>
+              </div>
+
               {/* Time of Day Control */}
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
@@ -420,6 +438,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-4 w-80"
             >
+              {/* Reset Button */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <button
+                  onClick={() => {
+                    if (experienceRef.current) {
+                      experienceRef.current.resetGeometryToDefaults();
+                      const dimensions =
+                        experienceRef.current.getRoomDimensions();
+                      setRoomDimensions(dimensions);
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw size={16} />
+                  Restaurar Padrões
+                </button>
+              </div>
+
               {/* Floor Controls */}
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
@@ -891,6 +927,26 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-4 w-80"
             >
+              {/* Reset Button */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <button
+                  onClick={() => {
+                    if (experienceRef.current) {
+                      experienceRef.current.resetMaterialsToDefaults();
+                      const materials =
+                        experienceRef.current.getMaterialProperties();
+                      setMaterialProperties(materials);
+                      // Force re-render of controls with default values
+                      window.location.reload(); // Quick solution for demo - in production use state management
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-teal-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw size={16} />
+                  Restaurar Padrões
+                </button>
+              </div>
+
               {/* Floor Material Controls */}
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
@@ -1221,6 +1277,41 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           )}
         </motion.div>
       )}
+
+      {/* Inventory Modal */}
+      <DraggableModal
+        isOpen={showInventoryModal}
+        onClose={() => setShowInventoryModal(false)}
+        title="Inventário"
+        modalId="inventory"
+        width={500}
+        height={600}
+        zIndex={100}
+      >
+        <div className="p-6 h-full bg-white">
+          {/* Inventory Grid */}
+          <div className="grid grid-cols-4 gap-4 h-full">
+            {/* Empty inventory slots */}
+            {Array.from({ length: 20 }).map((_, index) => (
+              <div
+                key={index}
+                className="aspect-square border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-400 hover:border-gray-300 transition-colors"
+              >
+                <Package size={24} className="opacity-50" />
+              </div>
+            ))}
+          </div>
+
+          {/* Instructions */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 text-center">
+              🖱️ Clique com o botão direito nos móveis para guardá-los aqui
+              <br />
+              🎨 Arraste do inventário para o quarto para colocar móveis
+            </p>
+          </div>
+        </div>
+      </DraggableModal>
 
       {/* Instructions */}
       {!isEditMode && (
