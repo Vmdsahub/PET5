@@ -426,6 +426,21 @@ export class RoomExperience {
     this.world.resetMaterialsToDefaults();
   }
 
+  // Furniture management methods
+  public removeFurniture(objectId: string): void {
+    this.furnitureManager.removeFurniture(objectId);
+  }
+
+  public addFurnitureFromInventory(
+    objectId: string,
+    position: { x: number; y: number; z: number },
+  ): void {
+    this.furnitureManager.addFurnitureFromInventory(
+      objectId,
+      new THREE.Vector3(position.x, position.y, position.z),
+    );
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
