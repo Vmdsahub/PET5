@@ -164,22 +164,6 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
-  // Load custom furniture on component mount
-  React.useEffect(() => {
-    if (user?.isAdmin) {
-      loadCustomFurniture();
-    }
-  }, [user?.isAdmin]);
-
-  const loadCustomFurniture = async () => {
-    try {
-      const furniture = await furnitureService.getAllCustomFurniture();
-      setCustomFurniture(furniture);
-    } catch (error) {
-      console.error("Error loading custom furniture:", error);
-    }
-  };
-
   const handleFurnitureUpload = async () => {
     if (!uploadFile || !uploadData.name.trim()) {
       addNotification({
