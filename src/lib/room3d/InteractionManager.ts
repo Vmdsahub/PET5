@@ -69,15 +69,27 @@ export class InteractionManager {
   }
 
   private onMouseClick(event: MouseEvent): void {
-    if (!this.editMode || this.isDragging) return;
+    if (this.isDragging) return;
 
     this.updateMouse(event);
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
     const objectId = this.furnitureManager.getFurnitureAt(this.raycaster);
 
-    if (objectId !== this.selectedObject) {
-      this.selectObject(objectId);
+    if (objectId) {
+      // Show context menu for furniture
+      if (this.onRightClickFurniture) {
+        const rect = this.domElement.getBoundingClientRect();
+        this.onRightClickFurniture(objectId, {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+        });
+      }
+    } else if (this.editMode) {
+      // Only select objects in edit mode when clicking empty space
+      if (objectId !== this.selectedObject) {
+        this.selectObject(objectId);
+      }
     }
   }
 
@@ -140,20 +152,7 @@ export class InteractionManager {
 
   private onContextMenu(event: MouseEvent): void {
     event.preventDefault();
-
-    this.updateMouse(event);
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    const objectId = this.furnitureManager.getFurnitureAt(this.raycaster);
-
-    if (objectId && this.onRightClickFurniture) {
-      // Show context menu for furniture
-      const rect = this.domElement.getBoundingClientRect();
-      this.onRightClickFurniture(objectId, {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      });
-    }
+    // Context menu now handled by left click
   }
 
   private selectObject(objectId: string | null): void {
