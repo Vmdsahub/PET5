@@ -160,6 +160,45 @@ export class RoomExperience {
     this.furnitureManager.moveObject(objectId, position);
   }
 
+  // Lighting controls for admin
+  public updateLightIntensity(lightName: string, intensity: number): void {
+    this.lighting.updateLightIntensity(lightName, intensity);
+  }
+
+  public updateLightColor(lightName: string, color: string): void {
+    this.lighting.updateLightColor(lightName, color);
+  }
+
+  public updateLightPosition(lightName: string, position: THREE.Vector3): void {
+    this.lighting.updateLightPosition(lightName, position);
+  }
+
+  public updateShadowSettings(
+    lightName: string,
+    settings: {
+      mapSize?: number;
+      bias?: number;
+      enabled?: boolean;
+    },
+  ): void {
+    this.lighting.updateShadowSettings(lightName, settings);
+  }
+
+  public setTimeOfDay(hour: number): void {
+    this.lighting.setTimeOfDay(hour);
+  }
+
+  public getAllLights(): {
+    [key: string]: {
+      intensity: number;
+      color: string;
+      position: THREE.Vector3;
+      castShadow: boolean;
+    };
+  } {
+    return this.lighting.getAllLights();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
