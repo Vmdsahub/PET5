@@ -99,7 +99,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   const loadCustomFurniture = async () => {
     try {
+      console.log("Loading custom furniture...");
       const furniture = await furnitureService.getAllCustomFurniture();
+      console.log("Loaded custom furniture:", furniture);
       setCustomFurniture(furniture);
     } catch (error) {
       console.error("Error loading custom furniture:", error);
