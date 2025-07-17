@@ -416,8 +416,8 @@ export const StoreScreen: React.FC = () => {
               <Icon className="w-4 h-4" />
               <span className="font-medium text-sm">{name}</span>
               {special && (
-                <span className="ml-1 text-xs bg-white/20 px-1.5 py-0.5 rounded-full">
-                  New
+                <span className="ml-1 text-xs bg-yellow-400 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                  GLB Upload
                 </span>
               )}
             </motion.button>
