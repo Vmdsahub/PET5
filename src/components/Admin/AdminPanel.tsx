@@ -39,19 +39,6 @@ export const AdminPanel: React.FC = () => {
   const [showCreateCodeModal, setShowCreateCodeModal] = useState(false);
   const [editingCode, setEditingCode] = useState<RedeemCode | null>(null);
 
-  // Furniture management state
-  const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadData, setUploadData] = useState({
-    name: "",
-    description: "",
-    price: 10,
-    currency: "xenocoins" as "xenocoins" | "cash",
-    category: "admin" as "admin" | "premium" | "seasonal",
-    tags: [] as string[],
-  });
-  const [isUploading, setIsUploading] = useState(false);
   const [newCodeData, setNewCodeData] = useState({
     code: "",
     name: "",
