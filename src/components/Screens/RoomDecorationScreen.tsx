@@ -67,6 +67,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency } = useGameStore();
 
+  // Function to generate item thumbnails
+  const getItemThumbnail = (itemId: string) => {
+    const thumbnails = {
+      "premium-sofa":
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+PHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNmOGZhZmMiLz48cmVjdCB4PSIyMCIgeT0iNjAiIHdpZHRoPSI4OCIgaGVpZ2h0PSIzNSIgcng9IjUiIGZpbGw9IiM0QTVEMjMiLz48cmVjdCB4PSIyMCIgeT0iNDUiIHdpZHRoPSI4OCIgaGVpZ2h0PSIzMCIgcng9IjMiIGZpbGw9IiM0QTVEMjMiLz48cmVjdCB4PSIxNSIgeT0iNDAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI0MCIgcng9IjUiIGZpbGw9IiM0QTVEMjMiLz48cmVjdCB4PSIxMDMiIHk9IjQwIiB3aWR0aD0iMTAiIGhlaWdodD0iNDAiIHJ4PSI1IiBmaWxsPSIjNEE1RDIzIi8+PHJlY3QgeD0iMjUiIHk9IjUwIiB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHJ4PSIzIiBmaWxsPSIjQ0Q4NTNGIi8+PHJlY3QgeD0iNTQiIHk9IjUwIiB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHJ4PSIzIiBmaWxsPSIjQ0Q4NTNGIi8+PHJlY3QgeD0iODMiIHk9IjUwIiB3aWR0aD0iMjAiIGhlaWdodD0iMTUiIHJ4PSIzIiBmaWxsPSIjQ0Q4NTNGIi8+PC9zdmc+",
+      "crystal-lamp":
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMTI4IDEyOCI+PHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiNmOGZhZmMiLz48Y2lyY2xlIGN4PSI2NCIgY3k9IjEwMCIgcj0iMTIiIGZpbGw9IiM4QjQ1MTMiLz48cmVjdCB4PSI2MiIgeT0iMzAiIHdpZHRoPSI0IiBoZWlnaHQ9IjcwIiBmaWxsPSIjOEI0NTEzIi8+PHBvbHlnb24gcG9pbnRzPSI2NCwyMCA0NSw0NSA4Myw0NSIgZmlsbD0iI0Y1RjVEQyIgc3Ryb2tlPSIjQ0NDIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI2NCIgY3k9IjMwIiByPSI1IiBmaWxsPSIjRkZENzAwIiBvcGFjaXR5PSIwLjgiLz48cG9seWdvbiBwb2ludHM9IjUwLDQ1IDc4LDQ1IDcwLDYwIDU4LDYwIiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNDQ0MiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC44Ii8+PC9zdmc+",
+    };
+    return thumbnails[itemId] || null;
+  };
+
   // Catalog items for sale
   const catalogItems = [
     {
@@ -1588,7 +1599,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         item.price
                       }
                     >
-                      �����️ Comprar
+                      ����️ Comprar
                     </motion.button>
                   </div>
                 </div>
