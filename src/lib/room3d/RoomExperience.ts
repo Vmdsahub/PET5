@@ -44,7 +44,54 @@ export class RoomExperience {
 
   private initScene(): void {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color("#f0f8ff");
+
+    // Create deep space background with gradient
+    const geometry = new THREE.SphereGeometry(100, 32, 32);
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float time;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec3 direction = normalize(vWorldPosition);
+          float intensity = 1.0 - max(dot(direction, vec3(0.0, 1.0, 0.0)), 0.0);
+
+          // Create subtle star field
+          float stars = 0.0;
+          for(int i = 0; i < 3; i++) {
+            vec3 layer = direction * (float(i) + 1.0) * 50.0;
+            stars += step(0.995, sin(layer.x) * sin(layer.y) * sin(layer.z)) * (1.0 - float(i) * 0.3);
+          }
+
+          // Deep space gradient
+          vec3 spaceColor = mix(
+            vec3(0.0, 0.0, 0.05), // Deep dark blue
+            vec3(0.0, 0.0, 0.0),  // Pure black
+            intensity
+          );
+
+          gl_FragColor = vec4(spaceColor + stars * 0.3, 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+    });
+
+    const skybox = new THREE.Mesh(geometry, material);
+    this.scene.add(skybox);
+
+    // Store reference for animation
+    (this as any).skyboxMaterial = material;
   }
 
   private initCamera(): void {
@@ -119,6 +166,11 @@ export class RoomExperience {
   private startAnimation(): void {
     const animate = () => {
       this.animationId = requestAnimationFrame(animate);
+
+      // Animate skybox for subtle movement
+      if ((this as any).skyboxMaterial) {
+        (this as any).skyboxMaterial.uniforms.time.value += 0.01;
+      }
 
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
