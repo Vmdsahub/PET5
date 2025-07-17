@@ -17,6 +17,7 @@ import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { InventoryScreen } from "./components/Screens/InventoryScreen";
+import { RoomDecorationScreen } from "./components/Screens/RoomDecorationScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -204,6 +205,12 @@ function App() {
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
+      case "room-decoration":
+        return (
+          <RoomDecorationScreen
+            onNavigateBack={() => setCurrentScreen("world")}
+          />
+        );
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "profile":

@@ -2460,20 +2460,7 @@ export const useGameStore = create<GameStore>()(
             createdAt: new Date(),
             updatedAt: new Date(),
           },
-          {
-            id: "planet-2",
-            name: "Mundo Alienígena",
-            x: 50000,
-            y: 50500,
-            size: 60,
-            rotation: 0,
-            color: "#45b7d1",
-            interactionRadius: 80, // Área de pouso menor - mundo perigoso
-            imageUrl:
-              "https://cdn.builder.io/api/v1/image/assets%2F8ec9b1b631094c4a90f6526f2a2446cc%2F1192080bbca44c28b40c7df4984132da?format=webp&width=800",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
+
           {
             id: "planet-3",
             name: "Terra Verdejante",
