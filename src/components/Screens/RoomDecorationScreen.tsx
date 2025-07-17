@@ -151,20 +151,22 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         onNavigateBack();
         break;
       case "catalog":
-        setShowCatalogModal(!showCatalogModal);
+        const newCatalogState = !showCatalogModal;
+        setShowCatalogModal(newCatalogState);
         if (showInventoryModal) setShowInventoryModal(false);
-        setActiveNav(showCatalogModal ? "" : "catalog");
+        setActiveNav(newCatalogState ? "catalog" : "");
         break;
       case "inventory":
-        setShowInventoryModal(!showInventoryModal);
+        const newInventoryState = !showInventoryModal;
+        setShowInventoryModal(newInventoryState);
         if (showCatalogModal) setShowCatalogModal(false);
-        setActiveNav(showInventoryModal ? "" : "inventory");
+        setActiveNav(newInventoryState ? "inventory" : "");
         break;
       case "edit":
         setIsEditMode(!isEditMode);
+        setActiveNav(isEditMode ? "" : "edit");
         break;
     }
-    setActiveNav(id);
   };
 
   const handleObjectTransform = (action: string) => {
@@ -1586,7 +1588,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         item.price
                       }
                     >
-                      ����️ Comprar
+                      �����️ Comprar
                     </motion.button>
                   </div>
                 </div>
