@@ -1,4 +1,9 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import {
+  furnitureService,
+  CustomFurniture,
+} from "../../services/furnitureService";
 
 export class FurnitureFactory {
   private materials: { [key: string]: THREE.Material };
