@@ -75,10 +75,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   useEffect(() => {
     if (experienceRef.current) {
       experienceRef.current.setEditMode(isEditMode);
-      // Load initial light settings for admin
+      // Load initial light settings and room dimensions for admin
       if (user?.isAdmin) {
         const lights = experienceRef.current.getAllLights();
+        const dimensions = experienceRef.current.getRoomDimensions();
         setLightSettings(lights);
+        setRoomDimensions(dimensions);
       }
     }
   }, [isEditMode, user?.isAdmin]);
