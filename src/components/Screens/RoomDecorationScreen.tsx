@@ -170,7 +170,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Edit Mode UI */}
       {isEditMode && (
         <motion.div
-          className="absolute top-4 right-4 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-yellow-200/50"
+          className="fixed top-20 right-4 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-yellow-200/50 z-40"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
