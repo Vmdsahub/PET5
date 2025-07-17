@@ -246,9 +246,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Admin Lighting Panel */}
       {user?.isAdmin && (
         <motion.div
-          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-slate-700/50"
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          className="fixed top-20 right-4 bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-slate-700/50 z-50 max-h-[80vh] overflow-y-auto"
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
           style={{
             background: "linear-gradient(145deg, #1e293b, #334155)",
@@ -385,9 +385,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Instructions */}
       {!isEditMode && (
         <motion.div
-          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          className="fixed bottom-20 left-4 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-6 py-3 rounded-2xl text-sm font-medium border-2 border-yellow-200 z-40 max-w-xs"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 1, type: "spring", bounce: 0.3 }}
           style={{
             boxShadow:
