@@ -179,7 +179,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <div className="space-y-4">
               <div className="bg-white/60 rounded-2xl p-3 border-2 border-yellow-200">
                 <p className="text-sm text-amber-700 mb-1 font-medium">
-                  🛋️ Móvel Selecionado:
+                  ����️ Móvel Selecionado:
                 </p>
                 <p className="font-bold text-amber-900 capitalize">
                   {selectedObject.replace(/-/g, " ")}
@@ -209,20 +209,22 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   <ZoomIn size={18} />
                 </motion.button>
 
-                <motion.button
+                                <motion.button
                   onClick={() => handleObjectTransform("scale-down")}
-                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="p-3 bg-gradient-to-br from-red-400 to-red-500 text-white rounded-xl border-2 border-red-300 font-medium shadow-lg"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
                   title="Diminuir"
+                  style={{ boxShadow: '0 6px 12px rgba(239, 68, 68, 0.4)' }}
                 >
-                  <ZoomOut size={16} />
+                  <ZoomOut size={18} />
                 </motion.button>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">
-              Clique em um móvel para editá-lo
+            <div className="bg-white/60 rounded-2xl p-4 border-2 border-yellow-200 text-center">
+              <p className="text-amber-700 font-medium">
+                🎯 Clique em um móvel para decorar!</p>
             </p>
           )}
         </motion.div>
