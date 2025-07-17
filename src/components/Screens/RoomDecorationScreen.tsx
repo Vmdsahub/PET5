@@ -158,14 +158,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       {/* Edit Mode UI */}
       {isEditMode && (
         <motion.div
-          className="absolute top-4 right-4 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/20"
+          className="absolute top-4 right-4 bg-yellow-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-yellow-200/50"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
+          style={{
+            background: "linear-gradient(145deg, #fefce8, #fef3c7)",
+            boxShadow:
+              "0 20px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6)",
+          }}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <Edit3 size={20} className="text-blue-500" />
-            <span className="font-medium text-gray-800">Modo Edição</span>
+          <div className="flex items-center gap-3 mb-4">
+            <Edit3 size={24} className="text-amber-600" />
+            <span className="font-bold text-amber-800 text-lg">
+              🏠 Modo Decoração
+            </span>
           </div>
 
           {selectedObject ? (
