@@ -40,9 +40,20 @@ export default class SimpleRoom {
       metalness: 0.05,
     });
 
+    // Initialize geometry parameters
+    this.geometryParams = {
+      roomWidth: 20,
+      roomDepth: 20,
+      roomHeight: 10,
+      wallThickness: 0.1,
+    };
+
     // Floor
     this.room.floor = {};
-    this.room.floor.geometry = new THREE.PlaneGeometry(20, 20);
+    this.room.floor.geometry = new THREE.PlaneGeometry(
+      this.geometryParams.roomWidth,
+      this.geometryParams.roomDepth,
+    );
     this.room.floor.mesh = new THREE.Mesh(
       this.room.floor.geometry,
       this.room.materials.floor,
@@ -53,48 +64,60 @@ export default class SimpleRoom {
 
     // Back wall
     this.room.backWall = {};
-    this.room.backWall.geometry = new THREE.PlaneGeometry(20, 10);
+    this.room.backWall.geometry = new THREE.PlaneGeometry(
+      this.geometryParams.roomWidth,
+      this.geometryParams.roomHeight,
+    );
     this.room.backWall.mesh = new THREE.Mesh(
       this.room.backWall.geometry,
       this.room.materials.wall,
     );
-    this.room.backWall.mesh.position.z = -10;
-    this.room.backWall.mesh.position.y = 5;
+    this.room.backWall.mesh.position.z = -this.geometryParams.roomDepth / 2;
+    this.room.backWall.mesh.position.y = this.geometryParams.roomHeight / 2;
     this.room.group.add(this.room.backWall.mesh);
 
     // Left wall
     this.room.leftWall = {};
-    this.room.leftWall.geometry = new THREE.PlaneGeometry(20, 10);
+    this.room.leftWall.geometry = new THREE.PlaneGeometry(
+      this.geometryParams.roomDepth,
+      this.geometryParams.roomHeight,
+    );
     this.room.leftWall.mesh = new THREE.Mesh(
       this.room.leftWall.geometry,
       this.room.materials.wall,
     );
     this.room.leftWall.mesh.rotation.y = Math.PI * 0.5;
-    this.room.leftWall.mesh.position.x = -10;
-    this.room.leftWall.mesh.position.y = 5;
+    this.room.leftWall.mesh.position.x = -this.geometryParams.roomWidth / 2;
+    this.room.leftWall.mesh.position.y = this.geometryParams.roomHeight / 2;
     this.room.group.add(this.room.leftWall.mesh);
 
     // Right wall
     this.room.rightWall = {};
-    this.room.rightWall.geometry = new THREE.PlaneGeometry(20, 10);
+    this.room.rightWall.geometry = new THREE.PlaneGeometry(
+      this.geometryParams.roomDepth,
+      this.geometryParams.roomHeight,
+    );
     this.room.rightWall.mesh = new THREE.Mesh(
       this.room.rightWall.geometry,
       this.room.materials.wall,
     );
     this.room.rightWall.mesh.rotation.y = -Math.PI * 0.5;
-    this.room.rightWall.mesh.position.x = 10;
-    this.room.rightWall.mesh.position.y = 5;
+    this.room.rightWall.mesh.position.x = this.geometryParams.roomWidth / 2;
+    this.room.rightWall.mesh.position.y = this.geometryParams.roomHeight / 2;
     this.room.group.add(this.room.rightWall.mesh);
 
     // Ceiling
     this.room.ceiling = {};
-    this.room.ceiling.geometry = new THREE.PlaneGeometry(20, 20);
+    this.room.ceiling.geometry = new THREE.PlaneGeometry(
+      this.geometryParams.roomWidth,
+      this.geometryParams.roomDepth,
+    );
     this.room.ceiling.mesh = new THREE.Mesh(
       this.room.ceiling.geometry,
       this.room.materials.wall,
     );
     this.room.ceiling.mesh.rotation.x = Math.PI * 0.5;
-    this.room.ceiling.mesh.position.y = 10;
+    this.room.ceiling.mesh.position.y = this.geometryParams.roomHeight;
     this.room.group.add(this.room.ceiling.mesh);
 
     // Debug
