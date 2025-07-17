@@ -95,16 +95,17 @@ export class RoomWorld {
   }
 
   private createWalls(): void {
-    const halfSize = this.roomSize / 2;
+    const halfFloorWidth = this.floorWidth / 2;
+    const halfFloorDepth = this.floorDepth / 2;
 
     // Back wall
     const backWallGeometry = new THREE.BoxGeometry(
-      this.roomSize,
-      this.roomHeight,
+      this.backWallWidth,
+      this.backWallHeight,
       this.wallThickness,
     );
     const backWall = new THREE.Mesh(backWallGeometry, this.materials.wall);
-    backWall.position.set(0, this.roomHeight / 2, -halfSize);
+    backWall.position.set(0, this.backWallHeight / 2, -halfFloorDepth);
     backWall.castShadow = true;
     backWall.receiveShadow = true;
     this.roomMeshes.backWall = backWall;
@@ -113,11 +114,11 @@ export class RoomWorld {
     // Left wall
     const leftWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
-      this.roomHeight,
-      this.roomSize,
+      this.leftWallHeight,
+      this.leftWallDepth,
     );
     const leftWall = new THREE.Mesh(leftWallGeometry, this.materials.wall);
-    leftWall.position.set(-halfSize, this.roomHeight / 2, 0);
+    leftWall.position.set(-halfFloorWidth, this.leftWallHeight / 2, 0);
     leftWall.castShadow = true;
     leftWall.receiveShadow = true;
     this.roomMeshes.leftWall = leftWall;
@@ -126,11 +127,11 @@ export class RoomWorld {
     // Right wall
     const rightWallGeometry = new THREE.BoxGeometry(
       this.wallThickness,
-      this.roomHeight,
-      this.roomSize,
+      this.rightWallHeight,
+      this.rightWallDepth,
     );
     const rightWall = new THREE.Mesh(rightWallGeometry, this.materials.wall);
-    rightWall.position.set(halfSize, this.roomHeight / 2, 0);
+    rightWall.position.set(halfFloorWidth, this.rightWallHeight / 2, 0);
     rightWall.castShadow = true;
     rightWall.receiveShadow = true;
     this.roomMeshes.rightWall = rightWall;
