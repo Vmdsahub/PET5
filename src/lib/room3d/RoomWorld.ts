@@ -21,6 +21,30 @@ export class RoomWorld {
   private leftWallHeight: number = 10;
   private rightWallDepth: number = 20;
   private rightWallHeight: number = 10;
+
+  // Default values for reset functionality
+  private readonly defaultDimensions = {
+    floorWidth: 20,
+    floorDepth: 20,
+    ceilingWidth: 20,
+    ceilingDepth: 20,
+    backWallWidth: 20,
+    backWallHeight: 10,
+    leftWallDepth: 20,
+    leftWallHeight: 10,
+    rightWallDepth: 20,
+    rightWallHeight: 10,
+    wallThickness: 0.2,
+    floorThickness: 0.2,
+    ceilingThickness: 0.2,
+  };
+
+  private readonly defaultMaterials = {
+    floor: { color: "#8B7355", roughness: 0.8, metalness: 0.1 },
+    wall: { color: "#F5F5F0", roughness: 0.9, metalness: 0.05 },
+    ceiling: { color: "#FFFFFF", roughness: 0.9, metalness: 0.02 },
+    baseboard: { color: "#FFFFFF", roughness: 0.7, metalness: 0.1 },
+  };
   private roomMeshes: { [key: string]: THREE.Mesh } = {};
 
   constructor(scene: THREE.Scene) {
@@ -481,5 +505,49 @@ export class RoomWorld {
       rightWallDepth: this.rightWallDepth,
       rightWallHeight: this.rightWallHeight,
     };
+  }
+
+  // Reset methods for admin controls
+  public resetGeometryToDefaults(): void {
+    this.floorWidth = this.defaultDimensions.floorWidth;
+    this.floorDepth = this.defaultDimensions.floorDepth;
+    this.ceilingWidth = this.defaultDimensions.ceilingWidth;
+    this.ceilingDepth = this.defaultDimensions.ceilingDepth;
+    this.backWallWidth = this.defaultDimensions.backWallWidth;
+    this.backWallHeight = this.defaultDimensions.backWallHeight;
+    this.leftWallDepth = this.defaultDimensions.leftWallDepth;
+    this.leftWallHeight = this.defaultDimensions.leftWallHeight;
+    this.rightWallDepth = this.defaultDimensions.rightWallDepth;
+    this.rightWallHeight = this.defaultDimensions.rightWallHeight;
+    this.wallThickness = this.defaultDimensions.wallThickness;
+    this.floorThickness = this.defaultDimensions.floorThickness;
+    this.ceilingThickness = this.defaultDimensions.ceilingThickness;
+    this.rebuildRoom();
+  }
+
+  public resetMaterialsToDefaults(): void {
+    // Reset floor material
+    const floorMat = this.materials.floor as THREE.MeshStandardMaterial;
+    floorMat.color.set(this.defaultMaterials.floor.color);
+    floorMat.roughness = this.defaultMaterials.floor.roughness;
+    floorMat.metalness = this.defaultMaterials.floor.metalness;
+
+    // Reset wall material
+    const wallMat = this.materials.wall as THREE.MeshStandardMaterial;
+    wallMat.color.set(this.defaultMaterials.wall.color);
+    wallMat.roughness = this.defaultMaterials.wall.roughness;
+    wallMat.metalness = this.defaultMaterials.wall.metalness;
+
+    // Reset ceiling material
+    const ceilingMat = this.materials.ceiling as THREE.MeshStandardMaterial;
+    ceilingMat.color.set(this.defaultMaterials.ceiling.color);
+    ceilingMat.roughness = this.defaultMaterials.ceiling.roughness;
+    ceilingMat.metalness = this.defaultMaterials.ceiling.metalness;
+
+    // Reset baseboard material
+    const baseboardMat = this.materials.baseboard as THREE.MeshStandardMaterial;
+    baseboardMat.color.set(this.defaultMaterials.baseboard.color);
+    baseboardMat.roughness = this.defaultMaterials.baseboard.roughness;
+    baseboardMat.metalness = this.defaultMaterials.baseboard.metalness;
   }
 }
