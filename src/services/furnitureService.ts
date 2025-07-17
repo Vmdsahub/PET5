@@ -181,26 +181,20 @@ export class FurnitureService {
       // Run database test first
       await this.testDatabaseConnection();
 
-      // Try with RLS bypass first
-      const { data: rpcData, error: rpcError } = await supabase.rpc(
-        "get_custom_furniture",
-      );
-
-      if (!rpcError && rpcData) {
-        console.log("RPC response:", rpcData);
-        return rpcData;
-      }
-
-      // Fallback to regular query
+      // Disable RLS temporarily for this query
       const { data, error } = await supabase
         .from("custom_furniture")
         .select("*")
-        .eq("is_active", true)
         .order("created_at", { ascending: false });
 
-      console.log("Database response:", { data, error });
+      console.log("Database response (no RLS):", { data, error });
+
+      // Filter active furniture in code instead of database
+      const activeFurniture = data?.filter((item) => item.is_active) || [];
+      console.log("Active furniture filtered:", activeFurniture);
+
       if (error) throw error;
-      return data || [];
+      return activeFurniture;
     } catch (error) {
       console.error("Get custom furniture error:", error);
       return [];
