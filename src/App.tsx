@@ -205,6 +205,12 @@ function App() {
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
+      case "room-decoration":
+        return (
+          <RoomDecorationScreen
+            onNavigateBack={() => setCurrentScreen("world")}
+          />
+        );
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
       case "profile":
