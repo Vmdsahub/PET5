@@ -301,7 +301,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
   };
 
-  const handleInventoryItemDrop = (
+  const handleInventoryItemDrop = async (
     item: any,
     dropPosition: { x: number; y: number },
   ) => {
