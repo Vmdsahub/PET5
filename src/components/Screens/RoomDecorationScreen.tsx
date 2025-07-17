@@ -379,6 +379,181 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               )}
             </motion.div>
           )}
+
+          {showGeometryPanel && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Room Size Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Room Size (Width/Length)
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="1"
+                    defaultValue={roomDimensions.size || 20}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateRoomSize(
+                          parseInt(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          size: parseInt(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {roomDimensions.size || 20}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Room Height Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Room Height</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="3"
+                    max="20"
+                    step="0.5"
+                    defaultValue={roomDimensions.height || 10}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateRoomHeight(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          height: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {roomDimensions.height || 10}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Wall Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Wall Thickness</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.wallThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateWallThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          wallThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.wallThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Floor Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Floor Thickness
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.floorThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateFloorThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          floorThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.floorThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+
+              {/* Ceiling Thickness Control */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Settings size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">
+                    Ceiling Thickness
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    defaultValue={roomDimensions.ceilingThickness || 0.2}
+                    onChange={(e) => {
+                      if (experienceRef.current) {
+                        experienceRef.current.updateCeilingThickness(
+                          parseFloat(e.target.value),
+                        );
+                        setRoomDimensions((prev) => ({
+                          ...prev,
+                          ceilingThickness: parseFloat(e.target.value),
+                        }));
+                      }
+                    }}
+                    className="flex-1 slider"
+                  />
+                  <span className="text-slate-300 text-sm min-w-[3rem]">
+                    {(roomDimensions.ceilingThickness || 0.2).toFixed(2)}m
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       )}
 
