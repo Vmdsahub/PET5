@@ -36,7 +36,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [selectedObject, setSelectedObject] = useState<string | null>(null);
   const [activeNav, setActiveNav] = useState("room");
   const [showLightingPanel, setShowLightingPanel] = useState(false);
+  const [showGeometryPanel, setShowGeometryPanel] = useState(false);
   const [lightSettings, setLightSettings] = useState<any>({});
+  const [roomDimensions, setRoomDimensions] = useState<any>({});
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
