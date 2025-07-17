@@ -273,6 +273,13 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
+    // Remove associated light if it's a lamp
+    if (id.includes("lamp") && this.furnitureLights.has(id)) {
+      const light = this.furnitureLights.get(id)!;
+      this.scene.remove(light);
+      this.furnitureLights.delete(id);
+    }
+
     // Remove from scene
     this.furnitureGroup.remove(item.object);
 
