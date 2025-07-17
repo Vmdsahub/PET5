@@ -486,19 +486,24 @@ export class RoomExperience {
 
     // Create a temporary scene for thumbnail rendering
     const thumbScene = new THREE.Scene();
+    thumbScene.background = new THREE.Color(0xf0f0f0); // Light gray background
     const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 
     // Clone the furniture object for thumbnail
     const clonedObject = furniture.object.clone();
     thumbScene.add(clonedObject);
 
-    // Add lighting for thumbnail
-    const light1 = new THREE.DirectionalLight(0xffffff, 1);
-    light1.position.set(1, 1, 1);
+    // Add bright lighting for thumbnail
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+    light1.position.set(2, 3, 2);
     thumbScene.add(light1);
 
-    const light2 = new THREE.AmbientLight(0xffffff, 0.4);
+    const light2 = new THREE.DirectionalLight(0xffffff, 1);
+    light2.position.set(-2, 2, -1);
     thumbScene.add(light2);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    thumbScene.add(ambientLight);
 
     // Position camera to frame the object
     const box = new THREE.Box3().setFromObject(clonedObject);
@@ -507,14 +512,17 @@ export class RoomExperience {
     const maxDim = Math.max(size.x, size.y, size.z);
 
     thumbCamera.position.set(
-      center.x + maxDim,
-      center.y + maxDim * 0.5,
-      center.z + maxDim,
+      center.x + maxDim * 1.2,
+      center.y + maxDim * 0.8,
+      center.z + maxDim * 1.2,
     );
     thumbCamera.lookAt(center);
 
     // Create render target for thumbnail
-    const renderTarget = new THREE.WebGLRenderTarget(128, 128);
+    const renderTarget = new THREE.WebGLRenderTarget(128, 128, {
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+    });
 
     // Render thumbnail
     this.renderer.setRenderTarget(renderTarget);
@@ -538,9 +546,20 @@ export class RoomExperience {
         imageData,
       );
 
-      // Convert to ImageData and draw on canvas
+      // Create ImageData and flip vertically (WebGL coordinates are flipped)
       const imgData = context.createImageData(128, 128);
-      imgData.data.set(imageData);
+      for (let y = 0; y < 128; y++) {
+        for (let x = 0; x < 128; x++) {
+          const sourceIndex = (y * 128 + x) * 4;
+          const targetIndex = ((127 - y) * 128 + x) * 4; // Flip Y coordinate
+
+          imgData.data[targetIndex] = imageData[sourceIndex]; // R
+          imgData.data[targetIndex + 1] = imageData[sourceIndex + 1]; // G
+          imgData.data[targetIndex + 2] = imageData[sourceIndex + 2]; // B
+          imgData.data[targetIndex + 3] = imageData[sourceIndex + 3]; // A
+        }
+      }
+
       context.putImageData(imgData, 0, 0);
 
       // Clean up
