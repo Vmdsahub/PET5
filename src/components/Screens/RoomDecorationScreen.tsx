@@ -176,31 +176,37 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           </div>
 
           {selectedObject ? (
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600 mb-3">
-                Objeto selecionado:{" "}
-                <span className="font-medium">{selectedObject}</span>
-              </p>
+            <div className="space-y-4">
+              <div className="bg-white/60 rounded-2xl p-3 border-2 border-yellow-200">
+                <p className="text-sm text-amber-700 mb-1 font-medium">
+                  🛋️ Móvel Selecionado:
+                </p>
+                <p className="font-bold text-amber-900 capitalize">
+                  {selectedObject.replace(/-/g, " ")}
+                </p>
+              </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-3 justify-center">
                 <motion.button
                   onClick={() => handleObjectTransform("rotate")}
-                  className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="p-3 bg-gradient-to-br from-purple-400 to-purple-500 text-white rounded-xl border-2 border-purple-300 font-medium shadow-lg"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
                   title="Girar"
+                  style={{ boxShadow: "0 6px 12px rgba(168, 85, 247, 0.4)" }}
                 >
-                  <RotateCw size={16} />
+                  <RotateCw size={18} />
                 </motion.button>
 
                 <motion.button
                   onClick={() => handleObjectTransform("scale-up")}
-                  className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="p-3 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-xl border-2 border-emerald-300 font-medium shadow-lg"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
                   title="Aumentar"
+                  style={{ boxShadow: "0 6px 12px rgba(16, 185, 129, 0.4)" }}
                 >
-                  <ZoomIn size={16} />
+                  <ZoomIn size={18} />
                 </motion.button>
 
                 <motion.button
