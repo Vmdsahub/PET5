@@ -16,6 +16,7 @@ export class FurnitureManager {
   private furnitureGroup: THREE.Group;
   private furniture: Map<string, FurnitureItem>;
   private furnitureFactory: FurnitureFactory;
+  private furnitureLights: Map<string, THREE.PointLight>;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -23,6 +24,7 @@ export class FurnitureManager {
     this.scene.add(this.furnitureGroup);
     this.furniture = new Map();
     this.furnitureFactory = new FurnitureFactory();
+    this.furnitureLights = new Map();
 
     this.createDefaultFurniture();
   }
@@ -330,5 +332,75 @@ export class FurnitureManager {
     // Create the furniture
     this.addFurniture(id, type, position, 0);
     return true;
+  }
+
+  // Toggle furniture light (for lamps)
+  public toggleFurnitureLight(objectId: string, isOn: boolean): void {
+    const furniture = this.furniture.get(objectId);
+    if (!furniture || !objectId.includes("lamp")) return;
+
+    if (isOn) {
+      // Create and add light if it doesn't exist
+      if (!this.furnitureLights.has(objectId)) {
+        const light = new THREE.PointLight(0xffeb3b, 2, 15, 2); // Bright yellow light
+        light.position.copy(furniture.object.position);
+        light.position.y += 2; // Position above the lamp
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.bias = -0.0001;
+
+        this.furnitureLights.set(objectId, light);
+        this.scene.add(light);
+      } else {
+        // Enable existing light
+        const light = this.furnitureLights.get(objectId)!;
+        light.intensity = 2;
+      }
+
+      // Add visual glow effect to the lamp
+      this.addLampGlow(furniture.object);
+    } else {
+      // Disable light
+      const light = this.furnitureLights.get(objectId);
+      if (light) {
+        light.intensity = 0;
+      }
+
+      // Remove glow effect
+      this.removeLampGlow(furniture.object);
+    }
+  }
+
+  private addLampGlow(lampObject: THREE.Object3D): void {
+    // Add a glowing effect to the lamp bulb/shade
+    lampObject.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        // Store original material if not already stored
+        if (!child.userData.originalEmissive) {
+          child.userData.originalEmissive =
+            child.material.emissive?.clone() || new THREE.Color(0x000000);
+        }
+
+        // Add emissive glow
+        if (child.material.emissive) {
+          child.material.emissive.setHex(0xffeb3b);
+          child.material.emissiveIntensity = 0.3;
+        }
+      }
+    });
+  }
+
+  private removeLampGlow(lampObject: THREE.Object3D): void {
+    // Remove glowing effect from the lamp
+    lampObject.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.userData.originalEmissive) {
+        // Restore original emissive color
+        if (child.material.emissive) {
+          child.material.emissive.copy(child.userData.originalEmissive);
+          child.material.emissiveIntensity = 0;
+        }
+      }
+    });
   }
 }
