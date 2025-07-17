@@ -330,16 +330,25 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         );
 
         if (worldPosition) {
-          experienceRef.current.addFurnitureFromInventory(item.id, {
-            x: worldPosition.x,
-            y: worldPosition.y,
-            z: worldPosition.z,
-          });
+          try {
+            const success =
+              await experienceRef.current.addFurnitureFromInventory(item.id, {
+                x: worldPosition.x,
+                y: worldPosition.y,
+                z: worldPosition.z,
+              });
 
-          // Remove from inventory
-          setInventory((prev) =>
-            prev.filter((invItem) => invItem.id !== item.id),
-          );
+            if (success) {
+              // Remove from inventory
+              setInventory((prev) =>
+                prev.filter((invItem) => invItem.id !== item.id),
+              );
+            } else {
+              console.warn(`Failed to place furniture: ${item.id}`);
+            }
+          } catch (error) {
+            console.error(`Error placing furniture ${item.id}:`, error);
+          }
         }
       }
     }
