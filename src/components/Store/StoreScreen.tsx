@@ -393,20 +393,33 @@ export const StoreScreen: React.FC = () => {
         </div>
 
         <div className="flex space-x-2 overflow-x-auto pb-2">
-          {categories.map(({ id, name, icon: Icon }) => (
+          {categories.map(({ id, name, icon: Icon, special }) => (
             <motion.button
               key={id}
-              onClick={() => setSelectedCategory(id)}
+              onClick={() => {
+                if (id === "admin-catalog") {
+                  setCurrentScreen("admin-catalog");
+                } else {
+                  setSelectedCategory(id);
+                }
+              }}
               className={`flex items-center space-x-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                selectedCategory === id
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                special
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg"
+                  : selectedCategory === id
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               <Icon className="w-4 h-4" />
               <span className="font-medium text-sm">{name}</span>
+              {special && (
+                <span className="ml-1 text-xs bg-white/20 px-1.5 py-0.5 rounded-full">
+                  New
+                </span>
+              )}
             </motion.button>
           ))}
         </div>
