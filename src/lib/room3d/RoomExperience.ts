@@ -192,36 +192,6 @@ export class RoomExperience {
     animate();
   }
 
-  private updateSmoothZoom(): void {
-    // Velocity-based smooth zoom com easing
-    const distanceDiff = this.targetDistance - this.currentDistance;
-
-    // Adicionar velocity baseada na diferença (mais rápido)
-    this.zoomVelocity += distanceDiff * 0.04;
-
-    // Aplicar damping à velocity (menos damping para mais velocidade)
-    this.zoomVelocity *= 0.9;
-
-    // Atualizar a distância atual
-    this.currentDistance += this.zoomVelocity;
-
-    // Easing quadrático mais rápido
-    const easingFactor = 0.25;
-    this.currentDistance +=
-      (this.targetDistance - this.currentDistance) * easingFactor;
-
-    // Aplicar a nova distância à câmera
-    const direction = new THREE.Vector3()
-      .subVectors(this.camera.position, this.controls.target)
-      .normalize();
-
-    this.camera.position.copy(
-      this.controls.target
-        .clone()
-        .add(direction.multiplyScalar(this.currentDistance)),
-    );
-  }
-
   private handleResize(): void {
     const resizeHandler = () => {
       const rect = this.targetElement.getBoundingClientRect();
