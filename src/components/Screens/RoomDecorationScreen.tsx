@@ -55,9 +55,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       id: string;
       name: string;
       type: string;
+      thumbnail?: string;
     }>
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
+  const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const { user } = useAuthStore();
 
   const navigationItems: NavigationItem[] = [
