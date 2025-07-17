@@ -223,18 +223,35 @@ export const AdminCatalogStore: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center">
-            <Crown className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+              <Crown className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Catálogo de Admin
+              </h1>
+              <p className="text-gray-600">
+                Móveis exclusivos criados pelos administradores
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Catálogo de Admin
-            </h1>
-            <p className="text-gray-600">
-              Móveis exclusivos criados pelos administradores
-            </p>
-          </div>
+
+          {/* Admin Upload Button */}
+          {user?.isAdmin && (
+            <motion.button
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl hover:from-green-700 hover:to-blue-700 transition-all font-semibold shadow-lg"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              title="Adicionar novo móvel GLB"
+            >
+              <Plus className="w-5 h-5" />
+              <Upload className="w-5 h-5" />
+              <span>Adicionar GLB</span>
+            </motion.button>
+          )}
         </div>
 
         {/* Currency Display */}
