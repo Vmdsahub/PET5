@@ -18,6 +18,7 @@ import {
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
 import { useAuthStore } from "../../store/authStore";
+import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
 
 interface RoomDecorationScreenProps {
@@ -63,11 +64,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
-  const [playerCurrency, setPlayerCurrency] = useState({
-    xenocoins: 1000,
-    xenocash: 50,
-  });
   const { user } = useAuthStore();
+  const { xenocoins, cash, updateCurrency } = useGameStore();
 
   // Catalog items for sale
   const catalogItems = [
@@ -153,10 +151,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         onNavigateBack();
         break;
       case "catalog":
-        setShowCatalogModal(true);
+        setShowCatalogModal(!showCatalogModal);
+        if (showInventoryModal) setShowInventoryModal(false);
         break;
       case "inventory":
-        setShowInventoryModal(true);
+        setShowInventoryModal(!showInventoryModal);
+        if (showCatalogModal) setShowCatalogModal(false);
         break;
       case "edit":
         setIsEditMode(!isEditMode);
