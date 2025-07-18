@@ -248,13 +248,30 @@ class RoomDecorationService {
     furnitureId: string,
   ): Promise<{ success: boolean; furniture?: FurnitureState; error?: string }> {
     try {
-      const { data, error } = await supabase
+      // Query for user and filter in JavaScript
+      const { data: allData, error } = await supabase
         .from("user_room_decorations")
         .select("*")
-        .eq("user_id", userId)
-        .eq("furniture_id", furnitureId)
-        .eq("is_active", true)
-        .single();
+        .eq("user_id", userId);
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          return { success: true, furniture: undefined };
+        }
+        console.error("Error getting furniture state:", error);
+        return { success: false, error: error.message };
+      }
+
+      // Filter for the specific furniture that is active
+      const furnitureData = allData?.find(
+        (item) => item.furniture_id === furnitureId && item.is_active === true,
+      );
+
+      if (!furnitureData) {
+        return { success: true, furniture: undefined };
+      }
+
+      const data = furnitureData;
 
       if (error) {
         if (error.code === "PGRST116") {
