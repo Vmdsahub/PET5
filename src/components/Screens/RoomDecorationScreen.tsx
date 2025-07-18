@@ -263,6 +263,28 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
+        // Generate thumbnail for purchased item by temporarily loading it
+        let thumbnail = "";
+        if (experienceRef.current) {
+          try {
+            // Generate thumbnail by temporarily loading the furniture model
+            thumbnail =
+              await experienceRef.current.generateThumbnailForStoreItem(
+                item.id,
+                furnitureType,
+              );
+            console.log(
+              `🖼️ Generated thumbnail for purchased item: ${item.name}`,
+            );
+          } catch (error) {
+            console.warn(
+              `⚠️ Could not generate thumbnail for ${item.name}:`,
+              error,
+            );
+            thumbnail = ""; // Fallback to empty
+          }
+        }
+
         // Add to inventory (generate unique ID for each purchase)
         setInventory((prev) => {
           // Generate unique ID for this specific purchase instance
@@ -277,7 +299,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               id: uniqueId,
               name: item.name,
               type: furnitureType,
-              thumbnail: "", // Will be generated when placed
+              thumbnail: thumbnail, // Now we generate thumbnail on purchase
               properties: null, // No custom properties for new items
               originalStoreId: item.id, // Keep reference to original store item
             },
@@ -2392,7 +2414,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 onClick={() => handleContextMenuAction("admin-controls")}
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-purple-700 font-medium border-t border-gray-200"
               >
-                ⚙️ Controles de Admin
+                ��️ Controles de Admin
               </button>
             )}
 
