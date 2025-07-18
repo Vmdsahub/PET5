@@ -580,6 +580,48 @@ export class RoomExperience {
     this.furnitureManager.toggleFurnitureLight(objectId, isOn);
   }
 
+  // Admin methods for detailed furniture control
+  public getFurniture(objectId: string): any {
+    return this.furnitureManager.getFurnitureProperties(objectId);
+  }
+
+  public updateFurnitureScale(
+    objectId: string,
+    scale: { x: number; y: number; z: number },
+  ): void {
+    this.furnitureManager.updateFurnitureScale(objectId, scale);
+  }
+
+  public updateFurnitureRotation(
+    objectId: string,
+    rotation: { x: number; y: number; z: number },
+  ): void {
+    this.furnitureManager.updateFurnitureRotation(objectId, rotation);
+  }
+
+  public updateFurniturePosition(
+    objectId: string,
+    position: { x: number; y: number; z: number },
+  ): void {
+    this.furnitureManager.updateFurniturePosition(objectId, position);
+  }
+
+  public updateFurnitureMaterial(
+    objectId: string,
+    materialProps: {
+      roughness?: number;
+      metalness?: number;
+      color?: string;
+      emissive?: string;
+    },
+  ): void {
+    this.furnitureManager.updateFurnitureMaterial(objectId, materialProps);
+  }
+
+  public resetFurnitureToDefaults(objectId: string): void {
+    this.furnitureManager.resetFurnitureToDefaults(objectId);
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
