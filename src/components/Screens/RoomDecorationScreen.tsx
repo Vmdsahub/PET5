@@ -12,13 +12,7 @@ import {
   Sun,
   Lightbulb,
   RefreshCcw,
-  Coins,
-  DollarSign,
-  Upload,
-  Plus,
   X,
-  Trash2,
-  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { RoomExperience } from "../../lib/room3d/RoomExperience";
@@ -26,10 +20,6 @@ import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
 import { FurnitureCatalogModal } from "../Game/FurnitureCatalogModal";
-import {
-  furnitureService,
-  CustomFurniture,
-} from "../../services/furnitureService";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
