@@ -286,6 +286,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
               furniture.description ||
               "Móvel customizado exclusivo para administradores.",
             adminOnly: true,
+            type: `custom_${furniture.id}`, // Add the custom type mapping
           }),
         );
 
