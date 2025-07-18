@@ -579,11 +579,18 @@ export class RoomExperience {
 
       context.putImageData(imgData, 0, 0);
 
+      // Restore original renderer settings
+      this.renderer.setClearColor(originalClearColor, originalAlpha);
+
       // Clean up
       renderTarget.dispose();
 
-      return canvas.toDataURL();
+      // Return as PNG with transparency
+      return canvas.toDataURL("image/png");
     }
+
+    // Restore original renderer settings
+    this.renderer.setClearColor(originalClearColor, originalAlpha);
 
     // Clean up
     renderTarget.dispose();
