@@ -264,11 +264,12 @@ class LocalFurnitureService {
       // Convert file to ArrayBuffer
       const arrayBuffer = await this.fileToArrayBuffer(file);
 
+      const furnitureId = this.generateId();
       const newFurniture: CustomFurniture = {
-        id: this.generateId(),
+        id: furnitureId,
         name: furnitureData.name,
         description: furnitureData.description,
-        glb_url: `local://furniture/${newFurniture.id}`, // Local reference
+        glb_url: `local://furniture/${furnitureId}`, // Local reference
         thumbnail_url: undefined,
         price: furnitureData.price || 0,
         currency: furnitureData.currency || "xenocoins",
