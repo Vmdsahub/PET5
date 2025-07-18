@@ -178,6 +178,10 @@ class RoomDecorationService {
     furnitureId: string,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      console.log(
+        `���️ Removing furniture ${furnitureId} from room for user ${userId}`,
+      );
+
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
@@ -186,6 +190,22 @@ class RoomDecorationService {
 
       if (error) {
         console.error("Error removing furniture from room:", error);
+        console.error("Error details:", {
+          code: error.code,
+          message: error.message,
+        });
+
+        // If table doesn't exist, just return success since there's nothing to remove
+        if (
+          error.code === "42P01" ||
+          error.message.includes("does not exist")
+        ) {
+          console.warn(
+            "⚠️ user_room_decorations table does not exist yet. Nothing to remove.",
+          );
+          return { success: true };
+        }
+
         return { success: false, error: error.message };
       }
 
