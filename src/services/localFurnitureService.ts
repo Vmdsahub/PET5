@@ -20,6 +20,12 @@ export interface CustomFurniture {
   updated_at: string;
 }
 
+// Local storage interface for file data
+interface LocalFurnitureData {
+  furniture: CustomFurniture;
+  fileData?: ArrayBuffer; // Store the actual GLB file data
+}
+
 export interface FurnitureUploadData {
   name: string;
   description?: string;
