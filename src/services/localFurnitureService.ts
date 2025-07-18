@@ -283,6 +283,17 @@ class LocalFurnitureService {
 
       console.log("Saving furniture locally:", newFurniture);
 
+      // Store the GLB file data in IndexedDB
+      const fileStored = await this.storeFileData(newFurniture.id, arrayBuffer);
+
+      if (!fileStored) {
+        return {
+          success: false,
+          error:
+            "Erro ao armazenar arquivo GLB. Verifique o espaço disponível.",
+        };
+      }
+
       // Get existing furniture and add new one
       const existingFurniture = this.getStoredFurniture();
       const updatedFurniture = [newFurniture, ...existingFurniture];
@@ -292,11 +303,11 @@ class LocalFurnitureService {
       if (!storageSuccess) {
         return {
           success: false,
-          error:
-            "Erro ao salvar: armazenamento local cheio. Alguns itens antigos foram removidos.",
+          error: "Erro ao salvar metadados: armazenamento local cheio.",
         };
       }
 
+      console.log(`GLB file stored successfully for: ${newFurniture.name}`);
       return { success: true, furniture: newFurniture };
     } catch (error) {
       console.error("Local upload furniture error:", error);
