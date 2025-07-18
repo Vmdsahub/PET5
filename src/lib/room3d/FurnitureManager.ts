@@ -349,6 +349,9 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
+    console.log(
+      `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
+    );
     item.object.position.set(position.x, position.y, position.z);
     return true;
   }
