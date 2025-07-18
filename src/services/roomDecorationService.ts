@@ -118,11 +118,11 @@ class RoomDecorationService {
     try {
       console.log(`🔍 Loading decorations for user: ${userId}`);
 
+      // Use a single query with multiple conditions
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
-        .eq("user_id", userId)
-        .is("is_active", true);
+        .eq("user_id", userId);
 
       if (error) {
         console.error("Error loading room decorations:", error);
