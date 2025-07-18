@@ -2226,9 +2226,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           {/* Inventory Grid */}
           <div className="grid grid-cols-4 gap-4 h-full">
             {/* Inventory items */}
-            {inventory.map((item) => (
+            {inventory.map((item, index) => (
               <motion.div
-                key={item.id}
+                key={`${item.id}-${index}`}
                 className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
