@@ -68,6 +68,62 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
+  // Handle furniture purchase from catalog
+  const handleFurniturePurchase = async (item: any): Promise<boolean> => {
+    // Check if player has enough currency
+    const currentAmount = item.currency === "xenocoins" ? xenocoins : cash;
+
+    if (currentAmount < item.price) {
+      addNotification({
+        type: "error",
+        title: "Saldo Insuficiente",
+        message: `Você não tem ${item.currency === "xenocoins" ? "Xenocoins" : "Xenocash"} suficiente!`,
+      });
+      return false;
+    }
+
+    try {
+      // Deduct currency using the game store
+      const success = await updateCurrency(item.currency, -item.price);
+
+      if (success) {
+        // Add to inventory
+        setInventory((prev) => [
+          ...prev,
+          {
+            id: item.id,
+            name: item.name,
+            type: item.type || "furniture",
+            thumbnail: "", // Will be generated when placed
+          },
+        ]);
+
+        addNotification({
+          type: "success",
+          title: "Compra Realizada!",
+          message: `${item.name} foi adicionado ao seu inventário.`,
+        });
+
+        return true;
+      } else {
+        addNotification({
+          type: "error",
+          title: "Erro na Compra",
+          message: "Erro ao processar compra. Tente novamente.",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error purchasing item:", error);
+      addNotification({
+        type: "error",
+        title: "Erro na Compra",
+        message: "Erro ao processar compra. Tente novamente.",
+      });
+      return false;
+    }
+  };
+
   // Load custom furniture on component mount
 
   const navigationItems: NavigationItem[] = [
@@ -1451,6 +1507,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         userXenocoins={xenocoins}
         userXenocash={cash}
         isAdmin={user?.isAdmin || false}
+        onPurchaseItem={handleFurniturePurchase}
       />
 
       {/* Inventory Modal */}
