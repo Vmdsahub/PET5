@@ -159,6 +159,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
 
+          // Check if this furniture is in the inventory (if so, skip loading from DB)
+          const isInInventory = inventory.some(
+            (item) => item.id === decoration.furniture_id,
+          );
+          if (isInInventory) {
+            console.log(
+              `⏭️ Skipping ${decoration.furniture_id} - it's in inventory`,
+            );
+            continue;
+          }
+
           // Add furniture to scene with saved state
           const success = await experienceRef.current.addFurnitureFromInventory(
             decoration.furniture_id,
