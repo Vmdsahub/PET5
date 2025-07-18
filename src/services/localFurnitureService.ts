@@ -136,9 +136,105 @@ class LocalFurnitureService {
     return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private createPlaceholderUrl(fileName: string): string {
-    // Create a placeholder URL instead of storing the actual file
-    return `local://furniture/${fileName}`;
+  private async fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  private async storeFileData(
+    id: string,
+    arrayBuffer: ArrayBuffer,
+  ): Promise<boolean> {
+    try {
+      // Use IndexedDB for larger file storage
+      return new Promise((resolve) => {
+        const request = indexedDB.open("FurnitureFiles", 1);
+
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains("files")) {
+            db.createObjectStore("files", { keyPath: "id" });
+          }
+        };
+
+        request.onsuccess = () => {
+          const db = request.result;
+          const transaction = db.transaction(["files"], "readwrite");
+          const store = transaction.objectStore("files");
+
+          const fileData = {
+            id,
+            data: arrayBuffer,
+            timestamp: Date.now(),
+          };
+
+          store.put(fileData);
+
+          transaction.oncomplete = () => {
+            console.log(`File stored in IndexedDB: ${id}`);
+            resolve(true);
+          };
+
+          transaction.onerror = () => {
+            console.error("Error storing file in IndexedDB");
+            resolve(false);
+          };
+        };
+
+        request.onerror = () => {
+          console.error("Error opening IndexedDB");
+          resolve(false);
+        };
+      });
+    } catch (error) {
+      console.error("Error storing file data:", error);
+      return false;
+    }
+  }
+
+  private async getFileData(id: string): Promise<ArrayBuffer | null> {
+    return new Promise((resolve) => {
+      const request = indexedDB.open("FurnitureFiles", 1);
+
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction(["files"], "readonly");
+        const store = transaction.objectStore("files");
+        const getRequest = store.get(id);
+
+        getRequest.onsuccess = () => {
+          const result = getRequest.result;
+          resolve(result ? result.data : null);
+        };
+
+        getRequest.onerror = () => {
+          console.error("Error getting file from IndexedDB");
+          resolve(null);
+        };
+      };
+
+      request.onerror = () => {
+        console.error("Error opening IndexedDB for read");
+        resolve(null);
+      };
+    });
+  }
+
+  private createObjectUrl(id: string, arrayBuffer: ArrayBuffer): string {
+    // Clean up any existing URL for this ID
+    if (this.objectUrls.has(id)) {
+      URL.revokeObjectURL(this.objectUrls.get(id)!);
+    }
+
+    const blob = new Blob([arrayBuffer], { type: "model/gltf-binary" });
+    const url = URL.createObjectURL(blob);
+    this.objectUrls.set(id, url);
+
+    return url;
   }
 
   /**
