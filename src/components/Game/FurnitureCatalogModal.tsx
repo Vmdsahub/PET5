@@ -31,6 +31,7 @@ interface FurnitureItem {
   description?: string;
   isLimited?: boolean;
   adminOnly?: boolean;
+  type?: string; // For custom furniture types
 }
 
 interface CatalogSection {
