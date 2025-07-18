@@ -190,9 +190,9 @@ class RoomDecorationService {
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
-        .eq("user_id", userId)
-        .eq("furniture_id", furnitureId)
-        .eq("is_active", true)
+        .filter("user_id", "eq", userId)
+        .filter("furniture_id", "eq", furnitureId)
+        .filter("is_active", "eq", true)
         .single();
 
       if (error) {
