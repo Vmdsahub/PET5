@@ -131,7 +131,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   // Load saved room decorations
   const loadSavedDecorations = async () => {
-    if (!user?.id || !experienceRef.current) return;
+    if (!user?.id || !experienceRef.current || decorationsLoaded) return;
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
