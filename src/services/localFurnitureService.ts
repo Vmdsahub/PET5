@@ -347,13 +347,103 @@ class LocalFurnitureService {
   }
 
   /**
-   * Load GLB model from base64 data URL (local version)
+   * Load GLB model from local storage (real implementation)
    */
-  async loadGLBModel(dataUrl: string): Promise<any> {
-    // For local version, we'll just return a placeholder
-    // In a real implementation, you'd need to decode the base64 and load with THREE.js
-    console.log("Loading GLB model from data URL (local version)");
-    return null;
+  async loadGLBModel(url: string): Promise<any> {
+    try {
+      console.log("Loading GLB model from local storage:", url);
+
+      // Extract furniture ID from local URL
+      if (!url.startsWith("local://furniture/")) {
+        console.error("Invalid local furniture URL:", url);
+        return null;
+      }
+
+      const furnitureId = url.replace("local://furniture/", "");
+
+      // Get file data from IndexedDB
+      const arrayBuffer = await this.getFileData(furnitureId);
+      if (!arrayBuffer) {
+        console.error("GLB file not found in storage:", furnitureId);
+        return null;
+      }
+
+      // Create Object URL for GLTFLoader
+      const objectUrl = this.createObjectUrl(furnitureId, arrayBuffer);
+
+      // Load with GLTFLoader
+      if (!this.gltfLoader) {
+        console.error("GLTFLoader not initialized");
+        return null;
+      }
+
+      return new Promise((resolve, reject) => {
+        this.gltfLoader.load(
+          objectUrl,
+          (gltf: any) => {
+            const model = gltf.scene;
+
+            // Ensure model has proper shadows and materials
+            model.traverse((child: any) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+
+                if (child.material) {
+                  if (Array.isArray(child.material)) {
+                    child.material.forEach((mat: any) => {
+                      mat.needsUpdate = true;
+                    });
+                  } else {
+                    child.material.needsUpdate = true;
+                  }
+                }
+              }
+            });
+
+            // Center and scale model appropriately - using dynamic THREE import
+            this.setupModelTransform(model);
+
+            console.log("GLB model loaded successfully:", furnitureId);
+            resolve(model);
+          },
+          (progress: any) => {
+            // Loading progress
+            console.log("Loading progress:", progress);
+          },
+          (error: any) => {
+            console.error("GLTF loading error:", error);
+            reject(error);
+          },
+        );
+      });
+    } catch (error) {
+      console.error("Error loading GLB model:", error);
+      return null;
+    }
+  }
+
+  private async setupModelTransform(model: any) {
+    try {
+      // Dynamic import to avoid issues with THREE not being available
+      const THREE = await import("three");
+
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      // Center the model
+      model.position.sub(center);
+
+      // Scale to reasonable size (max 3 units in any direction)
+      const maxSize = Math.max(size.x, size.y, size.z);
+      if (maxSize > 3) {
+        const scale = 3 / maxSize;
+        model.scale.setScalar(scale);
+      }
+    } catch (error) {
+      console.error("Error setting up model transform:", error);
+    }
   }
 
   /**
