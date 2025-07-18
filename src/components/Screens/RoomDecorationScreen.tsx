@@ -262,17 +262,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // Add to inventory
-        setInventory((prev) => [
-          ...prev,
-          {
-            id: item.id,
-            name: item.name,
-            type: furnitureType,
-            thumbnail: "", // Will be generated when placed
-            properties: null, // No custom properties for new items
-          },
-        ]);
+        // Add to inventory (with duplicate check)
+        setInventory((prev) => {
+          // Check if item already exists in inventory to avoid duplicates
+          const existsInInventory = prev.some(
+            (invItem) => invItem.id === item.id,
+          );
+
+          if (existsInInventory) {
+            console.log(
+              `⚠️ Item ${item.id} already exists in inventory, not adding duplicate`,
+            );
+            return prev;
+          }
+
+          console.log(`➕ Adding purchased item ${item.id} to inventory`);
+          return [
+            ...prev,
+            {
+              id: item.id,
+              name: item.name,
+              type: furnitureType,
+              thumbnail: "", // Will be generated when placed
+              properties: null, // No custom properties for new items
+            },
+          ];
+        });
 
         addNotification({
           type: "success",
