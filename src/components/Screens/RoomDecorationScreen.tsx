@@ -183,6 +183,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             );
           }
         }
+
+        // Mark decorations as loaded to prevent multiple loads
+        setDecorationsLoaded(true);
+        console.log(`🏁 Decorations loading completed`);
       } else if (result.error) {
         console.error("Error loading decorations:", result.error);
       }
