@@ -10,8 +10,16 @@ import {
   ShoppingCart,
   Coins,
   Gem,
+  Upload,
+  Plus,
+  X,
+  Trash2,
 } from "lucide-react";
 import { DraggableModal } from "../Layout/DraggableModal";
+import {
+  furnitureService,
+  CustomFurniture,
+} from "../../services/furnitureService";
 
 interface FurnitureItem {
   id: string;
