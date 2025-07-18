@@ -59,34 +59,57 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       isExpanded: true,
       items: [
         {
-          id: "basic-chair",
-          name: "Cadeira Simples",
-          price: 50,
+          id: "wooden-chair",
+          name: "Cadeira de Madeira",
+          price: 45,
           currency: "xenocoins",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "basic",
-          description: "Uma cadeira básica e confortável para sua decoração.",
+          description:
+            "Cadeira clássica de madeira maciça, confortável e durável.",
         },
         {
-          id: "basic-table",
-          name: "Mesa de Madeira",
-          price: 100,
+          id: "round-table",
+          name: "Mesa Redonda",
+          price: 120,
           currency: "xenocoins",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "basic",
-          description: "Mesa resistente de madeira natural.",
+          description: "Mesa redonda perfeita para reuniões e refeições.",
         },
         {
-          id: "basic-lamp",
-          name: "Luminária",
-          price: 75,
+          id: "floor-lamp",
+          name: "Luminária de Chão",
+          price: 80,
           currency: "xenocoins",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "basic",
-          description: "Iluminação básica para seu ambiente.",
+          description:
+            "Luminária de chão moderna com luz suave e aconchegante.",
+        },
+        {
+          id: "bookshelf",
+          name: "Estante de Livros",
+          price: 150,
+          currency: "xenocoins",
+          thumbnail:
+            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
+          category: "basic",
+          description:
+            "Estante spaciosa para organizar seus livros e objetos decorativos.",
+        },
+        {
+          id: "coffee-table",
+          name: "Mesa de Centro",
+          price: 90,
+          currency: "xenocoins",
+          thumbnail:
+            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
+          category: "basic",
+          description: "Mesa de centro elegante, ideal para salas de estar.",
         },
       ],
     },
@@ -97,24 +120,48 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       isExpanded: false,
       items: [
         {
-          id: "premium-sofa",
-          name: "Sofá Premium",
-          price: 25,
+          id: "luxury-sofa",
+          name: "Sofá de Couro Premium",
+          price: 30,
           currency: "xenocash",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
           category: "premium",
-          description: "Sofá luxuoso com acabamento premium.",
+          description:
+            "Sofá luxuoso de couro genuíno com acabamento premium e máximo conforto.",
         },
         {
           id: "crystal-chandelier",
           name: "Lustre de Cristal",
-          price: 50,
+          price: 45,
           currency: "xenocash",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
           category: "premium",
-          description: "Elegante lustre de cristal que ilumina com estilo.",
+          description:
+            "Majestoso lustre de cristal que transforma qualquer ambiente em um palácio.",
+        },
+        {
+          id: "marble-dining-table",
+          name: "Mesa de Jantar de Mármore",
+          price: 60,
+          currency: "xenocash",
+          thumbnail:
+            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
+          category: "premium",
+          description:
+            "Mesa de jantar exclusiva em mármore italiano, para ocasiões especiais.",
+        },
+        {
+          id: "gaming-chair",
+          name: "Cadeira Gamer Elite",
+          price: 35,
+          currency: "xenocash",
+          thumbnail:
+            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
+          category: "premium",
+          description:
+            "Cadeira gamer profissional com iluminação LED e suporte ergonômico.",
         },
       ],
     },
@@ -125,14 +172,27 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       isExpanded: false,
       items: [
         {
-          id: "seasonal-decoration",
-          name: "Decoração Sazonal",
-          price: 200,
+          id: "holiday-tree",
+          name: "Árvore de Natal Xenomorfa",
+          price: 250,
           currency: "xenocoins",
           thumbnail:
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "limited",
-          description: "Item exclusivo disponível por tempo limitado!",
+          description:
+            "Árvore de Natal temática espacial com luzes alienígenas! Disponível apenas durante eventos especiais.",
+          isLimited: true,
+        },
+        {
+          id: "galaxy-mirror",
+          name: "Espelho Galáctico",
+          price: 15,
+          currency: "xenocash",
+          thumbnail:
+            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
+          category: "limited",
+          description:
+            "Espelho mágico que reflete as constelações. Edição limitada!",
           isLimited: true,
         },
       ],
