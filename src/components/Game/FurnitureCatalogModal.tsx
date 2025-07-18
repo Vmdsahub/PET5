@@ -360,6 +360,19 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       return;
     }
 
+    // Check file size (warn if large, but don't block)
+    const fileSizeMB = uploadFile.size / (1024 * 1024);
+    if (fileSizeMB > 10) {
+      const confirmLarge = confirm(
+        `O arquivo é grande (${fileSizeMB.toFixed(1)}MB). ` +
+          "Arquivos grandes podem causar problemas de armazenamento. " +
+          "Deseja continuar?",
+      );
+      if (!confirmLarge) {
+        return;
+      }
+    }
+
     setIsUploading(true);
     try {
       const result = await furnitureService.uploadFurniture(uploadFile, {
