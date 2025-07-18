@@ -328,11 +328,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         if (worldPosition) {
           try {
             const success =
-              await experienceRef.current.addFurnitureFromInventory(item.id, {
-                x: worldPosition.x,
-                y: worldPosition.y,
-                z: worldPosition.z,
-              });
+              await experienceRef.current.addFurnitureFromInventory(
+                item.id,
+                {
+                  x: worldPosition.x,
+                  y: worldPosition.y,
+                  z: worldPosition.z,
+                },
+                item.type,
+              );
 
             if (success) {
               // Remove from inventory
