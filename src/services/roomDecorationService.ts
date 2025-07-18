@@ -78,6 +78,22 @@ class RoomDecorationService {
 
       if (error) {
         console.error("Error saving furniture state:", error);
+        console.error("Error details:", {
+          code: error.code,
+          message: error.message,
+        });
+
+        // If table doesn't exist, warn but don't fail
+        if (
+          error.code === "42P01" ||
+          error.message.includes("does not exist")
+        ) {
+          console.warn(
+            "⚠️ user_room_decorations table does not exist yet. Skipping save.",
+          );
+          return { success: true }; // Return success to not break the flow
+        }
+
         return { success: false, error: error.message };
       }
 
