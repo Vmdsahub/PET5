@@ -508,42 +508,60 @@ export class FurnitureManager {
 
     if (!furnitureType) {
       console.log(`🔍 No type provided, inferring from id: ${id}`);
-      // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
-      furnitureType = id.split("-")[0]; // Get first part of hyphenated id
 
-      // Map some common ids to furniture types
-      const typeMapping: { [key: string]: string } = {
-        coffee: "table",
-        dining: "diningTable",
-        side: "sideTable",
-        floor: "lamp",
-        table: "tableLamp",
-        pendant: "pendantLight",
-        picture: "pictureFrame",
-        wall: id.includes("shelf")
-          ? "wallShelf"
-          : id.includes("clock")
-            ? "wallClock"
-            : "wall",
-        tv: "tvStand",
-        premium: "sofa", // Premium sofa maps to regular sofa
-        crystal: "lamp", // Crystal lamp maps to regular lamp
-      };
+      // First, check if this is a custom furniture GLB by checking if it exists in the custom furniture list
+      try {
+        const customFurniture =
+          await this.furnitureFactory.getCustomFurnitureList();
+        const matchingCustom = customFurniture.find((f) => f.id === id);
 
-      if (typeMapping[furnitureType]) {
-        furnitureType = typeMapping[furnitureType];
-      }
+        if (matchingCustom) {
+          console.log(`🎯 Found custom furniture: ${matchingCustom.name}`);
+          furnitureType = `custom_${id}`;
+        } else {
+          // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
+          furnitureType = id.split("-")[0]; // Get first part of hyphenated id
 
-      // Get available types asynchronously
-      const availableTypes = await this.furnitureFactory.getAvailableTypes();
+          // Map some common ids to furniture types
+          const typeMapping: { [key: string]: string } = {
+            coffee: "table",
+            dining: "diningTable",
+            side: "sideTable",
+            floor: "lamp",
+            table: "tableLamp",
+            pendant: "pendantLight",
+            picture: "pictureFrame",
+            wall: id.includes("shelf")
+              ? "wallShelf"
+              : id.includes("clock")
+                ? "wallClock"
+                : "wall",
+            tv: "tvStand",
+            premium: "sofa", // Premium sofa maps to regular sofa
+            crystal: "lamp", // Crystal lamp maps to regular lamp
+          };
 
-      // If still no match, try to infer from the full id
-      if (!availableTypes.includes(furnitureType)) {
-        if (id.includes("sofa")) furnitureType = "sofa";
-        else if (id.includes("lamp")) furnitureType = "lamp";
-        else if (id.includes("table")) furnitureType = "table";
-        else if (id.includes("chair")) furnitureType = "chair";
-        else furnitureType = "table"; // Default fallback
+          if (typeMapping[furnitureType]) {
+            furnitureType = typeMapping[furnitureType];
+          }
+
+          // Get available types asynchronously
+          const availableTypes =
+            await this.furnitureFactory.getAvailableTypes();
+
+          // If still no match, try to infer from the full id
+          if (!availableTypes.includes(furnitureType)) {
+            if (id.includes("sofa")) furnitureType = "sofa";
+            else if (id.includes("lamp")) furnitureType = "lamp";
+            else if (id.includes("table")) furnitureType = "table";
+            else if (id.includes("chair")) furnitureType = "chair";
+            else furnitureType = "table"; // Default fallback
+          }
+        }
+      } catch (error) {
+        console.error("Error checking custom furniture:", error);
+        // Fallback to original logic
+        furnitureType = id.split("-")[0];
       }
     }
 
