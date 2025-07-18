@@ -53,11 +53,58 @@ class LocalFurnitureService {
     }
   }
 
-  private setStoredFurniture(furniture: CustomFurniture[]): void {
+  private setStoredFurniture(furniture: CustomFurniture[]): boolean {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(furniture));
+      const jsonString = JSON.stringify(furniture);
+
+      // Check approximate size (rough estimate)
+      const sizeInBytes = new Blob([jsonString]).size;
+      const sizeInMB = sizeInBytes / (1024 * 1024);
+
+      console.log(
+        `Attempting to store ${furniture.length} items (${sizeInMB.toFixed(2)}MB)`,
+      );
+
+      localStorage.setItem(this.storageKey, jsonString);
+      return true;
     } catch (error) {
       console.error("Error writing to local storage:", error);
+
+      if (
+        error instanceof DOMException &&
+        error.name === "QuotaExceededError"
+      ) {
+        console.log("Storage quota exceeded, attempting cleanup...");
+        return this.handleQuotaExceeded(furniture);
+      }
+      return false;
+    }
+  }
+
+  private handleQuotaExceeded(furniture: CustomFurniture[]): boolean {
+    try {
+      // Keep only the most recent 10 items
+      const reducedFurniture = furniture
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )
+        .slice(0, 10);
+
+      console.log(
+        `Reducing from ${furniture.length} to ${reducedFurniture.length} items`,
+      );
+
+      const jsonString = JSON.stringify(reducedFurniture);
+      localStorage.setItem(this.storageKey, jsonString);
+
+      console.log("Storage cleanup successful");
+      return true;
+    } catch (error) {
+      console.error("Failed to cleanup storage:", error);
+      // Last resort: clear all furniture data
+      this.clearLocalData();
+      return false;
     }
   }
 
