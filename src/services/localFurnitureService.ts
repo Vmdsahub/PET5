@@ -492,6 +492,15 @@ class LocalFurnitureService {
         return { success: false, error: "Móvel não encontrado" };
       }
 
+      // Remove file from IndexedDB
+      await this.deleteFileData(id);
+
+      // Clean up Object URL if exists
+      if (this.objectUrls.has(id)) {
+        URL.revokeObjectURL(this.objectUrls.get(id)!);
+        this.objectUrls.delete(id);
+      }
+
       const storageSuccess = this.setStoredFurniture(filteredFurniture);
       return {
         success: storageSuccess,
