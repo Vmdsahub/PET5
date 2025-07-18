@@ -558,9 +558,60 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             if (success) {
               console.log(`✅ Successfully placed furniture: ${item.id}`);
 
-              // Save initial furniture state to database
+              // Apply stored properties if they exist
+              if (item.properties && experienceRef.current) {
+                console.log(
+                  `🔧 Applying stored properties to ${item.id}:`,
+                  item.properties,
+                );
+
+                // Apply scale if stored
+                if (item.properties.scale) {
+                  experienceRef.current.updateFurnitureScale(
+                    item.id,
+                    item.properties.scale,
+                  );
+                }
+
+                // Apply rotation if stored
+                if (item.properties.rotation) {
+                  experienceRef.current.updateFurnitureRotation(
+                    item.id,
+                    item.properties.rotation,
+                  );
+                }
+
+                // Apply position (keep Y from world position, but apply stored X,Z if desired)
+                if (item.properties.position) {
+                  // Use new Y from drop position, but restore X,Z offsets if any
+                  const adjustedPosition = {
+                    x: worldPosition.x,
+                    y: worldPosition.y, // Keep the floor level
+                    z: worldPosition.z,
+                  };
+                  experienceRef.current.updateFurniturePosition(
+                    item.id,
+                    adjustedPosition,
+                  );
+                }
+
+                // Apply material properties if stored
+                if (item.properties.material) {
+                  experienceRef.current.updateFurnitureMaterial(
+                    item.id,
+                    item.properties.material,
+                  );
+                }
+
+                console.log(`✅ Applied stored properties to ${item.id}`);
+              }
+
+              // Save furniture state to database (with applied properties)
               if (user?.id) {
-                saveFurnitureState(item.id);
+                // Small delay to ensure properties are applied before saving
+                setTimeout(() => {
+                  saveFurnitureState(item.id);
+                }, 200);
               }
 
               // Remove from inventory
