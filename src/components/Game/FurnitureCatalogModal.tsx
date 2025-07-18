@@ -218,6 +218,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           description:
             "Árvore de Natal temática espacial com luzes alienígenas! Disponível apenas durante eventos especiais.",
           isLimited: true,
+          type: "plant",
         },
         {
           id: "galaxy-mirror",
@@ -230,6 +231,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           description:
             "Espelho mágico que reflete as constelações. Edição limitada!",
           isLimited: true,
+          type: "pictureFrame",
         },
       ],
     },
