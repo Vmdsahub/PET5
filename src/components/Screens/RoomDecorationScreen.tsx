@@ -273,6 +273,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             console.log(
               `⚠️ Item ${item.id} already exists in inventory, not adding duplicate`,
             );
+            console.log(
+              `📋 Current inventory IDs:`,
+              prev.map((i) => i.id),
+            );
             return prev;
           }
 
