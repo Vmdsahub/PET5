@@ -128,6 +128,68 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
   };
 
+  // Load saved room decorations
+  const loadSavedDecorations = async () => {
+    if (!user?.id || !experienceRef.current) return;
+
+    try {
+      console.log(`🏠 Loading saved decorations for user ${user.id}`);
+      const result = await roomDecorationService.loadUserRoomDecorations(
+        user.id,
+      );
+
+      if (result.success && result.decorations) {
+        console.log(`📋 Found ${result.decorations.length} saved decorations`);
+
+        for (const decoration of result.decorations) {
+          console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
+
+          // Add furniture to scene with saved state
+          const success = await experienceRef.current.addFurnitureFromInventory(
+            decoration.furniture_id,
+            decoration.position,
+            decoration.furniture_type,
+          );
+
+          if (success) {
+            // Apply saved transformations and materials
+            experienceRef.current.updateFurnitureScale(
+              decoration.furniture_id,
+              decoration.scale,
+            );
+            experienceRef.current.updateFurnitureRotation(
+              decoration.furniture_id,
+              decoration.rotation,
+            );
+            experienceRef.current.updateFurniturePosition(
+              decoration.furniture_id,
+              decoration.position,
+            );
+
+            if (decoration.material) {
+              experienceRef.current.updateFurnitureMaterial(
+                decoration.furniture_id,
+                decoration.material,
+              );
+            }
+
+            console.log(
+              `✅ Successfully restored furniture: ${decoration.furniture_id}`,
+            );
+          } else {
+            console.warn(
+              `❌ Failed to restore furniture: ${decoration.furniture_id}`,
+            );
+          }
+        }
+      } else if (result.error) {
+        console.error("Error loading decorations:", result.error);
+      }
+    } catch (error) {
+      console.error("Error in loadSavedDecorations:", error);
+    }
+  };
+
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
     console.log(`📋 Purchasing furniture item:`, item);
