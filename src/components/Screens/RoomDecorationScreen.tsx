@@ -20,6 +20,10 @@ import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
 import { FurnitureCatalogModal } from "../Game/FurnitureCatalogModal";
+import {
+  roomDecorationService,
+  FurnitureState,
+} from "../../services/roomDecorationService";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
