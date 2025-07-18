@@ -786,6 +786,47 @@ class LocalFurnitureService {
   }
 
   /**
+   * Test IndexedDB functionality
+   */
+  async testIndexedDB(): Promise<boolean> {
+    try {
+      console.log("Testing IndexedDB functionality...");
+      const db = await this.initIndexedDB();
+
+      if (!db) {
+        console.error("Failed to initialize IndexedDB for test");
+        return false;
+      }
+
+      // Test write
+      const testData = new ArrayBuffer(100); // Small test data
+      const stored = await this.storeFileData("test_id", testData);
+
+      if (!stored) {
+        console.error("Failed to store test data");
+        return false;
+      }
+
+      // Test read
+      const retrieved = await this.getFileData("test_id");
+
+      if (!retrieved) {
+        console.error("Failed to retrieve test data");
+        return false;
+      }
+
+      // Test delete
+      await this.deleteFileData("test_id");
+
+      console.log("IndexedDB test completed successfully");
+      return true;
+    } catch (error) {
+      console.error("IndexedDB test failed:", error);
+      return false;
+    }
+  }
+
+  /**
    * Add sample data for testing
    */
   addSampleData(): void {
