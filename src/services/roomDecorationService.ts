@@ -100,6 +100,8 @@ class RoomDecorationService {
     error?: string;
   }> {
     try {
+      console.log(`🔍 Loading decorations for user: ${userId}`);
+
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
@@ -108,6 +110,24 @@ class RoomDecorationService {
 
       if (error) {
         console.error("Error loading room decorations:", error);
+        console.error("Error details:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+
+        // If table doesn't exist, return empty result instead of error
+        if (
+          error.code === "42P01" ||
+          error.message.includes("does not exist")
+        ) {
+          console.warn(
+            "⚠️ user_room_decorations table does not exist yet. Returning empty decorations.",
+          );
+          return { success: true, decorations: [] };
+        }
+
         return { success: false, error: error.message };
       }
 
