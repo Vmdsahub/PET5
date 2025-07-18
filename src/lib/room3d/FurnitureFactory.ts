@@ -112,12 +112,16 @@ export class FurnitureFactory {
 
   public async create(type: string): Promise<THREE.Object3D | null> {
     try {
+      console.log(`🎯 FurnitureFactory.create called with type: ${type}`);
+
       // Check if it's a custom furniture type
       if (type.startsWith("custom_")) {
         const furnitureId = type.replace("custom_", "");
+        console.log(`🔱 Creating custom furniture with ID: ${furnitureId}`);
         return await this.createCustomFurniture(furnitureId);
       }
 
+      console.log(`🏠 Creating built-in furniture type: ${type}`);
       // Handle built-in furniture types
       switch (type) {
         case "sofa":
