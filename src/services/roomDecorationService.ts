@@ -203,6 +203,7 @@ class RoomDecorationService {
         `���️ Removing furniture ${furnitureId} from room for user ${userId}`,
       );
 
+      // Use single condition and filter manually if needed
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
