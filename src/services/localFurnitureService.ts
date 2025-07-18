@@ -150,43 +150,80 @@ class LocalFurnitureService {
     arrayBuffer: ArrayBuffer,
   ): Promise<boolean> {
     try {
-      // Use IndexedDB for larger file storage
       return new Promise((resolve) => {
         const request = indexedDB.open("FurnitureFiles", 1);
 
-        request.onupgradeneeded = () => {
+        request.onupgradeneeded = (event) => {
+          console.log("IndexedDB upgrade needed, creating object store...");
           const db = request.result;
-          if (!db.objectStoreNames.contains("files")) {
-            db.createObjectStore("files", { keyPath: "id" });
+
+          // Delete existing store if it exists
+          if (db.objectStoreNames.contains("files")) {
+            db.deleteObjectStore("files");
           }
+
+          // Create new object store
+          const objectStore = db.createObjectStore("files", { keyPath: "id" });
+          console.log('Object store "files" created successfully');
         };
 
         request.onsuccess = () => {
           const db = request.result;
-          const transaction = db.transaction(["files"], "readwrite");
-          const store = transaction.objectStore("files");
 
-          const fileData = {
-            id,
-            data: arrayBuffer,
-            timestamp: Date.now(),
-          };
-
-          store.put(fileData);
-
-          transaction.oncomplete = () => {
-            console.log(`File stored in IndexedDB: ${id}`);
-            resolve(true);
-          };
-
-          transaction.onerror = () => {
-            console.error("Error storing file in IndexedDB");
+          // Verify object store exists before using it
+          if (!db.objectStoreNames.contains("files")) {
+            console.error('Object store "files" not found after database open');
             resolve(false);
-          };
+            return;
+          }
+
+          try {
+            const transaction = db.transaction(["files"], "readwrite");
+            const store = transaction.objectStore("files");
+
+            const fileData = {
+              id,
+              data: arrayBuffer,
+              timestamp: Date.now(),
+            };
+
+            const putRequest = store.put(fileData);
+
+            putRequest.onsuccess = () => {
+              console.log(`File stored in IndexedDB: ${id}`);
+            };
+
+            putRequest.onerror = () => {
+              console.error("Error in put request:", putRequest.error);
+            };
+
+            transaction.oncomplete = () => {
+              console.log(`Transaction completed for: ${id}`);
+              resolve(true);
+            };
+
+            transaction.onerror = (event) => {
+              console.error("Transaction error:", transaction.error);
+              resolve(false);
+            };
+
+            transaction.onabort = () => {
+              console.error("Transaction aborted");
+              resolve(false);
+            };
+          } catch (txError) {
+            console.error("Error creating transaction:", txError);
+            resolve(false);
+          }
         };
 
-        request.onerror = () => {
-          console.error("Error opening IndexedDB");
+        request.onerror = (event) => {
+          console.error("Error opening IndexedDB:", request.error);
+          resolve(false);
+        };
+
+        request.onblocked = () => {
+          console.warn("IndexedDB blocked - another tab may be using it");
           resolve(false);
         };
       });
