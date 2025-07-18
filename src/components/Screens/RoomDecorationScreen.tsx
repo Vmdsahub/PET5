@@ -570,6 +570,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               name: furnitureName,
               type: furnitureType,
               thumbnail,
+              originalStoreId, // Preserve original store ID for proper stacking
               // Store modified properties
               properties: furnitureProperties
                 ? {
