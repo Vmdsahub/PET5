@@ -459,9 +459,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         break;
       case "store":
         // Add to inventory and remove from scene
-        const furnitureName = objectId
+        // Try to get the original name from when it was placed, or generate from ID as fallback
+        let furnitureName = objectId
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase());
+
+        // Check if this furniture has an original name stored somewhere
+        // For now, we'll keep the ID-based name but this could be enhanced
+        // to store original purchase names in the 3D object userData
 
         // Get the correct furniture type to preserve it
         let furnitureType = "furniture";
