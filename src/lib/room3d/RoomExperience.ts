@@ -585,6 +585,11 @@ export class RoomExperience {
     return this.furnitureManager.getFurnitureProperties(objectId);
   }
 
+  public getFurnitureType(objectId: string): string | null {
+    const furnitureItem = this.furnitureManager.getFurnitureById(objectId);
+    return furnitureItem ? furnitureItem.type : null;
+  }
+
   public updateFurnitureScale(
     objectId: string,
     scale: { x: number; y: number; z: number },
