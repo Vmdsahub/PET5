@@ -590,6 +590,10 @@ export class RoomExperience {
     return furnitureItem ? furnitureItem.type : null;
   }
 
+  public getFurnitureById(objectId: string) {
+    return this.furnitureManager.getFurnitureById(objectId);
+  }
+
   public updateFurnitureScale(
     objectId: string,
     scale: { x: number; y: number; z: number },
