@@ -65,6 +65,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
 
+  // Estados para controles de admin dos móveis
+  const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
+    null,
+  );
+  const [currentScale, setCurrentScale] = useState({ x: 1, y: 1, z: 1 });
+  const [currentRotation, setCurrentRotation] = useState({ x: 0, y: 0, z: 0 });
+  const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
+  const [currentMaterial, setCurrentMaterial] = useState({
+    roughness: 0.5,
+    metalness: 0,
+    emissive: "#000000",
+    color: "#ffffff",
+  });
+
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
