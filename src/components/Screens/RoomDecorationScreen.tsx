@@ -2285,12 +2285,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             {inventory
               .reduce((uniqueItems, item) => {
                 // Find if we already have this type of item
-                const existingIndex = uniqueItems.findIndex(
-                  (unique) =>
-                    unique.originalStoreId === item.originalStoreId &&
-                    unique.type === item.type &&
-                    unique.name === item.name,
-                );
+                // For better stacking, check multiple criteria:
+                const existingIndex = uniqueItems.findIndex((unique) => {
+                  // First, try exact match with originalStoreId
+                  if (
+                    unique.originalStoreId &&
+                    item.originalStoreId &&
+                    unique.originalStoreId === item.originalStoreId
+                  ) {
+                    return true;
+                  }
+
+                  // If no originalStoreId match, check type and name
+                  // This catches items placed in room and then stored
+                  if (unique.type === item.type && unique.name === item.name) {
+                    // For GLB items, also check if they're both custom types
+                    if (
+                      unique.type.startsWith("custom_") &&
+                      item.type.startsWith("custom_")
+                    ) {
+                      return unique.type === item.type; // Same custom type
+                    }
+                    return true; // Same type and name for regular items
+                  }
+
+                  return false;
+                });
 
                 if (existingIndex === -1) {
                   // First occurrence of this item type
