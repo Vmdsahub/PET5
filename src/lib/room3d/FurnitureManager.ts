@@ -133,6 +133,9 @@ export class FurnitureManager {
     position: THREE.Vector3,
     rotationY: number = 0,
   ): Promise<void> {
+    console.log(
+      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
+    );
     const furnitureObject = await this.furnitureFactory.create(type);
 
     if (!furnitureObject) {
@@ -143,6 +146,24 @@ export class FurnitureManager {
     furnitureObject.position.copy(position);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
+
+    // Auto-correct Y position for GLB models to ensure they sit on the floor
+    if (type.startsWith("custom_")) {
+      const bbox = new THREE.Box3().setFromObject(furnitureObject);
+      const minY = bbox.min.y;
+
+      // If the bottom of the object is below the floor (Y=0), adjust it
+      if (minY < 0) {
+        furnitureObject.position.y = furnitureObject.position.y - minY;
+        console.log(
+          `🔧 Adjusted GLB Y position from ${position.y} to ${furnitureObject.position.y} (minY was ${minY})`,
+        );
+      }
+    }
+
+    console.log(
+      `✅ Furniture positioned at: ${furnitureObject.position.x}, ${furnitureObject.position.y}, ${furnitureObject.position.z}`,
+    );
 
     const furnitureItem: FurnitureItem = {
       id,
@@ -293,6 +314,168 @@ export class FurnitureManager {
     return this.furnitureGroup;
   }
 
+  // Admin control methods for detailed furniture manipulation
+  public updateFurnitureScale(
+    id: string,
+    scale: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    item.object.scale.set(scale.x, scale.y, scale.z);
+    return true;
+  }
+
+  public updateFurnitureRotation(
+    id: string,
+    rotation: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Convert degrees to radians
+    item.object.rotation.set(
+      (rotation.x * Math.PI) / 180,
+      (rotation.y * Math.PI) / 180,
+      (rotation.z * Math.PI) / 180,
+    );
+    return true;
+  }
+
+  public updateFurniturePosition(
+    id: string,
+    position: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    console.log(
+      `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
+    );
+    item.object.position.set(position.x, position.y, position.z);
+    return true;
+  }
+
+  public updateFurnitureMaterial(
+    id: string,
+    materialProps: {
+      roughness?: number;
+      metalness?: number;
+      color?: string;
+      emissive?: string;
+    },
+  ): boolean {
+    console.log(`🎨 Updating material for furniture ${id}:`, materialProps);
+    const item = this.furniture.get(id);
+    if (!item) {
+      console.warn(`❌ Furniture ${id} not found for material update`);
+      return false;
+    }
+
+    let meshCount = 0;
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        meshCount++;
+        const material = child.material as THREE.MeshStandardMaterial;
+        console.log(`🔧 Updating mesh ${meshCount} material:`, {
+          oldRoughness: material.roughness,
+          oldMetalness: material.metalness,
+          newProps: materialProps,
+        });
+
+        if (materialProps.roughness !== undefined) {
+          material.roughness = materialProps.roughness;
+        }
+        if (materialProps.metalness !== undefined) {
+          material.metalness = materialProps.metalness;
+        }
+        if (materialProps.color !== undefined) {
+          material.color.setStyle(materialProps.color);
+        }
+        if (materialProps.emissive !== undefined) {
+          material.emissive.setStyle(materialProps.emissive);
+        }
+
+        material.needsUpdate = true;
+        console.log(`✅ Material updated:`, {
+          roughness: material.roughness,
+          metalness: material.metalness,
+          color: material.color.getHexString(),
+          emissive: material.emissive.getHexString(),
+        });
+      }
+    });
+
+    console.log(`📊 Total meshes updated: ${meshCount}`);
+    return true;
+  }
+
+  public getFurnitureProperties(id: string): {
+    scale: { x: number; y: number; z: number };
+    rotation: { x: number; y: number; z: number };
+    position: { x: number; y: number; z: number };
+    material?: {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    };
+  } | null {
+    const item = this.furniture.get(id);
+    if (!item) return null;
+
+    const obj = item.object;
+    let material = null;
+
+    // Get material properties from first mesh found
+    obj.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material && !material) {
+        const mat = child.material as THREE.MeshStandardMaterial;
+        material = {
+          roughness: mat.roughness || 0.5,
+          metalness: mat.metalness || 0,
+          color: "#" + mat.color.getHexString(),
+          emissive: "#" + mat.emissive.getHexString(),
+        };
+      }
+    });
+
+    return {
+      scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z },
+      rotation: {
+        x: (obj.rotation.x * 180) / Math.PI,
+        y: (obj.rotation.y * 180) / Math.PI,
+        z: (obj.rotation.z * 180) / Math.PI,
+      },
+      position: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
+      material,
+    };
+  }
+
+  public resetFurnitureToDefaults(id: string): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Reset transform
+    item.object.scale.set(1, 1, 1);
+    item.object.rotation.set(0, 0, 0);
+    item.object.position.set(0, 0, 0);
+
+    // Reset material properties
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        const material = child.material as THREE.MeshStandardMaterial;
+        material.roughness = 0.5;
+        material.metalness = 0;
+        material.color.setStyle("#ffffff");
+        material.emissive.setStyle("#000000");
+        material.needsUpdate = true;
+      }
+    });
+
+    return true;
+  }
+
   // Inventory management methods
   public removeFurniture(id: string): boolean {
     const item = this.furniture.get(id);
@@ -308,19 +491,43 @@ export class FurnitureManager {
     // Remove from scene
     this.furnitureGroup.remove(item.object);
 
-    // Dispose of geometry and materials to free memory
-    item.object.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((mat) => mat.dispose());
-          } else {
-            child.material.dispose();
+    // Only dispose resources for built-in furniture, not custom GLB furniture
+    // Custom GLB furniture uses cached models that should not be disposed
+    const isCustomFurniture =
+      item.type.startsWith("custom_") ||
+      (!item.type.startsWith("custom_") &&
+        ![
+          "sofa",
+          "table",
+          "diningTable",
+          "chair",
+          "bookshelf",
+          "lamp",
+          "tableLamp",
+          "plant",
+          "tvStand",
+          "sideTable",
+          "wallShelf",
+          "pictureFrame",
+          "wallClock",
+          "pendantLight",
+        ].includes(item.type));
+
+    if (!isCustomFurniture) {
+      // Dispose of geometry and materials only for built-in furniture
+      item.object.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach((mat) => mat.dispose());
+            } else {
+              child.material.dispose();
+            }
           }
         }
-      }
-    });
+      });
+    }
 
     // Remove from furniture map
     this.furniture.delete(id);
@@ -332,9 +539,13 @@ export class FurnitureManager {
     position: THREE.Vector3,
     type?: string,
   ): Promise<boolean> {
+    console.log(
+      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
+    );
+
     // Check if furniture already exists
     if (this.furniture.has(id)) {
-      console.warn(`Furniture with id ${id} already exists`);
+      console.warn(`❌ Furniture with id ${id} already exists`);
       return false;
     }
 
@@ -343,42 +554,60 @@ export class FurnitureManager {
 
     if (!furnitureType) {
       console.log(`🔍 No type provided, inferring from id: ${id}`);
-      // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
-      furnitureType = id.split("-")[0]; // Get first part of hyphenated id
 
-      // Map some common ids to furniture types
-      const typeMapping: { [key: string]: string } = {
-        coffee: "table",
-        dining: "diningTable",
-        side: "sideTable",
-        floor: "lamp",
-        table: "tableLamp",
-        pendant: "pendantLight",
-        picture: "pictureFrame",
-        wall: id.includes("shelf")
-          ? "wallShelf"
-          : id.includes("clock")
-            ? "wallClock"
-            : "wall",
-        tv: "tvStand",
-        premium: "sofa", // Premium sofa maps to regular sofa
-        crystal: "lamp", // Crystal lamp maps to regular lamp
-      };
+      // First, check if this is a custom furniture GLB by checking if it exists in the custom furniture list
+      try {
+        const customFurniture =
+          await this.furnitureFactory.getCustomFurnitureList();
+        const matchingCustom = customFurniture.find((f) => f.id === id);
 
-      if (typeMapping[furnitureType]) {
-        furnitureType = typeMapping[furnitureType];
-      }
+        if (matchingCustom) {
+          console.log(`🎯 Found custom furniture: ${matchingCustom.name}`);
+          furnitureType = `custom_${id}`;
+        } else {
+          // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
+          furnitureType = id.split("-")[0]; // Get first part of hyphenated id
 
-      // Get available types asynchronously
-      const availableTypes = await this.furnitureFactory.getAvailableTypes();
+          // Map some common ids to furniture types
+          const typeMapping: { [key: string]: string } = {
+            coffee: "table",
+            dining: "diningTable",
+            side: "sideTable",
+            floor: "lamp",
+            table: "tableLamp",
+            pendant: "pendantLight",
+            picture: "pictureFrame",
+            wall: id.includes("shelf")
+              ? "wallShelf"
+              : id.includes("clock")
+                ? "wallClock"
+                : "wall",
+            tv: "tvStand",
+            premium: "sofa", // Premium sofa maps to regular sofa
+            crystal: "lamp", // Crystal lamp maps to regular lamp
+          };
 
-      // If still no match, try to infer from the full id
-      if (!availableTypes.includes(furnitureType)) {
-        if (id.includes("sofa")) furnitureType = "sofa";
-        else if (id.includes("lamp")) furnitureType = "lamp";
-        else if (id.includes("table")) furnitureType = "table";
-        else if (id.includes("chair")) furnitureType = "chair";
-        else furnitureType = "table"; // Default fallback
+          if (typeMapping[furnitureType]) {
+            furnitureType = typeMapping[furnitureType];
+          }
+
+          // Get available types asynchronously
+          const availableTypes =
+            await this.furnitureFactory.getAvailableTypes();
+
+          // If still no match, try to infer from the full id
+          if (!availableTypes.includes(furnitureType)) {
+            if (id.includes("sofa")) furnitureType = "sofa";
+            else if (id.includes("lamp")) furnitureType = "lamp";
+            else if (id.includes("table")) furnitureType = "table";
+            else if (id.includes("chair")) furnitureType = "chair";
+            else furnitureType = "table"; // Default fallback
+          }
+        }
+      } catch (error) {
+        console.error("Error checking custom furniture:", error);
+        // Fallback to original logic
+        furnitureType = id.split("-")[0];
       }
     }
 

@@ -20,6 +20,10 @@ import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
 import { FurnitureCatalogModal } from "../Game/FurnitureCatalogModal";
+import {
+  roomDecorationService,
+  FurnitureState,
+} from "../../services/roomDecorationService";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -46,6 +50,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [roomDimensions, setRoomDimensions] = useState<any>({});
   const [materialProperties, setMaterialProperties] = useState<any>({});
   const [showMaterialPanel, setShowMaterialPanel] = useState(false);
+  const [showFurniturePanel, setShowFurniturePanel] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     show: boolean;
@@ -59,14 +64,180 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       name: string;
       type: string;
       thumbnail?: string;
+      originalStoreId?: string; // Reference to original store item
+      properties?: {
+        scale?: { x: number; y: number; z: number };
+        rotation?: { x: number; y: number; z: number };
+        position?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      } | null;
     }>
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [decorationsLoaded, setDecorationsLoaded] = useState(false);
+
+  // Estados para controles de admin dos móveis
+  const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
+    null,
+  );
+  const [currentScale, setCurrentScale] = useState({ x: 1, y: 1, z: 1 });
+  const [currentRotation, setCurrentRotation] = useState({ x: 0, y: 0, z: 0 });
+  const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
+  const [currentMaterial, setCurrentMaterial] = useState({
+    roughness: 0.5,
+    metalness: 0,
+    emissive: "#000000",
+    color: "#ffffff",
+  });
 
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
+
+  // Function to save furniture state to database
+  const saveFurnitureState = async (furnitureId: string) => {
+    if (!user?.id || !experienceRef.current) return;
+
+    // Small delay to ensure changes are applied in THREE.js before saving
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    try {
+      const furnitureType = experienceRef.current.getFurnitureType(furnitureId);
+      const properties = experienceRef.current.getFurniture(furnitureId);
+
+      if (!furnitureType || !properties) {
+        console.warn(
+          `Cannot save state for furniture ${furnitureId}: missing data`,
+        );
+        return;
+      }
+
+      const furnitureState: FurnitureState = {
+        furniture_id: furnitureId,
+        furniture_type: furnitureType,
+        position: properties.position,
+        rotation: properties.rotation,
+        scale: properties.scale,
+        material: properties.material,
+      };
+
+      console.log(`💾 Saving furniture state:`, furnitureState);
+
+      const result = await roomDecorationService.saveFurnitureState(
+        user.id,
+        furnitureState,
+      );
+
+      if (result.success) {
+        console.log(`✅ Furniture state saved for ${furnitureId}`);
+
+        // Also update inventory if this item is there (shouldn't happen in normal flow, but just in case)
+        setInventory((prev) =>
+          prev.map((item) => {
+            if (item.id === furnitureId) {
+              return {
+                ...item,
+                properties: {
+                  scale: properties.scale,
+                  rotation: properties.rotation,
+                  position: properties.position,
+                  material: properties.material,
+                },
+              };
+            }
+            return item;
+          }),
+        );
+      } else {
+        console.error(`❌ Failed to save furniture state: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error saving furniture state:", error);
+    }
+  };
+
+  // Load saved room decorations
+  const loadSavedDecorations = async () => {
+    if (!user?.id || !experienceRef.current || decorationsLoaded) return;
+
+    try {
+      console.log(`🏠 Loading saved decorations for user ${user.id}`);
+      const result = await roomDecorationService.loadUserRoomDecorations(
+        user.id,
+      );
+
+      if (result.success && result.decorations) {
+        console.log(`📋 Found ${result.decorations.length} saved decorations`);
+
+        for (const decoration of result.decorations) {
+          console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
+
+          // Check if this furniture is in the inventory (if so, skip loading from DB)
+          const isInInventory = inventory.some(
+            (item) => item.id === decoration.furniture_id,
+          );
+          if (isInInventory) {
+            console.log(
+              `⏭️ Skipping ${decoration.furniture_id} - it's in inventory`,
+            );
+            continue;
+          }
+
+          // Add furniture to scene with saved state
+          const success = await experienceRef.current.addFurnitureFromInventory(
+            decoration.furniture_id,
+            decoration.position,
+            decoration.furniture_type,
+          );
+
+          if (success) {
+            // Apply saved transformations and materials
+            experienceRef.current.updateFurnitureScale(
+              decoration.furniture_id,
+              decoration.scale,
+            );
+            experienceRef.current.updateFurnitureRotation(
+              decoration.furniture_id,
+              decoration.rotation,
+            );
+            experienceRef.current.updateFurniturePosition(
+              decoration.furniture_id,
+              decoration.position,
+            );
+
+            if (decoration.material) {
+              experienceRef.current.updateFurnitureMaterial(
+                decoration.furniture_id,
+                decoration.material,
+              );
+            }
+
+            console.log(
+              `✅ Successfully restored furniture: ${decoration.furniture_id}`,
+            );
+          } else {
+            console.warn(
+              `❌ Failed to restore furniture: ${decoration.furniture_id}`,
+            );
+          }
+        }
+
+        // Mark decorations as loaded to prevent multiple loads
+        setDecorationsLoaded(true);
+        console.log(`🏁 Decorations loading completed`);
+      } else if (result.error) {
+        console.error("Error loading decorations:", result.error);
+      }
+    } catch (error) {
+      console.error("Error in loadSavedDecorations:", error);
+    }
+  };
 
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
@@ -92,16 +263,26 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // Add to inventory
-        setInventory((prev) => [
-          ...prev,
-          {
-            id: item.id,
-            name: item.name,
-            type: furnitureType,
-            thumbnail: "", // Will be generated when placed
-          },
-        ]);
+        // Add to inventory (generate unique ID for each purchase)
+        setInventory((prev) => {
+          // Generate unique ID for this specific purchase instance
+          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+          console.log(
+            `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
+          );
+          return [
+            ...prev,
+            {
+              id: uniqueId,
+              name: item.name,
+              type: furnitureType,
+              thumbnail: "", // Will be generated when placed
+              properties: null, // No custom properties for new items
+              originalStoreId: item.id, // Keep reference to original store item
+            },
+          ];
+        });
 
         addNotification({
           type: "success",
@@ -186,8 +367,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setRoomDimensions(dimensions);
         setMaterialProperties(materials);
       }
+
+      // Load saved decorations when user changes or experience is ready
+      if (user?.id) {
+        // Reset decorations loaded flag when user changes
+        if (!decorationsLoaded) {
+          setTimeout(() => {
+            loadSavedDecorations();
+          }, 500); // Small delay to ensure scene is ready
+        }
+      } else {
+        // Reset flag when user logs out
+        setDecorationsLoaded(false);
+      }
     }
-  }, [isEditMode, user?.isAdmin]);
+  }, [isEditMode, user?.isAdmin, user?.id]);
 
   const handleNavigation = (id: string) => {
     switch (id) {
@@ -239,11 +433,67 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         // TODO: Implement inspection modal
         console.log(`Inspecting ${objectId}`);
         break;
+      case "admin-controls":
+        // Set selected furniture for admin controls
+        setSelectedFurniture(objectId);
+        setIsEditMode(true);
+        // Get current furniture properties
+        if (experienceRef.current) {
+          const furniture = experienceRef.current.getFurniture(objectId);
+          if (furniture) {
+            // Update admin controls with current properties
+            setCurrentScale(furniture.scale || { x: 1, y: 1, z: 1 });
+            setCurrentRotation(furniture.rotation || { x: 0, y: 0, z: 0 });
+            setCurrentPosition(furniture.position || { x: 0, y: 0, z: 0 });
+            // Update material properties if available
+            if (furniture.material) {
+              setCurrentMaterial({
+                roughness: furniture.material.roughness || 0.5,
+                metalness: furniture.material.metalness || 0,
+                emissive: furniture.material.emissive || "#000000",
+                color: furniture.material.color || "#ffffff",
+              });
+            }
+          }
+        }
+        break;
       case "store":
         // Add to inventory and remove from scene
-        const furnitureName = objectId
+        // Try to get the original name from the 3D object userData
+        let furnitureName = objectId
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase());
+
+        // Check if the 3D object has the original name stored
+        if (experienceRef.current) {
+          const furnitureObj =
+            experienceRef.current.getFurnitureById?.(objectId);
+          if (furnitureObj?.object?.userData?.originalName) {
+            furnitureName = furnitureObj.object.userData.originalName;
+            console.log(
+              `📝 Using original name: "${furnitureName}" for ${objectId}`,
+            );
+          } else {
+            console.log(
+              `⚠️ No original name found for ${objectId}, using generated name: "${furnitureName}"`,
+            );
+          }
+        }
+
+        // Get the correct furniture type to preserve it
+        let furnitureType = "furniture";
+        if (experienceRef.current) {
+          const actualType = experienceRef.current.getFurnitureType(objectId);
+          if (actualType) {
+            furnitureType = actualType;
+          }
+        }
+
+        // Get current furniture properties before storing
+        let furnitureProperties = null;
+        if (experienceRef.current) {
+          furnitureProperties = experienceRef.current.getFurniture(objectId);
+        }
 
         // Generate thumbnail for inventory
         let thumbnail = "";
@@ -251,19 +501,55 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           thumbnail = experienceRef.current.generateThumbnail(objectId);
         }
 
-        setInventory((prev) => [
-          ...prev,
-          {
-            id: objectId,
-            name: furnitureName,
-            type: "furniture",
-            thumbnail,
-          },
-        ]);
+        console.log(
+          `📦 Storing furniture: ID=${objectId}, Type=${furnitureType}, Name=${furnitureName}`,
+        );
+        console.log(`💾 Furniture properties to store:`, furnitureProperties);
+
+        setInventory((prev) => {
+          // Check if item already exists in inventory to avoid duplicates
+          const existsInInventory = prev.some((item) => item.id === objectId);
+
+          if (existsInInventory) {
+            console.log(
+              `⚠️ Item ${objectId} already exists in inventory, not adding duplicate`,
+            );
+            console.log(
+              `📋 Current inventory IDs:`,
+              prev.map((i) => i.id),
+            );
+            return prev;
+          }
+
+          console.log(`➕ Adding ${objectId} to inventory`);
+          return [
+            ...prev,
+            {
+              id: objectId,
+              name: furnitureName,
+              type: furnitureType,
+              thumbnail,
+              // Store modified properties
+              properties: furnitureProperties
+                ? {
+                    scale: furnitureProperties.scale,
+                    rotation: furnitureProperties.rotation,
+                    position: furnitureProperties.position,
+                    material: furnitureProperties.material,
+                  }
+                : null,
+            },
+          ];
+        });
 
         // Remove from 3D scene
         if (experienceRef.current) {
           experienceRef.current.removeFurniture(objectId);
+        }
+
+        // Remove from database if user is logged in
+        if (user?.id) {
+          roomDecorationService.removeFurnitureFromRoom(user.id, objectId);
         }
 
         // Remove lamp state if it's a lamp
@@ -327,6 +613,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
+            console.log(
+              `🎯 Placing furniture from inventory: ID=${item.id}, Type=${item.type}, Name=${item.name}`,
+            );
             const success =
               await experienceRef.current.addFurnitureFromInventory(
                 item.id,
@@ -339,12 +628,85 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
 
             if (success) {
+              console.log(`✅ Successfully placed furniture: ${item.id}`);
+
+              // Store original name in 3D object userData for later retrieval
+              if (experienceRef.current) {
+                const furnitureObj = experienceRef.current.getFurnitureById?.(
+                  item.id,
+                );
+                if (furnitureObj?.object) {
+                  furnitureObj.object.userData.originalName = item.name;
+                  console.log(
+                    `💾 Stored original name "${item.name}" for ${item.id}`,
+                  );
+                }
+              }
+
+              // Apply stored properties if they exist
+              if (item.properties && experienceRef.current) {
+                console.log(
+                  `🔧 Applying stored properties to ${item.id}:`,
+                  item.properties,
+                );
+                console.log(`📊 Scale to apply:`, item.properties.scale);
+                console.log(`🎨 Material to apply:`, item.properties.material);
+
+                // Apply scale if stored
+                if (item.properties.scale) {
+                  experienceRef.current.updateFurnitureScale(
+                    item.id,
+                    item.properties.scale,
+                  );
+                }
+
+                // Apply rotation if stored
+                if (item.properties.rotation) {
+                  experienceRef.current.updateFurnitureRotation(
+                    item.id,
+                    item.properties.rotation,
+                  );
+                }
+
+                // Skip applying stored position - use the new drop position instead
+                // The stored position would overwrite where the user just dropped the item
+                console.log(
+                  `⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`,
+                );
+                if (item.properties.position) {
+                  console.log(
+                    `📍 Previous stored position was:`,
+                    item.properties.position,
+                  );
+                }
+
+                // Apply material properties if stored
+                if (item.properties.material) {
+                  experienceRef.current.updateFurnitureMaterial(
+                    item.id,
+                    item.properties.material,
+                  );
+                }
+
+                console.log(`✅ Applied stored properties to ${item.id}`);
+              }
+
+              // Save furniture state to database (with applied properties)
+              if (user?.id) {
+                // Longer delay to ensure positioning is fully stable before saving
+                setTimeout(() => {
+                  saveFurnitureState(item.id);
+                }, 1000); // Increased delay to prevent interfering with placement
+              }
+
               // Remove from inventory
               setInventory((prev) =>
                 prev.filter((invItem) => invItem.id !== item.id),
               );
             } else {
-              console.warn(`Failed to place furniture: ${item.id}`);
+              console.warn(
+                `❌ Failed to place furniture: ${item.id} with type: ${item.type}`,
+              );
             }
           } catch (error) {
             console.error(`Error placing furniture ${item.id}:`, error);
@@ -529,6 +891,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             >
               🎨 Materiais
             </button>
+            {selectedFurniture && (
+              <button
+                onClick={() => setShowFurniturePanel(!showFurniturePanel)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  showFurniturePanel
+                    ? "bg-orange-500 text-white shadow-lg"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                }`}
+              >
+                🪑 M��vel: {selectedFurniture.replace(/-/g, " ")}
+              </button>
+            )}
           </div>
 
           {showLightingPanel && (
@@ -1506,6 +1880,351 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               </div>
             </motion.div>
           )}
+
+          {/* Furniture Controls Panel */}
+          {showFurniturePanel && selectedFurniture && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Header */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} className="text-orange-400" />
+                    <span className="text-white font-medium">
+                      🪑 {selectedFurniture.replace(/-/g, " ")}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedFurniture(null);
+                      setShowFurniturePanel(false);
+                    }}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scale Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <ZoomIn size={16} className="text-green-400" />
+                  <span className="text-white font-medium">Tamanho</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Escala {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={
+                            currentScale[axis as keyof typeof currentScale]
+                          }
+                          onChange={(e) => {
+                            const newScale = {
+                              ...currentScale,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentScale(newScale);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurnitureScale(
+                                selectedFurniture,
+                                newScale,
+                              );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {currentScale[
+                            axis as keyof typeof currentScale
+                          ].toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rotation Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <RotateCw size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Rotação</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Rotação {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="0"
+                          max="360"
+                          step="5"
+                          value={
+                            currentRotation[
+                              axis as keyof typeof currentRotation
+                            ]
+                          }
+                          onChange={(e) => {
+                            const newRotation = {
+                              ...currentRotation,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentRotation(newRotation);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurnitureRotation(
+                                selectedFurniture,
+                                newRotation,
+                              );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {
+                            currentRotation[
+                              axis as keyof typeof currentRotation
+                            ]
+                          }
+                          °
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Position Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Move size={16} className="text-blue-400" />
+                  <span className="text-white font-medium">Posição</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Posição {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="-5"
+                          max="5"
+                          step="0.1"
+                          value={
+                            currentPosition[
+                              axis as keyof typeof currentPosition
+                            ]
+                          }
+                          onChange={(e) => {
+                            const newPosition = {
+                              ...currentPosition,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentPosition(newPosition);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurniturePosition(
+                                selectedFurniture,
+                                newPosition,
+                              );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {currentPosition[
+                            axis as keyof typeof currentPosition
+                          ].toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Material Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb size={16} className="text-yellow-400" />
+                  <span className="text-white font-medium">Material</span>
+                </div>
+                <div className="space-y-3">
+                  {/* Roughness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Rugosidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={currentMaterial.roughness}
+                        onChange={(e) => {
+                          const newMaterial = {
+                            ...currentMaterial,
+                            roughness: parseFloat(e.target.value),
+                          };
+                          setCurrentMaterial(newMaterial);
+                          if (experienceRef.current && selectedFurniture) {
+                            experienceRef.current.updateFurnitureMaterial(
+                              selectedFurniture,
+                              { roughness: parseFloat(e.target.value) },
+                            );
+                            // Auto-save the change
+                            saveFurnitureState(selectedFurniture);
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {currentMaterial.roughness.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Metalness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Metalicidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={currentMaterial.metalness}
+                        onChange={(e) => {
+                          const newMaterial = {
+                            ...currentMaterial,
+                            metalness: parseFloat(e.target.value),
+                          };
+                          setCurrentMaterial(newMaterial);
+                          if (experienceRef.current && selectedFurniture) {
+                            experienceRef.current.updateFurnitureMaterial(
+                              selectedFurniture,
+                              { metalness: parseFloat(e.target.value) },
+                            );
+                            // Auto-save the change
+                            saveFurnitureState(selectedFurniture);
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {currentMaterial.metalness.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      value={currentMaterial.color}
+                      onChange={(e) => {
+                        const newMaterial = {
+                          ...currentMaterial,
+                          color: e.target.value,
+                        };
+                        setCurrentMaterial(newMaterial);
+                        if (experienceRef.current && selectedFurniture) {
+                          experienceRef.current.updateFurnitureMaterial(
+                            selectedFurniture,
+                            { color: e.target.value },
+                          );
+                          // Auto-save the change
+                          saveFurnitureState(selectedFurniture);
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+
+                  {/* Emissive */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Emissão
+                    </label>
+                    <input
+                      type="color"
+                      value={currentMaterial.emissive}
+                      onChange={(e) => {
+                        const newMaterial = {
+                          ...currentMaterial,
+                          emissive: e.target.value,
+                        };
+                        setCurrentMaterial(newMaterial);
+                        if (experienceRef.current && selectedFurniture) {
+                          experienceRef.current.updateFurnitureMaterial(
+                            selectedFurniture,
+                            { emissive: e.target.value },
+                          );
+                          // Auto-save the change
+                          saveFurnitureState(selectedFurniture);
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Reset Button */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <button
+                  onClick={() => {
+                    if (experienceRef.current && selectedFurniture) {
+                      experienceRef.current.resetFurnitureToDefaults(
+                        selectedFurniture,
+                      );
+                      // Reset local state
+                      setCurrentScale({ x: 1, y: 1, z: 1 });
+                      setCurrentRotation({ x: 0, y: 0, z: 0 });
+                      setCurrentPosition({ x: 0, y: 0, z: 0 });
+                      setCurrentMaterial({
+                        roughness: 0.5,
+                        metalness: 0,
+                        emissive: "#000000",
+                        color: "#ffffff",
+                      });
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw size={16} />
+                  Restaurar Padrões
+                </button>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       )}
 
@@ -1533,39 +2252,78 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         <div className="p-6 h-full bg-white">
           {/* Inventory Grid */}
           <div className="grid grid-cols-4 gap-4 h-full">
-            {/* Inventory items */}
-            {inventory.map((item) => (
-              <motion.div
-                key={item.id}
-                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                draggable
-                onDragStart={() => {
-                  setIsDraggingFromInventory(true);
-                }}
-                onDragEnd={async (e, info) => {
-                  setIsDraggingFromInventory(false);
-                  // Use clientX/Y for global screen position
-                  const dropX = e.clientX;
-                  const dropY = e.clientY;
-                  await handleInventoryItemDrop(item, { x: dropX, y: dropY });
-                }}
-              >
-                {item.thumbnail ? (
-                  <img
-                    src={item.thumbnail}
-                    alt={item.name}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                ) : (
-                  <Package size={20} className="text-blue-500 mb-1" />
-                )}
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
-                  {item.name}
-                </span>
-              </motion.div>
-            ))}
+            {/* Inventory items - Group by type and name, show only unique items with stack count */}
+            {inventory
+              .reduce((uniqueItems, item) => {
+                // Find if we already have this type of item
+                const existingIndex = uniqueItems.findIndex(
+                  (unique) =>
+                    unique.originalStoreId === item.originalStoreId &&
+                    unique.type === item.type &&
+                    unique.name === item.name,
+                );
+
+                if (existingIndex === -1) {
+                  // First occurrence of this item type
+                  uniqueItems.push({
+                    ...item,
+                    stackCount: 1,
+                    allIds: [item.id], // Keep track of all IDs for this stack
+                  });
+                } else {
+                  // Increment stack count for existing item type
+                  uniqueItems[existingIndex].stackCount += 1;
+                  uniqueItems[existingIndex].allIds.push(item.id);
+                }
+
+                return uniqueItems;
+              }, [] as Array<any>)
+              .map((item, index) => {
+                return (
+                  <motion.div
+                    key={`${item.originalStoreId || item.id}-${index}`}
+                    className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    draggable
+                    onDragStart={() => {
+                      setIsDraggingFromInventory(true);
+                    }}
+                    onDragEnd={async (e, info) => {
+                      setIsDraggingFromInventory(false);
+                      // Use clientX/Y for global screen position
+                      const dropX = e.clientX;
+                      const dropY = e.clientY;
+                      // Use the first ID from the stack when dragging
+                      const actualItem = { ...item, id: item.allIds[0] };
+                      await handleInventoryItemDrop(actualItem, {
+                        x: dropX,
+                        y: dropY,
+                      });
+                    }}
+                  >
+                    {item.thumbnail ? (
+                      <img
+                        src={item.thumbnail}
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    ) : (
+                      <Package size={20} className="text-blue-500 mb-1" />
+                    )}
+                    <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
+                      {item.name}
+                    </span>
+
+                    {/* Stack counter */}
+                    {item.stackCount > 1 && (
+                      <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                        {item.stackCount}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
 
             {/* Empty inventory slots */}
             {Array.from({ length: Math.max(0, 20 - inventory.length) }).map(
@@ -1625,6 +2383,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
               >
                 {lampStates[contextMenu.objectId] ? "💡 Desligar" : "🔦 Ligar"}
+              </button>
+            )}
+
+            {/* Admin Controls Option */}
+            {user?.isAdmin && (
+              <button
+                onClick={() => handleContextMenuAction("admin-controls")}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-purple-700 font-medium border-t border-gray-200"
+              >
+                ⚙️ Controles de Admin
               </button>
             )}
 
