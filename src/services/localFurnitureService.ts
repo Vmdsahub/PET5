@@ -332,6 +332,36 @@ class LocalFurnitureService {
   }
 
   /**
+   * Get storage information
+   */
+  getStorageInfo(): {
+    used: number;
+    itemCount: number;
+    availableEstimate: number;
+  } {
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      const usedBytes = stored ? new Blob([stored]).size : 0;
+      const usedMB = usedBytes / (1024 * 1024);
+
+      const furniture = this.getStoredFurniture();
+
+      // Rough estimate of available space (localStorage limit is usually 5-10MB)
+      const estimatedLimit = 5; // MB
+      const availableMB = Math.max(0, estimatedLimit - usedMB);
+
+      return {
+        used: Number(usedMB.toFixed(2)),
+        itemCount: furniture.length,
+        availableEstimate: Number(availableMB.toFixed(2)),
+      };
+    } catch (error) {
+      console.error("Error getting storage info:", error);
+      return { used: 0, itemCount: 0, availableEstimate: 0 };
+    }
+  }
+
+  /**
    * Add sample data for testing
    */
   addSampleData(): void {
