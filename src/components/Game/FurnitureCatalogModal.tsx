@@ -48,6 +48,11 @@ interface FurnitureCatalogModalProps {
   userXenocash: number;
   isAdmin?: boolean;
   onPurchaseItem: (item: FurnitureItem) => Promise<boolean>;
+  onNotification?: (notification: {
+    type: "success" | "error";
+    title: string;
+    message: string;
+  }) => void;
 }
 
 export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
