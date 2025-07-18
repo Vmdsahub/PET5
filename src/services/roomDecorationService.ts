@@ -161,7 +161,8 @@ class RoomDecorationService {
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
-        .match({ user_id: userId, furniture_id: furnitureId });
+        .eq("user_id", userId)
+        .eq("furniture_id", furnitureId);
 
       if (error) {
         console.error("Error removing furniture from room:", error);
