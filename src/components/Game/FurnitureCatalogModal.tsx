@@ -516,9 +516,44 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                 </span>
                               </div>
                             </div>
+                            {/* Delete button for admin items */}
+                            {section.id === "admin" && item.adminOnly && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteCustomFurniture(item.id);
+                                }}
+                                className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                                title="Deletar modelo"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
+                            )}
                           </div>
                         </motion.div>
                       ))}
+
+                      {/* Upload button for admin section */}
+                      {section.id === "admin" &&
+                        isAdmin &&
+                        section.isExpanded && (
+                          <motion.button
+                            onClick={() => setShowUploadModal(true)}
+                            className="mx-4 mb-2 p-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 transition-colors bg-purple-50 hover:bg-purple-100"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="flex items-center justify-center gap-3 text-purple-700">
+                              <Upload className="w-5 h-5" />
+                              <span className="font-medium">
+                                Enviar modelo 3D
+                              </span>
+                            </div>
+                            <p className="text-xs text-purple-600 mt-1">
+                              Adicione arquivos GLB ao catálogo
+                            </p>
+                          </motion.button>
+                        )}
                     </motion.div>
                   )}
                 </AnimatePresence>
