@@ -500,16 +500,20 @@ export class RoomExperience {
     const clonedObject = object.clone();
     thumbScene.add(clonedObject);
 
-    // Add bright lighting for thumbnail
-    const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
-    light1.position.set(2, 3, 2);
+    // Add bright lighting for thumbnail - optimized for front view
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    light1.position.set(0, 3, 3); // Front-top lighting
     thumbScene.add(light1);
 
-    const light2 = new THREE.DirectionalLight(0xffffff, 1);
-    light2.position.set(-2, 2, -1);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light2.position.set(-2, 1, 2); // Left-front lighting
     thumbScene.add(light2);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const light3 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light3.position.set(2, 1, 2); // Right-front lighting
+    thumbScene.add(light3);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     thumbScene.add(ambientLight);
 
     // Position camera to frame the object - FRONT VIEW
