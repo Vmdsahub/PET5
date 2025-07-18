@@ -263,25 +263,45 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // Generate thumbnail for purchased item by temporarily loading it
+        // Generate thumbnail for purchased item
         let thumbnail = "";
-        if (experienceRef.current) {
-          try {
-            // Generate thumbnail by temporarily loading the furniture model
-            thumbnail =
-              await experienceRef.current.generateThumbnailForStoreItem(
-                item.id,
-                furnitureType,
+
+        // For admin/custom furniture (GLB), use a placeholder thumbnail until placed and stored
+        if (item.adminOnly || furnitureType.startsWith("custom_")) {
+          // Use a distinctive thumbnail for GLB furniture to indicate it's a 3D model
+          thumbnail =
+            "data:image/svg+xml;base64," +
+            btoa(`
+            <svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+              <rect width="128" height="128" fill="#f8f9fa"/>
+              <rect x="20" y="20" width="88" height="88" fill="#e9ecef" rx="8"/>
+              <g transform="translate(64,64)">
+                <path d="M-15,-15 L15,-15 L15,15 L-15,15 Z" fill="#6c757d" opacity="0.3"/>
+                <path d="M-12,-12 L12,-12 L12,12 L-12,12 Z" fill="#495057"/>
+                <text x="0" y="4" text-anchor="middle" fill="white" font-family="Arial" font-size="8">GLB</text>
+              </g>
+            </svg>
+          `);
+          console.log(`🖼️ Using GLB placeholder thumbnail for: ${item.name}`);
+        } else {
+          // For built-in furniture, try to generate thumbnail if possible
+          if (experienceRef.current) {
+            try {
+              thumbnail =
+                await experienceRef.current.generateThumbnailForStoreItem(
+                  item.id,
+                  furnitureType,
+                );
+              console.log(
+                `🖼️ Generated thumbnail for purchased item: ${item.name}`,
               );
-            console.log(
-              `🖼️ Generated thumbnail for purchased item: ${item.name}`,
-            );
-          } catch (error) {
-            console.warn(
-              `⚠️ Could not generate thumbnail for ${item.name}:`,
-              error,
-            );
-            thumbnail = ""; // Fallback to empty
+            } catch (error) {
+              console.warn(
+                `⚠️ Could not generate thumbnail for ${item.name}:`,
+                error,
+              );
+              thumbnail = ""; // Fallback to empty
+            }
           }
         }
 
@@ -2414,7 +2434,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 onClick={() => handleContextMenuAction("admin-controls")}
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-purple-700 font-medium border-t border-gray-200"
               >
-                ��️ Controles de Admin
+                ⚙️ Controles de Admin
               </button>
             )}
 
