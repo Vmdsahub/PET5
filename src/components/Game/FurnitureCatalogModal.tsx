@@ -281,7 +281,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             id: "admin",
             title: "Catálogo do Admin",
             icon: <Crown className="w-5 h-5" />,
-            isExpanded: false,
+            isExpanded: adminItems.length > 0, // Auto-expand if items exist
             items: adminItems,
           },
         ];
