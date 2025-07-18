@@ -2340,28 +2340,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         className="w-full h-full object-cover rounded-md"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center">
-                        {/* Check if it's a GLB/custom furniture item */}
-                        {item.originalStoreId &&
-                        (item.originalStoreId.includes("custom_") ||
-                          (
-                            inventory.find(
-                              (inv) =>
-                                inv.originalStoreId === item.originalStoreId,
-                            )?.type || ""
-                          ).startsWith("custom_")) ? (
-                          <>
-                            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mb-1">
-                              <span className="text-purple-600 font-bold text-xs">
-                                3D
-                              </span>
-                            </div>
-                            <span className="text-purple-600 text-xs">GLB</span>
-                          </>
-                        ) : (
-                          <Package size={20} className="text-blue-500 mb-1" />
-                        )}
-                      </div>
+                      <Package size={20} className="text-blue-500 mb-1" />
                     )}
                     <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
                       {item.name}
