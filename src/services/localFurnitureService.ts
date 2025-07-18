@@ -237,25 +237,63 @@ class LocalFurnitureService {
     return new Promise((resolve) => {
       const request = indexedDB.open("FurnitureFiles", 1);
 
+      request.onupgradeneeded = (event) => {
+        console.log(
+          "IndexedDB upgrade needed during read, creating object store...",
+        );
+        const db = request.result;
+
+        if (!db.objectStoreNames.contains("files")) {
+          db.createObjectStore("files", { keyPath: "id" });
+          console.log('Object store "files" created during read');
+        }
+      };
+
       request.onsuccess = () => {
         const db = request.result;
-        const transaction = db.transaction(["files"], "readonly");
-        const store = transaction.objectStore("files");
-        const getRequest = store.get(id);
 
-        getRequest.onsuccess = () => {
-          const result = getRequest.result;
-          resolve(result ? result.data : null);
-        };
-
-        getRequest.onerror = () => {
-          console.error("Error getting file from IndexedDB");
+        // Check if object store exists
+        if (!db.objectStoreNames.contains("files")) {
+          console.error('Object store "files" not found during read');
           resolve(null);
-        };
+          return;
+        }
+
+        try {
+          const transaction = db.transaction(["files"], "readonly");
+          const store = transaction.objectStore("files");
+          const getRequest = store.get(id);
+
+          getRequest.onsuccess = () => {
+            const result = getRequest.result;
+            console.log(
+              `File ${result ? "found" : "not found"} in IndexedDB: ${id}`,
+            );
+            resolve(result ? result.data : null);
+          };
+
+          getRequest.onerror = () => {
+            console.error("Error in get request:", getRequest.error);
+            resolve(null);
+          };
+
+          transaction.onerror = () => {
+            console.error("Transaction error during read:", transaction.error);
+            resolve(null);
+          };
+        } catch (txError) {
+          console.error("Error creating read transaction:", txError);
+          resolve(null);
+        }
       };
 
       request.onerror = () => {
-        console.error("Error opening IndexedDB for read");
+        console.error("Error opening IndexedDB for read:", request.error);
+        resolve(null);
+      };
+
+      request.onblocked = () => {
+        console.warn("IndexedDB blocked during read");
         resolve(null);
       };
     });
