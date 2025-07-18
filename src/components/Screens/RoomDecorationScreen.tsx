@@ -70,6 +70,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
+    console.log(`📋 Purchasing furniture item:`, item);
+
     // Check if player has enough currency
     const currentAmount = item.currency === "xenocoins" ? xenocoins : cash;
 
@@ -87,13 +89,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       const success = await updateCurrency(item.currency, -item.price);
 
       if (success) {
+        const furnitureType = item.type || "furniture";
+        console.log(`📦 Adding to inventory with type: ${furnitureType}`);
+
         // Add to inventory
         setInventory((prev) => [
           ...prev,
           {
             id: item.id,
             name: item.name,
-            type: item.type || "furniture",
+            type: furnitureType,
             thumbnail: "", // Will be generated when placed
           },
         ]);
