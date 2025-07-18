@@ -263,47 +263,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // Generate thumbnail for purchased item
-        let thumbnail = "";
-
-        // For admin/custom furniture (GLB), use a placeholder thumbnail until placed and stored
-        if (item.adminOnly || furnitureType.startsWith("custom_")) {
-          // Use a distinctive thumbnail for GLB furniture to indicate it's a 3D model
-          thumbnail =
-            "data:image/svg+xml;base64," +
-            btoa(`
-            <svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
-              <rect width="128" height="128" fill="#f8f9fa"/>
-              <rect x="20" y="20" width="88" height="88" fill="#e9ecef" rx="8"/>
-              <g transform="translate(64,64)">
-                <path d="M-15,-15 L15,-15 L15,15 L-15,15 Z" fill="#6c757d" opacity="0.3"/>
-                <path d="M-12,-12 L12,-12 L12,12 L-12,12 Z" fill="#495057"/>
-                <text x="0" y="4" text-anchor="middle" fill="white" font-family="Arial" font-size="8">GLB</text>
-              </g>
-            </svg>
-          `);
-          console.log(`🖼️ Using GLB placeholder thumbnail for: ${item.name}`);
-        } else {
-          // For built-in furniture, try to generate thumbnail if possible
-          if (experienceRef.current) {
-            try {
-              thumbnail =
-                await experienceRef.current.generateThumbnailForStoreItem(
-                  item.id,
-                  furnitureType,
-                );
-              console.log(
-                `🖼️ Generated thumbnail for purchased item: ${item.name}`,
-              );
-            } catch (error) {
-              console.warn(
-                `⚠️ Could not generate thumbnail for ${item.name}:`,
-                error,
-              );
-              thumbnail = ""; // Fallback to empty
-            }
-          }
-        }
+        // For now, purchased items will show default icon until placed and stored
+        // This matches the existing behavior but at least shows the item exists
+        const thumbnail = ""; // Empty thumbnail means it will show default Package icon
 
         // Add to inventory (generate unique ID for each purchase)
         setInventory((prev) => {
