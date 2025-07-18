@@ -659,15 +659,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             if (success) {
               console.log(`✅ Successfully placed furniture: ${item.id}`);
 
-              // Store original name in 3D object userData for later retrieval
+              // Store original data in 3D object userData for later retrieval
               if (experienceRef.current) {
                 const furnitureObj = experienceRef.current.getFurnitureById?.(
                   item.id,
                 );
                 if (furnitureObj?.object) {
                   furnitureObj.object.userData.originalName = item.name;
+                  furnitureObj.object.userData.originalStoreId =
+                    item.originalStoreId; // Preserve store ID
                   console.log(
-                    `💾 Stored original name "${item.name}" for ${item.id}`,
+                    `💾 Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
@@ -929,7 +931,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                 }`}
               >
-                🪑 M��vel: {selectedFurniture.replace(/-/g, " ")}
+                ���� M��vel: {selectedFurniture.replace(/-/g, " ")}
               </button>
             )}
           </div>
