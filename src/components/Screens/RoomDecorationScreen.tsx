@@ -1557,6 +1557,337 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               </div>
             </motion.div>
           )}
+
+          {/* Furniture Controls Panel */}
+          {showFurniturePanel && selectedFurniture && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4 w-80"
+            >
+              {/* Header */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} className="text-orange-400" />
+                    <span className="text-white font-medium">
+                      🪑 {selectedFurniture.replace(/-/g, " ")}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedFurniture(null);
+                      setShowFurniturePanel(false);
+                    }}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scale Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <ZoomIn size={16} className="text-green-400" />
+                  <span className="text-white font-medium">Tamanho</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Escala {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="3"
+                          step="0.1"
+                          value={
+                            currentScale[axis as keyof typeof currentScale]
+                          }
+                          onChange={(e) => {
+                            const newScale = {
+                              ...currentScale,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentScale(newScale);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurnitureScale(
+                                selectedFurniture,
+                                newScale,
+                              );
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {currentScale[
+                            axis as keyof typeof currentScale
+                          ].toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rotation Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <RotateCw size={16} className="text-purple-400" />
+                  <span className="text-white font-medium">Rotação</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Rotação {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="0"
+                          max="360"
+                          step="5"
+                          value={
+                            currentRotation[
+                              axis as keyof typeof currentRotation
+                            ]
+                          }
+                          onChange={(e) => {
+                            const newRotation = {
+                              ...currentRotation,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentRotation(newRotation);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurnitureRotation(
+                                selectedFurniture,
+                                newRotation,
+                              );
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {
+                            currentRotation[
+                              axis as keyof typeof currentRotation
+                            ]
+                          }
+                          °
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Position Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Move size={16} className="text-blue-400" />
+                  <span className="text-white font-medium">Posição</span>
+                </div>
+                <div className="space-y-3">
+                  {["x", "y", "z"].map((axis) => (
+                    <div key={axis}>
+                      <label className="text-slate-300 text-xs block mb-1">
+                        Posição {axis.toUpperCase()}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="-5"
+                          max="5"
+                          step="0.1"
+                          value={
+                            currentPosition[
+                              axis as keyof typeof currentPosition
+                            ]
+                          }
+                          onChange={(e) => {
+                            const newPosition = {
+                              ...currentPosition,
+                              [axis]: parseFloat(e.target.value),
+                            };
+                            setCurrentPosition(newPosition);
+                            if (experienceRef.current && selectedFurniture) {
+                              experienceRef.current.updateFurniturePosition(
+                                selectedFurniture,
+                                newPosition,
+                              );
+                            }
+                          }}
+                          className="flex-1 slider"
+                        />
+                        <span className="text-slate-300 text-sm min-w-[3rem]">
+                          {currentPosition[
+                            axis as keyof typeof currentPosition
+                          ].toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Material Controls */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb size={16} className="text-yellow-400" />
+                  <span className="text-white font-medium">Material</span>
+                </div>
+                <div className="space-y-3">
+                  {/* Roughness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Rugosidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={currentMaterial.roughness}
+                        onChange={(e) => {
+                          const newMaterial = {
+                            ...currentMaterial,
+                            roughness: parseFloat(e.target.value),
+                          };
+                          setCurrentMaterial(newMaterial);
+                          if (experienceRef.current && selectedFurniture) {
+                            experienceRef.current.updateFurnitureMaterial(
+                              selectedFurniture,
+                              { roughness: parseFloat(e.target.value) },
+                            );
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {currentMaterial.roughness.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Metalness */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Metalicidade
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={currentMaterial.metalness}
+                        onChange={(e) => {
+                          const newMaterial = {
+                            ...currentMaterial,
+                            metalness: parseFloat(e.target.value),
+                          };
+                          setCurrentMaterial(newMaterial);
+                          if (experienceRef.current && selectedFurniture) {
+                            experienceRef.current.updateFurnitureMaterial(
+                              selectedFurniture,
+                              { metalness: parseFloat(e.target.value) },
+                            );
+                          }
+                        }}
+                        className="flex-1 slider"
+                      />
+                      <span className="text-slate-300 text-sm min-w-[3rem]">
+                        {currentMaterial.metalness.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      value={currentMaterial.color}
+                      onChange={(e) => {
+                        const newMaterial = {
+                          ...currentMaterial,
+                          color: e.target.value,
+                        };
+                        setCurrentMaterial(newMaterial);
+                        if (experienceRef.current && selectedFurniture) {
+                          experienceRef.current.updateFurnitureMaterial(
+                            selectedFurniture,
+                            { color: e.target.value },
+                          );
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+
+                  {/* Emissive */}
+                  <div>
+                    <label className="text-slate-300 text-xs block mb-1">
+                      Emissão
+                    </label>
+                    <input
+                      type="color"
+                      value={currentMaterial.emissive}
+                      onChange={(e) => {
+                        const newMaterial = {
+                          ...currentMaterial,
+                          emissive: e.target.value,
+                        };
+                        setCurrentMaterial(newMaterial);
+                        if (experienceRef.current && selectedFurniture) {
+                          experienceRef.current.updateFurnitureMaterial(
+                            selectedFurniture,
+                            { emissive: e.target.value },
+                          );
+                        }
+                      }}
+                      className="w-full h-8 rounded border border-slate-600 bg-slate-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Reset Button */}
+              <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
+                <button
+                  onClick={() => {
+                    if (experienceRef.current && selectedFurniture) {
+                      experienceRef.current.resetFurnitureToDefaults(
+                        selectedFurniture,
+                      );
+                      // Reset local state
+                      setCurrentScale({ x: 1, y: 1, z: 1 });
+                      setCurrentRotation({ x: 0, y: 0, z: 0 });
+                      setCurrentPosition({ x: 0, y: 0, z: 0 });
+                      setCurrentMaterial({
+                        roughness: 0.5,
+                        metalness: 0,
+                        emissive: "#000000",
+                        color: "#ffffff",
+                      });
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw size={16} />
+                  Restaurar Padrões
+                </button>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       )}
 
