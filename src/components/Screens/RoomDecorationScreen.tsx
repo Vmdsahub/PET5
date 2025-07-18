@@ -618,6 +618,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             if (success) {
               console.log(`✅ Successfully placed furniture: ${item.id}`);
 
+              // Store original name in 3D object userData for later retrieval
+              if (experienceRef.current) {
+                const furnitureObj = experienceRef.current.getFurnitureById?.(
+                  item.id,
+                );
+                if (furnitureObj?.object) {
+                  furnitureObj.object.userData.originalName = item.name;
+                  console.log(
+                    `💾 Stored original name "${item.name}" for ${item.id}`,
+                  );
+                }
+              }
+
               // Apply stored properties if they exist
               if (item.properties && experienceRef.current) {
                 console.log(
