@@ -165,7 +165,16 @@ class LocalFurnitureService {
       // Get existing furniture and add new one
       const existingFurniture = this.getStoredFurniture();
       const updatedFurniture = [newFurniture, ...existingFurniture];
-      this.setStoredFurniture(updatedFurniture);
+
+      const storageSuccess = this.setStoredFurniture(updatedFurniture);
+
+      if (!storageSuccess) {
+        return {
+          success: false,
+          error:
+            "Erro ao salvar: armazenamento local cheio. Alguns itens antigos foram removidos.",
+        };
+      }
 
       return { success: true, furniture: newFurniture };
     } catch (error) {
