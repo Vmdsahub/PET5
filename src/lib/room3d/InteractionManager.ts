@@ -77,19 +77,24 @@ export class InteractionManager {
     const objectId = this.furnitureManager.getFurnitureAt(this.raycaster);
 
     if (objectId) {
-      // Show context menu for furniture
-      if (this.onRightClickFurniture) {
-        const rect = this.domElement.getBoundingClientRect();
-        this.onRightClickFurniture(objectId, {
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        });
+      if (this.editMode) {
+        // In edit mode, just select the object instead of showing context menu
+        if (objectId !== this.selectedObject) {
+          this.selectObject(objectId);
+        }
+      } else {
+        // Show context menu for furniture only when NOT in edit mode
+        if (this.onRightClickFurniture) {
+          const rect = this.domElement.getBoundingClientRect();
+          this.onRightClickFurniture(objectId, {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+          });
+        }
       }
     } else if (this.editMode) {
-      // Only select objects in edit mode when clicking empty space
-      if (objectId !== this.selectedObject) {
-        this.selectObject(objectId);
-      }
+      // Clear selection when clicking empty space in edit mode
+      this.selectObject(null);
     }
   }
 
