@@ -2281,7 +2281,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               .map((item, index) => {
                 return (
                   <motion.div
-                    key={`${item.id}-${index}`}
+                    key={`${item.originalStoreId || item.id}-${index}`}
                     className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -2294,7 +2294,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       // Use clientX/Y for global screen position
                       const dropX = e.clientX;
                       const dropY = e.clientY;
-                      await handleInventoryItemDrop(item, {
+                      // Use the first ID from the stack when dragging
+                      const actualItem = { ...item, id: item.allIds[0] };
+                      await handleInventoryItemDrop(actualItem, {
                         x: dropX,
                         y: dropY,
                       });
