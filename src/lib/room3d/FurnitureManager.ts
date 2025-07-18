@@ -341,12 +341,23 @@ export class FurnitureManager {
       emissive?: string;
     },
   ): boolean {
+    console.log(`🎨 Updating material for furniture ${id}:`, materialProps);
     const item = this.furniture.get(id);
-    if (!item) return false;
+    if (!item) {
+      console.warn(`❌ Furniture ${id} not found for material update`);
+      return false;
+    }
 
+    let meshCount = 0;
     item.object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
+        meshCount++;
         const material = child.material as THREE.MeshStandardMaterial;
+        console.log(`🔧 Updating mesh ${meshCount} material:`, {
+          oldRoughness: material.roughness,
+          oldMetalness: material.metalness,
+          newProps: materialProps,
+        });
 
         if (materialProps.roughness !== undefined) {
           material.roughness = materialProps.roughness;
@@ -362,9 +373,16 @@ export class FurnitureManager {
         }
 
         material.needsUpdate = true;
+        console.log(`✅ Material updated:`, {
+          roughness: material.roughness,
+          metalness: material.metalness,
+          color: material.color.getHexString(),
+          emissive: material.emissive.getHexString(),
+        });
       }
     });
 
+    console.log(`📊 Total meshes updated: ${meshCount}`);
     return true;
   }
 
