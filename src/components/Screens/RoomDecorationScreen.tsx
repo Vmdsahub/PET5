@@ -379,6 +379,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
+            console.log(
+              `🎯 Placing furniture from inventory: ID=${item.id}, Type=${item.type}, Name=${item.name}`,
+            );
             const success =
               await experienceRef.current.addFurnitureFromInventory(
                 item.id,
@@ -391,12 +394,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
 
             if (success) {
+              console.log(`✅ Successfully placed furniture: ${item.id}`);
               // Remove from inventory
               setInventory((prev) =>
                 prev.filter((invItem) => invItem.id !== item.id),
               );
             } else {
-              console.warn(`Failed to place furniture: ${item.id}`);
+              console.warn(
+                `❌ Failed to place furniture: ${item.id} with type: ${item.type}`,
+              );
             }
           } catch (error) {
             console.error(`Error placing furniture ${item.id}:`, error);
@@ -590,7 +596,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"
                 }`}
               >
-                🪑 Móvel: {selectedFurniture.replace(/-/g, " ")}
+                🪑 M��vel: {selectedFurniture.replace(/-/g, " ")}
               </button>
             )}
           </div>
