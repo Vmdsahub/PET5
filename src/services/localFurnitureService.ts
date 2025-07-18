@@ -61,49 +61,102 @@ class LocalFurnitureService {
   }
 
   private async initIndexedDB(): Promise<IDBDatabase | null> {
+    // First, try to delete the existing database to ensure clean state
+    await this.deleteDatabase();
+
     return new Promise((resolve) => {
-      const request = indexedDB.open("FurnitureFiles", 1);
+      console.log("Opening IndexedDB with forced upgrade...");
+      const request = indexedDB.open("FurnitureFiles", Date.now()); // Use timestamp as version to force upgrade
 
       request.onupgradeneeded = (event) => {
-        console.log(
-          "IndexedDB upgrade needed, creating/recreating object store...",
-        );
+        console.log("IndexedDB upgrade triggered, creating object store...");
         const db = request.result;
 
-        // Delete existing store if it exists
-        if (db.objectStoreNames.contains("files")) {
-          db.deleteObjectStore("files");
-          console.log("Existing object store deleted");
-        }
+        // Clear all existing object stores
+        const storeNames = Array.from(db.objectStoreNames);
+        storeNames.forEach((storeName) => {
+          console.log(`Deleting existing store: ${storeName}`);
+          db.deleteObjectStore(storeName);
+        });
 
         // Create new object store
         const objectStore = db.createObjectStore("files", { keyPath: "id" });
-        console.log('Object store "files" created successfully');
+        console.log('Object store "files" created with keyPath "id"');
+
+        // Verify creation immediately
+        if (db.objectStoreNames.contains("files")) {
+          console.log('✅ Object store "files" confirmed created');
+        } else {
+          console.error('❌ Object store "files" creation failed');
+        }
       };
 
       request.onsuccess = () => {
         const db = request.result;
+        console.log("IndexedDB opened successfully");
+        console.log(
+          "Available object stores:",
+          Array.from(db.objectStoreNames),
+        );
 
-        // Verify object store exists
+        // Double-check object store exists
         if (!db.objectStoreNames.contains("files")) {
-          console.error('Object store "files" still not found after upgrade');
+          console.error(
+            '❌ Object store "files" not found after successful open',
+          );
+          console.log("Database version:", db.version);
+          console.log("Object store names:", Array.from(db.objectStoreNames));
+
+          // Close and try again with different approach
+          db.close();
           resolve(null);
           return;
         }
 
-        console.log("IndexedDB initialized successfully");
+        console.log('✅ IndexedDB initialized successfully with "files" store');
         resolve(db);
       };
 
       request.onerror = () => {
-        console.error("Error initializing IndexedDB:", request.error);
+        console.error("❌ Error initializing IndexedDB:", request.error);
         resolve(null);
       };
 
       request.onblocked = () => {
-        console.warn("IndexedDB blocked during initialization");
+        console.warn("⚠️ IndexedDB blocked during initialization");
         resolve(null);
       };
+    });
+  }
+
+  private async deleteDatabase(): Promise<void> {
+    return new Promise((resolve) => {
+      console.log("Deleting existing IndexedDB database...");
+      const deleteRequest = indexedDB.deleteDatabase("FurnitureFiles");
+
+      deleteRequest.onsuccess = () => {
+        console.log("✅ Database deleted successfully");
+        resolve();
+      };
+
+      deleteRequest.onerror = () => {
+        console.warn(
+          "⚠️ Error deleting database (may not exist):",
+          deleteRequest.error,
+        );
+        resolve(); // Continue anyway
+      };
+
+      deleteRequest.onblocked = () => {
+        console.warn("⚠️ Database deletion blocked");
+        resolve(); // Continue anyway
+      };
+
+      // Timeout fallback
+      setTimeout(() => {
+        console.log("Database deletion timeout, continuing...");
+        resolve();
+      }, 2000);
     });
   }
 
