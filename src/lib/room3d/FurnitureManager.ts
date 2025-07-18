@@ -534,6 +534,36 @@ export class FurnitureManager {
     return true;
   }
 
+  // Create temporary furniture for thumbnail generation (doesn't add to scene)
+  public async createTemporaryFurnitureForThumbnail(
+    furnitureType: string,
+  ): Promise<THREE.Object3D | null> {
+    console.log(
+      `🖼️ Creating temporary furniture for thumbnail: ${furnitureType}`,
+    );
+
+    try {
+      // Create the furniture object using the factory
+      const furnitureObject = await this.furnitureFactory.create(furnitureType);
+
+      if (!furnitureObject) {
+        console.warn(
+          `❌ Failed to create temporary furniture of type: ${furnitureType}`,
+        );
+        return null;
+      }
+
+      // Don't add to scene or furniture map - just return the object for thumbnail generation
+      console.log(
+        `✅ Temporary furniture created successfully: ${furnitureType}`,
+      );
+      return furnitureObject;
+    } catch (error) {
+      console.error(`Error creating temporary furniture for thumbnail:`, error);
+      return null;
+    }
+  }
+
   public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
