@@ -308,8 +308,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setRoomDimensions(dimensions);
         setMaterialProperties(materials);
       }
+
+      // Load saved decorations when user changes or experience is ready
+      if (user?.id) {
+        setTimeout(() => {
+          loadSavedDecorations();
+        }, 500); // Small delay to ensure scene is ready
+      }
     }
-  }, [isEditMode, user?.isAdmin]);
+  }, [isEditMode, user?.isAdmin, user?.id]);
 
   const handleNavigation = (id: string) => {
     switch (id) {
