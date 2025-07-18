@@ -497,9 +497,13 @@ export class FurnitureManager {
     position: THREE.Vector3,
     type?: string,
   ): Promise<boolean> {
+    console.log(
+      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
+    );
+
     // Check if furniture already exists
     if (this.furniture.has(id)) {
-      console.warn(`Furniture with id ${id} already exists`);
+      console.warn(`❌ Furniture with id ${id} already exists`);
       return false;
     }
 
