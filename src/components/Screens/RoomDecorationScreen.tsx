@@ -668,17 +668,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   );
                 }
 
-                // Apply position (keep Y from world position, but apply stored X,Z if desired)
+                // Skip applying stored position - use the new drop position instead
+                // The stored position would overwrite where the user just dropped the item
+                console.log(
+                  `⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`,
+                );
                 if (item.properties.position) {
-                  // Use new Y from drop position, but restore X,Z offsets if any
-                  const adjustedPosition = {
-                    x: worldPosition.x,
-                    y: worldPosition.y, // Keep the floor level
-                    z: worldPosition.z,
-                  };
-                  experienceRef.current.updateFurniturePosition(
-                    item.id,
-                    adjustedPosition,
+                  console.log(
+                    `📍 Previous stored position was:`,
+                    item.properties.position,
                   );
                 }
 
