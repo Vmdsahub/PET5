@@ -284,18 +284,31 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase());
 
+        // Get the correct furniture type to preserve it
+        let furnitureType = "furniture";
+        if (experienceRef.current) {
+          const actualType = experienceRef.current.getFurnitureType(objectId);
+          if (actualType) {
+            furnitureType = actualType;
+          }
+        }
+
         // Generate thumbnail for inventory
         let thumbnail = "";
         if (experienceRef.current) {
           thumbnail = experienceRef.current.generateThumbnail(objectId);
         }
 
+        console.log(
+          `📦 Storing furniture: ID=${objectId}, Type=${furnitureType}, Name=${furnitureName}`,
+        );
+
         setInventory((prev) => [
           ...prev,
           {
             id: objectId,
             name: furnitureName,
-            type: "furniture",
+            type: furnitureType,
             thumbnail,
           },
         ]);
