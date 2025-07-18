@@ -46,6 +46,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [roomDimensions, setRoomDimensions] = useState<any>({});
   const [materialProperties, setMaterialProperties] = useState<any>({});
   const [showMaterialPanel, setShowMaterialPanel] = useState(false);
+  const [showFurniturePanel, setShowFurniturePanel] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     show: boolean;
