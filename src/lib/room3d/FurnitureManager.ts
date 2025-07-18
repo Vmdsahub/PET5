@@ -449,19 +449,43 @@ export class FurnitureManager {
     // Remove from scene
     this.furnitureGroup.remove(item.object);
 
-    // Dispose of geometry and materials to free memory
-    item.object.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((mat) => mat.dispose());
-          } else {
-            child.material.dispose();
+    // Only dispose resources for built-in furniture, not custom GLB furniture
+    // Custom GLB furniture uses cached models that should not be disposed
+    const isCustomFurniture =
+      item.type.startsWith("custom_") ||
+      (!item.type.startsWith("custom_") &&
+        ![
+          "sofa",
+          "table",
+          "diningTable",
+          "chair",
+          "bookshelf",
+          "lamp",
+          "tableLamp",
+          "plant",
+          "tvStand",
+          "sideTable",
+          "wallShelf",
+          "pictureFrame",
+          "wallClock",
+          "pendantLight",
+        ].includes(item.type));
+
+    if (!isCustomFurniture) {
+      // Dispose of geometry and materials only for built-in furniture
+      item.object.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach((mat) => mat.dispose());
+            } else {
+              child.material.dispose();
+            }
           }
         }
-      }
-    });
+      });
+    }
 
     // Remove from furniture map
     this.furniture.delete(id);
