@@ -457,6 +457,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               name: furnitureName,
               type: furnitureType,
               thumbnail,
+              // Store modified properties
+              properties: furnitureProperties
+                ? {
+                    scale: furnitureProperties.scale,
+                    rotation: furnitureProperties.rotation,
+                    position: furnitureProperties.position,
+                    material: furnitureProperties.material,
+                  }
+                : null,
             },
           ];
         });
