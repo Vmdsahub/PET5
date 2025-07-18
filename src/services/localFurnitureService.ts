@@ -260,80 +260,50 @@ class LocalFurnitureService {
         return false;
       }
 
-      return new Promise((resolve) => {
-        request.onupgradeneeded = (event) => {
-          console.log("IndexedDB upgrade needed, creating object store...");
-          const db = request.result;
+              try {
+          console.log(`🔄 Creating transaction for file: ${id}`);
+          const transaction = db.transaction(["files"], "readwrite");
+          const store = transaction.objectStore("files");
 
-          // Delete existing store if it exists
-          if (db.objectStoreNames.contains("files")) {
-            db.deleteObjectStore("files");
-          }
+          const fileData = {
+            id,
+            data: arrayBuffer,
+            timestamp: Date.now(),
+          };
 
-          // Create new object store
-          const objectStore = db.createObjectStore("files", { keyPath: "id" });
-          console.log('Object store "files" created successfully');
-        };
+          console.log(`💾 Putting file data for: ${id}`);
+          const putRequest = store.put(fileData);
 
-        request.onsuccess = () => {
-          const db = request.result;
+          putRequest.onsuccess = () => {
+            console.log(`✅ File stored successfully: ${id}`);
+          };
 
-          // Verify object store exists before using it
-          if (!db.objectStoreNames.contains("files")) {
-            console.error('Object store "files" not found after database open');
+          putRequest.onerror = () => {
+            console.error(`❌ Put request failed for ${id}:`, putRequest.error);
+          };
+
+          transaction.oncomplete = () => {
+            console.log(`✅ Transaction completed successfully for: ${id}`);
+            db.close();
+            resolve(true);
+          };
+
+          transaction.onerror = () => {
+            console.error(`❌ Transaction error for ${id}:`, transaction.error);
+            db.close();
             resolve(false);
-            return;
-          }
+          };
 
-          try {
-            const transaction = db.transaction(["files"], "readwrite");
-            const store = transaction.objectStore("files");
-
-            const fileData = {
-              id,
-              data: arrayBuffer,
-              timestamp: Date.now(),
-            };
-
-            const putRequest = store.put(fileData);
-
-            putRequest.onsuccess = () => {
-              console.log(`File stored in IndexedDB: ${id}`);
-            };
-
-            putRequest.onerror = () => {
-              console.error("Error in put request:", putRequest.error);
-            };
-
-            transaction.oncomplete = () => {
-              console.log(`Transaction completed for: ${id}`);
-              resolve(true);
-            };
-
-            transaction.onerror = (event) => {
-              console.error("Transaction error:", transaction.error);
-              resolve(false);
-            };
-
-            transaction.onabort = () => {
-              console.error("Transaction aborted");
-              resolve(false);
-            };
-          } catch (txError) {
-            console.error("Error creating transaction:", txError);
+          transaction.onabort = () => {
+            console.error(`❌ Transaction aborted for: ${id}`);
+            db.close();
             resolve(false);
-          }
-        };
-
-        request.onerror = (event) => {
-          console.error("Error opening IndexedDB:", request.error);
+          };
+        } catch (txError) {
+          console.error(`❌ Error creating transaction for ${id}:`, txError);
+          db.close();
           resolve(false);
-        };
-
-        request.onblocked = () => {
-          console.warn("IndexedDB blocked - another tab may be using it");
-          resolve(false);
-        };
+        }
       });
     } catch (error) {
       console.error("Error storing file data:", error);
