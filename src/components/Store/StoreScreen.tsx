@@ -56,7 +56,7 @@ export const StoreScreen: React.FC = () => {
   const stores = getAllStores();
   const categories = [
     { id: "all", name: "All Stores", icon: Store },
-    { id: "admin-catalog", name: "Móveis GLB", icon: Star, special: true },
+
     { id: "general", name: "General", icon: Package },
     { id: "equipment", name: "Equipment", icon: Shield },
     { id: "food", name: "Food", icon: Heart },
@@ -396,13 +396,7 @@ export const StoreScreen: React.FC = () => {
           {categories.map(({ id, name, icon: Icon, special }) => (
             <motion.button
               key={id}
-              onClick={() => {
-                if (id === "admin-catalog") {
-                  setCurrentScreen("admin-catalog");
-                } else {
-                  setSelectedCategory(id);
-                }
-              }}
+              onClick={() => setSelectedCategory(id)}
               className={`flex items-center space-x-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
                 special
                   ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg border-2 border-purple-300 ring-2 ring-purple-200"
