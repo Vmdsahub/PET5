@@ -1508,6 +1508,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         userXenocash={cash}
         isAdmin={user?.isAdmin || false}
         onPurchaseItem={handleFurniturePurchase}
+        onNotification={addNotification}
       />
 
       {/* Inventory Modal */}
