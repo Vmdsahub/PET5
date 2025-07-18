@@ -203,27 +203,6 @@ class RoomDecorationService {
         `���️ Removing furniture ${furnitureId} from room for user ${userId}`,
       );
 
-      // Update using single user_id condition and filter by furniture_id after
-      const { data: existingData, error: selectError } = await supabase
-        .from("user_room_decorations")
-        .select("id")
-        .eq("user_id", userId);
-
-      if (selectError) {
-        console.error("Error selecting furniture for removal:", selectError);
-        return { success: false, error: selectError.message };
-      }
-
-      // Find the specific furniture item to update
-      const furnitureRecord = existingData?.find(
-        (item) => item.furniture_id === furnitureId,
-      );
-
-      if (!furnitureRecord) {
-        console.log(`Furniture ${furnitureId} not found for user ${userId}`);
-        return { success: true }; // Nothing to remove
-      }
-
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
