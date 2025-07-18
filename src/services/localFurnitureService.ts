@@ -65,13 +65,9 @@ class LocalFurnitureService {
     return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
+  private createPlaceholderUrl(fileName: string): string {
+    // Create a placeholder URL instead of storing the actual file
+    return `local://furniture/${fileName}`;
   }
 
   /**
@@ -96,15 +92,15 @@ class LocalFurnitureService {
         return { success: false, error: "Arquivo muito grande. Máximo: 100MB" };
       }
 
-      console.log("Converting file to base64...");
-      // Convert file to base64 for local storage
-      const base64File = await this.fileToBase64(file);
+      console.log("Creating furniture metadata (file not stored locally)...");
+      // Store only metadata, not the actual file (to avoid localStorage quota)
+      const placeholderUrl = this.createPlaceholderUrl(file.name);
 
       const newFurniture: CustomFurniture = {
         id: this.generateId(),
         name: furnitureData.name,
         description: furnitureData.description,
-        glb_url: base64File, // Store as base64 data URL
+        glb_url: placeholderUrl, // Placeholder URL instead of file content
         thumbnail_url: undefined,
         price: furnitureData.price || 0,
         currency: furnitureData.currency || "xenocoins",
