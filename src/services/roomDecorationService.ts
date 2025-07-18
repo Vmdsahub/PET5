@@ -144,6 +144,12 @@ class RoomDecorationService {
           return { success: true, decorations: [] };
         }
 
+        // Handle other common Supabase errors gracefully
+        if (error.code === "PGRST116") {
+          console.log("No decorations found for user, returning empty array");
+          return { success: true, decorations: [] };
+        }
+
         return { success: false, error: error.message };
       }
 
