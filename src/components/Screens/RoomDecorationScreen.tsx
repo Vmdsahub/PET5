@@ -135,6 +135,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (result.success) {
         console.log(`✅ Furniture state saved for ${furnitureId}`);
+
+        // Also update inventory if this item is there (shouldn't happen in normal flow, but just in case)
+        setInventory((prev) =>
+          prev.map((item) => {
+            if (item.id === furnitureId) {
+              return {
+                ...item,
+                properties: {
+                  scale: properties.scale,
+                  rotation: properties.rotation,
+                  position: properties.position,
+                  material: properties.material,
+                },
+              };
+            }
+            return item;
+          }),
+        );
       } else {
         console.error(`❌ Failed to save furniture state: ${result.error}`);
       }
