@@ -575,42 +575,6 @@ export class RoomExperience {
     return "";
   }
 
-  // Generate thumbnail for store items (temporarily load and render)
-  public async generateThumbnailForStoreItem(
-    storeItemId: string,
-    furnitureType: string,
-  ): Promise<string> {
-    try {
-      // Temporarily add the furniture to generate thumbnail
-      const tempId = `temp_thumbnail_${storeItemId}_${Date.now()}`;
-
-      // Add furniture temporarily at a position outside the visible area
-      await this.furnitureManager.addFurniture(
-        tempId,
-        furnitureType,
-        new THREE.Vector3(1000, 1000, 1000), // Far away position
-        0, // No rotation
-      );
-
-      // Wait a frame for the furniture to be properly added
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Generate thumbnail using the existing method
-      const thumbnail = this.generateThumbnail(tempId);
-
-      // Remove the temporary furniture
-      this.furnitureManager.removeFurniture(tempId);
-
-      return thumbnail;
-    } catch (error) {
-      console.error(
-        `Error generating thumbnail for store item ${storeItemId}:`,
-        error,
-      );
-      return "";
-    }
-  }
-
   // Toggle furniture light (for lamps)
   public toggleFurnitureLight(objectId: string, isOn: boolean): void {
     this.furnitureManager.toggleFurnitureLight(objectId, isOn);
