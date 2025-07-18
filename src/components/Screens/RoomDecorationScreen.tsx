@@ -252,6 +252,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             name: item.name,
             type: furnitureType,
             thumbnail: "", // Will be generated when placed
+            properties: null, // No custom properties for new items
           },
         ]);
 
