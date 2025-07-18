@@ -246,6 +246,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 
   useEffect(() => {
     if (isAdmin && customFurniture.length >= 0) {
+      console.log("Updating admin section with furniture:", customFurniture);
       setSections((prev) => {
         const adminItems: FurnitureItem[] = customFurniture.map(
           (furniture) => ({
@@ -264,8 +265,9 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           }),
         );
 
+        console.log("Admin items created:", adminItems);
         const otherSections = prev.filter((section) => section.id !== "admin");
-        return [
+        const newSections = [
           ...otherSections,
           {
             id: "admin",
@@ -275,6 +277,8 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             items: adminItems,
           },
         ];
+        console.log("New sections:", newSections);
+        return newSections;
       });
     }
   }, [isAdmin, customFurniture]);
