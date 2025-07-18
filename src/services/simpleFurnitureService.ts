@@ -244,13 +244,13 @@ class SimpleFurnitureService {
     const sampleId = this.generateId();
     const sampleFurniture: CustomFurniture = {
       id: sampleId,
-      name: "Mesa de Teste",
-      description: "Móvel de exemplo (não é um GLB real)",
-      glb_url: `memory://furniture/${sampleId}`,
+      name: "Sofá Teste GLB",
+      description: "Móvel GLB de teste para validar thumbnails",
+      glb_url: "https://threejs.org/examples/models/gltf/Flamingo.glb", // URL de teste público
       price: 0,
       currency: "xenocoins",
       category: "admin",
-      tags: ["teste"],
+      tags: ["teste", "glb"],
       is_active: true,
       created_by: "admin",
       created_at: new Date().toISOString(),
@@ -259,7 +259,10 @@ class SimpleFurnitureService {
     };
 
     this.furniture.set(sampleId, sampleFurniture);
-    console.log("✅ Sample furniture added");
+    console.log(
+      "✅ Sample GLB furniture added with URL:",
+      sampleFurniture.glb_url,
+    );
   }
 
   getCount(): number {
