@@ -512,16 +512,17 @@ export class RoomExperience {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     thumbScene.add(ambientLight);
 
-    // Position camera to frame the object
+    // Position camera to frame the object - FRONT VIEW
     const box = new THREE.Box3().setFromObject(clonedObject);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
 
+    // Position camera directly in front of the object (front view)
     thumbCamera.position.set(
-      center.x + maxDim * 1.2,
-      center.y + maxDim * 0.8,
-      center.z + maxDim * 1.2,
+      center.x, // Center X - no offset
+      center.y + maxDim * 0.1, // Slightly above center
+      center.z + maxDim * 1.5, // In front of the object
     );
     thumbCamera.lookAt(center);
 
