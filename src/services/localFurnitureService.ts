@@ -305,8 +305,8 @@ class LocalFurnitureService {
           resolve(false);
         }
       });
-    } catch (error) {
-      console.error("Error storing file data:", error);
+        } catch (error) {
+      console.error(`❌ Error in storeFileData for ${id}:`, error);
       return false;
     }
   }
