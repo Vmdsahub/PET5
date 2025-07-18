@@ -209,11 +209,44 @@ class RoomDecorationService {
         `���️ Removing furniture ${furnitureId} from room for user ${userId}`,
       );
 
+      // First, find the records to update using separate query
+      const { data: existingRecords, error: selectError } = await supabase
+        .from("user_room_decorations")
+        .select("id")
+        .eq("user_id", userId);
+
+      if (selectError) {
+        console.error("Error finding furniture to remove:", selectError);
+        if (
+          selectError.code === "42P01" ||
+          selectError.message.includes("does not exist")
+        ) {
+          console.warn(
+            "⚠️ user_room_decorations table does not exist yet. Nothing to remove.",
+          );
+          return { success: true };
+        }
+        return { success: false, error: selectError.message };
+      }
+
+      // Filter for the specific furniture in JavaScript
+      const recordsToUpdate = (existingRecords || []).filter(
+        (record) => record.furniture_id === furnitureId,
+      );
+
+      if (recordsToUpdate.length === 0) {
+        console.log(
+          `No active furniture ${furnitureId} found for user ${userId}`,
+        );
+        return { success: true }; // Nothing to remove is still success
+      }
+
+      // Update using the record IDs
+      const recordIds = recordsToUpdate.map((record) => record.id);
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
-        .eq("user_id", userId)
-        .eq("furniture_id", furnitureId);
+        .in("id", recordIds);
 
       if (error) {
         console.error("Error removing furniture from room:", error);
