@@ -19,7 +19,7 @@ import { DraggableModal } from "../Layout/DraggableModal";
 import {
   localFurnitureService as furnitureService,
   CustomFurniture,
-} from "../../services/localFurnitureService";
+} from "../../services/localFurnitureService_fixed";
 
 interface FurnitureItem {
   id: string;
@@ -680,7 +680,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                   <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <p className="text-lg font-medium">Selecione um móvel</p>
                   <p className="text-sm">
-                    Escolha um item do cat��logo para ver os detalhes
+                    Escolha um item do catálogo para ver os detalhes
                   </p>
                 </div>
               </div>
