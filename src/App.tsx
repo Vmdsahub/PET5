@@ -193,8 +193,7 @@ function App() {
         );
       case "store":
         return <StoreScreen />;
-      case "admin-catalog":
-        return <AdminCatalogStore />;
+
       case "otherUserInventory":
         return <OtherUserInventoryScreen />;
       case "otherUserAchievements":
