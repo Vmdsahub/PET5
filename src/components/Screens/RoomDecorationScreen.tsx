@@ -246,43 +246,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     setContextMenu(null);
   };
 
-  const handlePurchase = async (item: any) => {
-    // Check if player has enough currency
-    const currentAmount = item.currency === "xenocoins" ? xenocoins : cash;
-
-    if (currentAmount < item.price) {
-      alert(
-        `Você não tem ${item.currency === "xenocoins" ? "Xenocoins" : "Xenocash"} suficiente!`,
-      );
-      return;
-    }
-
-    try {
-      // Deduct currency using the game store
-      const success = await updateCurrency(item.currency, -item.price);
-
-      if (success) {
-        // Add to inventory
-        setInventory((prev) => [
-          ...prev,
-          {
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            thumbnail: "", // Will be generated when placed
-          },
-        ]);
-
-        alert(`${item.name} comprado com sucesso!`);
-      } else {
-        alert("Erro ao processar compra. Tente novamente.");
-      }
-    } catch (error) {
-      console.error("Error purchasing item:", error);
-      alert("Erro ao processar compra. Tente novamente.");
-    }
-  };
-
   const handleInventoryItemDrop = async (
     item: any,
     dropPosition: { x: number; y: number },
