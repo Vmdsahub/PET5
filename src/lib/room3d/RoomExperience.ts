@@ -530,11 +530,16 @@ export class RoomExperience {
     );
     thumbCamera.lookAt(center);
 
-    // Create render target for thumbnail
+    // Create render target for thumbnail with transparency support
     const renderTarget = new THREE.WebGLRenderTarget(128, 128, {
       format: THREE.RGBAFormat,
       type: THREE.UnsignedByteType,
     });
+
+    // Enable transparency in renderer for this render
+    const originalAlpha = this.renderer.getClearAlpha();
+    const originalClearColor = this.renderer.getClearColor(new THREE.Color());
+    this.renderer.setClearColor(0x000000, 0); // Transparent clear color
 
     // Render thumbnail
     this.renderer.setRenderTarget(renderTarget);
