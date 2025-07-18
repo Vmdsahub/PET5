@@ -250,9 +250,17 @@ class LocalFurnitureService {
     arrayBuffer: ArrayBuffer,
   ): Promise<boolean> {
     try {
-      return new Promise((resolve) => {
-        const request = indexedDB.open("FurnitureFiles", 1);
+      console.log(
+        `💾 Attempting to store file: ${id} (${(arrayBuffer.byteLength / 1024).toFixed(1)}KB)`,
+      );
 
+      const db = await this.initIndexedDB();
+      if (!db) {
+        console.error("❌ Failed to initialize IndexedDB for storage");
+        return false;
+      }
+
+      return new Promise((resolve) => {
         request.onupgradeneeded = (event) => {
           console.log("IndexedDB upgrade needed, creating object store...");
           const db = request.result;
