@@ -87,6 +87,47 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
+  // Function to save furniture state to database
+  const saveFurnitureState = async (furnitureId: string) => {
+    if (!user?.id || !experienceRef.current) return;
+
+    try {
+      const furnitureType = experienceRef.current.getFurnitureType(furnitureId);
+      const properties = experienceRef.current.getFurniture(furnitureId);
+
+      if (!furnitureType || !properties) {
+        console.warn(
+          `Cannot save state for furniture ${furnitureId}: missing data`,
+        );
+        return;
+      }
+
+      const furnitureState: FurnitureState = {
+        furniture_id: furnitureId,
+        furniture_type: furnitureType,
+        position: properties.position,
+        rotation: properties.rotation,
+        scale: properties.scale,
+        material: properties.material,
+      };
+
+      console.log(`💾 Saving furniture state:`, furnitureState);
+
+      const result = await roomDecorationService.saveFurnitureState(
+        user.id,
+        furnitureState,
+      );
+
+      if (result.success) {
+        console.log(`✅ Furniture state saved for ${furnitureId}`);
+      } else {
+        console.error(`❌ Failed to save furniture state: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error saving furniture state:", error);
+    }
+  };
+
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
     console.log(`📋 Purchasing furniture item:`, item);
