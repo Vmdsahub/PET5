@@ -92,6 +92,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
 
+    // Small delay to ensure changes are applied in THREE.js before saving
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     try {
       const furnitureType = experienceRef.current.getFurnitureType(furnitureId);
       const properties = experienceRef.current.getFurniture(furnitureId);
