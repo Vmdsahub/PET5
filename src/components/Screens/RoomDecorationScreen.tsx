@@ -262,33 +262,23 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // Add to inventory (with duplicate check)
+        // Add to inventory (generate unique ID for each purchase)
         setInventory((prev) => {
-          // Check if item already exists in inventory to avoid duplicates
-          const existsInInventory = prev.some(
-            (invItem) => invItem.id === item.id,
+          // Generate unique ID for this specific purchase instance
+          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+          console.log(
+            `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
           );
-
-          if (existsInInventory) {
-            console.log(
-              `⚠️ Item ${item.id} already exists in inventory, not adding duplicate`,
-            );
-            console.log(
-              `📋 Current inventory IDs:`,
-              prev.map((i) => i.id),
-            );
-            return prev;
-          }
-
-          console.log(`➕ Adding purchased item ${item.id} to inventory`);
           return [
             ...prev,
             {
-              id: item.id,
+              id: uniqueId,
               name: item.name,
               type: furnitureType,
               thumbnail: "", // Will be generated when placed
               properties: null, // No custom properties for new items
+              originalStoreId: item.id, // Keep reference to original store item
             },
           ];
         });
