@@ -263,9 +263,36 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
-        // For now, purchased items will show default icon until placed and stored
-        // This matches the existing behavior but at least shows the item exists
-        const thumbnail = ""; // Empty thumbnail means it will show default Package icon
+        // Generate thumbnail for purchased item by temporarily loading the model
+        let thumbnail = "";
+
+        try {
+          if (
+            experienceRef.current &&
+            (item.adminOnly || furnitureType.startsWith("custom_"))
+          ) {
+            // For GLB/custom furniture, temporarily load and generate thumbnail
+            console.log(
+              `🖼️ Generating thumbnail for GLB item: ${item.name} (${item.id})`,
+            );
+            thumbnail =
+              await experienceRef.current.generateThumbnailForPurchasedItem(
+                item.id,
+                furnitureType,
+              );
+            console.log(`✅ Thumbnail generated for: ${item.name}`);
+          } else {
+            console.log(
+              `📦 Using default icon for built-in furniture: ${item.name}`,
+            );
+          }
+        } catch (error) {
+          console.warn(
+            `⚠️ Could not generate thumbnail for ${item.name}:`,
+            error,
+          );
+          thumbnail = ""; // Fallback to default icon
+        }
 
         // Add to inventory (generate unique ID for each purchase)
         setInventory((prev) => {
