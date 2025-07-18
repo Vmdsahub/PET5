@@ -103,7 +103,8 @@ class RoomDecorationService {
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
-        .match({ user_id: userId, is_active: true });
+        .eq("user_id", userId)
+        .eq("is_active", true);
 
       if (error) {
         console.error("Error loading room decorations:", error);
