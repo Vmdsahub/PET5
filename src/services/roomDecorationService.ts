@@ -147,7 +147,12 @@ class RoomDecorationService {
         return { success: false, error: error.message };
       }
 
-      const decorations: FurnitureState[] = (data || []).map((item) => ({
+      // Filter for active decorations in JavaScript
+      const activeDecorations = (data || []).filter(
+        (item) => item.is_active === true,
+      );
+
+      const decorations: FurnitureState[] = activeDecorations.map((item) => ({
         furniture_id: item.furniture_id,
         furniture_type: item.furniture_type,
         position: {
