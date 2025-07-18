@@ -245,8 +245,11 @@ class LocalFurnitureService {
         updated_at: new Date().toISOString(),
       };
 
-      this.setStoredFurniture(furniture);
-      return { success: true };
+      const storageSuccess = this.setStoredFurniture(furniture);
+      return {
+        success: storageSuccess,
+        error: storageSuccess ? undefined : "Erro de armazenamento",
+      };
     } catch (error) {
       console.error("Update local furniture error:", error);
       return { success: false, error: "Erro ao atualizar móvel" };
@@ -267,8 +270,11 @@ class LocalFurnitureService {
         return { success: false, error: "Móvel não encontrado" };
       }
 
-      this.setStoredFurniture(filteredFurniture);
-      return { success: true };
+      const storageSuccess = this.setStoredFurniture(filteredFurniture);
+      return {
+        success: storageSuccess,
+        error: storageSuccess ? undefined : "Erro de armazenamento",
+      };
     } catch (error) {
       console.error("Delete local furniture error:", error);
       return { success: false, error: "Erro ao deletar móvel" };
@@ -362,8 +368,12 @@ class LocalFurnitureService {
       },
     ];
 
-    this.setStoredFurniture(sampleFurniture);
-    console.log("Sample furniture data added");
+    const success = this.setStoredFurniture(sampleFurniture);
+    if (success) {
+      console.log("Sample furniture data added");
+    } else {
+      console.log("Failed to add sample furniture data due to storage issues");
+    }
   }
 }
 
