@@ -585,20 +585,15 @@ export class RoomExperience {
       const tempId = `temp_thumbnail_${storeItemId}_${Date.now()}`;
 
       // Add furniture temporarily at a position outside the visible area
-      const added = await this.furnitureManager.addFurniture(
+      await this.furnitureManager.addFurniture(
         tempId,
         furnitureType,
-        { x: 1000, y: 1000, z: 1000 }, // Far away position
-        { x: 0, y: 0, z: 0 },
-        { x: 1, y: 1, z: 1 },
+        new THREE.Vector3(1000, 1000, 1000), // Far away position
+        0, // No rotation
       );
 
-      if (!added) {
-        console.warn(
-          `Failed to temporarily add furniture ${storeItemId} for thumbnail generation`,
-        );
-        return "";
-      }
+      // Wait a frame for the furniture to be properly added
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Generate thumbnail using the existing method
       const thumbnail = this.generateThumbnail(tempId);
