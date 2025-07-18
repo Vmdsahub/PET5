@@ -259,15 +259,16 @@ class LocalFurnitureService {
         return { success: false, error: "Arquivo muito grande. Máximo: 100MB" };
       }
 
-      console.log("Creating furniture metadata (file not stored locally)...");
-      // Store only metadata, not the actual file (to avoid localStorage quota)
-      const placeholderUrl = this.createPlaceholderUrl(file.name);
+      console.log("Processing GLB file for storage...");
+
+      // Convert file to ArrayBuffer
+      const arrayBuffer = await this.fileToArrayBuffer(file);
 
       const newFurniture: CustomFurniture = {
         id: this.generateId(),
         name: furnitureData.name,
         description: furnitureData.description,
-        glb_url: placeholderUrl, // Placeholder URL instead of file content
+        glb_url: `local://furniture/${newFurniture.id}`, // Local reference
         thumbnail_url: undefined,
         price: furnitureData.price || 0,
         currency: furnitureData.currency || "xenocoins",
