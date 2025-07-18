@@ -814,28 +814,11 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                 {/* Local Storage Management */}
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-sm text-blue-700 mb-2">
-                    💾 Sistema Local (Temporário)
+                    💾 Sistema Simples (Na Memória)
                   </p>
 
-                  {/* Storage Info */}
                   <div className="text-xs text-blue-600 mb-2">
-                    {(() => {
-                      const info = furnitureService.getStorageInfo();
-                      return (
-                        <div>
-                          <span>
-                            Armazenado: {info.used}MB | Itens: {info.itemCount}{" "}
-                            | Disponível: ~{info.availableEstimate}MB
-                          </span>
-                          {info.availableEstimate < 0.5 && (
-                            <div className="text-orange-600 font-medium mt-1">
-                              ⚠️ Armazenamento quase cheio! Considere limpar
-                              itens antigos.
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    <span>Itens carregados: {furnitureService.getCount()}</span>
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
