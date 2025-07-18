@@ -330,6 +330,7 @@ export class FurnitureManager {
   public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
+    type?: string,
   ): Promise<boolean> {
     // Check if furniture already exists
     if (this.furniture.has(id)) {
@@ -337,46 +338,54 @@ export class FurnitureManager {
       return false;
     }
 
-    // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
-    let type = id.split("-")[0]; // Get first part of hyphenated id
+    // Use provided type if available, otherwise infer from id
+    let furnitureType = type;
 
-    // Map some common ids to furniture types
-    const typeMapping: { [key: string]: string } = {
-      coffee: "table",
-      dining: "diningTable",
-      side: "sideTable",
-      floor: "lamp",
-      table: "tableLamp",
-      pendant: "pendantLight",
-      picture: "pictureFrame",
-      wall: id.includes("shelf")
-        ? "wallShelf"
-        : id.includes("clock")
-          ? "wallClock"
-          : "wall",
-      tv: "tvStand",
-      premium: "sofa", // Premium sofa maps to regular sofa
-      crystal: "lamp", // Crystal lamp maps to regular lamp
-    };
+    if (!furnitureType) {
+      console.log(`🔍 No type provided, inferring from id: ${id}`);
+      // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
+      furnitureType = id.split("-")[0]; // Get first part of hyphenated id
 
-    if (typeMapping[type]) {
-      type = typeMapping[type];
+      // Map some common ids to furniture types
+      const typeMapping: { [key: string]: string } = {
+        coffee: "table",
+        dining: "diningTable",
+        side: "sideTable",
+        floor: "lamp",
+        table: "tableLamp",
+        pendant: "pendantLight",
+        picture: "pictureFrame",
+        wall: id.includes("shelf")
+          ? "wallShelf"
+          : id.includes("clock")
+            ? "wallClock"
+            : "wall",
+        tv: "tvStand",
+        premium: "sofa", // Premium sofa maps to regular sofa
+        crystal: "lamp", // Crystal lamp maps to regular lamp
+      };
+
+      if (typeMapping[furnitureType]) {
+        furnitureType = typeMapping[furnitureType];
+      }
+
+      // Get available types asynchronously
+      const availableTypes = await this.furnitureFactory.getAvailableTypes();
+
+      // If still no match, try to infer from the full id
+      if (!availableTypes.includes(furnitureType)) {
+        if (id.includes("sofa")) furnitureType = "sofa";
+        else if (id.includes("lamp")) furnitureType = "lamp";
+        else if (id.includes("table")) furnitureType = "table";
+        else if (id.includes("chair")) furnitureType = "chair";
+        else furnitureType = "table"; // Default fallback
+      }
     }
 
-    // Get available types asynchronously
-    const availableTypes = await this.furnitureFactory.getAvailableTypes();
-
-    // If still no match, try to infer from the full id
-    if (!availableTypes.includes(type)) {
-      if (id.includes("sofa")) type = "sofa";
-      else if (id.includes("lamp")) type = "lamp";
-      else if (id.includes("table")) type = "table";
-      else if (id.includes("chair")) type = "chair";
-      else type = "table"; // Default fallback
-    }
+    console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}`);
 
     // Create the furniture
-    await this.addFurniture(id, type, position, 0);
+    await this.addFurniture(id, furnitureType, position, 0);
     return true;
   }
 
