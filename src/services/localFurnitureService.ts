@@ -592,26 +592,67 @@ class LocalFurnitureService {
     return new Promise((resolve) => {
       const request = indexedDB.open("FurnitureFiles", 1);
 
+      request.onupgradeneeded = (event) => {
+        console.log(
+          "IndexedDB upgrade needed during delete, creating object store...",
+        );
+        const db = request.result;
+
+        if (!db.objectStoreNames.contains("files")) {
+          db.createObjectStore("files", { keyPath: "id" });
+          console.log('Object store "files" created during delete');
+        }
+      };
+
       request.onsuccess = () => {
         const db = request.result;
-        const transaction = db.transaction(["files"], "readwrite");
-        const store = transaction.objectStore("files");
 
-        store.delete(id);
-
-        transaction.oncomplete = () => {
-          console.log("File deleted from IndexedDB:", id);
+        // Check if object store exists
+        if (!db.objectStoreNames.contains("files")) {
+          console.error('Object store "files" not found during delete');
           resolve();
-        };
+          return;
+        }
 
-        transaction.onerror = () => {
-          console.error("Error deleting file from IndexedDB");
+        try {
+          const transaction = db.transaction(["files"], "readwrite");
+          const store = transaction.objectStore("files");
+
+          const deleteRequest = store.delete(id);
+
+          deleteRequest.onsuccess = () => {
+            console.log("File delete request successful:", id);
+          };
+
+          deleteRequest.onerror = () => {
+            console.error("Error in delete request:", deleteRequest.error);
+          };
+
+          transaction.oncomplete = () => {
+            console.log("File deleted from IndexedDB:", id);
+            resolve();
+          };
+
+          transaction.onerror = () => {
+            console.error(
+              "Transaction error during delete:",
+              transaction.error,
+            );
+            resolve();
+          };
+        } catch (txError) {
+          console.error("Error creating delete transaction:", txError);
           resolve();
-        };
+        }
       };
 
       request.onerror = () => {
-        console.error("Error opening IndexedDB for delete");
+        console.error("Error opening IndexedDB for delete:", request.error);
+        resolve();
+      };
+
+      request.onblocked = () => {
+        console.warn("IndexedDB blocked during delete");
         resolve();
       };
     });
