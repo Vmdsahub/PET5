@@ -293,6 +293,147 @@ export class FurnitureManager {
     return this.furnitureGroup;
   }
 
+  // Admin control methods for detailed furniture manipulation
+  public updateFurnitureScale(
+    id: string,
+    scale: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    item.object.scale.set(scale.x, scale.y, scale.z);
+    return true;
+  }
+
+  public updateFurnitureRotation(
+    id: string,
+    rotation: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Convert degrees to radians
+    item.object.rotation.set(
+      (rotation.x * Math.PI) / 180,
+      (rotation.y * Math.PI) / 180,
+      (rotation.z * Math.PI) / 180,
+    );
+    return true;
+  }
+
+  public updateFurniturePosition(
+    id: string,
+    position: { x: number; y: number; z: number },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    item.object.position.set(position.x, position.y, position.z);
+    return true;
+  }
+
+  public updateFurnitureMaterial(
+    id: string,
+    materialProps: {
+      roughness?: number;
+      metalness?: number;
+      color?: string;
+      emissive?: string;
+    },
+  ): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        const material = child.material as THREE.MeshStandardMaterial;
+
+        if (materialProps.roughness !== undefined) {
+          material.roughness = materialProps.roughness;
+        }
+        if (materialProps.metalness !== undefined) {
+          material.metalness = materialProps.metalness;
+        }
+        if (materialProps.color !== undefined) {
+          material.color.setStyle(materialProps.color);
+        }
+        if (materialProps.emissive !== undefined) {
+          material.emissive.setStyle(materialProps.emissive);
+        }
+
+        material.needsUpdate = true;
+      }
+    });
+
+    return true;
+  }
+
+  public getFurnitureProperties(id: string): {
+    scale: { x: number; y: number; z: number };
+    rotation: { x: number; y: number; z: number };
+    position: { x: number; y: number; z: number };
+    material?: {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    };
+  } | null {
+    const item = this.furniture.get(id);
+    if (!item) return null;
+
+    const obj = item.object;
+    let material = null;
+
+    // Get material properties from first mesh found
+    obj.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material && !material) {
+        const mat = child.material as THREE.MeshStandardMaterial;
+        material = {
+          roughness: mat.roughness || 0.5,
+          metalness: mat.metalness || 0,
+          color: "#" + mat.color.getHexString(),
+          emissive: "#" + mat.emissive.getHexString(),
+        };
+      }
+    });
+
+    return {
+      scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z },
+      rotation: {
+        x: (obj.rotation.x * 180) / Math.PI,
+        y: (obj.rotation.y * 180) / Math.PI,
+        z: (obj.rotation.z * 180) / Math.PI,
+      },
+      position: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
+      material,
+    };
+  }
+
+  public resetFurnitureToDefaults(id: string): boolean {
+    const item = this.furniture.get(id);
+    if (!item) return false;
+
+    // Reset transform
+    item.object.scale.set(1, 1, 1);
+    item.object.rotation.set(0, 0, 0);
+    item.object.position.set(0, 0, 0);
+
+    // Reset material properties
+    item.object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        const material = child.material as THREE.MeshStandardMaterial;
+        material.roughness = 0.5;
+        material.metalness = 0;
+        material.color.setStyle("#ffffff");
+        material.emissive.setStyle("#000000");
+        material.needsUpdate = true;
+      }
+    });
+
+    return true;
+  }
+
   // Inventory management methods
   public removeFurniture(id: string): boolean {
     const item = this.furniture.get(id);
