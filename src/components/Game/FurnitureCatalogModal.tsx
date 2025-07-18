@@ -797,6 +797,43 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     🎁 Todos os itens do admin são gratuitos (0 Xenocoins)
                   </p>
                 </div>
+
+                {/* Local Storage Management */}
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700 mb-2">
+                    💾 Sistema Local (Temporário)
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        furnitureService.addSampleData();
+                        loadCustomFurniture();
+                        onNotification?.({
+                          type: "success",
+                          title: "Dados Adicionados",
+                          message: "Dados de exemplo adicionados com sucesso.",
+                        });
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                    >
+                      Adicionar Exemplos
+                    </button>
+                    <button
+                      onClick={() => {
+                        furnitureService.clearLocalData();
+                        setCustomFurniture([]);
+                        onNotification?.({
+                          type: "success",
+                          title: "Dados Limpos",
+                          message: "Todos os dados locais foram removidos.",
+                        });
+                      }}
+                      className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                    >
+                      Limpar Tudo
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="flex space-x-3 mt-6">
