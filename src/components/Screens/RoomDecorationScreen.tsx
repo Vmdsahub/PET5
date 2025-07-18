@@ -421,6 +421,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           }
         }
 
+        // Get current furniture properties before storing
+        let furnitureProperties = null;
+        if (experienceRef.current) {
+          furnitureProperties = experienceRef.current.getFurniture(objectId);
+        }
+
         // Generate thumbnail for inventory
         let thumbnail = "";
         if (experienceRef.current) {
@@ -430,6 +436,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         console.log(
           `📦 Storing furniture: ID=${objectId}, Type=${furnitureType}, Name=${furnitureName}`,
         );
+        console.log(`💾 Furniture properties to store:`, furnitureProperties);
 
         setInventory((prev) => {
           // Check if item already exists in inventory to avoid duplicates
