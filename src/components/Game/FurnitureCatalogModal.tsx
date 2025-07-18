@@ -680,7 +680,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                   <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <p className="text-lg font-medium">Selecione um móvel</p>
                   <p className="text-sm">
-                    Escolha um item do catálogo para ver os detalhes
+                    Escolha um item do cat��logo para ver os detalhes
                   </p>
                 </div>
               </div>
@@ -838,7 +838,22 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     })()}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={async () => {
+                        const success = await furnitureService.testIndexedDB();
+                        onNotification?.({
+                          type: success ? "success" : "error",
+                          title: success ? "Teste OK" : "Teste Falhou",
+                          message: success
+                            ? "IndexedDB funcionando corretamente."
+                            : "Problema com IndexedDB. Verifique o console.",
+                        });
+                      }}
+                      className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                    >
+                      Testar DB
+                    </button>
                     <button
                       onClick={() => {
                         furnitureService.addSampleData();
