@@ -56,7 +56,7 @@ export const StoreScreen: React.FC = () => {
   const stores = getAllStores();
   const categories = [
     { id: "all", name: "All Stores", icon: Store },
-    { id: "admin-catalog", name: "Móveis GLB", icon: Star, special: true },
+
     { id: "general", name: "General", icon: Package },
     { id: "equipment", name: "Equipment", icon: Shield },
     { id: "food", name: "Food", icon: Heart },
