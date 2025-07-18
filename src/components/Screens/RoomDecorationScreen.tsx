@@ -2339,6 +2339,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                 if (existingIndex === -1) {
                   // First occurrence of this item type
+                  console.log(
+                    `📦 New stack created for: ${item.name} (${item.type})`,
+                  );
                   uniqueItems.push({
                     ...item,
                     stackCount: 1,
@@ -2346,6 +2349,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   });
                 } else {
                   // Increment stack count for existing item type
+                  console.log(
+                    `📚 Stacked item: ${item.name} (count: ${uniqueItems[existingIndex].stackCount + 1})`,
+                  );
                   uniqueItems[existingIndex].stackCount += 1;
                   uniqueItems[existingIndex].allIds.push(item.id);
                 }
