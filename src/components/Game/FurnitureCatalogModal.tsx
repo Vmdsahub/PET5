@@ -161,6 +161,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "premium",
           description:
             "Sofá luxuoso de couro genuíno com acabamento premium e máximo conforto.",
+          type: "sofa",
         },
         {
           id: "crystal-chandelier",
@@ -172,6 +173,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "premium",
           description:
             "Majestoso lustre de cristal que transforma qualquer ambiente em um palácio.",
+          type: "pendantLight",
         },
         {
           id: "marble-dining-table",
@@ -183,6 +185,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "premium",
           description:
             "Mesa de jantar exclusiva em mármore italiano, para ocasiões especiais.",
+          type: "diningTable",
         },
         {
           id: "gaming-chair",
@@ -194,6 +197,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "premium",
           description:
             "Cadeira gamer profissional com iluminação LED e suporte ergonômico.",
+          type: "chair",
         },
       ],
     },
