@@ -2324,6 +2324,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     return true; // Same type and name for regular items
                   }
 
+                  // Special case: If one has originalStoreId and other doesn't,
+                  // but they match by type/name, still stack them
+                  if (
+                    (unique.originalStoreId || item.originalStoreId) &&
+                    unique.type === item.type &&
+                    unique.name === item.name
+                  ) {
+                    return true;
+                  }
+
                   return false;
                 });
 
