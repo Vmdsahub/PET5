@@ -1864,6 +1864,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               selectedFurniture,
                               { metalness: parseFloat(e.target.value) },
                             );
+                            // Auto-save the change
+                            saveFurnitureState(selectedFurniture);
                           }
                         }}
                         className="flex-1 slider"
