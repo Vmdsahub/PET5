@@ -512,6 +512,35 @@ class LocalFurnitureService {
     }
   }
 
+  private async deleteFileData(id: string): Promise<void> {
+    return new Promise((resolve) => {
+      const request = indexedDB.open("FurnitureFiles", 1);
+
+      request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction(["files"], "readwrite");
+        const store = transaction.objectStore("files");
+
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+          console.log("File deleted from IndexedDB:", id);
+          resolve();
+        };
+
+        transaction.onerror = () => {
+          console.error("Error deleting file from IndexedDB");
+          resolve();
+        };
+      };
+
+      request.onerror = () => {
+        console.error("Error opening IndexedDB for delete");
+        resolve();
+      };
+    });
+  }
+
   /**
    * Purchase custom furniture (local version)
    */
