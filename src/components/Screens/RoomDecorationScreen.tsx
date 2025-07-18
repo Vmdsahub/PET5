@@ -514,6 +514,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             if (success) {
               console.log(`✅ Successfully placed furniture: ${item.id}`);
+
+              // Save initial furniture state to database
+              if (user?.id) {
+                saveFurnitureState(item.id);
+              }
+
               // Remove from inventory
               setInventory((prev) =>
                 prev.filter((invItem) => invItem.id !== item.id),
