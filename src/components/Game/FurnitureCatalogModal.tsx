@@ -228,7 +228,9 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   // Load custom furniture for admin section
   const loadCustomFurniture = async () => {
     try {
+      console.log("Loading custom furniture...");
       const furniture = await furnitureService.getAllCustomFurniture();
+      console.log("Loaded custom furniture:", furniture);
       setCustomFurniture(furniture);
     } catch (error) {
       console.error("Error loading custom furniture:", error);
