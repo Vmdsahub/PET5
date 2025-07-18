@@ -95,6 +95,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "basic",
           description:
             "Cadeira clássica de madeira maciça, confortável e durável.",
+          type: "chair",
         },
         {
           id: "round-table",
@@ -105,6 +106,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "basic",
           description: "Mesa redonda perfeita para reuniões e refeições.",
+          type: "diningTable",
         },
         {
           id: "floor-lamp",
@@ -116,6 +118,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "basic",
           description:
             "Luminária de chão moderna com luz suave e aconchegante.",
+          type: "lamp",
         },
         {
           id: "bookshelf",
@@ -127,6 +130,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           category: "basic",
           description:
             "Estante spaciosa para organizar seus livros e objetos decorativos.",
+          type: "bookshelf",
         },
         {
           id: "coffee-table",
@@ -137,6 +141,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
           category: "basic",
           description: "Mesa de centro elegante, ideal para salas de estar.",
+          type: "table",
         },
       ],
     },
