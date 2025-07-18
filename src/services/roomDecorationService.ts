@@ -122,7 +122,7 @@ class RoomDecorationService {
         .from("user_room_decorations")
         .select("*")
         .eq("user_id", userId)
-        .eq("is_active", true);
+        .is("is_active", true);
 
       if (error) {
         console.error("Error loading room decorations:", error);
