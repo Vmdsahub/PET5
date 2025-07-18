@@ -118,7 +118,7 @@ class RoomDecorationService {
     try {
       console.log(`🔍 Loading decorations for user: ${userId}`);
 
-      // Use a single query with multiple conditions
+      // Query with user_id and filter active ones locally
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
