@@ -693,10 +693,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
               // Save furniture state to database (with applied properties)
               if (user?.id) {
-                // Small delay to ensure properties are applied before saving
+                // Longer delay to ensure positioning is fully stable before saving
                 setTimeout(() => {
                   saveFurnitureState(item.id);
-                }, 200);
+                }, 1000); // Increased delay to prevent interfering with placement
               }
 
               // Remove from inventory
@@ -1556,7 +1556,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-amber-400" />
-                  <span className="text-white font-medium">��� Piso</span>
+                  <span className="text-white font-medium">🟫 Piso</span>
                 </div>
 
                 <div className="space-y-3">
