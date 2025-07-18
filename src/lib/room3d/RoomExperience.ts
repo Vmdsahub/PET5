@@ -522,11 +522,11 @@ export class RoomExperience {
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
 
-    // Position camera directly in front of the object (front view)
+    // Position camera directly in front of the object (front view with zoom out)
     thumbCamera.position.set(
       center.x, // Center X - no offset
       center.y + maxDim * 0.1, // Slightly above center
-      center.z + maxDim * 1.5, // In front of the object
+      center.z + maxDim * 2.2, // Further back for zoom out
     );
     thumbCamera.lookAt(center);
 
