@@ -64,6 +64,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       name: string;
       type: string;
       thumbnail?: string;
+      originalStoreId?: string; // Reference to original store item
       properties?: {
         scale?: { x: number; y: number; z: number };
         rotation?: { x: number; y: number; z: number };
