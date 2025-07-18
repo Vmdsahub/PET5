@@ -668,11 +668,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   );
                 }
 
-                                // Skip applying stored position - use the new drop position instead
+                // Skip applying stored position - use the new drop position instead
                 // The stored position would overwrite where the user just dropped the item
-                console.log(`⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`);
+                console.log(
+                  `⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`,
+                );
                 if (item.properties.position) {
-                  console.log(`📍 Previous stored position was:`, item.properties.position);
+                  console.log(
+                    `📍 Previous stored position was:`,
+                    item.properties.position,
+                  );
                 }
 
                 // Apply material properties if stored
@@ -1551,7 +1556,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-amber-400" />
-                  <span className="text-white font-medium">🟫 Piso</span>
+                  <span className="text-white font-medium">��� Piso</span>
                 </div>
 
                 <div className="space-y-3">
@@ -2247,46 +2252,55 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         <div className="p-6 h-full bg-white">
           {/* Inventory Grid */}
           <div className="grid grid-cols-4 gap-4 h-full">
-                        {/* Inventory items */}
+            {/* Inventory items */}
             {inventory.map((item, index) => {
               // Count how many items of the same type exist (for stack display)
-              const sameTypeCount = inventory.filter(invItem =>
-                invItem.originalStoreId === item.originalStoreId ||
-                (invItem.name === item.name && invItem.type === item.type)
+              const sameTypeCount = inventory.filter(
+                (invItem) =>
+                  invItem.originalStoreId === item.originalStoreId ||
+                  (invItem.name === item.name && invItem.type === item.type),
               ).length;
 
               return (
-              <motion.div
-                key={`${item.id}-${index}`}
-                className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                draggable
-                onDragStart={() => {
-                  setIsDraggingFromInventory(true);
-                }}
-                onDragEnd={async (e, info) => {
-                  setIsDraggingFromInventory(false);
-                  // Use clientX/Y for global screen position
-                  const dropX = e.clientX;
-                  const dropY = e.clientY;
-                  await handleInventoryItemDrop(item, { x: dropX, y: dropY });
-                }}
-              >
-                {item.thumbnail ? (
-                  <img
-                    src={item.thumbnail}
-                    alt={item.name}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                ) : (
-                  <Package size={20} className="text-blue-500 mb-1" />
-                )}
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
-                  {item.name}
-                </span>
-              </motion.div>
-            ))}
+                <motion.div
+                  key={`${item.id}-${index}`}
+                  className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  draggable
+                  onDragStart={() => {
+                    setIsDraggingFromInventory(true);
+                  }}
+                  onDragEnd={async (e, info) => {
+                    setIsDraggingFromInventory(false);
+                    // Use clientX/Y for global screen position
+                    const dropX = e.clientX;
+                    const dropY = e.clientY;
+                    await handleInventoryItemDrop(item, { x: dropX, y: dropY });
+                  }}
+                >
+                  {item.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt={item.name}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  ) : (
+                    <Package size={20} className="text-blue-500 mb-1" />
+                  )}
+                  <span className="text-xs text-center font-medium text-gray-700 leading-tight absolute bottom-1 left-1 right-1 bg-white/80 rounded px-1">
+                    {item.name}
+                  </span>
+
+                  {/* Stack counter */}
+                  {sameTypeCount > 1 && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {sameTypeCount}
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
 
             {/* Empty inventory slots */}
             {Array.from({ length: Math.max(0, 20 - inventory.length) }).map(
