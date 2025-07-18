@@ -668,16 +668,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   );
                 }
 
-                // Skip applying stored position - use the new drop position instead
+                                // Skip applying stored position - use the new drop position instead
                 // The stored position would overwrite where the user just dropped the item
-                console.log(
-                  `⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`,
-                );
+                console.log(`⏭️ Skipping stored position application - using drop position (${worldPosition.x}, ${worldPosition.y}, ${worldPosition.z})`);
                 if (item.properties.position) {
-                  console.log(
-                    `📍 Previous stored position was:`,
-                    item.properties.position,
-                  );
+                  console.log(`📍 Previous stored position was:`, item.properties.position);
                 }
 
                 // Apply material properties if stored
@@ -2252,8 +2247,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         <div className="p-6 h-full bg-white">
           {/* Inventory Grid */}
           <div className="grid grid-cols-4 gap-4 h-full">
-            {/* Inventory items */}
-            {inventory.map((item, index) => (
+                        {/* Inventory items */}
+            {inventory.map((item, index) => {
+              // Count how many items of the same type exist (for stack display)
+              const sameTypeCount = inventory.filter(invItem =>
+                invItem.originalStoreId === item.originalStoreId ||
+                (invItem.name === item.name && invItem.type === item.type)
+              ).length;
+
+              return (
               <motion.div
                 key={`${item.id}-${index}`}
                 className="aspect-square border border-gray-300 rounded-lg flex flex-col items-center justify-center p-2 cursor-move bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden"
