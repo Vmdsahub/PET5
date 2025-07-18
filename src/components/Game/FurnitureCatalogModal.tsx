@@ -62,8 +62,21 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   userXenocash,
   isAdmin = false,
   onPurchaseItem,
+  onNotification,
 }) => {
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
+  const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    currency: "xenocoins" as "xenocoins" | "xenocash",
+    category: "admin" as "admin" | "premium" | "seasonal",
+    tags: [] as string[],
+  });
   const [sections, setSections] = useState<CatalogSection[]>([
     {
       id: "basic",
