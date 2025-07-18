@@ -1895,6 +1895,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                             selectedFurniture,
                             { color: e.target.value },
                           );
+                          // Auto-save the change
+                          saveFurnitureState(selectedFurniture);
                         }
                       }}
                       className="w-full h-8 rounded border border-slate-600 bg-slate-700"
@@ -1920,6 +1922,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                             selectedFurniture,
                             { emissive: e.target.value },
                           );
+                          // Auto-save the change
+                          saveFurnitureState(selectedFurniture);
                         }
                       }}
                       className="w-full h-8 rounded border border-slate-600 bg-slate-700"
