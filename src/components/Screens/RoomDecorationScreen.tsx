@@ -266,12 +266,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         // Generate thumbnail for purchased item by temporarily loading the model
         let thumbnail = "";
 
-        console.log(`🛒 Processing purchase: ${item.name}`);
-        console.log(`   - furnitureType: ${furnitureType}`);
-        console.log(`   - item.adminOnly: ${item.adminOnly}`);
-        console.log(`   - item.type: ${item.type}`);
-        console.log(`   - experienceRef available: ${!!experienceRef.current}`);
-
         try {
           if (
             experienceRef.current &&
@@ -279,7 +273,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           ) {
             // For GLB/custom furniture, temporarily load and generate thumbnail
             console.log(
-              `🖼️ Generating thumbnail for GLB item: ${item.name} (${item.id}) type: ${furnitureType}`,
+              `🖼️ Generating thumbnail for GLB: ${item.name} (${furnitureType})`,
             );
             thumbnail =
               await experienceRef.current.generateThumbnailForPurchasedItem(
@@ -288,24 +282,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
 
             if (thumbnail) {
-              console.log(
-                `✅ Thumbnail generated successfully for: ${item.name} (${thumbnail.length} chars)`,
-              );
+              console.log(`✅ Thumbnail generated: ${item.name}`);
             } else {
-              console.log(
-                `❌ Thumbnail generation returned empty for: ${item.name}`,
-              );
+              console.log(`❌ Thumbnail empty: ${item.name}`);
             }
-          } else {
-            console.log(
-              `📦 Using default icon for built-in furniture: ${item.name} (admin: ${item.adminOnly}, custom: ${furnitureType.startsWith("custom_")})`,
-            );
           }
         } catch (error) {
-          console.error(
-            `⚠️ Error generating thumbnail for ${item.name}:`,
-            error,
-          );
+          console.error(`⚠️ Thumbnail error for ${item.name}:`, error);
           thumbnail = ""; // Fallback to default icon
         }
 
