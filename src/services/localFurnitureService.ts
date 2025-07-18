@@ -39,8 +39,26 @@ export interface FurnitureUploadData {
 class LocalFurnitureService {
   private static instance: LocalFurnitureService;
   private storageKey = "custom_furniture_local";
+  private fileStorageKey = "custom_furniture_files";
+  private objectUrls: Map<string, string> = new Map(); // Track created Object URLs
+  private gltfLoader?: any; // Will be set from THREE.js
 
-  private constructor() {}
+  private constructor() {
+    // Import GLTFLoader dynamically
+    this.initGLTFLoader();
+  }
+
+  private async initGLTFLoader() {
+    try {
+      const THREE = await import("three");
+      const { GLTFLoader } = await import(
+        "three/examples/jsm/loaders/GLTFLoader"
+      );
+      this.gltfLoader = new GLTFLoader();
+    } catch (error) {
+      console.error("Failed to load GLTFLoader:", error);
+    }
+  }
 
   public static getInstance(): LocalFurnitureService {
     if (!LocalFurnitureService.instance) {
