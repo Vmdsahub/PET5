@@ -147,6 +147,20 @@ export class FurnitureManager {
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
 
+    // Auto-correct Y position for GLB models to ensure they sit on the floor
+    if (type.startsWith("custom_")) {
+      const bbox = new THREE.Box3().setFromObject(furnitureObject);
+      const minY = bbox.min.y;
+
+      // If the bottom of the object is below the floor (Y=0), adjust it
+      if (minY < 0) {
+        furnitureObject.position.y = furnitureObject.position.y - minY;
+        console.log(
+          `🔧 Adjusted GLB Y position from ${position.y} to ${furnitureObject.position.y} (minY was ${minY})`,
+        );
+      }
+    }
+
     console.log(
       `✅ Furniture positioned at: ${furnitureObject.position.x}, ${furnitureObject.position.y}, ${furnitureObject.position.z}`,
     );
