@@ -133,6 +133,9 @@ export class FurnitureManager {
     position: THREE.Vector3,
     rotationY: number = 0,
   ): Promise<void> {
+    console.log(
+      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
+    );
     const furnitureObject = await this.furnitureFactory.create(type);
 
     if (!furnitureObject) {
@@ -143,6 +146,10 @@ export class FurnitureManager {
     furnitureObject.position.copy(position);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
+
+    console.log(
+      `✅ Furniture positioned at: ${furnitureObject.position.x}, ${furnitureObject.position.y}, ${furnitureObject.position.z}`,
+    );
 
     const furnitureItem: FurnitureItem = {
       id,
