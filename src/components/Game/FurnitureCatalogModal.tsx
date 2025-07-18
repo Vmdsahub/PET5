@@ -225,39 +225,57 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     },
   ]);
 
-  // Add admin section if user is admin
+  // Load custom furniture for admin section
+  const loadCustomFurniture = async () => {
+    try {
+      const furniture = await furnitureService.getAllCustomFurniture();
+      setCustomFurniture(furniture);
+    } catch (error) {
+      console.error("Error loading custom furniture:", error);
+    }
+  };
+
+  // Add admin section with custom furniture
   useEffect(() => {
     if (isAdmin) {
-      setSections((prev) => {
-        const hasAdminSection = prev.some((section) => section.id === "admin");
-        if (!hasAdminSection) {
-          return [
-            ...prev,
-            {
-              id: "admin",
-              title: "Catálogo do Admin",
-              icon: <Crown className="w-5 h-5" />,
-              isExpanded: false,
-              items: [
-                {
-                  id: "admin-throne",
-                  name: "Trono Real",
-                  price: 0,
-                  currency: "xenocoins",
-                  thumbnail:
-                    "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-                  category: "admin",
-                  description: "Móvel exclusivo para administradores.",
-                  adminOnly: true,
-                },
-              ],
-            },
-          ];
-        }
-        return prev;
-      });
+      loadCustomFurniture();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin && customFurniture.length >= 0) {
+      setSections((prev) => {
+        const adminItems: FurnitureItem[] = customFurniture.map(
+          (furniture) => ({
+            id: furniture.id,
+            name: furniture.name,
+            price: 0, // All admin items are free
+            currency: "xenocoins",
+            thumbnail:
+              furniture.thumbnail_url ||
+              "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
+            category: "admin",
+            description:
+              furniture.description ||
+              "Móvel customizado exclusivo para administradores.",
+            adminOnly: true,
+          }),
+        );
+
+        const otherSections = prev.filter((section) => section.id !== "admin");
+        return [
+          ...otherSections,
+          {
+            id: "admin",
+            title: "Catálogo do Admin",
+            icon: <Crown className="w-5 h-5" />,
+            isExpanded: false,
+            items: adminItems,
+          },
+        ];
+      });
+    }
+  }, [isAdmin, customFurniture]);
 
   const toggleSection = (sectionId: string) => {
     setSections((prev) =>
