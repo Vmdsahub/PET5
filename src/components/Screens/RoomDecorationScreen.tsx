@@ -239,6 +239,30 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         // TODO: Implement inspection modal
         console.log(`Inspecting ${objectId}`);
         break;
+      case "admin-controls":
+        // Set selected furniture for admin controls
+        setSelectedFurniture(objectId);
+        setIsEditMode(true);
+        // Get current furniture properties
+        if (experienceRef.current) {
+          const furniture = experienceRef.current.getFurniture(objectId);
+          if (furniture) {
+            // Update admin controls with current properties
+            setCurrentScale(furniture.scale || { x: 1, y: 1, z: 1 });
+            setCurrentRotation(furniture.rotation || { x: 0, y: 0, z: 0 });
+            setCurrentPosition(furniture.position || { x: 0, y: 0, z: 0 });
+            // Update material properties if available
+            if (furniture.material) {
+              setCurrentMaterial({
+                roughness: furniture.material.roughness || 0.5,
+                metalness: furniture.material.metalness || 0,
+                emissive: furniture.material.emissive || "#000000",
+                color: furniture.material.color || "#ffffff",
+              });
+            }
+          }
+        }
+        break;
       case "store":
         // Add to inventory and remove from scene
         const furnitureName = objectId
@@ -1625,6 +1649,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
               >
                 {lampStates[contextMenu.objectId] ? "💡 Desligar" : "🔦 Ligar"}
+              </button>
+            )}
+
+            {/* Admin Controls Option */}
+            {user?.isAdmin && (
+              <button
+                onClick={() => handleContextMenuAction("admin-controls")}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-purple-700 font-medium border-t border-gray-200"
+              >
+                ⚙️ Controles de Admin
               </button>
             )}
 
