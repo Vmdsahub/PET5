@@ -60,6 +60,53 @@ class LocalFurnitureService {
     }
   }
 
+  private async initIndexedDB(): Promise<IDBDatabase | null> {
+    return new Promise((resolve) => {
+      const request = indexedDB.open("FurnitureFiles", 1);
+
+      request.onupgradeneeded = (event) => {
+        console.log(
+          "IndexedDB upgrade needed, creating/recreating object store...",
+        );
+        const db = request.result;
+
+        // Delete existing store if it exists
+        if (db.objectStoreNames.contains("files")) {
+          db.deleteObjectStore("files");
+          console.log("Existing object store deleted");
+        }
+
+        // Create new object store
+        const objectStore = db.createObjectStore("files", { keyPath: "id" });
+        console.log('Object store "files" created successfully');
+      };
+
+      request.onsuccess = () => {
+        const db = request.result;
+
+        // Verify object store exists
+        if (!db.objectStoreNames.contains("files")) {
+          console.error('Object store "files" still not found after upgrade');
+          resolve(null);
+          return;
+        }
+
+        console.log("IndexedDB initialized successfully");
+        resolve(db);
+      };
+
+      request.onerror = () => {
+        console.error("Error initializing IndexedDB:", request.error);
+        resolve(null);
+      };
+
+      request.onblocked = () => {
+        console.warn("IndexedDB blocked during initialization");
+        resolve(null);
+      };
+    });
+  }
+
   public static getInstance(): LocalFurnitureService {
     if (!LocalFurnitureService.instance) {
       LocalFurnitureService.instance = new LocalFurnitureService();
