@@ -493,7 +493,7 @@ export class RoomExperience {
   private generateThumbnailFromObject(object: THREE.Object3D): string {
     // Create a temporary scene for thumbnail rendering
     const thumbScene = new THREE.Scene();
-    thumbScene.background = new THREE.Color(0xf0f0f0); // Light gray background
+    thumbScene.background = null; // Transparent background
     const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 
     // Clone the object for thumbnail
