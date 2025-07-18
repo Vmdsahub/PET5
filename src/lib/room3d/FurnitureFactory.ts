@@ -569,39 +569,57 @@ export class FurnitureFactory {
     furnitureId: string,
   ): Promise<THREE.Group | null> {
     try {
+      console.log(`🎯 Creating custom furniture with ID: ${furnitureId}`);
+
       // Check cache first
       if (this.customFurnitureCache.has(furnitureId)) {
+        console.log(`📦 Using cached model for: ${furnitureId}`);
         const cached = this.customFurnitureCache.get(furnitureId)!;
         return cached.clone();
       }
 
       // Get furniture data
       const customFurniture = await furnitureService.getAllCustomFurniture();
+      console.log(`📋 Found ${customFurniture.length} custom furniture items`);
       const furniture = customFurniture.find((f) => f.id === furnitureId);
 
       if (!furniture) {
-        console.warn(`Custom furniture not found: ${furnitureId}`);
+        console.warn(`❌ Custom furniture not found: ${furnitureId}`);
+        console.log(
+          `Available IDs:`,
+          customFurniture.map((f) => f.id),
+        );
         return null;
       }
 
+      console.log(`✅ Found furniture data:`, furniture.name);
+
       // Load GLB model
+      console.log(`🎯 Loading GLB model from: ${furniture.glb_url}`);
       const model = await furnitureService.loadGLBModel(furniture.glb_url);
       if (!model) {
-        console.warn(`Failed to load GLB model: ${furniture.glb_url}`);
+        console.warn(`❌ Failed to load GLB model: ${furniture.glb_url}`);
         return null;
       }
+
+      console.log(`✅ GLB model loaded successfully for: ${furniture.name}`);
 
       // Apply metadata settings if available
       if (furniture.metadata) {
+        console.log(`🔧 Applying metadata to model`);
         this.applyMetadataToModel(model, furniture.metadata);
       }
 
       // Cache the model
       this.customFurnitureCache.set(furnitureId, model.clone());
+      console.log(`💾 Model cached for: ${furnitureId}`);
 
       return model;
     } catch (error) {
-      console.error(`Error creating custom furniture ${furnitureId}:`, error);
+      console.error(
+        `❌ Error creating custom furniture ${furnitureId}:`,
+        error,
+      );
       return null;
     }
   }
