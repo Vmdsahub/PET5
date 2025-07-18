@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 import { DraggableModal } from "../Layout/DraggableModal";
 import {
-  furnitureService,
+  localFurnitureService as furnitureService,
   CustomFurniture,
-} from "../../services/furnitureService";
+} from "../../services/localFurnitureService";
 
 interface FurnitureItem {
   id: string;
