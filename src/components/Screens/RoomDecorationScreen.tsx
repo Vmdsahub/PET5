@@ -1829,6 +1829,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               selectedFurniture,
                               { roughness: parseFloat(e.target.value) },
                             );
+                            // Auto-save the change
+                            saveFurnitureState(selectedFurniture);
                           }
                         }}
                         className="flex-1 slider"
