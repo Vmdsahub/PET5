@@ -64,6 +64,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       name: string;
       type: string;
       thumbnail?: string;
+      properties?: {
+        scale?: { x: number; y: number; z: number };
+        rotation?: { x: number; y: number; z: number };
+        position?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      } | null;
     }>
   >([]);
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
