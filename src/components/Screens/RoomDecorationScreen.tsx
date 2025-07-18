@@ -2316,9 +2316,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                     </span>
 
                     {/* Stack counter */}
-                    {sameTypeCount > 1 && (
+                    {item.stackCount > 1 && (
                       <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                        {sameTypeCount}
+                        {item.stackCount}
                       </div>
                     )}
                   </motion.div>
