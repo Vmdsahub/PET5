@@ -244,6 +244,14 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   }, [isAdmin]);
 
+  // Reload furniture when modal opens
+  useEffect(() => {
+    if (isOpen && isAdmin) {
+      console.log("Modal opened, reloading custom furniture...");
+      loadCustomFurniture();
+    }
+  }, [isOpen, isAdmin]);
+
   useEffect(() => {
     if (isAdmin && customFurniture.length >= 0) {
       console.log("Updating admin section with furniture:", customFurniture);
