@@ -94,9 +94,7 @@ class RoomDecorationService {
   /**
    * Load all furniture decoration states for a user
    */
-  async loadUserRoomDecorations(
-    userId: string,
-  ): Promise<{
+  async loadUserRoomDecorations(userId: string): Promise<{
     success: boolean;
     decorations?: FurnitureState[];
     error?: string;
@@ -163,8 +161,7 @@ class RoomDecorationService {
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
-        .eq("user_id", userId)
-        .eq("furniture_id", furnitureId);
+        .match({ user_id: userId, furniture_id: furnitureId });
 
       if (error) {
         console.error("Error removing furniture from room:", error);
