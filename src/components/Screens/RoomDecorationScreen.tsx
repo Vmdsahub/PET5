@@ -417,15 +417,28 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           `📦 Storing furniture: ID=${objectId}, Type=${furnitureType}, Name=${furnitureName}`,
         );
 
-        setInventory((prev) => [
-          ...prev,
-          {
-            id: objectId,
-            name: furnitureName,
-            type: furnitureType,
-            thumbnail,
-          },
-        ]);
+        setInventory((prev) => {
+          // Check if item already exists in inventory to avoid duplicates
+          const existsInInventory = prev.some((item) => item.id === objectId);
+
+          if (existsInInventory) {
+            console.log(
+              `⚠️ Item ${objectId} already exists in inventory, not adding duplicate`,
+            );
+            return prev;
+          }
+
+          console.log(`➕ Adding ${objectId} to inventory`);
+          return [
+            ...prev,
+            {
+              id: objectId,
+              name: furnitureName,
+              type: furnitureType,
+              thumbnail,
+            },
+          ];
+        });
 
         // Remove from 3D scene
         if (experienceRef.current) {
