@@ -459,14 +459,26 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         break;
       case "store":
         // Add to inventory and remove from scene
-        // Try to get the original name from when it was placed, or generate from ID as fallback
+        // Try to get the original name from the 3D object userData
         let furnitureName = objectId
           .replace(/-/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase());
 
-        // Check if this furniture has an original name stored somewhere
-        // For now, we'll keep the ID-based name but this could be enhanced
-        // to store original purchase names in the 3D object userData
+        // Check if the 3D object has the original name stored
+        if (experienceRef.current) {
+          const furnitureObj =
+            experienceRef.current.getFurnitureById?.(objectId);
+          if (furnitureObj?.object?.userData?.originalName) {
+            furnitureName = furnitureObj.object.userData.originalName;
+            console.log(
+              `📝 Using original name: "${furnitureName}" for ${objectId}`,
+            );
+          } else {
+            console.log(
+              `⚠️ No original name found for ${objectId}, using generated name: "${furnitureName}"`,
+            );
+          }
+        }
 
         // Get the correct furniture type to preserve it
         let furnitureType = "furniture";
