@@ -319,9 +319,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       // Load saved decorations when user changes or experience is ready
       if (user?.id) {
-        setTimeout(() => {
-          loadSavedDecorations();
-        }, 500); // Small delay to ensure scene is ready
+        // Reset decorations loaded flag when user changes
+        if (!decorationsLoaded) {
+          setTimeout(() => {
+            loadSavedDecorations();
+          }, 500); // Small delay to ensure scene is ready
+        }
+      } else {
+        // Reset flag when user logs out
+        setDecorationsLoaded(false);
       }
     }
   }, [isEditMode, user?.isAdmin, user?.id]);
