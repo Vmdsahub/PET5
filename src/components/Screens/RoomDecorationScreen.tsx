@@ -432,6 +432,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           experienceRef.current.removeFurniture(objectId);
         }
 
+        // Remove from database if user is logged in
+        if (user?.id) {
+          roomDecorationService.removeFurnitureFromRoom(user.id, objectId);
+        }
+
         // Remove lamp state if it's a lamp
         if (objectId.includes("lamp")) {
           setLampStates((prev) => {
