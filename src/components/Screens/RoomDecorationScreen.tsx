@@ -586,6 +586,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   `🔧 Applying stored properties to ${item.id}:`,
                   item.properties,
                 );
+                console.log(`📊 Scale to apply:`, item.properties.scale);
+                console.log(`🎨 Material to apply:`, item.properties.material);
 
                 // Apply scale if stored
                 if (item.properties.scale) {
