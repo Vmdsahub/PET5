@@ -209,14 +209,15 @@ class RoomDecorationService {
         `���️ Removing furniture ${furnitureId} from room for user ${userId}`,
       );
 
-      // First, find the records to update using separate query
-      const { data: existingRecords, error: selectError } = await supabase
+      // Use a different approach: update all user records and filter by furniture_id client-side
+      // First get all user records
+      const { data: userRecords, error: selectError } = await supabase
         .from("user_room_decorations")
-        .select("id")
+        .select("*")
         .eq("user_id", userId);
 
       if (selectError) {
-        console.error("Error finding furniture to remove:", selectError);
+        console.error("Error finding user records:", selectError);
         if (
           selectError.code === "42P01" ||
           selectError.message.includes("does not exist")
@@ -229,24 +230,23 @@ class RoomDecorationService {
         return { success: false, error: selectError.message };
       }
 
-      // Filter for the specific furniture in JavaScript
-      const recordsToUpdate = (existingRecords || []).filter(
-        (record) => record.furniture_id === furnitureId,
+      // Find the specific furniture record
+      const targetRecord = userRecords?.find(
+        (record) => record.furniture_id === furnitureId && record.is_active,
       );
 
-      if (recordsToUpdate.length === 0) {
+      if (!targetRecord) {
         console.log(
           `No active furniture ${furnitureId} found for user ${userId}`,
         );
         return { success: true }; // Nothing to remove is still success
       }
 
-      // Update using the record IDs
-      const recordIds = recordsToUpdate.map((record) => record.id);
+      // Update the specific record by ID (single condition)
       const { error } = await supabase
         .from("user_room_decorations")
         .update({ is_active: false })
-        .in("id", recordIds);
+        .eq("id", targetRecord.id);
 
       if (error) {
         console.error("Error removing furniture from room:", error);
