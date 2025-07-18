@@ -2257,8 +2257,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               // Count how many items of the same type exist (for stack display)
               const sameTypeCount = inventory.filter(
                 (invItem) =>
-                  invItem.originalStoreId === item.originalStoreId ||
-                  (invItem.name === item.name && invItem.type === item.type),
+                  invItem.originalStoreId === item.originalStoreId &&
+                  invItem.type === item.type &&
+                  invItem.name === item.name,
               ).length;
 
               return (
