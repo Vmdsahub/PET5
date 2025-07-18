@@ -1683,6 +1683,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                                 selectedFurniture,
                                 newScale,
                               );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
                             }
                           }}
                           className="flex-1 slider"
@@ -1732,6 +1734,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                                 selectedFurniture,
                                 newRotation,
                               );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
                             }
                           }}
                           className="flex-1 slider"
@@ -1784,6 +1788,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                                 selectedFurniture,
                                 newPosition,
                               );
+                              // Auto-save the change
+                              saveFurnitureState(selectedFurniture);
                             }
                           }}
                           className="flex-1 slider"
