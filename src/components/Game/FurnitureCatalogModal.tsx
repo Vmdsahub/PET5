@@ -823,19 +823,21 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 
                   <div className="flex gap-2 flex-wrap">
                     <button
-                      onClick={async () => {
-                        const success = await furnitureService.testIndexedDB();
+                      onClick={() => {
+                        const success = furnitureService.testSystem();
                         onNotification?.({
                           type: success ? "success" : "error",
-                          title: success ? "Teste OK" : "Teste Falhou",
+                          title: success
+                            ? "Sistema OK"
+                            : "Sistema com Problema",
                           message: success
-                            ? "IndexedDB funcionando corretamente."
-                            : "Problema com IndexedDB. Verifique o console.",
+                            ? "Sistema funcionando corretamente."
+                            : "Problema no sistema. Verifique o console.",
                         });
                       }}
                       className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
                     >
-                      Testar DB
+                      Testar Sistema
                     </button>
                     <button
                       onClick={() => {
@@ -843,22 +845,22 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         loadCustomFurniture();
                         onNotification?.({
                           type: "success",
-                          title: "Dados Adicionados",
-                          message: "Dados de exemplo adicionados com sucesso.",
+                          title: "Exemplo Adicionado",
+                          message: "Item de exemplo adicionado com sucesso.",
                         });
                       }}
                       className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                     >
-                      Adicionar Exemplos
+                      Adicionar Exemplo
                     </button>
                     <button
                       onClick={() => {
-                        furnitureService.clearLocalData();
+                        furnitureService.clearAll();
                         setCustomFurniture([]);
                         onNotification?.({
                           type: "success",
-                          title: "Dados Limpos",
-                          message: "Todos os dados locais foram removidos.",
+                          title: "Limpo",
+                          message: "Todos os itens foram removidos.",
                         });
                       }}
                       className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
