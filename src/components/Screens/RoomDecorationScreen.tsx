@@ -266,6 +266,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         // Generate thumbnail for purchased item by temporarily loading the model
         let thumbnail = "";
 
+        console.log(`🛒 Processing purchase: ${item.name}`);
+        console.log(`   - furnitureType: ${furnitureType}`);
+        console.log(`   - item.adminOnly: ${item.adminOnly}`);
+        console.log(`   - item.type: ${item.type}`);
+        console.log(`   - experienceRef available: ${!!experienceRef.current}`);
+
         try {
           if (
             experienceRef.current &&
@@ -273,22 +279,31 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           ) {
             // For GLB/custom furniture, temporarily load and generate thumbnail
             console.log(
-              `🖼️ Generating thumbnail for GLB item: ${item.name} (${item.id})`,
+              `🖼️ Generating thumbnail for GLB item: ${item.name} (${item.id}) type: ${furnitureType}`,
             );
             thumbnail =
               await experienceRef.current.generateThumbnailForPurchasedItem(
                 item.id,
                 furnitureType,
               );
-            console.log(`✅ Thumbnail generated for: ${item.name}`);
+
+            if (thumbnail) {
+              console.log(
+                `✅ Thumbnail generated successfully for: ${item.name} (${thumbnail.length} chars)`,
+              );
+            } else {
+              console.log(
+                `❌ Thumbnail generation returned empty for: ${item.name}`,
+              );
+            }
           } else {
             console.log(
-              `📦 Using default icon for built-in furniture: ${item.name}`,
+              `📦 Using default icon for built-in furniture: ${item.name} (admin: ${item.adminOnly}, custom: ${furnitureType.startsWith("custom_")})`,
             );
           }
         } catch (error) {
-          console.warn(
-            `⚠️ Could not generate thumbnail for ${item.name}:`,
+          console.error(
+            `⚠️ Error generating thumbnail for ${item.name}:`,
             error,
           );
           thumbnail = ""; // Fallback to default icon
