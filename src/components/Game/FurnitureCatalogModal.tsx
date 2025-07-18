@@ -39,6 +39,7 @@ interface FurnitureCatalogModalProps {
   userXenocoins: number;
   userXenocash: number;
   isAdmin?: boolean;
+  onPurchaseItem: (item: FurnitureItem) => Promise<boolean>;
 }
 
 export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
@@ -47,6 +48,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   userXenocoins,
   userXenocash,
   isAdmin = false,
+  onPurchaseItem,
 }) => {
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [sections, setSections] = useState<CatalogSection[]>([
@@ -181,9 +183,12 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     );
   };
 
-  const handlePurchase = (item: FurnitureItem) => {
-    // TODO: Implement purchase logic
-    console.log("Purchasing item:", item);
+  const handlePurchase = async (item: FurnitureItem) => {
+    const success = await onPurchaseItem(item);
+    if (success) {
+      // Close modal after successful purchase
+      onClose();
+    }
   };
 
   const canAfford = (item: FurnitureItem) => {
