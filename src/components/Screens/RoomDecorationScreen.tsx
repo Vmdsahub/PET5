@@ -25,6 +25,7 @@ import { RoomExperience } from "../../lib/room3d/RoomExperience";
 import { useAuthStore } from "../../store/authStore";
 import { useGameStore } from "../../store/gameStore";
 import { DraggableModal } from "../Layout/DraggableModal";
+import { FurnitureCatalogModal } from "../Game/FurnitureCatalogModal";
 import {
   furnitureService,
   CustomFurniture,
@@ -73,7 +74,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [isDraggingFromInventory, setIsDraggingFromInventory] = useState(false);
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
-  const [catalogTab, setCatalogTab] = useState<"store" | "admin">("store");
 
   // GLB Upload state
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
@@ -96,14 +96,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   useEffect(() => {
     loadCustomFurniture();
   }, []);
-
-  // Reload custom furniture when switching to admin tab
-  useEffect(() => {
-    if (catalogTab === "admin") {
-      console.log("Admin tab selected, reloading custom furniture...");
-      loadCustomFurniture();
-    }
-  }, [catalogTab]);
 
   const loadCustomFurniture = async () => {
     try {
