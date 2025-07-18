@@ -486,13 +486,18 @@ export class RoomExperience {
     const furniture = this.furnitureManager.getFurnitureById(objectId);
     if (!furniture) return "";
 
+    return this.generateThumbnailFromObject(furniture.object);
+  }
+
+  // Helper method to generate thumbnail from a 3D object
+  private generateThumbnailFromObject(object: THREE.Object3D): string {
     // Create a temporary scene for thumbnail rendering
     const thumbScene = new THREE.Scene();
     thumbScene.background = new THREE.Color(0xf0f0f0); // Light gray background
     const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 
-    // Clone the furniture object for thumbnail
-    const clonedObject = furniture.object.clone();
+    // Clone the object for thumbnail
+    const clonedObject = object.clone();
     thumbScene.add(clonedObject);
 
     // Add bright lighting for thumbnail
@@ -573,6 +578,41 @@ export class RoomExperience {
     // Clean up
     renderTarget.dispose();
     return "";
+  }
+
+  // Generate thumbnail for purchased items by loading the GLB model temporarily
+  public async generateThumbnailForPurchasedItem(
+    storeItemId: string,
+    furnitureType: string,
+  ): Promise<string> {
+    try {
+      console.log(
+        `🎯 Generating thumbnail for purchased GLB: ${storeItemId} (${furnitureType})`,
+      );
+
+      // Load the GLB model directly from the furniture factory
+      const model =
+        await this.furnitureManager.createTemporaryFurnitureForThumbnail(
+          furnitureType,
+        );
+
+      if (!model) {
+        console.warn(`❌ Could not load model for ${furnitureType}`);
+        return "";
+      }
+
+      // Generate thumbnail from the loaded model
+      const thumbnail = this.generateThumbnailFromObject(model);
+
+      console.log(`✅ Thumbnail generated successfully for ${storeItemId}`);
+      return thumbnail;
+    } catch (error) {
+      console.error(
+        `Error generating thumbnail for purchased item ${storeItemId}:`,
+        error,
+      );
+      return "";
+    }
   }
 
   // Toggle furniture light (for lamps)
