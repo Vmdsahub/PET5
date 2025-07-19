@@ -635,7 +635,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                               ? 0
                                               : Number(e.target.value);
                                           console.log(
-                                            `💰 Updating price to: ${newPrice}`,
+                                            `💰 Updating price from ${item.price} to: ${newPrice} (${item.currency})`,
+                                          );
+                                          console.log(
+                                            `📊 Input value: "${e.target.value}", Parsed: ${newPrice}, Type: ${typeof newPrice}`,
                                           );
                                           handleUpdatePrice(
                                             item.id,
