@@ -161,6 +161,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         console.log(`✅ SAVE SUCCESS for ${furnitureId}`);
         console.log(`🔍 Save result:`, result);
 
+        // Save furniture templates (admin modifications)
+        if (experienceRef.current) {
+          const templates = experienceRef.current.getAllTemplates?.();
+          if (templates && templates.size > 0) {
+            console.log(`💾 Saving furniture templates:`, templates);
+            roomDecorationService.saveFurnitureTemplates(user.id, templates);
+          }
+        }
+
         // Trigger catalog refresh to show updated furniture states
         setCatalogRefreshTrigger((prev) => prev + 1);
         console.log(
@@ -1675,7 +1684,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-amber-400" />
-                  <span className="text-white font-medium">🟫 Piso</span>
+                  <span className="text-white font-medium">�� Piso</span>
                 </div>
 
                 <div className="space-y-3">
