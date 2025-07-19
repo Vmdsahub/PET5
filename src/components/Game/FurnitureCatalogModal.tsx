@@ -641,18 +641,41 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                   </span>
                                 </div>
                               </div>
-                              {/* Delete button for admin items */}
-                              {section.id === "admin" && item.adminOnly && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteCustomFurniture(item.id);
-                                  }}
-                                  className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                  title="Deletar modelo"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
-                                </button>
+                              {/* Action buttons for custom items */}
+                              {item.type?.startsWith("custom_") && isAdmin && (
+                                <div className="flex gap-1">
+                                  {/* Move to section dropdown */}
+                                  <select
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      handleMoveToSection(
+                                        item.id,
+                                        e.target.value as any,
+                                      );
+                                    }}
+                                    value={item.catalogSection || "admin"}
+                                    className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
+                                    title="Mover para seção"
+                                  >
+                                    <option value="admin">Admin</option>
+                                    <option value="basic">Básicos</option>
+                                    <option value="xenocash">Xenocash</option>
+                                    <option value="limited">Limitado</option>
+                                  </select>
+
+                                  {/* Delete button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteCustomFurniture(item.id);
+                                    }}
+                                    className="p-1 hover:bg-red-100 rounded transition-colors"
+                                    title="Deletar modelo"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-red-600" />
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </motion.div>
