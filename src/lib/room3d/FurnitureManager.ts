@@ -589,13 +589,24 @@ export class FurnitureManager {
     console.log(`✅ Custom furniture materials reset completed: ${item.id}`);
   }
 
-  private resetMaterialProperties(object: THREE.Object3D): void {
-    console.log(`🎨 Resetting material properties for object`);
+  private resetMaterialProperties(
+    object: THREE.Object3D,
+    furnitureId?: string,
+  ): void {
+    console.log(
+      `🎨 Resetting material properties for object (furniture: ${furnitureId})`,
+    );
     let meshCount = 0;
+
+    // Try to get the furniture item to access original materials
+    const furnitureItem = furnitureId ? this.furniture.get(furnitureId) : null;
 
     object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         meshCount++;
+
+        // Try to get original material properties for this mesh
+        const originalMaterial = furnitureItem?.originalMaterials.get(child);
 
         // Handle both single materials and material arrays
         if (Array.isArray(child.material)) {
@@ -611,16 +622,20 @@ export class FurnitureManager {
                   oldMetalness: material.metalness,
                   oldColor: material.color.getHexString(),
                   oldEmissive: material.emissive.getHexString(),
+                  originalMaterial,
                 },
               );
 
-              material.roughness = 0.5;
-              material.metalness = 0;
-              material.color.setStyle("#ffffff");
-              material.emissive.setStyle("#000000");
+              // Use original material properties if available, otherwise use defaults
+              material.roughness = originalMaterial?.roughness ?? 0.5;
+              material.metalness = originalMaterial?.metalness ?? 0;
+              material.color.setStyle(originalMaterial?.color ?? "#ffffff");
+              material.emissive.setStyle(
+                originalMaterial?.emissive ?? "#000000",
+              );
               material.needsUpdate = true;
 
-              console.log(`   ✅ Material ${index + 1} reset:`, {
+              console.log(`   ✅ Material ${index + 1} reset to original:`, {
                 newRoughness: material.roughness,
                 newMetalness: material.metalness,
                 newColor: material.color.getHexString(),
@@ -635,15 +650,17 @@ export class FurnitureManager {
             oldMetalness: material.metalness,
             oldColor: material.color.getHexString(),
             oldEmissive: material.emissive.getHexString(),
+            originalMaterial,
           });
 
-          material.roughness = 0.5;
-          material.metalness = 0;
-          material.color.setStyle("#ffffff");
-          material.emissive.setStyle("#000000");
+          // Use original material properties if available, otherwise use defaults
+          material.roughness = originalMaterial?.roughness ?? 0.5;
+          material.metalness = originalMaterial?.metalness ?? 0;
+          material.color.setStyle(originalMaterial?.color ?? "#ffffff");
+          material.emissive.setStyle(originalMaterial?.emissive ?? "#000000");
           material.needsUpdate = true;
 
-          console.log(`✅ Material reset for mesh ${meshCount}:`, {
+          console.log(`✅ Material reset for mesh ${meshCount} to original:`, {
             newRoughness: material.roughness,
             newMetalness: material.metalness,
             newColor: material.color.getHexString(),
