@@ -109,7 +109,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     },
     {
       id: "limited",
-      title: "Móveis por Tempo Limitado",
+      title: "M��veis por Tempo Limitado",
       icon: <Clock className="w-5 h-5" />,
       isExpanded: false,
       items: [], // Empty - all built-in furniture removed
@@ -1174,7 +1174,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
           style={{
             top: `${menuPosition.y}px`,
             left: `${menuPosition.x}px`,
-            transform: "translate(-10px, -10px)",
+            transform: "translateY(0)",
           }}
         >
           <div className="space-y-2">
