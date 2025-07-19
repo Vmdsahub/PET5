@@ -2280,6 +2280,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         color: "#ffffff",
                       });
                       console.log(`✅ Reset completed, local state updated`);
+
+                      // Auto-save the reset state to database
+                      console.log(
+                        `💾 Saving reset state to database for: ${selectedFurniture}`,
+                      );
+                      saveFurnitureState(selectedFurniture);
                     } else {
                       console.warn(
                         `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
