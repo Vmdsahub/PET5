@@ -625,18 +625,27 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                       <input
                                         type="number"
                                         min="0"
-                                        value={item.price}
+                                        step="1"
+                                        value={item.price || 0}
                                         onClick={(e) => e.stopPropagation()}
                                         onChange={(e) => {
                                           e.stopPropagation();
+                                          const newPrice =
+                                            e.target.value === ""
+                                              ? 0
+                                              : Number(e.target.value);
+                                          console.log(
+                                            `💰 Updating price to: ${newPrice}`,
+                                          );
                                           handleUpdatePrice(
                                             item.id,
-                                            Number(e.target.value),
+                                            newPrice,
                                             item.currency,
                                           );
                                         }}
                                         className="w-16 text-xs px-1 py-1 border rounded"
-                                        title="Preço"
+                                        title="Preço (0 = gratuito)"
+                                        placeholder="0"
                                       />
                                       <select
                                         value={item.currency}
