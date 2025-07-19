@@ -316,19 +316,117 @@ export class FurnitureManager {
         z: item.object.scale.z,
       },
       newScale: scale,
+      furnitureType: item.type,
     });
 
-    item.object.scale.set(scale.x, scale.y, scale.z);
+    // Update the template for this furniture type
+    this.updateFurnitureTemplate(item.type, { scale });
 
-    console.log(`✅ updateFurnitureScale applied: ${id}`, {
-      appliedScale: {
-        x: item.object.scale.x,
-        y: item.object.scale.y,
-        z: item.object.scale.z,
-      },
-    });
+    // Apply scale to ALL instances of this furniture type
+    this.applyTemplateToAllInstances(item.type);
 
     return true;
+  }
+
+  public updateFurnitureTemplate(
+    furnitureType: string,
+    modifications: {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    },
+  ): void {
+    console.log(
+      `🎯 Updating template for furniture type: ${furnitureType}`,
+      modifications,
+    );
+
+    let template = this.furnitureTemplates.get(furnitureType) || {};
+
+    if (modifications.scale) {
+      template.scale = modifications.scale;
+    }
+
+    if (modifications.material) {
+      template.material = modifications.material;
+    }
+
+    this.furnitureTemplates.set(furnitureType, template);
+    console.log(`💾 Template updated for ${furnitureType}:`, template);
+  }
+
+  public applyTemplateToAllInstances(furnitureType: string): void {
+    const template = this.furnitureTemplates.get(furnitureType);
+    if (!template) return;
+
+    console.log(
+      `🌐 Applying template to all instances of type: ${furnitureType}`,
+    );
+
+    let instanceCount = 0;
+    this.furniture.forEach((item, itemId) => {
+      if (item.type === furnitureType) {
+        instanceCount++;
+        console.log(`  🔄 Updating instance: ${itemId}`);
+
+        // Apply scale if defined in template
+        if (template.scale) {
+          item.object.scale.set(
+            template.scale.x,
+            template.scale.y,
+            template.scale.z,
+          );
+          console.log(`    📐 Applied scale:`, template.scale);
+        }
+
+        // Apply material if defined in template
+        if (template.material) {
+          this.applyMaterialToObject(item.object, template.material);
+          console.log(`    🎨 Applied material:`, template.material);
+        }
+      }
+    });
+
+    console.log(
+      `✅ Applied template to ${instanceCount} instances of ${furnitureType}`,
+    );
+  }
+
+  private applyMaterialToObject(
+    object: THREE.Object3D,
+    materialProps: {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    },
+  ): void {
+    object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((material) => {
+            if (material instanceof THREE.MeshStandardMaterial) {
+              material.roughness = materialProps.roughness;
+              material.metalness = materialProps.metalness;
+              material.color.setStyle(materialProps.color);
+              material.emissive.setStyle(materialProps.emissive);
+              material.needsUpdate = true;
+            }
+          });
+        } else {
+          const material = child.material as THREE.MeshStandardMaterial;
+          material.roughness = materialProps.roughness;
+          material.metalness = materialProps.metalness;
+          material.color.setStyle(materialProps.color);
+          material.emissive.setStyle(materialProps.emissive);
+          material.needsUpdate = true;
+        }
+      }
+    });
   }
 
   public updateFurnitureRotation(
