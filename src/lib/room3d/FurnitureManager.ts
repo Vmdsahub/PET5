@@ -475,6 +475,30 @@ export class FurnitureManager {
     return this.furnitureFactory.getCacheKeys();
   }
 
+  // Clear all furniture from the room
+  public clearAllFurniture(): void {
+    console.log(
+      `🗑️ Clearing all furniture from room (${this.furniture.size} items)`,
+    );
+
+    // Remove all furniture from scene
+    this.furniture.forEach((item, id) => {
+      console.log(`🗑️ Removing furniture: ${id}`);
+      this.furnitureGroup.remove(item.object);
+
+      // Remove associated lights if any
+      if (this.furnitureLights.has(id)) {
+        const light = this.furnitureLights.get(id)!;
+        this.scene.remove(light);
+        this.furnitureLights.delete(id);
+      }
+    });
+
+    // Clear furniture map
+    this.furniture.clear();
+    console.log("✅ All furniture cleared from room");
+  }
+
   private resetCustomFurnitureToOriginal(
     id: string,
     item: FurnitureItem,
