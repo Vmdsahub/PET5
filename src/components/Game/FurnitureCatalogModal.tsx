@@ -685,6 +685,9 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                               onUpdatePrice={handleUpdatePrice}
                               onDelete={handleDeleteCustomFurniture}
                               getCurrencyIcon={getCurrencyIcon}
+                              setMenuSelectedItem={setMenuSelectedItem}
+                              setMenuPosition={setMenuPosition}
+                              setShowAdminMenu={setShowAdminMenu}
                             />
                           ))}
                         </div>
