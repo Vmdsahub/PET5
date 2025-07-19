@@ -268,6 +268,8 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             baseItem.description += modifiedState.material
               ? ` (Cor: ${modifiedState.material.color})`
               : "";
+            // Add the modified state to the item for thumbnail rendering
+            (baseItem as any).modifiedState = modifiedState;
           }
 
           return baseItem;
