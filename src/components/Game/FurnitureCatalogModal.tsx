@@ -1102,6 +1102,18 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
 }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAdminMenu(false);
+    };
+
+    if (showAdminMenu) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showAdminMenu]);
+
   return (
     <motion.div
       className={`relative aspect-square border-2 rounded-lg cursor-pointer transition-all ${
