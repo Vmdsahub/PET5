@@ -575,16 +575,42 @@ export class FurnitureManager {
 
     console.log(`🔄 Resetting furniture to defaults: ${id} (${item.type})`);
 
-    // For custom GLB furniture, reload from cache to get original state
-    if (item.type.startsWith("custom_")) {
-      console.log(`🎯 Resetting custom GLB furniture: ${id}`);
-      this.resetCustomFurnitureToOriginal(id, item);
-    } else {
-      console.log(`🏠 Resetting built-in furniture: ${id}`);
-      this.resetBuiltInFurnitureToDefaults(item);
-    }
+    // Clear the template for this furniture type so all instances reset
+    console.log(`🗑️ Clearing template for furniture type: ${item.type}`);
+    this.furnitureTemplates.delete(item.type);
+
+    // Reset ALL instances of this furniture type to original state
+    this.resetAllInstancesOfType(item.type);
 
     return true;
+  }
+
+  private resetAllInstancesOfType(furnitureType: string): void {
+    console.log(`🌐 Resetting ALL instances of type: ${furnitureType}`);
+
+    let instanceCount = 0;
+    this.furniture.forEach((item, itemId) => {
+      if (item.type === furnitureType) {
+        instanceCount++;
+        console.log(`  🔄 Resetting instance: ${itemId}`);
+
+        // Reset scale to original
+        item.object.scale.copy(item.originalScale);
+        console.log(`    📐 Reset scale to original:`, {
+          x: item.originalScale.x,
+          y: item.originalScale.y,
+          z: item.originalScale.z,
+        });
+
+        // Reset materials to original
+        this.resetMaterialProperties(item.object, itemId);
+        console.log(`    🎨 Reset materials to original`);
+      }
+    });
+
+    console.log(
+      `✅ Reset ${instanceCount} instances of ${furnitureType} to original state`,
+    );
   }
 
   // Debug method to get cache keys
