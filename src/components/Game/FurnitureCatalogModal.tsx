@@ -1117,7 +1117,11 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       onContextMenu={(e) => {
         e.preventDefault();
         if (isAdmin && item.type?.startsWith("custom_")) {
-          setMenuPosition({ x: e.clientX, y: e.clientY });
+          const rect = e.currentTarget.getBoundingClientRect();
+          setMenuPosition({
+            x: rect.left,
+            y: rect.bottom + 5, // Position dropdown 5px below the furniture item
+          });
           setShowAdminMenu(!showAdminMenu);
         }
       }}
