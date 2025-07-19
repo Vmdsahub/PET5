@@ -1274,6 +1274,7 @@ interface FurnitureGridCardProps {
   setMenuSelectedItem: (item: FurnitureItem) => void;
   setMenuPosition: (position: { x: number; y: number }) => void;
   setShowAdminMenu: (show: boolean) => void;
+  roomExperience?: any;
 }
 
 const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
