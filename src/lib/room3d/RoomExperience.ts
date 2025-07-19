@@ -688,6 +688,11 @@ export class RoomExperience {
     this.furnitureManager.resetFurnitureToDefaults(objectId);
   }
 
+  // Debug method to check cache keys
+  public getCacheKeys(): string[] {
+    return this.furnitureManager.getCacheKeys();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
