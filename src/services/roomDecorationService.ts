@@ -127,12 +127,19 @@ class RoomDecorationService {
   }> {
     try {
       console.log(`🔍 Loading decorations for user: ${userId}`);
+      console.log("🗄️ Querying database table: user_room_decorations");
 
       // Query with user_id and filter active ones locally
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
         .eq("user_id", userId);
+
+      console.log("📊 Database query result:", {
+        dataCount: data?.length || 0,
+        hasError: !!error,
+        errorCode: error?.code,
+      });
 
       if (error) {
         console.error("Error loading room decorations:", error);
