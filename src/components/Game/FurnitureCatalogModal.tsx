@@ -852,7 +852,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                       if (menuSelectedItem) {
                         const newPrice =
                           e.target.value === "" ? 0 : Number(e.target.value);
-                        onUpdatePrice(
+                        handleUpdatePrice(
                           menuSelectedItem.id,
                           newPrice,
                           menuSelectedItem.currency,
