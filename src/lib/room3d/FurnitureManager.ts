@@ -527,10 +527,22 @@ export class FurnitureManager {
         this.furnitureGroup.remove(item.object);
         console.log(`🗑️ Removed current object from scene`);
 
+        // Store current userData to preserve it
+        const currentUserData = { ...item.object.userData };
+        console.log(`💾 Preserving userData:`, currentUserData);
+
         // Clone the original model
         const resetObject = originalModel.clone();
         resetObject.position.copy(currentPosition); // Keep current position
-        resetObject.userData = { id, type: item.type }; // Restore userData
+
+        // Restore userData with all original information
+        resetObject.userData = {
+          id,
+          type: item.type,
+          ...currentUserData, // Preserve originalName, originalStoreId, etc.
+        };
+
+        console.log(`✅ Restored userData:`, resetObject.userData);
 
         console.log(`📐 Reset object scale:`, resetObject.scale);
         console.log(`📍 Reset object position:`, resetObject.position);
