@@ -2243,11 +2243,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
               {/* Reset Button */}
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
-                                                <button
+                <button
                   onClick={() => {
-                    console.log(`🔄 Reset button clicked for furniture: ${selectedFurniture}`);
+                    console.log(
+                      `🔄 Reset button clicked for furniture: ${selectedFurniture}`,
+                    );
                     if (experienceRef.current && selectedFurniture) {
-                      console.log(`📞 Calling resetFurnitureToDefaults for: ${selectedFurniture}`);
+                      console.log(
+                        `📞 Calling resetFurnitureToDefaults for: ${selectedFurniture}`,
+                      );
                       experienceRef.current.resetFurnitureToDefaults(
                         selectedFurniture,
                       );
@@ -2263,7 +2267,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       });
                       console.log(`✅ Reset completed, local state updated`);
                     } else {
-                      console.warn(`⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`);
+                      console.warn(
+                        `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
+                      );
                     }
                   }}
                   className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
@@ -2271,25 +2277,25 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   Restaurar Padrão
                 </button>
 
-                                {/* Temporary debug button */}
+                {/* Temporary debug button */}
                 <button
                   onClick={() => {
                     if (experienceRef.current && selectedFurniture) {
-                      const furniture = experienceRef.current.getFurnitureById(selectedFurniture);
+                      const furniture =
+                        experienceRef.current.getFurnitureById(
+                          selectedFurniture,
+                        );
                       console.log(`🐛 DEBUG - Selected furniture:`, {
                         id: selectedFurniture,
                         type: furniture?.type,
                         userData: furniture?.object?.userData,
-                        cacheKeys: experienceRef.current.getCacheKeys?.()
+                        cacheKeys: experienceRef.current.getCacheKeys?.(),
                       });
                     }
                   }}
                   className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-all text-sm"
                 >
                   🐛 Debug Info
-                </button>
-                  <RefreshCcw size={16} />
-                  Restaurar Padrões
                 </button>
               </div>
             </motion.div>
