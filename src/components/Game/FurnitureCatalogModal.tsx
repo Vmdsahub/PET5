@@ -1191,12 +1191,12 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       {/* Admin context menu */}
       {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
         <div
-          className="absolute bg-red-500 border-4 border-yellow-400 rounded-lg shadow-xl z-[9999] p-4 min-w-60 max-w-72"
+          className="fixed bg-white border-2 border-gray-300 rounded-lg shadow-2xl p-4 min-w-60 max-w-72"
           onClick={(e) => e.stopPropagation()}
           style={{
-            top: "100%",
-            left: "0",
-            marginTop: "5px",
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            zIndex: 999999,
           }}
         >
           <div className="space-y-2">
