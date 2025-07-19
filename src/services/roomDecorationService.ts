@@ -48,13 +48,21 @@ class RoomDecorationService {
     try {
       if (isMockMode) {
         console.warn(
-          "⚠️ MOCK MODE DETECTED: Furniture state will NOT be saved to database!",
+          "⚠️ MOCK MODE DETECTED: Using localStorage fallback for persistence",
         );
-        console.warn(
-          "🔧 Configure Supabase environment variables to enable real persistence",
-        );
-        console.warn("📋 Pretending to save:", furnitureState);
-        return { success: true }; // Mock success
+
+        // Use localStorage as fallback in mock mode
+        const storageKey = `furniture_${userId}_${furnitureState.furniture_id}`;
+        const dataToStore = {
+          ...furnitureState,
+          updated_at: new Date().toISOString(),
+          is_active: true,
+        };
+
+        localStorage.setItem(storageKey, JSON.stringify(dataToStore));
+        console.log("💾 Saved to localStorage:", storageKey, dataToStore);
+
+        return { success: true };
       }
       const decorationData: Partial<RoomDecoration> = {
         user_id: userId,
