@@ -475,41 +475,32 @@ export class FurnitureManager {
       return false;
     }
 
-    let meshCount = 0;
-    item.object.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        meshCount++;
-        const material = child.material as THREE.MeshStandardMaterial;
-        console.log(`🔧 Updating mesh ${meshCount} material:`, {
-          oldRoughness: material.roughness,
-          oldMetalness: material.metalness,
-          newProps: materialProps,
-        });
+    // Create complete material object for template
+    const currentMaterial = this.getFurnitureProperties(id)?.material || {
+      roughness: 0.5,
+      metalness: 0,
+      color: "#ffffff",
+      emissive: "#000000",
+    };
 
-        if (materialProps.roughness !== undefined) {
-          material.roughness = materialProps.roughness;
-        }
-        if (materialProps.metalness !== undefined) {
-          material.metalness = materialProps.metalness;
-        }
-        if (materialProps.color !== undefined) {
-          material.color.setStyle(materialProps.color);
-        }
-        if (materialProps.emissive !== undefined) {
-          material.emissive.setStyle(materialProps.emissive);
-        }
+    const updatedMaterial = {
+      roughness: materialProps.roughness ?? currentMaterial.roughness,
+      metalness: materialProps.metalness ?? currentMaterial.metalness,
+      color: materialProps.color ?? currentMaterial.color,
+      emissive: materialProps.emissive ?? currentMaterial.emissive,
+    };
 
-        material.needsUpdate = true;
-        console.log(`✅ Material updated:`, {
-          roughness: material.roughness,
-          metalness: material.metalness,
-          color: material.color.getHexString(),
-          emissive: material.emissive.getHexString(),
-        });
-      }
-    });
+    console.log(
+      `🎯 Updating template for type: ${item.type} with material:`,
+      updatedMaterial,
+    );
 
-    console.log(`📊 Total meshes updated: ${meshCount}`);
+    // Update the template for this furniture type
+    this.updateFurnitureTemplate(item.type, { material: updatedMaterial });
+
+    // Apply to ALL instances of this furniture type
+    this.applyTemplateToAllInstances(item.type);
+
     return true;
   }
 
