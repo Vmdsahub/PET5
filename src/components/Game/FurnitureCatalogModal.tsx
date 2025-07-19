@@ -1290,6 +1290,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
   setMenuSelectedItem,
   setMenuPosition,
   setShowAdminMenu,
+  roomExperience,
 }) => {
   return (
     <motion.div
