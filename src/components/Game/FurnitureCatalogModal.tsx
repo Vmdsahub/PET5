@@ -1114,15 +1114,30 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
           : "border-gray-200 hover:border-gray-300"
       } ${!canAfford ? "opacity-60" : ""}`}
       onClick={() => onSelect(item)}
-            onContextMenu={(e) => {
+      onContextMenu={(e) => {
         e.preventDefault();
+        console.log("Right-click detected!");
+        console.log("isAdmin:", isAdmin);
+        console.log("item.type:", item.type);
+        console.log("item:", item);
+        console.log(
+          "Condition check:",
+          isAdmin && item.type?.startsWith("custom_"),
+        );
+
         if (isAdmin && item.type?.startsWith("custom_")) {
+          console.log("Opening admin menu...");
           const rect = e.currentTarget.getBoundingClientRect();
-          setMenuPosition({
+          const newPosition = {
             x: rect.left,
-            y: rect.bottom + 8,
-          });
-          setShowAdminMenu(true);
+            y: rect.bottom + 5, // Position dropdown 5px below the furniture item
+          };
+          console.log("Menu position:", newPosition);
+          setMenuPosition(newPosition);
+          setShowAdminMenu(!showAdminMenu);
+          console.log("showAdminMenu state will be:", !showAdminMenu);
+        } else {
+          console.log("Admin menu conditions not met");
         }
       }}
       whileHover={{ scale: 1.02 }}
@@ -1166,7 +1181,24 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
         )}
       </div>
 
-      
+      {/* Debug indicator */}
+      {showAdminMenu && (
+        <div className="absolute top-0 right-0 bg-red-500 text-white text-xs p-1 rounded z-50">
+          MENU ATIVO
+        </div>
+      )}
+
+      {/* Admin context menu */}
+      {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
+        <div
+          className="fixed bg-white border-2 border-gray-300 rounded-lg shadow-2xl p-4 min-w-60 max-w-72"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            zIndex: 999999,
+          }}
+        >
           <div className="space-y-2">
             {/* Section selector */}
             <div>
