@@ -157,7 +157,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         ): FurnitureItem => ({
           id: furniture.id,
           name: furniture.name,
-          price: sectionId === "admin" ? 0 : furniture.price || 100, // Admin items are free
+          price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
           currency: furniture.currency || "xenocoins",
           thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
           category: sectionId,
@@ -776,7 +776,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
               <div className="flex-1 flex items-center justify-center text-gray-500">
                 <div className="text-center">
                   <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg font-medium">Selecione um móvel</p>
+                  <p className="text-lg font-medium">Selecione um m��vel</p>
                   <p className="text-sm">
                     Escolha um item do catálogo para ver os detalhes
                   </p>
