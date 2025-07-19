@@ -456,12 +456,67 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
-    // Reset transform
-    item.object.scale.set(1, 1, 1);
-    item.object.rotation.set(0, 0, 0);
-    item.object.position.set(0, 0, 0);
+    console.log(`🔄 Resetting furniture to defaults: ${id} (${item.type})`);
 
-    // Reset material properties
+    // For custom GLB furniture, reload from cache to get original state
+    if (item.type.startsWith("custom_")) {
+      console.log(`🎯 Resetting custom GLB furniture: ${id}`);
+      this.resetCustomFurnitureToOriginal(id, item);
+    } else {
+      console.log(`🏠 Resetting built-in furniture: ${id}`);
+      this.resetBuiltInFurnitureToDefaults(item);
+    }
+
+    return true;
+  }
+
+  private async resetCustomFurnitureToOriginal(
+    id: string,
+    item: FurnitureItem,
+  ): Promise<void> {
+    try {
+      // Get the original cached model
+      const furnitureId = item.type.replace("custom_", "");
+      const originalModel = this.furnitureFactory.getFromCache(furnitureId);
+
+      if (originalModel) {
+        console.log(`📦 Found cached original model for: ${furnitureId}`);
+
+        // Remove current object from scene
+        this.furnitureGroup.remove(item.object);
+
+        // Clone the original model
+        const resetObject = originalModel.clone();
+        resetObject.position.copy(item.object.position); // Keep current position
+        resetObject.userData = { id, type: item.type }; // Restore userData
+
+        // Update the furniture item
+        item.object = resetObject;
+        item.originalScale = resetObject.scale.clone();
+
+        // Add back to scene
+        this.furnitureGroup.add(resetObject);
+
+        console.log(`✅ Successfully reset custom furniture: ${id}`);
+      } else {
+        console.warn(
+          `⚠️ No cached model found for ${furnitureId}, falling back to basic reset`,
+        );
+        this.resetBuiltInFurnitureToDefaults(item);
+      }
+    } catch (error) {
+      console.error(`❌ Error resetting custom furniture ${id}:`, error);
+      this.resetBuiltInFurnitureToDefaults(item);
+    }
+  }
+
+  private resetBuiltInFurnitureToDefaults(item: FurnitureItem): void {
+    // Reset to original scale (stored when created)
+    item.object.scale.copy(item.originalScale);
+    item.object.rotation.set(0, 0, 0);
+    // Keep current position - don't reset to (0,0,0)
+
+    // Reset material properties for built-in furniture only
     item.object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         const material = child.material as THREE.MeshStandardMaterial;
@@ -472,8 +527,6 @@ export class FurnitureManager {
         material.needsUpdate = true;
       }
     });
-
-    return true;
   }
 
   // Inventory management methods
