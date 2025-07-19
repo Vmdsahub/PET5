@@ -475,23 +475,38 @@ export class FurnitureManager {
     item: FurnitureItem,
   ): void {
     try {
+      console.log(`🔄 Starting reset for custom furniture: ${id}`);
+      console.log(`🏷️ Item type: ${item.type}`);
+
       // Get the original cached model
       const furnitureId = item.type.replace("custom_", "");
+      console.log(`🎯 Looking for cached model with ID: ${furnitureId}`);
+
       const originalModel = this.furnitureFactory.getFromCache(furnitureId);
+      console.log(
+        `📦 Cache lookup result:`,
+        originalModel ? "FOUND" : "NOT FOUND",
+      );
 
       if (originalModel) {
         console.log(`📦 Found cached original model for: ${furnitureId}`);
+        console.log(`📐 Original model scale:`, originalModel.scale);
 
         // Store current position
         const currentPosition = item.object.position.clone();
+        console.log(`📍 Current position:`, currentPosition);
 
         // Remove current object from scene
         this.furnitureGroup.remove(item.object);
+        console.log(`🗑️ Removed current object from scene`);
 
         // Clone the original model
         const resetObject = originalModel.clone();
         resetObject.position.copy(currentPosition); // Keep current position
         resetObject.userData = { id, type: item.type }; // Restore userData
+
+        console.log(`📐 Reset object scale:`, resetObject.scale);
+        console.log(`📍 Reset object position:`, resetObject.position);
 
         // Update the furniture item
         item.object = resetObject;
@@ -502,9 +517,12 @@ export class FurnitureManager {
 
         console.log(`✅ Successfully reset custom furniture: ${id}`);
       } else {
-        console.warn(
-          `⚠️ No cached model found for ${furnitureId}, falling back to basic reset`,
+        console.warn(`⚠️ No cached model found for ${furnitureId}`);
+        console.log(
+          `🧰 Available cache keys:`,
+          Array.from(this.furnitureFactory.getCacheKeys()),
         );
+        console.log(`⬇️ Falling back to basic reset`);
         this.resetBuiltInFurnitureToDefaults(item);
       }
     } catch (error) {
