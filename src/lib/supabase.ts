@@ -252,6 +252,23 @@ const createMockClient = () => ({
   },
 });
 
+console.log("🔧 Supabase Configuration Check:", {
+  url: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : "MISSING",
+  key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : "MISSING",
+  isMockMode,
+  finalUrl: finalUrl ? `${finalUrl.substring(0, 20)}...` : "MISSING",
+});
+
+if (isMockMode) {
+  console.warn("⚠️ RUNNING IN MOCK MODE - NO DATA WILL BE PERSISTED!");
+  console.warn("📋 This explains why furniture modifications are not saved!");
+  console.warn(
+    "🔧 To fix: Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables",
+  );
+} else {
+  console.log("✅ Using real Supabase client");
+}
+
 export const supabase = isMockMode
   ? (createMockClient() as any)
   : createClient<Database>(finalUrl, finalKey, {
