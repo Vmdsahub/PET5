@@ -1041,3 +1041,173 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
 
   return <Package className="w-5 h-5 text-gray-500" />;
 };
+
+// Grid card component for furniture items
+interface FurnitureGridCardProps {
+  item: FurnitureItem;
+  isSelected: boolean;
+  canAfford: boolean;
+  isAdmin: boolean;
+  onSelect: (item: FurnitureItem) => void;
+  onMoveToSection: (
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ) => void;
+  onUpdatePrice: (
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "xenocash",
+  ) => void;
+  onDelete: (furnitureId: string) => void;
+  getCurrencyIcon: (currency: "xenocoins" | "xenocash") => React.ReactNode;
+}
+
+const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
+  item,
+  isSelected,
+  canAfford,
+  isAdmin,
+  onSelect,
+  onMoveToSection,
+  onUpdatePrice,
+  onDelete,
+  getCurrencyIcon,
+}) => {
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+
+  return (
+    <motion.div
+      className={`relative aspect-square border-2 rounded-lg cursor-pointer transition-all ${
+        isSelected
+          ? "border-blue-500 bg-blue-50"
+          : "border-gray-200 hover:border-gray-300"
+      } ${!canAfford ? "opacity-60" : ""}`}
+      onClick={() => onSelect(item)}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (isAdmin && item.type?.startsWith("custom_")) {
+          setShowAdminMenu(!showAdminMenu);
+        }
+      }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      {/* Thumbnail */}
+      <div className="w-full h-3/4 bg-gray-100 rounded-t-lg flex items-center justify-center overflow-hidden">
+        {item.type?.startsWith("custom_") ? (
+          <CatalogThumbnail item={item} />
+        ) : (
+          <Package className="w-8 h-8 text-gray-500" />
+        )}
+      </div>
+
+      {/* Price and currency */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-white rounded-b-lg border-t border-gray-200 flex items-center justify-center px-2">
+        <div className="flex items-center gap-1">
+          {getCurrencyIcon(item.currency)}
+          <span className="text-sm font-semibold text-gray-700">
+            {item.price.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      {/* Status indicators */}
+      <div className="absolute top-1 right-1 flex gap-1">
+        {item.isLimited && (
+          <div className="bg-orange-500 rounded-full p-1">
+            <Clock className="w-3 h-3 text-white" />
+          </div>
+        )}
+        {item.adminOnly && (
+          <div className="bg-purple-500 rounded-full p-1">
+            <Crown className="w-3 h-3 text-white" />
+          </div>
+        )}
+        {isAdmin && item.description?.includes("Escala:") && (
+          <div className="bg-blue-500 rounded-full p-1">
+            <span className="text-white text-xs font-bold">M</span>
+          </div>
+        )}
+      </div>
+
+      {/* Admin context menu */}
+      {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
+        <div
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2 min-w-48"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="space-y-2">
+            {/* Section selector */}
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Seção:</label>
+              <select
+                value={item.catalogSection || "admin"}
+                onChange={(e) => {
+                  onMoveToSection(item.id, e.target.value as any);
+                  setShowAdminMenu(false);
+                }}
+                className="w-full text-xs px-2 py-1 border rounded"
+              >
+                <option value="admin">Admin</option>
+                <option value="basic">Básicos</option>
+                <option value="xenocash">Xenocash</option>
+                <option value="limited">Limitado</option>
+              </select>
+            </div>
+
+            {/* Price editor for non-admin sections */}
+            {item.catalogSection !== "admin" && (
+              <div className="space-y-1">
+                <label className="text-xs text-gray-600 block">Preço:</label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={item.price || 0}
+                    onChange={(e) => {
+                      const newPrice =
+                        e.target.value === "" ? 0 : Number(e.target.value);
+                      onUpdatePrice(item.id, newPrice, item.currency);
+                    }}
+                    className="flex-1 text-xs px-2 py-1 border rounded"
+                    placeholder="0"
+                  />
+                  <select
+                    value={item.currency}
+                    onChange={(e) => {
+                      onUpdatePrice(item.id, item.price, e.target.value as any);
+                    }}
+                    className="text-xs px-2 py-1 border rounded"
+                  >
+                    <option value="xenocoins">XC</option>
+                    <option value="xenocash">XS</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Delete button */}
+            <button
+              onClick={() => {
+                onDelete(item.id);
+                setShowAdminMenu(false);
+              }}
+              className="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+            >
+              Deletar
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdminMenu(false)}
+              className="w-full px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+};
