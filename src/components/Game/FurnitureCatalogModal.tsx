@@ -55,6 +55,7 @@ interface FurnitureCatalogModalProps {
     title: string;
     message: string;
   }) => void;
+  refreshTrigger?: number; // Add trigger to reload furniture when needed
 }
 
 export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
