@@ -2269,17 +2269,50 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       experienceRef.current.resetFurnitureToDefaults(
                         selectedFurniture,
                       );
-                      // Reset local state
-                      setCurrentScale({ x: 1, y: 1, z: 1 });
-                      setCurrentRotation({ x: 0, y: 0, z: 0 });
-                      setCurrentPosition({ x: 0, y: 0, z: 0 });
-                      setCurrentMaterial({
-                        roughness: 0.5,
-                        metalness: 0,
-                        emissive: "#000000",
-                        color: "#ffffff",
-                      });
-                      console.log(`✅ Reset completed, local state updated`);
+
+                      // Update UI state from actual 3D scene properties after reset
+                      setTimeout(() => {
+                        if (experienceRef.current && selectedFurniture) {
+                          const furniture =
+                            experienceRef.current.getFurniture(
+                              selectedFurniture,
+                            );
+                          if (furniture) {
+                            console.log(
+                              `🔄 Reading actual properties after reset:`,
+                              furniture,
+                            );
+                            setCurrentScale(
+                              furniture.scale || { x: 1, y: 1, z: 1 },
+                            );
+                            setCurrentRotation(
+                              furniture.rotation || { x: 0, y: 0, z: 0 },
+                            );
+                            setCurrentPosition(
+                              furniture.position || { x: 0, y: 0, z: 0 },
+                            );
+                            if (furniture.material) {
+                              setCurrentMaterial({
+                                roughness: furniture.material.roughness || 0.5,
+                                metalness: furniture.material.metalness || 0,
+                                emissive:
+                                  furniture.material.emissive || "#000000",
+                                color: furniture.material.color || "#ffffff",
+                              });
+                            } else {
+                              setCurrentMaterial({
+                                roughness: 0.5,
+                                metalness: 0,
+                                emissive: "#000000",
+                                color: "#ffffff",
+                              });
+                            }
+                            console.log(
+                              `✅ UI state updated from actual 3D scene properties`,
+                            );
+                          }
+                        }
+                      }, 100); // Small delay to ensure 3D reset is complete
 
                       // Auto-save the reset state to database
                       console.log(
