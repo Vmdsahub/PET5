@@ -66,6 +66,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   isAdmin = false,
   onPurchaseItem,
   onNotification,
+  refreshTrigger,
 }) => {
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
