@@ -859,15 +859,31 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     type="number"
                     min="0"
                     step="1"
-                    value={menuSelectedItem?.price || 0}
+                    value={localPrice}
                     onChange={(e) => {
+                      setLocalPrice(e.target.value);
+                    }}
+                    onBlur={(e) => {
                       if (menuSelectedItem) {
                         const newPrice =
                           e.target.value === "" ? 0 : Number(e.target.value);
                         handleUpdatePrice(
                           menuSelectedItem.id,
                           newPrice,
-                          menuSelectedItem.currency,
+                          localCurrency,
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && menuSelectedItem) {
+                        const newPrice =
+                          e.currentTarget.value === ""
+                            ? 0
+                            : Number(e.currentTarget.value);
+                        handleUpdatePrice(
+                          menuSelectedItem.id,
+                          newPrice,
+                          localCurrency,
                         );
                       }
                     }}
