@@ -477,32 +477,78 @@ export class FurnitureManager {
           `🧰 Available cache keys:`,
           Array.from(this.furnitureFactory.getCacheKeys()),
         );
-        console.log(`⬇️ Falling back to basic reset`);
-        this.resetBuiltInFurnitureToDefaults(item);
+        console.log(
+          `⬇️ Falling back to material-only reset for custom furniture`,
+        );
+        // For custom furniture without cache, just reset materials and scale
+        this.resetCustomFurnitureMaterialsOnly(item);
       }
     } catch (error) {
       console.error(`❌ Error resetting custom furniture ${id}:`, error);
-      this.resetBuiltInFurnitureToDefaults(item);
+      this.resetCustomFurnitureMaterialsOnly(item);
     }
   }
 
   private resetBuiltInFurnitureToDefaults(item: FurnitureItem): void {
+    console.log(`🔄 Resetting built-in furniture: ${item.id}`);
+
     // Reset to original scale (stored when created)
     item.object.scale.copy(item.originalScale);
     item.object.rotation.set(0, 0, 0);
     // Keep current position - don't reset to (0,0,0)
 
-    // Reset material properties for built-in furniture only
-    item.object.traverse((child) => {
+    // Reset material properties for built-in furniture
+    this.resetMaterialProperties(item.object);
+    console.log(`✅ Built-in furniture reset completed: ${item.id}`);
+  }
+
+  private resetCustomFurnitureMaterialsOnly(item: FurnitureItem): void {
+    console.log(
+      `🎨 Resetting custom furniture materials and scale only: ${item.id}`,
+    );
+
+    // Reset to original scale (stored when created)
+    item.object.scale.copy(item.originalScale);
+    item.object.rotation.set(0, 0, 0);
+    // Keep current position - don't reset to (0,0,0)
+
+    // Reset material properties for custom furniture
+    this.resetMaterialProperties(item.object);
+    console.log(`✅ Custom furniture materials reset completed: ${item.id}`);
+  }
+
+  private resetMaterialProperties(object: THREE.Object3D): void {
+    console.log(`🎨 Resetting material properties for object`);
+    let meshCount = 0;
+
+    object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
+        meshCount++;
         const material = child.material as THREE.MeshStandardMaterial;
+
+        console.log(`🔧 Resetting material for mesh ${meshCount}:`, {
+          oldRoughness: material.roughness,
+          oldMetalness: material.metalness,
+          oldColor: material.color.getHexString(),
+          oldEmissive: material.emissive.getHexString(),
+        });
+
         material.roughness = 0.5;
         material.metalness = 0;
         material.color.setStyle("#ffffff");
         material.emissive.setStyle("#000000");
         material.needsUpdate = true;
+
+        console.log(`✅ Material reset for mesh ${meshCount}:`, {
+          newRoughness: material.roughness,
+          newMetalness: material.metalness,
+          newColor: material.color.getHexString(),
+          newEmissive: material.emissive.getHexString(),
+        });
       }
     });
+
+    console.log(`📊 Total meshes with materials reset: ${meshCount}`);
   }
 
   // Inventory management methods
