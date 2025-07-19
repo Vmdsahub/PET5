@@ -541,38 +541,79 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                               </div>
                               {/* Action buttons for custom items */}
                               {item.type?.startsWith("custom_") && isAdmin && (
-                                <div className="flex gap-1">
-                                  {/* Move to section dropdown */}
-                                  <select
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => {
-                                      e.stopPropagation();
-                                      handleMoveToSection(
-                                        item.id,
-                                        e.target.value as any,
-                                      );
-                                    }}
-                                    value={item.catalogSection || "admin"}
-                                    className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
-                                    title="Mover para seção"
-                                  >
-                                    <option value="admin">Admin</option>
-                                    <option value="basic">Básicos</option>
-                                    <option value="xenocash">Xenocash</option>
-                                    <option value="limited">Limitado</option>
-                                  </select>
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex gap-1">
+                                    {/* Move to section dropdown */}
+                                    <select
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        handleMoveToSection(
+                                          item.id,
+                                          e.target.value as any,
+                                        );
+                                      }}
+                                      value={item.catalogSection || "admin"}
+                                      className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
+                                      title="Mover para seção"
+                                    >
+                                      <option value="admin">Admin</option>
+                                      <option value="basic">Básicos</option>
+                                      <option value="xenocash">Xenocash</option>
+                                      <option value="limited">Limitado</option>
+                                    </select>
 
-                                  {/* Delete button */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteCustomFurniture(item.id);
-                                    }}
-                                    className="p-1 hover:bg-red-100 rounded transition-colors"
-                                    title="Deletar modelo"
-                                  >
-                                    <Trash2 className="w-3 h-3 text-red-600" />
-                                  </button>
+                                    {/* Delete button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteCustomFurniture(item.id);
+                                      }}
+                                      className="p-1 hover:bg-red-100 rounded transition-colors"
+                                      title="Deletar modelo"
+                                    >
+                                      <Trash2 className="w-3 h-3 text-red-600" />
+                                    </button>
+                                  </div>
+
+                                  {/* Price editing for non-admin sections */}
+                                  {item.catalogSection !== "admin" && (
+                                    <div className="flex gap-1 items-center">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        value={item.price}
+                                        onClick={(e) => e.stopPropagation()}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          handleUpdatePrice(
+                                            item.id,
+                                            Number(e.target.value),
+                                            item.currency,
+                                          );
+                                        }}
+                                        className="w-16 text-xs px-1 py-1 border rounded"
+                                        title="Preço"
+                                      />
+                                      <select
+                                        value={item.currency}
+                                        onClick={(e) => e.stopPropagation()}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          handleUpdatePrice(
+                                            item.id,
+                                            item.price,
+                                            e.target.value as any,
+                                          );
+                                        }}
+                                        className="text-xs px-1 py-1 border rounded"
+                                        title="Moeda"
+                                      >
+                                        <option value="xenocoins">XC</option>
+                                        <option value="xenocash">XS</option>
+                                      </select>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
