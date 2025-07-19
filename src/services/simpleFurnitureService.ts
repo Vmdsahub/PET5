@@ -270,6 +270,38 @@ class SimpleFurnitureService {
     return this.furniture.size;
   }
 
+  // Update catalog section for a furniture item
+  updateFurnitureCatalogSection(
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update the catalog section
+    furniture.catalogSection = newSection;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(
+      `✅ Updated furniture ${furnitureId} to section: ${newSection}`,
+    );
+    return { success: true };
+  }
+
+  // Get furniture by catalog section
+  getFurnitureBySection(
+    section: "admin" | "basic" | "xenocash" | "limited",
+  ): CustomFurniture[] {
+    return Array.from(this.furniture.values()).filter(
+      (furniture) => (furniture.catalogSection || "admin") === section,
+    );
+  }
+
   // For testing
   testSystem(): boolean {
     try {
