@@ -11,6 +11,7 @@ export interface CustomFurniture {
   created_by?: string;
   is_active: boolean;
   category: "admin" | "premium" | "seasonal";
+  catalogSection?: "admin" | "basic" | "xenocash" | "limited"; // Which catalog section to show in
   tags?: string[];
   metadata?: any;
   created_at: string;
