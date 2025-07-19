@@ -27,6 +27,20 @@ export class FurnitureManager {
   private furnitureFactory: FurnitureFactory;
   private furnitureLights: Map<string, THREE.PointLight>;
 
+  // Global furniture templates for admin modifications
+  private furnitureTemplates: Map<
+    string,
+    {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    }
+  > = new Map();
+
   constructor(scene: THREE.Scene) {
     this.scene = scene;
     this.furnitureGroup = new THREE.Group();
