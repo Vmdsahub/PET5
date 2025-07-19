@@ -685,6 +685,16 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                   {item.adminOnly && (
                                     <Crown className="w-3 h-3 text-purple-500" />
                                   )}
+                                  {/* Show indicator if furniture has been modified by admin */}
+                                  {isAdmin &&
+                                    item.description?.includes("Escala:") && (
+                                      <span
+                                        className="bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded"
+                                        title="Móvel modificado pelo admin"
+                                      >
+                                        Mod
+                                      </span>
+                                    )}
                                 </div>
                                 <div className="flex items-center gap-1 mt-1">
                                   {getCurrencyIcon(item.currency)}
