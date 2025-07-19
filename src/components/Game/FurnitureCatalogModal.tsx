@@ -159,7 +159,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           name: furniture.name,
           price: sectionId === "admin" ? 0 : furniture.price || 100, // Admin items are free
           currency: furniture.currency || "xenocoins",
-          thumbnail: "", // Empty to force real thumbnail generation from 3D model
+          thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
           category: sectionId,
           description: furniture.description || "Móvel customizado.",
           adminOnly: sectionId === "admin",
