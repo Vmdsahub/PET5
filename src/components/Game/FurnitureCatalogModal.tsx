@@ -97,6 +97,18 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   const [menuSelectedItem, setMenuSelectedItem] =
     useState<FurnitureItem | null>(null);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAdminMenu(false);
+    };
+
+    if (showAdminMenu) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showAdminMenu]);
+
   const [sections, setSections] = useState<CatalogSection[]>([
     {
       id: "basic",
