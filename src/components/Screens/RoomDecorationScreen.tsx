@@ -2245,7 +2245,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <button
                   onClick={() => {
+                    console.log(
+                      `🔄 Reset button clicked for furniture: ${selectedFurniture}`,
+                    );
                     if (experienceRef.current && selectedFurniture) {
+                      console.log(
+                        `📞 Calling resetFurnitureToDefaults for: ${selectedFurniture}`,
+                      );
                       experienceRef.current.resetFurnitureToDefaults(
                         selectedFurniture,
                       );
@@ -2259,6 +2265,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         emissive: "#000000",
                         color: "#ffffff",
                       });
+                      console.log(`✅ Reset completed, local state updated`);
+                    } else {
+                      console.warn(
+                        `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
+                      );
                     }
                   }}
                   className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
