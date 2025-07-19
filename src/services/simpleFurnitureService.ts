@@ -307,7 +307,7 @@ class SimpleFurnitureService {
   updateFurniturePrice(
     furnitureId: string,
     price: number,
-    currency: "xenocoins" | "cash",
+    currency: "xenocoins" | "xenocash",
   ): { success: boolean; error?: string } {
     const furniture = this.furniture.get(furnitureId);
 
