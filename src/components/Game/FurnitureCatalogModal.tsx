@@ -92,6 +92,11 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     category: "admin" as "admin" | "premium" | "seasonal",
     tags: [] as string[],
   });
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuSelectedItem, setMenuSelectedItem] =
+    useState<FurnitureItem | null>(null);
+
   const [sections, setSections] = useState<CatalogSection[]>([
     {
       id: "basic",
