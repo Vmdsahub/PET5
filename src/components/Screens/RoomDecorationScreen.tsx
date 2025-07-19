@@ -420,13 +420,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       case "catalog":
         const newCatalogState = !showCatalogModal;
         setShowCatalogModal(newCatalogState);
-        if (showInventoryModal) setShowInventoryModal(false);
         setActiveNav(newCatalogState ? "catalog" : "");
         break;
       case "inventory":
         const newInventoryState = !showInventoryModal;
         setShowInventoryModal(newInventoryState);
-        if (showCatalogModal) setShowCatalogModal(false);
         setActiveNav(newInventoryState ? "inventory" : "");
         break;
       case "edit":
