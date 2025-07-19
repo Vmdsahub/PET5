@@ -187,6 +187,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       } else {
         console.error(`❌ Failed to save furniture state: ${result.error}`);
       }
+
+      // Debug: Check what's actually in localStorage
+      console.log(`🔍 DEBUGGING LOCALSTORAGE:`);
+      const storageKey = `furniture_${user.id}_${furnitureId}`;
+      const storedData = localStorage.getItem(storageKey);
+      console.log(`📋 Storage key: ${storageKey}`);
+      console.log(
+        `💾 Stored data:`,
+        storedData ? JSON.parse(storedData) : "NOT FOUND",
+      );
     } catch (error) {
       console.error("Error saving furniture state:", error);
     }
@@ -739,7 +749,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   furnitureObj.object.userData.originalStoreId =
                     item.originalStoreId; // Preserve store ID
                   console.log(
-                    `💾 Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
+                    `��� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
