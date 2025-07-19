@@ -702,6 +702,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                               setMenuSelectedItem={setMenuSelectedItem}
                               setMenuPosition={setMenuPosition}
                               setShowAdminMenu={setShowAdminMenu}
+                              roomExperience={roomExperience}
                             />
                           ))}
                         </div>
