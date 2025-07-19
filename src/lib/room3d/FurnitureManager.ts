@@ -6,6 +6,15 @@ interface FurnitureItem {
   object: THREE.Object3D;
   type: string;
   originalScale: THREE.Vector3;
+  originalMaterials: Map<
+    THREE.Mesh,
+    {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    }
+  >;
   canMove: boolean;
   canRotate: boolean;
   canScale: boolean;
@@ -423,7 +432,7 @@ export class FurnitureManager {
 
     // Remove all furniture from scene
     this.furniture.forEach((item, id) => {
-      console.log(`🗑️ Removing furniture: ${id}`);
+      console.log(`����️ Removing furniture: ${id}`);
       this.furnitureGroup.remove(item.object);
 
       // Remove associated lights if any
@@ -535,7 +544,7 @@ export class FurnitureManager {
 
     // Reset material properties for custom furniture
     this.resetMaterialProperties(item.object);
-    console.log(`✅ Custom furniture materials reset completed: ${item.id}`);
+    console.log(`�� Custom furniture materials reset completed: ${item.id}`);
   }
 
   private resetMaterialProperties(object: THREE.Object3D): void {
