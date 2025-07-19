@@ -1214,6 +1214,9 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
   onUpdatePrice,
   onDelete,
   getCurrencyIcon,
+  setMenuSelectedItem,
+  setMenuPosition,
+  setShowAdminMenu,
 }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
