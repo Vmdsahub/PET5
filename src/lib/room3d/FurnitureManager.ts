@@ -524,27 +524,60 @@ export class FurnitureManager {
     object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         meshCount++;
-        const material = child.material as THREE.MeshStandardMaterial;
 
-        console.log(`🔧 Resetting material for mesh ${meshCount}:`, {
-          oldRoughness: material.roughness,
-          oldMetalness: material.metalness,
-          oldColor: material.color.getHexString(),
-          oldEmissive: material.emissive.getHexString(),
-        });
+        // Handle both single materials and material arrays
+        if (Array.isArray(child.material)) {
+          console.log(
+            `🔧 Resetting material array for mesh ${meshCount} (${child.material.length} materials)`,
+          );
+          child.material.forEach((material, index) => {
+            if (material instanceof THREE.MeshStandardMaterial) {
+              console.log(
+                `   📝 Resetting material ${index + 1}/${child.material.length}:`,
+                {
+                  oldRoughness: material.roughness,
+                  oldMetalness: material.metalness,
+                  oldColor: material.color.getHexString(),
+                  oldEmissive: material.emissive.getHexString(),
+                },
+              );
 
-        material.roughness = 0.5;
-        material.metalness = 0;
-        material.color.setStyle("#ffffff");
-        material.emissive.setStyle("#000000");
-        material.needsUpdate = true;
+              material.roughness = 0.5;
+              material.metalness = 0;
+              material.color.setStyle("#ffffff");
+              material.emissive.setStyle("#000000");
+              material.needsUpdate = true;
 
-        console.log(`✅ Material reset for mesh ${meshCount}:`, {
-          newRoughness: material.roughness,
-          newMetalness: material.metalness,
-          newColor: material.color.getHexString(),
-          newEmissive: material.emissive.getHexString(),
-        });
+              console.log(`   ✅ Material ${index + 1} reset:`, {
+                newRoughness: material.roughness,
+                newMetalness: material.metalness,
+                newColor: material.color.getHexString(),
+                newEmissive: material.emissive.getHexString(),
+              });
+            }
+          });
+        } else {
+          const material = child.material as THREE.MeshStandardMaterial;
+          console.log(`🔧 Resetting single material for mesh ${meshCount}:`, {
+            oldRoughness: material.roughness,
+            oldMetalness: material.metalness,
+            oldColor: material.color.getHexString(),
+            oldEmissive: material.emissive.getHexString(),
+          });
+
+          material.roughness = 0.5;
+          material.metalness = 0;
+          material.color.setStyle("#ffffff");
+          material.emissive.setStyle("#000000");
+          material.needsUpdate = true;
+
+          console.log(`✅ Material reset for mesh ${meshCount}:`, {
+            newRoughness: material.roughness,
+            newMetalness: material.metalness,
+            newColor: material.color.getHexString(),
+            newEmissive: material.emissive.getHexString(),
+          });
+        }
       }
     });
 
