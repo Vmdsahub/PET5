@@ -779,6 +779,110 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         </div>
       </DraggableModal>
 
+      {/* Global Admin Dropdown Menu */}
+      {showAdminMenu && (
+        <div
+          className="fixed bg-white border border-gray-300 rounded-lg shadow-2xl p-3 min-w-56"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            zIndex: 999999,
+          }}
+        >
+          <div className="space-y-3">
+            {/* Section selector */}
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">
+                Seção:
+              </label>
+              <select
+                value={selectedItem?.catalogSection || "admin"}
+                onChange={(e) => {
+                  if (selectedItem) {
+                    onMoveToSection(selectedItem.id, e.target.value as any);
+                    setShowAdminMenu(false);
+                  }
+                }}
+                className="w-full text-sm px-2 py-1 border rounded"
+              >
+                <option value="admin">Admin</option>
+                <option value="basic">Básicos</option>
+                <option value="xenocash">Xenocash</option>
+                <option value="limited">Limitado</option>
+              </select>
+            </div>
+
+            {/* Price editor for non-admin sections */}
+            {selectedItem?.catalogSection !== "admin" && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600 block">
+                  Preço:
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={selectedItem?.price || 0}
+                    onChange={(e) => {
+                      if (selectedItem) {
+                        const newPrice =
+                          e.target.value === "" ? 0 : Number(e.target.value);
+                        onUpdatePrice(
+                          selectedItem.id,
+                          newPrice,
+                          selectedItem.currency,
+                        );
+                      }
+                    }}
+                    className="flex-1 text-sm px-2 py-1 border rounded"
+                    placeholder="0"
+                  />
+                  <select
+                    value={selectedItem?.currency}
+                    onChange={(e) => {
+                      if (selectedItem) {
+                        onUpdatePrice(
+                          selectedItem.id,
+                          selectedItem.price,
+                          e.target.value as any,
+                        );
+                      }
+                    }}
+                    className="text-sm px-2 py-1 border rounded"
+                  >
+                    <option value="xenocoins">XC</option>
+                    <option value="xenocash">XS</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Delete button */}
+            <button
+              onClick={() => {
+                if (selectedItem) {
+                  onDelete(selectedItem.id);
+                  setShowAdminMenu(false);
+                }
+              }}
+              className="w-full px-3 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+            >
+              Deletar
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdminMenu(false)}
+              className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Upload Modal */}
       <AnimatePresence>
         {showUploadModal && (
