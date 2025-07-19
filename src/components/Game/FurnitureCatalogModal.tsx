@@ -996,121 +996,18 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   );
 };
 
-// Component to generate real thumbnails for catalog items
+// Component to show thumbnails for catalog items (same as inventory)
 const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
-  const [thumbnail, setThumbnail] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const generateThumbnail = async () => {
-      try {
-        setIsLoading(true);
-
-        if (item.type?.startsWith("custom_")) {
-          console.log(
-            `📸 Generating catalog thumbnail for: ${item.name} (${item.type})`,
-          );
-
-          // Use the same thumbnail generation system as the inventory/purchase system
-          // We'll create a temporary 3D scene to generate the thumbnail
-          const { RoomExperience } = await import(
-            "../../lib/room3d/RoomExperience"
-          );
-          const { FurnitureManager } = await import(
-            "../../lib/room3d/FurnitureManager"
-          );
-
-          // Create a temporary canvas for thumbnail generation
-          const canvas = document.createElement("canvas");
-          canvas.width = 40;
-          canvas.height = 40;
-          canvas.style.display = "none";
-          document.body.appendChild(canvas);
-
-          try {
-            // Create a temporary experience instance
-            const tempExperience = new RoomExperience({
-              targetElement: canvas,
-              editMode: false,
-            });
-
-            // Generate thumbnail using the same system as purchase
-            const furnitureType = item.type;
-            const thumbnail =
-              await tempExperience.generateThumbnailForPurchasedItem(
-                item.id,
-                furnitureType,
-              );
-
-            if (thumbnail) {
-              console.log(`✅ Generated catalog thumbnail for: ${item.name}`);
-              setThumbnail(thumbnail);
-            } else {
-              console.warn(`⚠️ Failed to generate thumbnail for: ${item.name}`);
-              // Fallback to 3D icon
-              const fallbackSvg = `data:image/svg+xml;base64,${btoa(`
-                <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-                  <rect width="40" height="40" fill="#f8f9fa"/>
-                  <rect x="10" y="10" width="20" height="20" fill="#e9ecef" rx="2"/>
-                  <circle cx="20" cy="20" r="4" fill="#6c757d"/>
-                  <text x="20" y="23" text-anchor="middle" fill="white" font-family="Arial" font-size="4" font-weight="bold">3D</text>
-                </svg>
-              `)}`;
-              setThumbnail(fallbackSvg);
-            }
-
-            // Cleanup
-            tempExperience.destroy?.();
-          } catch (error) {
-            console.error("Error in 3D thumbnail generation:", error);
-            // Fallback to icon
-            const fallbackSvg = `data:image/svg+xml;base64,${btoa(`
-              <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-                <rect width="40" height="40" fill="#f8f9fa"/>
-                <rect x="10" y="10" width="20" height="20" fill="#e9ecef" rx="2"/>
-                <circle cx="20" cy="20" r="4" fill="#6c757d"/>
-                <text x="20" y="23" text-anchor="middle" fill="white" font-family="Arial" font-size="4" font-weight="bold">3D</text>
-              </svg>
-            `)}`;
-            setThumbnail(fallbackSvg);
-          } finally {
-            // Cleanup canvas
-            if (document.body.contains(canvas)) {
-              document.body.removeChild(canvas);
-            }
-          }
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error generating catalog thumbnail:", error);
-        setIsLoading(false);
-      }
-    };
-
-    generateThumbnail();
-  }, [item.id, item.type]);
-
-  if (isLoading) {
+  if (item.type?.startsWith("custom_")) {
+    // For GLB items, show 3D indicator - thumbnails will be generated when purchased
+    // This matches the behavior where thumbnails are created during the purchase flow
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+      <div className="w-full h-full flex flex-col items-center justify-center bg-purple-50 rounded">
+        <div className="w-6 h-6 bg-purple-200 rounded flex items-center justify-center mb-1">
+          <span className="text-purple-700 font-bold text-xs">3D</span>
+        </div>
+        <span className="text-purple-600 text-xs font-medium">GLB</span>
       </div>
-    );
-  }
-
-  if (thumbnail) {
-    return (
-      <img
-        src={thumbnail}
-        alt={item.name}
-        className="w-full h-full object-cover rounded"
-        onError={(e) => {
-          console.warn(`Failed to load thumbnail for ${item.name}`);
-          // Hide broken image and show fallback
-          e.currentTarget.style.display = "none";
-        }}
-      />
     );
   }
 
