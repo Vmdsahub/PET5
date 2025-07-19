@@ -820,7 +820,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                 value={menuSelectedItem?.catalogSection || "admin"}
                 onChange={(e) => {
                   if (menuSelectedItem) {
-                    onMoveToSection(menuSelectedItem.id, e.target.value as any);
+                    handleMoveToSection(
+                      menuSelectedItem.id,
+                      e.target.value as any,
+                    );
                     setShowAdminMenu(false);
                   }
                 }}
