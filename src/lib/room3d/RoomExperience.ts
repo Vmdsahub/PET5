@@ -693,6 +693,11 @@ export class RoomExperience {
     return this.furnitureManager.getCacheKeys();
   }
 
+  // Clear all furniture from room
+  public clearAllFurniture(): void {
+    this.furnitureManager.clearAllFurniture();
+  }
+
   public destroy(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId);
