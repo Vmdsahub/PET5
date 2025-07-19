@@ -92,6 +92,35 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     category: "admin" as "admin" | "premium" | "seasonal",
     tags: [] as string[],
   });
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuSelectedItem, setMenuSelectedItem] =
+    useState<FurnitureItem | null>(null);
+  const [localPrice, setLocalPrice] = useState<string>("");
+  const [localCurrency, setLocalCurrency] = useState<"xenocoins" | "xenocash">(
+    "xenocoins",
+  );
+
+  // Update local price when menu item changes
+  useEffect(() => {
+    if (menuSelectedItem) {
+      setLocalPrice(menuSelectedItem.price?.toString() || "0");
+      setLocalCurrency(menuSelectedItem.currency || "xenocoins");
+    }
+  }, [menuSelectedItem]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAdminMenu(false);
+    };
+
+    if (showAdminMenu) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showAdminMenu]);
+
   const [sections, setSections] = useState<CatalogSection[]>([
     {
       id: "basic",
@@ -109,7 +138,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     },
     {
       id: "limited",
-      title: "Móveis por Tempo Limitado",
+      title: "M��veis por Tempo Limitado",
       icon: <Clock className="w-5 h-5" />,
       isExpanded: false,
       items: [], // Empty - all built-in furniture removed
@@ -239,6 +268,8 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             baseItem.description += modifiedState.material
               ? ` (Cor: ${modifiedState.material.color})`
               : "";
+            // Add the modified state to the item for thumbnail rendering
+            (baseItem as any).modifiedState = modifiedState;
           }
 
           return baseItem;
@@ -668,6 +699,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                               onUpdatePrice={handleUpdatePrice}
                               onDelete={handleDeleteCustomFurniture}
                               getCurrencyIcon={getCurrencyIcon}
+                              setMenuSelectedItem={setMenuSelectedItem}
+                              setMenuPosition={setMenuPosition}
+                              setShowAdminMenu={setShowAdminMenu}
+                              roomExperience={roomExperience}
                             />
                           ))}
                         </div>
@@ -700,7 +735,11 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                 <div className="flex-1 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
                   <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                     {selectedItem.type?.startsWith("custom_") ? (
-                      <CatalogThumbnail item={selectedItem} size="large" />
+                      <CatalogThumbnail
+                        item={selectedItem}
+                        size="large"
+                        roomExperience={roomExperience}
+                      />
                     ) : (
                       <Package className="w-16 h-16 text-gray-400" />
                     )}
@@ -778,6 +817,133 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
           </div>
         </div>
       </DraggableModal>
+
+      {/* Global Admin Dropdown Menu */}
+      {showAdminMenu && (
+        <div
+          className="fixed bg-white border border-gray-300 rounded-lg shadow-2xl p-3 min-w-56"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            zIndex: 999999,
+          }}
+        >
+          <div className="space-y-3">
+            {/* Section selector */}
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">
+                Seção:
+              </label>
+              <select
+                value={menuSelectedItem?.catalogSection || "admin"}
+                onChange={(e) => {
+                  if (menuSelectedItem) {
+                    handleMoveToSection(
+                      menuSelectedItem.id,
+                      e.target.value as any,
+                    );
+                    setShowAdminMenu(false);
+                  }
+                }}
+                className="w-full text-sm px-2 py-1 border rounded"
+              >
+                <option value="admin">Admin</option>
+                <option value="basic">Básicos</option>
+                <option value="xenocash">Xenocash</option>
+                <option value="limited">Limitado</option>
+              </select>
+            </div>
+
+            {/* Price editor for non-admin sections */}
+            {menuSelectedItem?.catalogSection !== "admin" && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-gray-600 block">
+                  Preço:
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={localPrice}
+                    onChange={(e) => {
+                      setLocalPrice(e.target.value);
+                    }}
+                    onBlur={(e) => {
+                      if (menuSelectedItem) {
+                        const newPrice =
+                          e.target.value === "" ? 0 : Number(e.target.value);
+                        handleUpdatePrice(
+                          menuSelectedItem.id,
+                          newPrice,
+                          localCurrency,
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && menuSelectedItem) {
+                        const newPrice =
+                          e.currentTarget.value === ""
+                            ? 0
+                            : Number(e.currentTarget.value);
+                        handleUpdatePrice(
+                          menuSelectedItem.id,
+                          newPrice,
+                          localCurrency,
+                        );
+                      }
+                    }}
+                    className="flex-1 text-sm px-2 py-1 border rounded"
+                    placeholder="0"
+                  />
+                  <select
+                    value={localCurrency}
+                    onChange={(e) => {
+                      const newCurrency = e.target.value as
+                        | "xenocoins"
+                        | "xenocash";
+                      setLocalCurrency(newCurrency);
+                      if (menuSelectedItem) {
+                        handleUpdatePrice(
+                          menuSelectedItem.id,
+                          Number(localPrice) || 0,
+                          newCurrency,
+                        );
+                      }
+                    }}
+                    className="text-sm px-2 py-1 border rounded"
+                  >
+                    <option value="xenocoins">XC</option>
+                    <option value="xenocash">XS</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Delete button */}
+            <button
+              onClick={() => {
+                if (menuSelectedItem) {
+                  handleDeleteCustomFurniture(menuSelectedItem.id);
+                  setShowAdminMenu(false);
+                }
+              }}
+              className="w-full px-3 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+            >
+              Deletar
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdminMenu(false)}
+              className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Upload Modal */}
       <AnimatePresence>
@@ -1002,18 +1168,83 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 
 // Component to show thumbnails for catalog items
 const CatalogThumbnail: React.FC<{
-  item: FurnitureItem;
+  item: FurnitureItem & { modifiedState?: any };
   size?: "small" | "large";
-}> = ({ item, size = "small" }) => {
-  // If we have a stored thumbnail (real 3D thumbnail), use it
+  roomExperience?: any;
+}> = ({ item, size = "small", roomExperience }) => {
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>(
+    item.thumbnail || "",
+  );
+
+  // Generate thumbnail with modifications when item has modified state
+  useEffect(() => {
+    if (item.modifiedState && roomExperience) {
+      const generateModifiedThumbnail = async () => {
+        try {
+          // First check if this furniture already exists in the scene
+          const existingObject =
+            roomExperience.furnitureManager?.getFurnitureById(
+              `custom_${item.id}`,
+            );
+
+          if (existingObject) {
+            // If it exists, generate thumbnail from existing object (which has modifications)
+            const modifiedUrl = roomExperience.generateThumbnail(
+              `custom_${item.id}`,
+            );
+            if (modifiedUrl) {
+              setThumbnailUrl(modifiedUrl);
+              return;
+            }
+          }
+
+          // If no existing object, create temporary one with modifications
+          if (
+            roomExperience.furnitureManager
+              ?.createTemporaryFurnitureForThumbnail
+          ) {
+            const tempObject =
+              await roomExperience.furnitureManager.createTemporaryFurnitureForThumbnail(
+                `custom_${item.id}`,
+              );
+
+            if (tempObject && item.modifiedState) {
+              // Apply modifications to temporary object
+              if (item.modifiedState.scale) {
+                tempObject.scale.copy(item.modifiedState.scale);
+              }
+              if (item.modifiedState.material && tempObject.children[0]) {
+                const mesh = tempObject.children[0] as THREE.Mesh;
+                if (mesh.material) {
+                  mesh.material = mesh.material.clone();
+                  mesh.material.color.setHex(item.modifiedState.material.color);
+                }
+              }
+
+              // Generate thumbnail from modified temporary object
+              const modifiedUrl =
+                roomExperience.generateThumbnailFromObject(tempObject);
+              if (modifiedUrl) {
+                setThumbnailUrl(modifiedUrl);
+              }
+            }
+          }
+        } catch (error) {
+          console.warn("Failed to generate modified thumbnail:", error);
+        }
+      };
+      generateModifiedThumbnail();
+    }
+  }, [item.modifiedState, roomExperience, item.id]);
+
+  // If we have a thumbnail (either original or modified), use it
   if (
-    item.thumbnail &&
-    (item.thumbnail.startsWith("data:image") ||
-      item.thumbnail.startsWith("http"))
+    thumbnailUrl &&
+    (thumbnailUrl.startsWith("data:image") || thumbnailUrl.startsWith("http"))
   ) {
     return (
       <img
-        src={item.thumbnail}
+        src={thumbnailUrl}
         alt={item.name}
         className="w-full h-full object-cover rounded"
         onError={(e) => {
@@ -1078,6 +1309,10 @@ interface FurnitureGridCardProps {
   ) => void;
   onDelete: (furnitureId: string) => void;
   getCurrencyIcon: (currency: "xenocoins" | "xenocash") => React.ReactNode;
+  setMenuSelectedItem: (item: FurnitureItem) => void;
+  setMenuPosition: (position: { x: number; y: number }) => void;
+  setShowAdminMenu: (show: boolean) => void;
+  roomExperience?: any;
 }
 
 const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
@@ -1090,22 +1325,11 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
   onUpdatePrice,
   onDelete,
   getCurrencyIcon,
+  setMenuSelectedItem,
+  setMenuPosition,
+  setShowAdminMenu,
+  roomExperience,
 }) => {
-  const [showAdminMenu, setShowAdminMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setShowAdminMenu(false);
-    };
-
-    if (showAdminMenu) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
-  }, [showAdminMenu]);
-
   return (
     <motion.div
       className={`relative aspect-square border-2 rounded-lg cursor-pointer transition-all ${
@@ -1117,8 +1341,13 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       onContextMenu={(e) => {
         e.preventDefault();
         if (isAdmin && item.type?.startsWith("custom_")) {
-          setMenuPosition({ x: e.clientX, y: e.clientY });
-          setShowAdminMenu(!showAdminMenu);
+          const rect = e.currentTarget.getBoundingClientRect();
+          setMenuPosition({
+            x: rect.left,
+            y: rect.bottom + 8,
+          });
+          setMenuSelectedItem(item);
+          setShowAdminMenu(true);
         }
       }}
       whileHover={{ scale: 1.02 }}
@@ -1127,7 +1356,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       {/* Thumbnail */}
       <div className="w-full h-3/4 bg-gray-100 rounded-t-lg flex items-center justify-center overflow-hidden">
         {item.type?.startsWith("custom_") ? (
-          <CatalogThumbnail item={item} />
+          <CatalogThumbnail item={item} roomExperience={roomExperience} />
         ) : (
           <Package className="w-8 h-8 text-gray-500" />
         )}
@@ -1155,96 +1384,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
             <Crown className="w-3 h-3 text-white" />
           </div>
         )}
-        {isAdmin && item.description?.includes("Escala:") && (
-          <div className="bg-blue-500 rounded-full p-1">
-            <span className="text-white text-xs font-bold">M</span>
-          </div>
-        )}
       </div>
-
-      {/* Admin context menu */}
-      {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
-        <div
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[200] p-3 min-w-52 max-w-64"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            top: `${menuPosition.y}px`,
-            left: `${menuPosition.x}px`,
-            transform: "translate(-10px, -10px)",
-          }}
-        >
-          <div className="space-y-2">
-            {/* Section selector */}
-            <div>
-              <label className="text-xs text-gray-600 block mb-1">Seção:</label>
-              <select
-                value={item.catalogSection || "admin"}
-                onChange={(e) => {
-                  onMoveToSection(item.id, e.target.value as any);
-                  setShowAdminMenu(false);
-                }}
-                className="w-full text-xs px-2 py-1 border rounded"
-              >
-                <option value="admin">Admin</option>
-                <option value="basic">Básicos</option>
-                <option value="xenocash">Xenocash</option>
-                <option value="limited">Limitado</option>
-              </select>
-            </div>
-
-            {/* Price editor for non-admin sections */}
-            {item.catalogSection !== "admin" && (
-              <div className="space-y-1">
-                <label className="text-xs text-gray-600 block">Preço:</label>
-                <div className="flex gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={item.price || 0}
-                    onChange={(e) => {
-                      const newPrice =
-                        e.target.value === "" ? 0 : Number(e.target.value);
-                      onUpdatePrice(item.id, newPrice, item.currency);
-                    }}
-                    className="flex-1 text-xs px-2 py-1 border rounded"
-                    placeholder="0"
-                  />
-                  <select
-                    value={item.currency}
-                    onChange={(e) => {
-                      onUpdatePrice(item.id, item.price, e.target.value as any);
-                    }}
-                    className="text-xs px-2 py-1 border rounded"
-                  >
-                    <option value="xenocoins">XC</option>
-                    <option value="xenocash">XS</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Delete button */}
-            <button
-              onClick={() => {
-                onDelete(item.id);
-                setShowAdminMenu(false);
-              }}
-              className="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
-            >
-              Deletar
-            </button>
-
-            {/* Close button */}
-            <button
-              onClick={() => setShowAdminMenu(false)}
-              className="w-full px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };
