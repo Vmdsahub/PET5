@@ -470,6 +470,11 @@ export class FurnitureManager {
     return true;
   }
 
+  // Debug method to get cache keys
+  public getCacheKeys(): string[] {
+    return this.furnitureFactory.getCacheKeys();
+  }
+
   private resetCustomFurnitureToOriginal(
     id: string,
     item: FurnitureItem,
