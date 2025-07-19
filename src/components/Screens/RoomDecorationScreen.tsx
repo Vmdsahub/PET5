@@ -294,6 +294,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   thumbnail,
                 );
                 console.log(`💾 Thumbnail saved to service for ${item.name}`);
+                // Trigger catalog refresh to show new thumbnail
+                setCatalogRefreshTrigger((prev) => prev + 1);
               } catch (error) {
                 console.error("Error saving thumbnail to service:", error);
               }
