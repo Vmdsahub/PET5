@@ -20,6 +20,11 @@ import {
   simpleFurnitureService as furnitureService,
   CustomFurniture,
 } from "../../services/simpleFurnitureService";
+import {
+  roomDecorationService,
+  FurnitureState,
+} from "../../services/roomDecorationService";
+import { useAuthStore } from "../../store/authStore";
 
 interface FurnitureItem {
   id: string;
@@ -73,6 +78,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [modifiedFurnitureStates, setModifiedFurnitureStates] = useState<
+    Map<string, FurnitureState>
+  >(new Map());
+  const { user } = useAuthStore();
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadData, setUploadData] = useState({
