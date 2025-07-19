@@ -709,7 +709,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                 <div className="flex-1 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
                   <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                     {selectedItem.type?.startsWith("custom_") ? (
-                      <CatalogThumbnail item={selectedItem} />
+                      <CatalogThumbnail item={selectedItem} size="large" />
                     ) : (
                       <Package className="w-16 h-16 text-gray-400" />
                     )}
