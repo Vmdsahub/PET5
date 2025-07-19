@@ -161,6 +161,29 @@ export class FurnitureManager {
 
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
+
+    // Apply any existing template modifications for this furniture type
+    const template = this.furnitureTemplates.get(type);
+    if (template) {
+      console.log(
+        `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
+        template,
+      );
+
+      if (template.scale) {
+        furnitureObject.scale.set(
+          template.scale.x,
+          template.scale.y,
+          template.scale.z,
+        );
+        console.log(`  📐 Applied template scale:`, template.scale);
+      }
+
+      if (template.material) {
+        this.applyMaterialToObject(furnitureObject, template.material);
+        console.log(`  🎨 Applied template material:`, template.material);
+      }
+    }
   }
 
   public getFurnitureById(id: string): FurnitureItem | undefined {
@@ -364,7 +387,7 @@ export class FurnitureManager {
     if (!template) return;
 
     console.log(
-      `🌐 Applying template to all instances of type: ${furnitureType}`,
+      `���� Applying template to all instances of type: ${furnitureType}`,
     );
 
     let instanceCount = 0;
