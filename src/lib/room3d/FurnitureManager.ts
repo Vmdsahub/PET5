@@ -40,90 +40,9 @@ export class FurnitureManager {
   }
 
   private async createDefaultFurniture(): Promise<void> {
-    // Create a cozy living room setup
-    await this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
-    await this.addFurniture(
-      "coffee-table",
-      "table",
-      new THREE.Vector3(-3, 0, 1),
-      0,
-    );
-    await this.addFurniture(
-      "bookshelf",
-      "bookshelf",
-      new THREE.Vector3(-9.5, 0, -5),
-      Math.PI / 2,
-    );
-    await this.addFurniture(
-      "floor-lamp",
-      "lamp",
-      new THREE.Vector3(-7, 0, 4),
-      0,
-    );
-    await this.addFurniture(
-      "dining-table",
-      "diningTable",
-      new THREE.Vector3(4, 0, -3),
-      0,
-    );
-    await this.addFurniture(
-      "chair-1",
-      "chair",
-      new THREE.Vector3(5, 0, -1.5),
-      Math.PI,
-    );
-    await this.addFurniture(
-      "chair-2",
-      "chair",
-      new THREE.Vector3(3, 0, -1.5),
-      Math.PI,
-    );
-    await this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
-    await this.addFurniture(
-      "tv-stand",
-      "tvStand",
-      new THREE.Vector3(0, 0, -9.5),
-      0,
-    );
-    await this.addFurniture(
-      "side-table",
-      "sideTable",
-      new THREE.Vector3(-8, 0, 1),
-      0,
-    );
-
-    // Wall furniture
-    await this.addFurniture(
-      "wall-shelf",
-      "wallShelf",
-      new THREE.Vector3(5, 5, -9.8),
-      0,
-    );
-    await this.addFurniture(
-      "picture-frame",
-      "pictureFrame",
-      new THREE.Vector3(-3, 6, -9.8),
-      0,
-    );
-    await this.addFurniture(
-      "wall-clock",
-      "wallClock",
-      new THREE.Vector3(3, 7, -9.8),
-      0,
-    );
-
-    // Lighting fixtures
-    await this.addFurniture(
-      "table-lamp",
-      "tableLamp",
-      new THREE.Vector3(-8, 1.2, 1),
-      0,
-    );
-    await this.addFurniture(
-      "pendant-light",
-      "pendantLight",
-      new THREE.Vector3(4, 8, -3),
-      0,
+    // Room starts completely empty - no default furniture
+    console.log(
+      "🏠 Room initialized without default furniture - ready for custom setup",
     );
   }
 
