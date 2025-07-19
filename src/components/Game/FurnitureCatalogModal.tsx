@@ -502,6 +502,41 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     });
   };
 
+  const handleMoveToSection = async (
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ) => {
+    try {
+      console.log(`Moving furniture ${furnitureId} to section: ${newSection}`);
+      const result = furnitureService.updateFurnitureCatalogSection(
+        furnitureId,
+        newSection,
+      );
+
+      if (result.success) {
+        onNotification?.({
+          type: "success",
+          title: "Sucesso!",
+          message: `Móvel movido para seção "${newSection}" com sucesso.`,
+        });
+        loadCustomFurniture(); // Reload to update sections
+      } else {
+        onNotification?.({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao mover móvel.",
+        });
+      }
+    } catch (error) {
+      console.error("Move section error:", error);
+      onNotification?.({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    }
+  };
+
   const handleDeleteCustomFurniture = async (furnitureId: string) => {
     if (confirm("Tem certeza que deseja deletar este modelo 3D?")) {
       try {
