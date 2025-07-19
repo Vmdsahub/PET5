@@ -570,7 +570,7 @@ export class FurnitureManager {
     // Keep current position - don't reset to (0,0,0)
 
     // Reset material properties for built-in furniture
-    this.resetMaterialProperties(item.object);
+    this.resetMaterialProperties(item.object, item.id);
     console.log(`✅ Built-in furniture reset completed: ${item.id}`);
   }
 
