@@ -802,10 +802,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                 Seção:
               </label>
               <select
-                value={selectedItem?.catalogSection || "admin"}
+                value={menuSelectedItem?.catalogSection || "admin"}
                 onChange={(e) => {
-                  if (selectedItem) {
-                    onMoveToSection(selectedItem.id, e.target.value as any);
+                  if (menuSelectedItem) {
+                    onMoveToSection(menuSelectedItem.id, e.target.value as any);
                     setShowAdminMenu(false);
                   }
                 }}
