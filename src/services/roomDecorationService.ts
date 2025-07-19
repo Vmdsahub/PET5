@@ -435,6 +435,108 @@ class RoomDecorationService {
       };
     }
   }
+
+  /**
+   * Save furniture templates (admin modifications that apply to all instances)
+   */
+  async saveFurnitureTemplates(
+    userId: string,
+    templates: Map<
+      string,
+      {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    >,
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE: Saving furniture templates to localStorage",
+        );
+
+        const storageKey = `furniture_templates_${userId}`;
+        const templatesData = Object.fromEntries(templates);
+
+        localStorage.setItem(storageKey, JSON.stringify(templatesData));
+        console.log(
+          "💾 Saved furniture templates to localStorage:",
+          templatesData,
+        );
+
+        return { success: true };
+      }
+
+      // TODO: Implement real database storage for templates
+      console.log("📋 Real database template storage not implemented yet");
+      return { success: true };
+    } catch (error) {
+      console.error("Error saving furniture templates:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
+
+  /**
+   * Load furniture templates
+   */
+  async loadFurnitureTemplates(userId: string): Promise<{
+    success: boolean;
+    templates?: Map<
+      string,
+      {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    >;
+    error?: string;
+  }> {
+    try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE: Loading furniture templates from localStorage",
+        );
+
+        const storageKey = `furniture_templates_${userId}`;
+        const storedData = localStorage.getItem(storageKey);
+
+        if (storedData) {
+          const templatesData = JSON.parse(storedData);
+          const templates = new Map(Object.entries(templatesData));
+          console.log(
+            "📦 Loaded furniture templates from localStorage:",
+            templatesData,
+          );
+          return { success: true, templates };
+        } else {
+          console.log("📦 No furniture templates found in localStorage");
+          return { success: true, templates: new Map() };
+        }
+      }
+
+      // TODO: Implement real database loading for templates
+      console.log("📋 Real database template loading not implemented yet");
+      return { success: true, templates: new Map() };
+    } catch (error) {
+      console.error("Error loading furniture templates:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
 }
 
 export const roomDecorationService = new RoomDecorationService();
