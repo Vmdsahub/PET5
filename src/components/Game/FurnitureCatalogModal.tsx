@@ -400,6 +400,45 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   };
 
+  const handleUpdatePrice = async (
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "xenocash",
+  ) => {
+    try {
+      console.log(
+        `Updating price for furniture ${furnitureId}: ${price} ${currency}`,
+      );
+      const result = furnitureService.updateFurniturePrice(
+        furnitureId,
+        price,
+        currency,
+      );
+
+      if (result.success) {
+        onNotification?.({
+          type: "success",
+          title: "Preço Atualizado!",
+          message: `Preço atualizado para ${price} ${currency === "xenocoins" ? "Xenocoins" : "Xenocash"}.`,
+        });
+        loadCustomFurniture(); // Reload to update display
+      } else {
+        onNotification?.({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao atualizar preço.",
+        });
+      }
+    } catch (error) {
+      console.error("Update price error:", error);
+      onNotification?.({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    }
+  };
+
   const handleDeleteCustomFurniture = async (furnitureId: string) => {
     if (confirm("Tem certeza que deseja deletar este modelo 3D?")) {
       try {
