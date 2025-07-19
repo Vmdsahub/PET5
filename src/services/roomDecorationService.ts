@@ -156,7 +156,10 @@ class RoomDecorationService {
           error.message.includes("does not exist")
         ) {
           console.warn(
-            "⚠️ user_room_decorations table does not exist yet. Returning empty decorations.",
+            "⚠️ DATABASE TABLE MISSING: user_room_decorations table does not exist yet. NO FURNITURE STATE CAN BE LOADED!",
+          );
+          console.warn(
+            "📋 This explains why furniture modifications are not persisting!",
           );
           return { success: true, decorations: [] };
         }
