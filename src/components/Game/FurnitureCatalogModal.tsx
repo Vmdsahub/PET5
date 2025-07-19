@@ -1231,6 +1231,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
             x: rect.left,
             y: rect.bottom + 8,
           });
+          setMenuSelectedItem(item);
           setShowAdminMenu(true);
         }
       }}
