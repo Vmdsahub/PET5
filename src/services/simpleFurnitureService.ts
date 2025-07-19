@@ -89,6 +89,7 @@ class SimpleFurnitureService {
         price: 0, // Admin items are free
         currency: "xenocoins",
         category: "admin",
+        catalogSection: "admin", // Default to admin section
         tags: furnitureData.tags || [],
         metadata: furnitureData.metadata || {},
         created_by: "admin",
