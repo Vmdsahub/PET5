@@ -655,7 +655,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         className="overflow-hidden"
                       >
                         {/* Grid layout for furniture items */}
-                        <div className="grid grid-cols-3 gap-3 p-4">
+                        <div className="grid grid-cols-4 gap-2 p-3">
                           {section.items.map((item) => (
                             <FurnitureGridCard
                               key={item.id}
