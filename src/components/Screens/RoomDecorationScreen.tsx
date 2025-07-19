@@ -101,6 +101,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
+  // Debug function to track furniture state
+  const debugFurnitureState = (furnitureId: string, stage: string) => {
+    if (!experienceRef.current) return;
+
+    const properties = experienceRef.current.getFurniture(furnitureId);
+    console.log(`🔍 [${stage}] Furniture ${furnitureId} state:`, {
+      scale: properties?.scale,
+      material: properties?.material,
+      position: properties?.position,
+      rotation: properties?.rotation,
+    });
+  };
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
