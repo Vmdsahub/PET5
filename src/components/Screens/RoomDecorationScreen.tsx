@@ -82,6 +82,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [decorationsLoaded, setDecorationsLoaded] = useState(false);
+  const [catalogRefreshTrigger, setCatalogRefreshTrigger] = useState(0);
 
   // Estados para controles de admin dos móveis
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
