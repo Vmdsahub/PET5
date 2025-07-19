@@ -329,7 +329,41 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         category: "admin",
       });
 
-      if (result.success) {
+      if (result.success && result.furniture) {
+        // Generate thumbnail immediately after upload
+        if (roomExperience && result.furniture.id) {
+          try {
+            console.log(
+              `🖼️ Generating thumbnail for uploaded GLB: ${result.furniture.name}`,
+            );
+            const thumbnail =
+              await roomExperience.generateThumbnailForPurchasedItem(
+                result.furniture.id,
+                `custom_${result.furniture.id}`,
+              );
+
+            if (thumbnail) {
+              console.log(
+                `✅ Thumbnail generated for upload: ${result.furniture.name}`,
+              );
+              // Save thumbnail to service
+              furnitureService.updateFurnitureThumbnail(
+                result.furniture.id,
+                thumbnail,
+              );
+              console.log(
+                `💾 Thumbnail saved for uploaded furniture: ${result.furniture.name}`,
+              );
+            } else {
+              console.log(
+                `❌ Thumbnail generation failed for: ${result.furniture.name}`,
+              );
+            }
+          } catch (error) {
+            console.error("Error generating thumbnail on upload:", error);
+          }
+        }
+
         onNotification?.({
           type: "success",
           title: "Sucesso!",
