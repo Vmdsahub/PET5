@@ -1199,6 +1199,9 @@ interface FurnitureGridCardProps {
   ) => void;
   onDelete: (furnitureId: string) => void;
   getCurrencyIcon: (currency: "xenocoins" | "xenocash") => React.ReactNode;
+  setMenuSelectedItem: (item: FurnitureItem) => void;
+  setMenuPosition: (position: { x: number; y: number }) => void;
+  setShowAdminMenu: (show: boolean) => void;
 }
 
 const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
