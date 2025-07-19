@@ -1163,7 +1163,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 
 // Component to show thumbnails for catalog items
 const CatalogThumbnail: React.FC<{
-  item: FurnitureItem;
+  item: FurnitureItem & { modifiedState?: any };
   size?: "small" | "large";
 }> = ({ item, size = "small" }) => {
   // If we have a stored thumbnail (real 3D thumbnail), use it
