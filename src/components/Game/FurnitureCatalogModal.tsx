@@ -96,6 +96,18 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [menuSelectedItem, setMenuSelectedItem] =
     useState<FurnitureItem | null>(null);
+  const [localPrice, setLocalPrice] = useState<string>("");
+  const [localCurrency, setLocalCurrency] = useState<"xenocoins" | "xenocash">(
+    "xenocoins",
+  );
+
+  // Update local price when menu item changes
+  useEffect(() => {
+    if (menuSelectedItem) {
+      setLocalPrice(menuSelectedItem.price?.toString() || "0");
+      setLocalCurrency(menuSelectedItem.currency || "xenocoins");
+    }
+  }, [menuSelectedItem]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
