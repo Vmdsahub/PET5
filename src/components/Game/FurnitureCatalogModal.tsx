@@ -1010,7 +1010,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 };
 
 // Component to show thumbnails for catalog items
-const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
+const CatalogThumbnail: React.FC<{
+  item: FurnitureItem;
+  size?: "small" | "large";
+}> = ({ item, size = "small" }) => {
   // If we have a stored thumbnail (real 3D thumbnail), use it
   if (
     item.thumbnail &&
@@ -1033,17 +1036,37 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
 
   // For GLB items without thumbnail, show a better 3D indicator
   if (item.type?.startsWith("custom_")) {
+    const isLarge = size === "large";
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 rounded">
-        <div className="w-6 h-6 bg-gradient-to-br from-purple-200 to-blue-200 rounded-lg flex items-center justify-center mb-1 shadow-sm">
-          <span className="text-purple-700 font-bold text-xs">3D</span>
+        <div
+          className={`${isLarge ? "w-16 h-16" : "w-6 h-6"} bg-gradient-to-br from-purple-200 to-blue-200 rounded-lg flex items-center justify-center ${isLarge ? "mb-2" : "mb-1"} shadow-sm`}
+        >
+          <span
+            className={`text-purple-700 font-bold ${isLarge ? "text-lg" : "text-xs"}`}
+          >
+            3D
+          </span>
         </div>
-        <span className="text-purple-600 text-xs font-medium">Model</span>
+        <span
+          className={`text-purple-600 ${isLarge ? "text-sm" : "text-xs"} font-medium`}
+        >
+          Model
+        </span>
+        {isLarge && (
+          <span className="text-purple-500 text-xs mt-1 text-center px-2">
+            {item.name}
+          </span>
+        )}
       </div>
     );
   }
 
-  return <Package className="w-5 h-5 text-gray-500" />;
+  return (
+    <Package
+      className={`${size === "large" ? "w-16 h-16" : "w-5 h-5"} text-gray-500`}
+    />
+  );
 };
 
 // Grid card component for furniture items
