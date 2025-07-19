@@ -1116,28 +1116,13 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       onClick={() => onSelect(item)}
       onContextMenu={(e) => {
         e.preventDefault();
-        console.log("Right-click detected!");
-        console.log("isAdmin:", isAdmin);
-        console.log("item.type:", item.type);
-        console.log("item:", item);
-        console.log(
-          "Condition check:",
-          isAdmin && item.type?.startsWith("custom_"),
-        );
-
         if (isAdmin && item.type?.startsWith("custom_")) {
-          console.log("Opening admin menu...");
           const rect = e.currentTarget.getBoundingClientRect();
-          const newPosition = {
+          setMenuPosition({
             x: rect.left,
-            y: rect.bottom + 5, // Position dropdown 5px below the furniture item
-          };
-          console.log("Menu position:", newPosition);
-          setMenuPosition(newPosition);
-          setShowAdminMenu(!showAdminMenu);
-          console.log("showAdminMenu state will be:", !showAdminMenu);
-        } else {
-          console.log("Admin menu conditions not met");
+            y: rect.bottom + 8,
+          });
+          setShowAdminMenu(true);
         }
       }}
       whileHover={{ scale: 1.02 }}
