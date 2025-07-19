@@ -141,13 +141,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         material: properties.material,
       };
 
-      console.log(`💾 Saving furniture state for ${furnitureId}:`, {
+      console.log(`💾 SAVE FURNITURE STATE START for ${furnitureId}:`, {
         furnitureType,
         scale: properties.scale,
         material: properties.material,
         position: properties.position,
         rotation: properties.rotation,
       });
+
+      console.log(`🔍 User ID: ${user.id}`);
+      console.log(`📋 Will call roomDecorationService.saveFurnitureState`);
 
       const result = await roomDecorationService.saveFurnitureState(
         user.id,
