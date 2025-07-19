@@ -1172,7 +1172,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       {/* Admin context menu */}
       {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
         <div
-          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2 min-w-48"
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 p-3 min-w-52 max-w-64"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="space-y-2">
