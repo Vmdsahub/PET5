@@ -2025,6 +2025,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                                 selectedFurniture,
                                 newScale,
                               );
+
+                              // Debug: Check state after scale update
+                              debugFurnitureState(
+                                selectedFurniture,
+                                "After Scale Update",
+                              );
+
                               // Auto-save the change
                               saveFurnitureState(selectedFurniture);
                             }
