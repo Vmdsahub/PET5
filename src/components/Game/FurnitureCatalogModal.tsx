@@ -281,41 +281,108 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   }, [isAdmin]);
 
   useEffect(() => {
-    if (isAdmin && customFurniture.length >= 0) {
-      console.log("Updating admin section with furniture:", customFurniture);
+    if (customFurniture.length >= 0) {
+      console.log("Updating sections with custom furniture:", customFurniture);
       setSections((prev) => {
-        const adminItems: FurnitureItem[] = customFurniture.map(
-          (furniture) => ({
-            id: furniture.id,
-            name: furniture.name,
-            price: 0, // All admin items are free
-            currency: "xenocoins",
-            thumbnail:
-              furniture.thumbnail_url ||
-              "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-            category: "admin",
-            description:
-              furniture.description ||
-              "Móvel customizado exclusivo para administradores.",
-            adminOnly: true,
-            type: `custom_${furniture.id}`, // Add the custom type mapping
-          }),
-        );
+        // Create a function to convert custom furniture to catalog item
+        const createCatalogItem = (
+          furniture: any,
+          sectionId: string,
+        ): FurnitureItem => ({
+          id: furniture.id,
+          name: furniture.name,
+          price: sectionId === "admin" ? 0 : furniture.price || 100, // Admin items are free
+          currency: furniture.currency || "xenocoins",
+          thumbnail:
+            furniture.thumbnail_url ||
+            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
+          category: sectionId,
+          description: furniture.description || "Móvel customizado.",
+          adminOnly: sectionId === "admin",
+          type: `custom_${furniture.id}`,
+          catalogSection: furniture.catalogSection || "admin", // Store original section
+        });
 
-        console.log("Admin items created:", adminItems);
-        const otherSections = prev.filter((section) => section.id !== "admin");
-        const newSections = [
-          ...otherSections,
-          {
+        // Distribute custom furniture to appropriate sections
+        const adminItems = customFurniture
+          .filter((f) => (f.catalogSection || "admin") === "admin")
+          .map((f) => createCatalogItem(f, "admin"));
+
+        const basicItems = customFurniture
+          .filter((f) => f.catalogSection === "basic")
+          .map((f) => createCatalogItem(f, "basic"));
+
+        const xenocashItems = customFurniture
+          .filter((f) => f.catalogSection === "xenocash")
+          .map((f) => createCatalogItem(f, "xenocash"));
+
+        const limitedItems = customFurniture
+          .filter((f) => f.catalogSection === "limited")
+          .map((f) => createCatalogItem(f, "limited"));
+
+        // Update existing sections with custom items
+        const updatedSections = prev.map((section) => {
+          switch (section.id) {
+            case "basic":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...basicItems,
+                ],
+              };
+            case "xenocash":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...xenocashItems,
+                ],
+              };
+            case "limited":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...limitedItems,
+                ],
+              };
+            case "admin":
+              return {
+                ...section,
+                items: adminItems,
+                isExpanded: adminItems.length > 0,
+              };
+            default:
+              return section;
+          }
+        });
+
+        // Add admin section if it doesn't exist and we have admin items or user is admin
+        const hasAdminSection = updatedSections.some((s) => s.id === "admin");
+        if (!hasAdminSection && (adminItems.length > 0 || isAdmin)) {
+          updatedSections.push({
             id: "admin",
             title: "Catálogo do Admin",
             icon: <Crown className="w-5 h-5" />,
-            isExpanded: adminItems.length > 0, // Auto-expand if items exist
+            isExpanded: adminItems.length > 0,
             items: adminItems,
-          },
-        ];
-        console.log("New sections:", newSections);
-        return newSections;
+          });
+        }
+
+        // Filter out admin section for non-admin users
+        const finalSections = isAdmin
+          ? updatedSections
+          : updatedSections.filter((s) => s.id !== "admin");
+
+        console.log("Updated sections:", finalSections);
+        return finalSections;
       });
     }
   }, [isAdmin, customFurniture]);
