@@ -1178,23 +1178,56 @@ const CatalogThumbnail: React.FC<{
 
   // Generate thumbnail with modifications when item has modified state
   useEffect(() => {
-    if (
-      item.modifiedState &&
-      roomExperience &&
-      roomExperience.generateThumbnail
-    ) {
+    if (item.modifiedState && roomExperience) {
       const generateModifiedThumbnail = async () => {
         try {
-          const customId = item.id;
-          const modifiedUrl = await roomExperience.generateThumbnail(
-            `custom_${customId}`,
-            {
-              scale: item.modifiedState.scale,
-              material: item.modifiedState.material,
-            },
-          );
-          if (modifiedUrl) {
-            setThumbnailUrl(modifiedUrl);
+          // First check if this furniture already exists in the scene
+          const existingObject =
+            roomExperience.furnitureManager?.getFurnitureById(
+              `custom_${item.id}`,
+            );
+
+          if (existingObject) {
+            // If it exists, generate thumbnail from existing object (which has modifications)
+            const modifiedUrl = roomExperience.generateThumbnail(
+              `custom_${item.id}`,
+            );
+            if (modifiedUrl) {
+              setThumbnailUrl(modifiedUrl);
+              return;
+            }
+          }
+
+          // If no existing object, create temporary one with modifications
+          if (
+            roomExperience.furnitureManager
+              ?.createTemporaryFurnitureForThumbnail
+          ) {
+            const tempObject =
+              await roomExperience.furnitureManager.createTemporaryFurnitureForThumbnail(
+                `custom_${item.id}`,
+              );
+
+            if (tempObject && item.modifiedState) {
+              // Apply modifications to temporary object
+              if (item.modifiedState.scale) {
+                tempObject.scale.copy(item.modifiedState.scale);
+              }
+              if (item.modifiedState.material && tempObject.children[0]) {
+                const mesh = tempObject.children[0] as THREE.Mesh;
+                if (mesh.material) {
+                  mesh.material = mesh.material.clone();
+                  mesh.material.color.setHex(item.modifiedState.material.color);
+                }
+              }
+
+              // Generate thumbnail from modified temporary object
+              const modifiedUrl =
+                roomExperience.generateThumbnailFromObject(tempObject);
+              if (modifiedUrl) {
+                setThumbnailUrl(modifiedUrl);
+              }
+            }
           }
         } catch (error) {
           console.warn("Failed to generate modified thumbnail:", error);
