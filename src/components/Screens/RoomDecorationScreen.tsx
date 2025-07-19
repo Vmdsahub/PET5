@@ -299,6 +299,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           }
         }
 
+        // Load furniture templates
+        const templatesResult =
+          await roomDecorationService.loadFurnitureTemplates(user.id);
+        if (
+          templatesResult.success &&
+          templatesResult.templates &&
+          experienceRef.current
+        ) {
+          console.log(
+            `🎯 Loading furniture templates:`,
+            templatesResult.templates,
+          );
+
+          // Set templates in furniture manager
+          templatesResult.templates.forEach((template, furnitureType) => {
+            experienceRef.current?.setFurnitureTemplate?.(
+              furnitureType,
+              template,
+            );
+          });
+
+          console.log(
+            `✅ Loaded ${templatesResult.templates.size} furniture templates`,
+          );
+        }
+
         // Mark decorations as loaded to prevent multiple loads
         setDecorationsLoaded(true);
         console.log(`🏁 Decorations loading completed`);
@@ -1684,7 +1710,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-amber-400" />
-                  <span className="text-white font-medium">�� Piso</span>
+                  <span className="text-white font-medium">🟫 Piso</span>
                 </div>
 
                 <div className="space-y-3">
