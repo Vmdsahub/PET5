@@ -93,11 +93,53 @@ export class FurnitureManager {
       `✅ Furniture positioned at: ${furnitureObject.position.x}, ${furnitureObject.position.y}, ${furnitureObject.position.z}`,
     );
 
+    // Store original material properties
+    const originalMaterials = new Map<
+      THREE.Mesh,
+      {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      }
+    >();
+
+    furnitureObject.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          // For material arrays, store the first material as representative
+          const mat = child.material[0] as THREE.MeshStandardMaterial;
+          if (mat) {
+            originalMaterials.set(child, {
+              roughness: mat.roughness || 0.5,
+              metalness: mat.metalness || 0,
+              color: "#" + mat.color.getHexString(),
+              emissive: "#" + mat.emissive.getHexString(),
+            });
+          }
+        } else {
+          const mat = child.material as THREE.MeshStandardMaterial;
+          originalMaterials.set(child, {
+            roughness: mat.roughness || 0.5,
+            metalness: mat.metalness || 0,
+            color: "#" + mat.color.getHexString(),
+            emissive: "#" + mat.emissive.getHexString(),
+          });
+        }
+      }
+    });
+
+    console.log(
+      `📦 Stored original materials for ${id}:`,
+      Array.from(originalMaterials.values()),
+    );
+
     const furnitureItem: FurnitureItem = {
       id,
       object: furnitureObject,
       type,
       originalScale: furnitureObject.scale.clone(),
+      originalMaterials,
       canMove: true,
       canRotate: true,
       canScale: true,
@@ -432,7 +474,7 @@ export class FurnitureManager {
 
     // Remove all furniture from scene
     this.furniture.forEach((item, id) => {
-      console.log(`����️ Removing furniture: ${id}`);
+      console.log(`🗑️ Removing furniture: ${id}`);
       this.furnitureGroup.remove(item.object);
 
       // Remove associated lights if any
@@ -544,7 +586,7 @@ export class FurnitureManager {
 
     // Reset material properties for custom furniture
     this.resetMaterialProperties(item.object);
-    console.log(`�� Custom furniture materials reset completed: ${item.id}`);
+    console.log(`✅ Custom furniture materials reset completed: ${item.id}`);
   }
 
   private resetMaterialProperties(object: THREE.Object3D): void {
