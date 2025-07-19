@@ -2035,6 +2035,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                             };
                             setCurrentScale(newScale);
                             if (experienceRef.current && selectedFurniture) {
+                              console.log(
+                                `🔧 SCALE CHANGE: ${selectedFurniture} - ${axis}: ${parseFloat(e.target.value)}`,
+                              );
+                              console.log(`📊 New scale object:`, newScale);
+
                               experienceRef.current.updateFurnitureScale(
                                 selectedFurniture,
                                 newScale,
@@ -2047,6 +2052,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               );
 
                               // Auto-save the change
+                              console.log(
+                                `💾 Calling saveFurnitureState for: ${selectedFurniture}`,
+                              );
                               saveFurnitureState(selectedFurniture);
                             }
                           }}
