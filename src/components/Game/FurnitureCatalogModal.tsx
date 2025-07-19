@@ -1168,9 +1168,9 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
           className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[200] p-3 min-w-52 max-w-64"
           onClick={(e) => e.stopPropagation()}
           style={{
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            transform: "translate(-10px, -10px)",
           }}
         >
           <div className="space-y-2">
