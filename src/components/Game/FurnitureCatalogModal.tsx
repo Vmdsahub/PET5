@@ -1006,30 +1006,79 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
       try {
         setIsLoading(true);
 
-        // Create a temporary furniture manager to generate thumbnail
-        const furnitureService =
-          require("../../services/simpleFurnitureService").simpleFurnitureService;
+        if (item.type?.startsWith("custom_")) {
+          console.log(
+            `📸 Generating catalog thumbnail for: ${item.name} (${item.type})`,
+          );
 
-        // Try to load the model and generate thumbnail
-        const furnitureId = item.id;
-        const furnitureType = item.type || "";
+          // Use the same thumbnail generation system as the inventory/purchase system
+          // We'll create a temporary 3D scene to generate the thumbnail
+          const { RoomExperience } = await import(
+            "../../lib/room3d/RoomExperience"
+          );
+          const { FurnitureManager } = await import(
+            "../../lib/room3d/FurnitureManager"
+          );
 
-        if (furnitureType.startsWith("custom_")) {
-          // For custom furniture, we need to create the model temporarily and generate thumbnail
-          console.log(`📸 Generating catalog thumbnail for: ${item.name}`);
+          // Create a temporary canvas for thumbnail generation
+          const canvas = document.createElement("canvas");
+          canvas.width = 40;
+          canvas.height = 40;
+          canvas.style.display = "none";
+          document.body.appendChild(canvas);
 
-          // This is a simplified approach - in practice you might want to integrate with the 3D system
-          // For now, we'll use a placeholder that indicates it's a 3D model
-          const placeholderSvg = `data:image/svg+xml;base64,${btoa(`
-            <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" fill="#f3f4f6"/>
-              <rect x="8" y="8" width="24" height="24" fill="#e5e7eb" rx="4"/>
-              <circle cx="20" cy="20" r="6" fill="#6b7280"/>
-              <text x="20" y="24" text-anchor="middle" fill="white" font-family="Arial" font-size="6">3D</text>
-            </svg>
-          `)}`;
+          try {
+            // Create a temporary experience instance
+            const tempExperience = new RoomExperience({
+              targetElement: canvas,
+              editMode: false,
+            });
 
-          setThumbnail(placeholderSvg);
+            // Generate thumbnail using the same system as purchase
+            const furnitureType = item.type;
+            const thumbnail =
+              await tempExperience.generateThumbnailForPurchasedItem(
+                item.id,
+                furnitureType,
+              );
+
+            if (thumbnail) {
+              console.log(`✅ Generated catalog thumbnail for: ${item.name}`);
+              setThumbnail(thumbnail);
+            } else {
+              console.warn(`⚠️ Failed to generate thumbnail for: ${item.name}`);
+              // Fallback to 3D icon
+              const fallbackSvg = `data:image/svg+xml;base64,${btoa(`
+                <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+                  <rect width="40" height="40" fill="#f8f9fa"/>
+                  <rect x="10" y="10" width="20" height="20" fill="#e9ecef" rx="2"/>
+                  <circle cx="20" cy="20" r="4" fill="#6c757d"/>
+                  <text x="20" y="23" text-anchor="middle" fill="white" font-family="Arial" font-size="4" font-weight="bold">3D</text>
+                </svg>
+              `)}`;
+              setThumbnail(fallbackSvg);
+            }
+
+            // Cleanup
+            tempExperience.destroy?.();
+          } catch (error) {
+            console.error("Error in 3D thumbnail generation:", error);
+            // Fallback to icon
+            const fallbackSvg = `data:image/svg+xml;base64,${btoa(`
+              <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+                <rect width="40" height="40" fill="#f8f9fa"/>
+                <rect x="10" y="10" width="20" height="20" fill="#e9ecef" rx="2"/>
+                <circle cx="20" cy="20" r="4" fill="#6c757d"/>
+                <text x="20" y="23" text-anchor="middle" fill="white" font-family="Arial" font-size="4" font-weight="bold">3D</text>
+              </svg>
+            `)}`;
+            setThumbnail(fallbackSvg);
+          } finally {
+            // Cleanup canvas
+            if (document.body.contains(canvas)) {
+              document.body.removeChild(canvas);
+            }
+          }
         }
 
         setIsLoading(false);
@@ -1045,7 +1094,7 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
   if (isLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="w-3 h-3 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -1056,6 +1105,11 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
         src={thumbnail}
         alt={item.name}
         className="w-full h-full object-cover rounded"
+        onError={(e) => {
+          console.warn(`Failed to load thumbnail for ${item.name}`);
+          // Hide broken image and show fallback
+          e.currentTarget.style.display = "none";
+        }}
       />
     );
   }
