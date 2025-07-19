@@ -551,6 +551,39 @@ export class FurnitureManager {
         item.object = resetObject;
         item.originalScale = resetObject.scale.clone();
 
+        // Update the original materials map to point to the new cloned meshes
+        const newOriginalMaterials = new Map();
+        resetObject.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material) {
+            // Find corresponding original material properties
+            if (Array.isArray(child.material)) {
+              const mat = child.material[0] as THREE.MeshStandardMaterial;
+              if (mat) {
+                newOriginalMaterials.set(child, {
+                  roughness: mat.roughness || 0.5,
+                  metalness: mat.metalness || 0,
+                  color: "#" + mat.color.getHexString(),
+                  emissive: "#" + mat.emissive.getHexString(),
+                });
+              }
+            } else {
+              const mat = child.material as THREE.MeshStandardMaterial;
+              newOriginalMaterials.set(child, {
+                roughness: mat.roughness || 0.5,
+                metalness: mat.metalness || 0,
+                color: "#" + mat.color.getHexString(),
+                emissive: "#" + mat.emissive.getHexString(),
+              });
+            }
+          }
+        });
+
+        item.originalMaterials = newOriginalMaterials;
+        console.log(
+          `🎨 Updated original materials for cloned object:`,
+          Array.from(newOriginalMaterials.values()),
+        );
+
         // Add back to scene
         this.furnitureGroup.add(resetObject);
 
