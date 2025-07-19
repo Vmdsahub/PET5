@@ -1165,16 +1165,48 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 const CatalogThumbnail: React.FC<{
   item: FurnitureItem & { modifiedState?: any };
   size?: "small" | "large";
-}> = ({ item, size = "small" }) => {
-  // If we have a stored thumbnail (real 3D thumbnail), use it
+  roomExperience?: any;
+}> = ({ item, size = "small", roomExperience }) => {
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>(
+    item.thumbnail || "",
+  );
+
+  // Generate thumbnail with modifications when item has modified state
+  useEffect(() => {
+    if (
+      item.modifiedState &&
+      roomExperience &&
+      roomExperience.generateThumbnail
+    ) {
+      const generateModifiedThumbnail = async () => {
+        try {
+          const customId = item.id;
+          const modifiedUrl = await roomExperience.generateThumbnail(
+            `custom_${customId}`,
+            {
+              scale: item.modifiedState.scale,
+              material: item.modifiedState.material,
+            },
+          );
+          if (modifiedUrl) {
+            setThumbnailUrl(modifiedUrl);
+          }
+        } catch (error) {
+          console.warn("Failed to generate modified thumbnail:", error);
+        }
+      };
+      generateModifiedThumbnail();
+    }
+  }, [item.modifiedState, roomExperience, item.id]);
+
+  // If we have a thumbnail (either original or modified), use it
   if (
-    item.thumbnail &&
-    (item.thumbnail.startsWith("data:image") ||
-      item.thumbnail.startsWith("http"))
+    thumbnailUrl &&
+    (thumbnailUrl.startsWith("data:image") || thumbnailUrl.startsWith("http"))
   ) {
     return (
       <img
-        src={item.thumbnail}
+        src={thumbnailUrl}
         alt={item.name}
         className="w-full h-full object-cover rounded"
         onError={(e) => {
