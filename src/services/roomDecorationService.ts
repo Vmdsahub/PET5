@@ -70,6 +70,11 @@ class RoomDecorationService {
         decorationData.material_emissive = furnitureState.material.emissive;
       }
 
+      console.log("🗄️ Attempting to save to database:", {
+        table: "user_room_decorations",
+        data: decorationData,
+      });
+
       const { error } = await supabase
         .from("user_room_decorations")
         .upsert(decorationData, {
@@ -77,10 +82,12 @@ class RoomDecorationService {
         });
 
       if (error) {
-        console.error("Error saving furniture state:", error);
+        console.error("❌ Database save error:", error);
         console.error("Error details:", {
           code: error.code,
           message: error.message,
+          details: error.details,
+          hint: error.hint,
         });
 
         // If table doesn't exist, warn but don't fail
@@ -89,7 +96,10 @@ class RoomDecorationService {
           error.message.includes("does not exist")
         ) {
           console.warn(
-            "⚠️ user_room_decorations table does not exist yet. Skipping save.",
+            "⚠️ DATABASE TABLE MISSING: user_room_decorations table does not exist yet. FURNITURE STATE NOT SAVED!",
+          );
+          console.warn(
+            "📋 This means all furniture modifications will be lost!",
           );
           return { success: true }; // Return success to not break the flow
         }
