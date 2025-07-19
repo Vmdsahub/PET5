@@ -283,6 +283,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             if (thumbnail) {
               console.log(`✅ Thumbnail generated: ${item.name}`);
+              // Save thumbnail to service so it appears in catalog too
+              try {
+                const { simpleFurnitureService } = await import(
+                  "../../services/simpleFurnitureService"
+                );
+                simpleFurnitureService.updateFurnitureThumbnail(
+                  item.id,
+                  thumbnail,
+                );
+                console.log(`💾 Thumbnail saved to service for ${item.name}`);
+              } catch (error) {
+                console.error("Error saving thumbnail to service:", error);
+              }
             } else {
               console.log(`❌ Thumbnail empty: ${item.name}`);
             }
