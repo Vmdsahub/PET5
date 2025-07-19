@@ -1310,11 +1310,6 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
             <Crown className="w-3 h-3 text-white" />
           </div>
         )}
-        {isAdmin && item.description?.includes("Escala:") && (
-          <div className="bg-blue-500 rounded-full p-1">
-            <span className="text-white text-xs font-bold">M</span>
-          </div>
-        )}
       </div>
     </motion.div>
   );
