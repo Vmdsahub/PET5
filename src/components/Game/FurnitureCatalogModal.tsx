@@ -32,6 +32,7 @@ interface FurnitureItem {
   isLimited?: boolean;
   adminOnly?: boolean;
   type?: string; // For custom furniture types
+  catalogSection?: "admin" | "basic" | "xenocash" | "limited"; // Which section it belongs to
 }
 
 interface CatalogSection {
@@ -54,6 +55,8 @@ interface FurnitureCatalogModalProps {
     title: string;
     message: string;
   }) => void;
+  refreshTrigger?: number; // Add trigger to reload furniture when needed
+  roomExperience?: any; // Reference to RoomExperience for thumbnail generation
 }
 
 export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
@@ -64,6 +67,8 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   isAdmin = false,
   onPurchaseItem,
   onNotification,
+  refreshTrigger,
+  roomExperience,
 }) => {
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
@@ -84,156 +89,21 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       title: "Móveis Básicos",
       icon: <Package className="w-5 h-5" />,
       isExpanded: true,
-      items: [
-        {
-          id: "wooden-chair",
-          name: "Cadeira de Madeira",
-          price: 45,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "basic",
-          description:
-            "Cadeira clássica de madeira maciça, confortável e durável.",
-          type: "chair",
-        },
-        {
-          id: "round-table",
-          name: "Mesa Redonda",
-          price: 120,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "basic",
-          description: "Mesa redonda perfeita para reuniões e refeições.",
-          type: "diningTable",
-        },
-        {
-          id: "floor-lamp",
-          name: "Luminária de Chão",
-          price: 80,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "basic",
-          description:
-            "Luminária de chão moderna com luz suave e aconchegante.",
-          type: "lamp",
-        },
-        {
-          id: "bookshelf",
-          name: "Estante de Livros",
-          price: 150,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "basic",
-          description:
-            "Estante spaciosa para organizar seus livros e objetos decorativos.",
-          type: "bookshelf",
-        },
-        {
-          id: "coffee-table",
-          name: "Mesa de Centro",
-          price: 90,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "basic",
-          description: "Mesa de centro elegante, ideal para salas de estar.",
-          type: "table",
-        },
-      ],
+      items: [], // Empty - all built-in furniture removed
     },
     {
       id: "xenocash",
       title: "Móveis Xenocash",
       icon: <Gem className="w-5 h-5" />,
       isExpanded: false,
-      items: [
-        {
-          id: "luxury-sofa",
-          name: "Sofá de Couro Premium",
-          price: 30,
-          currency: "xenocash",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-          category: "premium",
-          description:
-            "Sofá luxuoso de couro genuíno com acabamento premium e máximo conforto.",
-          type: "sofa",
-        },
-        {
-          id: "crystal-chandelier",
-          name: "Lustre de Cristal",
-          price: 45,
-          currency: "xenocash",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-          category: "premium",
-          description:
-            "Majestoso lustre de cristal que transforma qualquer ambiente em um palácio.",
-          type: "pendantLight",
-        },
-        {
-          id: "marble-dining-table",
-          name: "Mesa de Jantar de Mármore",
-          price: 60,
-          currency: "xenocash",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-          category: "premium",
-          description:
-            "Mesa de jantar exclusiva em mármore italiano, para ocasiões especiais.",
-          type: "diningTable",
-        },
-        {
-          id: "gaming-chair",
-          name: "Cadeira Gamer Elite",
-          price: 35,
-          currency: "xenocash",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-          category: "premium",
-          description:
-            "Cadeira gamer profissional com iluminação LED e suporte ergonômico.",
-          type: "chair",
-        },
-      ],
+      items: [], // Empty - all built-in furniture removed
     },
     {
       id: "limited",
       title: "Móveis por Tempo Limitado",
       icon: <Clock className="w-5 h-5" />,
       isExpanded: false,
-      items: [
-        {
-          id: "holiday-tree",
-          name: "Árvore de Natal Xenomorfa",
-          price: 250,
-          currency: "xenocoins",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Ff481900009a94cda953c032479392a30%2F3e6c6cb85c6a4d2ba05acb245bfbc214?format=webp&width=200",
-          category: "limited",
-          description:
-            "Árvore de Natal temática espacial com luzes alienígenas! Disponível apenas durante eventos especiais.",
-          isLimited: true,
-          type: "plant",
-        },
-        {
-          id: "galaxy-mirror",
-          name: "Espelho Galáctico",
-          price: 15,
-          currency: "xenocash",
-          thumbnail:
-            "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-          category: "limited",
-          description:
-            "Espelho mágico que reflete as constelações. Edição limitada!",
-          isLimited: true,
-          type: "pictureFrame",
-        },
-      ],
+      items: [], // Empty - all built-in furniture removed
     },
   ]);
 
@@ -256,13 +126,13 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   }, [isAdmin]);
 
-  // Reload furniture when modal opens
+  // Reload furniture when modal opens or refresh trigger changes
   useEffect(() => {
     if (isOpen && isAdmin) {
       console.log("Modal opened, reloading custom furniture...");
       loadCustomFurniture();
     }
-  }, [isOpen, isAdmin]);
+  }, [isOpen, isAdmin, refreshTrigger]);
 
   // Initialize sample data on first load (local version)
   useEffect(() => {
@@ -281,41 +151,106 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   }, [isAdmin]);
 
   useEffect(() => {
-    if (isAdmin && customFurniture.length >= 0) {
-      console.log("Updating admin section with furniture:", customFurniture);
+    if (customFurniture.length >= 0) {
+      console.log("Updating sections with custom furniture:", customFurniture);
       setSections((prev) => {
-        const adminItems: FurnitureItem[] = customFurniture.map(
-          (furniture) => ({
-            id: furniture.id,
-            name: furniture.name,
-            price: 0, // All admin items are free
-            currency: "xenocoins",
-            thumbnail:
-              furniture.thumbnail_url ||
-              "https://cdn.builder.io/api/v1/image/assets%2Fc013caa4db474e638dc2961a6085b60a%2F38a7eab3791441c7bc853afba8904317?format=webp&width=200",
-            category: "admin",
-            description:
-              furniture.description ||
-              "Móvel customizado exclusivo para administradores.",
-            adminOnly: true,
-            type: `custom_${furniture.id}`, // Add the custom type mapping
-          }),
-        );
+        // Create a function to convert custom furniture to catalog item
+        const createCatalogItem = (
+          furniture: any,
+          sectionId: string,
+        ): FurnitureItem => ({
+          id: furniture.id,
+          name: furniture.name,
+          price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
+          currency: furniture.currency || "xenocoins",
+          thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
+          category: sectionId,
+          description: furniture.description || "Móvel customizado.",
+          adminOnly: sectionId === "admin",
+          type: `custom_${furniture.id}`,
+          catalogSection: furniture.catalogSection || "admin", // Store original section
+        });
 
-        console.log("Admin items created:", adminItems);
-        const otherSections = prev.filter((section) => section.id !== "admin");
-        const newSections = [
-          ...otherSections,
-          {
+        // Distribute custom furniture to appropriate sections
+        const adminItems = customFurniture
+          .filter((f) => (f.catalogSection || "admin") === "admin")
+          .map((f) => createCatalogItem(f, "admin"));
+
+        const basicItems = customFurniture
+          .filter((f) => f.catalogSection === "basic")
+          .map((f) => createCatalogItem(f, "basic"));
+
+        const xenocashItems = customFurniture
+          .filter((f) => f.catalogSection === "xenocash")
+          .map((f) => createCatalogItem(f, "xenocash"));
+
+        const limitedItems = customFurniture
+          .filter((f) => f.catalogSection === "limited")
+          .map((f) => createCatalogItem(f, "limited"));
+
+        // Update existing sections with custom items
+        const updatedSections = prev.map((section) => {
+          switch (section.id) {
+            case "basic":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...basicItems,
+                ],
+              };
+            case "xenocash":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...xenocashItems,
+                ],
+              };
+            case "limited":
+              return {
+                ...section,
+                items: [
+                  ...section.items.filter(
+                    (item) => !item.type?.startsWith("custom_"),
+                  ),
+                  ...limitedItems,
+                ],
+              };
+            case "admin":
+              return {
+                ...section,
+                items: adminItems,
+                isExpanded: adminItems.length > 0,
+              };
+            default:
+              return section;
+          }
+        });
+
+        // Add admin section if it doesn't exist and we have admin items or user is admin
+        const hasAdminSection = updatedSections.some((s) => s.id === "admin");
+        if (!hasAdminSection && (adminItems.length > 0 || isAdmin)) {
+          updatedSections.push({
             id: "admin",
             title: "Catálogo do Admin",
             icon: <Crown className="w-5 h-5" />,
-            isExpanded: adminItems.length > 0, // Auto-expand if items exist
+            isExpanded: adminItems.length > 0,
             items: adminItems,
-          },
-        ];
-        console.log("New sections:", newSections);
-        return newSections;
+          });
+        }
+
+        // Filter out admin section for non-admin users
+        const finalSections = isAdmin
+          ? updatedSections
+          : updatedSections.filter((s) => s.id !== "admin");
+
+        console.log("Updated sections:", finalSections);
+        return finalSections;
       });
     }
   }, [isAdmin, customFurniture]);
@@ -394,7 +329,41 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         category: "admin",
       });
 
-      if (result.success) {
+      if (result.success && result.furniture) {
+        // Generate thumbnail immediately after upload
+        if (roomExperience && result.furniture.id) {
+          try {
+            console.log(
+              `🖼️ Generating thumbnail for uploaded GLB: ${result.furniture.name}`,
+            );
+            const thumbnail =
+              await roomExperience.generateThumbnailForPurchasedItem(
+                result.furniture.id,
+                `custom_${result.furniture.id}`,
+              );
+
+            if (thumbnail) {
+              console.log(
+                `✅ Thumbnail generated for upload: ${result.furniture.name}`,
+              );
+              // Save thumbnail to service
+              furnitureService.updateFurnitureThumbnail(
+                result.furniture.id,
+                thumbnail,
+              );
+              console.log(
+                `💾 Thumbnail saved for uploaded furniture: ${result.furniture.name}`,
+              );
+            } else {
+              console.log(
+                `❌ Thumbnail generation failed for: ${result.furniture.name}`,
+              );
+            }
+          } catch (error) {
+            console.error("Error generating thumbnail on upload:", error);
+          }
+        }
+
         onNotification?.({
           type: "success",
           title: "Sucesso!",
@@ -432,6 +401,80 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       category: "admin",
       tags: [],
     });
+  };
+
+  const handleMoveToSection = async (
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ) => {
+    try {
+      console.log(`Moving furniture ${furnitureId} to section: ${newSection}`);
+      const result = furnitureService.updateFurnitureCatalogSection(
+        furnitureId,
+        newSection,
+      );
+
+      if (result.success) {
+        onNotification?.({
+          type: "success",
+          title: "Sucesso!",
+          message: `Móvel movido para seção "${newSection}" com sucesso.`,
+        });
+        loadCustomFurniture(); // Reload to update sections
+      } else {
+        onNotification?.({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao mover móvel.",
+        });
+      }
+    } catch (error) {
+      console.error("Move section error:", error);
+      onNotification?.({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    }
+  };
+
+  const handleUpdatePrice = async (
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "xenocash",
+  ) => {
+    try {
+      console.log(
+        `Updating price for furniture ${furnitureId}: ${price} ${currency}`,
+      );
+      const result = furnitureService.updateFurniturePrice(
+        furnitureId,
+        price,
+        currency,
+      );
+
+      if (result.success) {
+        onNotification?.({
+          type: "success",
+          title: "Preço Atualizado!",
+          message: `Preço atualizado para ${price} ${currency === "xenocoins" ? "Xenocoins" : "Xenocash"}.`,
+        });
+        loadCustomFurniture(); // Reload to update display
+      } else {
+        onNotification?.({
+          type: "error",
+          title: "Erro",
+          message: result.error || "Erro ao atualizar preço.",
+        });
+      }
+    } catch (error) {
+      console.error("Update price error:", error);
+      onNotification?.({
+        type: "error",
+        title: "Erro",
+        message: "Erro interno do servidor.",
+      });
+    }
   };
 
   const handleDeleteCustomFurniture = async (furnitureId: string) => {
@@ -551,8 +594,12 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                             whileTap={{ scale: 0.98 }}
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Package className="w-5 h-5 text-gray-500" />
+                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                {item.type?.startsWith("custom_") ? (
+                                  <CatalogThumbnail item={item} />
+                                ) : (
+                                  <Package className="w-5 h-5 text-gray-500" />
+                                )}
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
@@ -573,18 +620,94 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                                   </span>
                                 </div>
                               </div>
-                              {/* Delete button for admin items */}
-                              {section.id === "admin" && item.adminOnly && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteCustomFurniture(item.id);
-                                  }}
-                                  className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                  title="Deletar modelo"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
-                                </button>
+                              {/* Action buttons for custom items */}
+                              {item.type?.startsWith("custom_") && isAdmin && (
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex gap-1">
+                                    {/* Move to section dropdown */}
+                                    <select
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        handleMoveToSection(
+                                          item.id,
+                                          e.target.value as any,
+                                        );
+                                      }}
+                                      value={item.catalogSection || "admin"}
+                                      className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
+                                      title="Mover para seção"
+                                    >
+                                      <option value="admin">Admin</option>
+                                      <option value="basic">Básicos</option>
+                                      <option value="xenocash">Xenocash</option>
+                                      <option value="limited">Limitado</option>
+                                    </select>
+
+                                    {/* Delete button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteCustomFurniture(item.id);
+                                      }}
+                                      className="p-1 hover:bg-red-100 rounded transition-colors"
+                                      title="Deletar modelo"
+                                    >
+                                      <Trash2 className="w-3 h-3 text-red-600" />
+                                    </button>
+                                  </div>
+
+                                  {/* Price editing for non-admin sections */}
+                                  {item.catalogSection !== "admin" && (
+                                    <div className="flex gap-1 items-center">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        value={item.price || 0}
+                                        onClick={(e) => e.stopPropagation()}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          const newPrice =
+                                            e.target.value === ""
+                                              ? 0
+                                              : Number(e.target.value);
+                                          console.log(
+                                            `💰 Updating price from ${item.price} to: ${newPrice} (${item.currency})`,
+                                          );
+                                          console.log(
+                                            `📊 Input value: "${e.target.value}", Parsed: ${newPrice}, Type: ${typeof newPrice}`,
+                                          );
+                                          handleUpdatePrice(
+                                            item.id,
+                                            newPrice,
+                                            item.currency,
+                                          );
+                                        }}
+                                        className="w-16 text-xs px-1 py-1 border rounded"
+                                        title="Preço (0 = gratuito)"
+                                        placeholder="0"
+                                      />
+                                      <select
+                                        value={item.currency}
+                                        onClick={(e) => e.stopPropagation()}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          handleUpdatePrice(
+                                            item.id,
+                                            item.price,
+                                            e.target.value as any,
+                                          );
+                                        }}
+                                        className="text-xs px-1 py-1 border rounded"
+                                        title="Moeda"
+                                      >
+                                        <option value="xenocoins">XC</option>
+                                        <option value="xenocash">XS</option>
+                                      </select>
+                                    </div>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </motion.div>
@@ -921,4 +1044,41 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
       </AnimatePresence>
     </>
   );
+};
+
+// Component to show thumbnails for catalog items
+const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
+  // If we have a stored thumbnail (real 3D thumbnail), use it
+  if (
+    item.thumbnail &&
+    (item.thumbnail.startsWith("data:image") ||
+      item.thumbnail.startsWith("http"))
+  ) {
+    return (
+      <img
+        src={item.thumbnail}
+        alt={item.name}
+        className="w-full h-full object-cover rounded"
+        onError={(e) => {
+          // If image fails to load, show fallback
+          console.warn(`Failed to load thumbnail for ${item.name}`);
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  }
+
+  // For GLB items without thumbnail, show a better 3D indicator
+  if (item.type?.startsWith("custom_")) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 rounded">
+        <div className="w-6 h-6 bg-gradient-to-br from-purple-200 to-blue-200 rounded-lg flex items-center justify-center mb-1 shadow-sm">
+          <span className="text-purple-700 font-bold text-xs">3D</span>
+        </div>
+        <span className="text-purple-600 text-xs font-medium">Model</span>
+      </div>
+    );
+  }
+
+  return <Package className="w-5 h-5 text-gray-500" />;
 };

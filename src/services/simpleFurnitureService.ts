@@ -7,10 +7,11 @@ export interface CustomFurniture {
   glb_url: string;
   thumbnail_url?: string;
   price: number;
-  currency: "xenocoins" | "cash";
+  currency: "xenocoins" | "xenocash";
   created_by?: string;
   is_active: boolean;
   category: "admin" | "premium" | "seasonal";
+  catalogSection?: "admin" | "basic" | "xenocash" | "limited"; // Which catalog section to show in
   tags?: string[];
   metadata?: any;
   created_at: string;
@@ -21,7 +22,7 @@ export interface FurnitureUploadData {
   name: string;
   description?: string;
   price?: number;
-  currency?: "xenocoins" | "cash";
+  currency?: "xenocoins" | "xenocash";
   category?: "admin" | "premium" | "seasonal";
   tags?: string[];
   metadata?: object;
@@ -88,6 +89,7 @@ class SimpleFurnitureService {
         price: 0, // Admin items are free
         currency: "xenocoins",
         category: "admin",
+        catalogSection: "admin", // Default to admin section
         tags: furnitureData.tags || [],
         metadata: furnitureData.metadata || {},
         created_by: "admin",
@@ -244,13 +246,13 @@ class SimpleFurnitureService {
     const sampleId = this.generateId();
     const sampleFurniture: CustomFurniture = {
       id: sampleId,
-      name: "Mesa de Teste",
-      description: "Móvel de exemplo (não é um GLB real)",
-      glb_url: `memory://furniture/${sampleId}`,
+      name: "Sofá Teste GLB",
+      description: "Móvel GLB de teste para validar thumbnails",
+      glb_url: "https://threejs.org/examples/models/gltf/Flamingo.glb", // URL de teste público
       price: 0,
       currency: "xenocoins",
       category: "admin",
-      tags: ["teste"],
+      tags: ["teste", "glb"],
       is_active: true,
       created_by: "admin",
       created_at: new Date().toISOString(),
@@ -259,11 +261,92 @@ class SimpleFurnitureService {
     };
 
     this.furniture.set(sampleId, sampleFurniture);
-    console.log("✅ Sample furniture added");
+    console.log(
+      "✅ Sample GLB furniture added with URL:",
+      sampleFurniture.glb_url,
+    );
   }
 
   getCount(): number {
     return this.furniture.size;
+  }
+
+  // Update catalog section for a furniture item
+  updateFurnitureCatalogSection(
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update the catalog section
+    furniture.catalogSection = newSection;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(
+      `✅ Updated furniture ${furnitureId} to section: ${newSection}`,
+    );
+    return { success: true };
+  }
+
+  // Get furniture by catalog section
+  getFurnitureBySection(
+    section: "admin" | "basic" | "xenocash" | "limited",
+  ): CustomFurniture[] {
+    return Array.from(this.furniture.values()).filter(
+      (furniture) => (furniture.catalogSection || "admin") === section,
+    );
+  }
+
+  // Update furniture price and currency
+  updateFurniturePrice(
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "xenocash",
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update price and currency
+    furniture.price = price;
+    furniture.currency = currency;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(
+      `✅ Updated furniture ${furnitureId} price: ${price} ${currency}`,
+    );
+    return { success: true };
+  }
+
+  // Update furniture thumbnail
+  updateFurnitureThumbnail(
+    furnitureId: string,
+    thumbnailUrl: string,
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update thumbnail
+    furniture.thumbnail_url = thumbnailUrl;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(`✅ Updated furniture ${furnitureId} thumbnail updated`);
+    return { success: true };
   }
 
   // For testing

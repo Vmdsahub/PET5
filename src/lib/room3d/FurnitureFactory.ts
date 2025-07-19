@@ -655,6 +655,20 @@ export class FurnitureFactory {
   }
 
   /**
+   * Get custom furniture from cache
+   */
+  public getFromCache(furnitureId: string): THREE.Group | null {
+    return this.customFurnitureCache.get(furnitureId) || null;
+  }
+
+  /**
+   * Get cache keys for debugging
+   */
+  public getCacheKeys(): string[] {
+    return Array.from(this.customFurnitureCache.keys());
+  }
+
+  /**
    * Clear custom furniture cache
    */
   public clearCustomFurnitureCache(): void {

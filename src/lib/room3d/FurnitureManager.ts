@@ -40,90 +40,9 @@ export class FurnitureManager {
   }
 
   private async createDefaultFurniture(): Promise<void> {
-    // Create a cozy living room setup
-    await this.addFurniture("sofa", "sofa", new THREE.Vector3(-5, 0, 3), 0);
-    await this.addFurniture(
-      "coffee-table",
-      "table",
-      new THREE.Vector3(-3, 0, 1),
-      0,
-    );
-    await this.addFurniture(
-      "bookshelf",
-      "bookshelf",
-      new THREE.Vector3(-9.5, 0, -5),
-      Math.PI / 2,
-    );
-    await this.addFurniture(
-      "floor-lamp",
-      "lamp",
-      new THREE.Vector3(-7, 0, 4),
-      0,
-    );
-    await this.addFurniture(
-      "dining-table",
-      "diningTable",
-      new THREE.Vector3(4, 0, -3),
-      0,
-    );
-    await this.addFurniture(
-      "chair-1",
-      "chair",
-      new THREE.Vector3(5, 0, -1.5),
-      Math.PI,
-    );
-    await this.addFurniture(
-      "chair-2",
-      "chair",
-      new THREE.Vector3(3, 0, -1.5),
-      Math.PI,
-    );
-    await this.addFurniture("plant", "plant", new THREE.Vector3(8, 0, 6), 0);
-    await this.addFurniture(
-      "tv-stand",
-      "tvStand",
-      new THREE.Vector3(0, 0, -9.5),
-      0,
-    );
-    await this.addFurniture(
-      "side-table",
-      "sideTable",
-      new THREE.Vector3(-8, 0, 1),
-      0,
-    );
-
-    // Wall furniture
-    await this.addFurniture(
-      "wall-shelf",
-      "wallShelf",
-      new THREE.Vector3(5, 5, -9.8),
-      0,
-    );
-    await this.addFurniture(
-      "picture-frame",
-      "pictureFrame",
-      new THREE.Vector3(-3, 6, -9.8),
-      0,
-    );
-    await this.addFurniture(
-      "wall-clock",
-      "wallClock",
-      new THREE.Vector3(3, 7, -9.8),
-      0,
-    );
-
-    // Lighting fixtures
-    await this.addFurniture(
-      "table-lamp",
-      "tableLamp",
-      new THREE.Vector3(-8, 1.2, 1),
-      0,
-    );
-    await this.addFurniture(
-      "pendant-light",
-      "pendantLight",
-      new THREE.Vector3(4, 8, -3),
-      0,
+    // Room starts completely empty - no default furniture
+    console.log(
+      "🏠 Room initialized without default furniture - ready for custom setup",
     );
   }
 
@@ -456,12 +375,124 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
-    // Reset transform
-    item.object.scale.set(1, 1, 1);
-    item.object.rotation.set(0, 0, 0);
-    item.object.position.set(0, 0, 0);
+    console.log(`🔄 Resetting furniture to defaults: ${id} (${item.type})`);
 
-    // Reset material properties
+    // For custom GLB furniture, reload from cache to get original state
+    if (item.type.startsWith("custom_")) {
+      console.log(`🎯 Resetting custom GLB furniture: ${id}`);
+      this.resetCustomFurnitureToOriginal(id, item);
+    } else {
+      console.log(`🏠 Resetting built-in furniture: ${id}`);
+      this.resetBuiltInFurnitureToDefaults(item);
+    }
+
+    return true;
+  }
+
+  // Debug method to get cache keys
+  public getCacheKeys(): string[] {
+    return this.furnitureFactory.getCacheKeys();
+  }
+
+  // Clear all furniture from the room
+  public clearAllFurniture(): void {
+    console.log(
+      `🗑️ Clearing all furniture from room (${this.furniture.size} items)`,
+    );
+
+    // Remove all furniture from scene
+    this.furniture.forEach((item, id) => {
+      console.log(`🗑️ Removing furniture: ${id}`);
+      this.furnitureGroup.remove(item.object);
+
+      // Remove associated lights if any
+      if (this.furnitureLights.has(id)) {
+        const light = this.furnitureLights.get(id)!;
+        this.scene.remove(light);
+        this.furnitureLights.delete(id);
+      }
+    });
+
+    // Clear furniture map
+    this.furniture.clear();
+    console.log("✅ All furniture cleared from room");
+  }
+
+  private resetCustomFurnitureToOriginal(
+    id: string,
+    item: FurnitureItem,
+  ): void {
+    try {
+      console.log(`🔄 Starting reset for custom furniture: ${id}`);
+      console.log(`🏷️ Item type: ${item.type}`);
+
+      // Get the original cached model - extract the base furniture ID
+      let furnitureId = item.type.replace("custom_", "");
+
+      // If the item has userData with originalStoreId, use that instead
+      if (item.object.userData?.originalStoreId) {
+        furnitureId = item.object.userData.originalStoreId;
+        console.log(`🔍 Using originalStoreId from userData: ${furnitureId}`);
+      }
+
+      console.log(`🎯 Looking for cached model with ID: ${furnitureId}`);
+
+      const originalModel = this.furnitureFactory.getFromCache(furnitureId);
+      console.log(
+        `📦 Cache lookup result:`,
+        originalModel ? "FOUND" : "NOT FOUND",
+      );
+
+      if (originalModel) {
+        console.log(`📦 Found cached original model for: ${furnitureId}`);
+        console.log(`📐 Original model scale:`, originalModel.scale);
+
+        // Store current position
+        const currentPosition = item.object.position.clone();
+        console.log(`📍 Current position:`, currentPosition);
+
+        // Remove current object from scene
+        this.furnitureGroup.remove(item.object);
+        console.log(`🗑️ Removed current object from scene`);
+
+        // Clone the original model
+        const resetObject = originalModel.clone();
+        resetObject.position.copy(currentPosition); // Keep current position
+        resetObject.userData = { id, type: item.type }; // Restore userData
+
+        console.log(`📐 Reset object scale:`, resetObject.scale);
+        console.log(`📍 Reset object position:`, resetObject.position);
+
+        // Update the furniture item
+        item.object = resetObject;
+        item.originalScale = resetObject.scale.clone();
+
+        // Add back to scene
+        this.furnitureGroup.add(resetObject);
+
+        console.log(`✅ Successfully reset custom furniture: ${id}`);
+      } else {
+        console.warn(`⚠️ No cached model found for ${furnitureId}`);
+        console.log(
+          `🧰 Available cache keys:`,
+          Array.from(this.furnitureFactory.getCacheKeys()),
+        );
+        console.log(`⬇️ Falling back to basic reset`);
+        this.resetBuiltInFurnitureToDefaults(item);
+      }
+    } catch (error) {
+      console.error(`❌ Error resetting custom furniture ${id}:`, error);
+      this.resetBuiltInFurnitureToDefaults(item);
+    }
+  }
+
+  private resetBuiltInFurnitureToDefaults(item: FurnitureItem): void {
+    // Reset to original scale (stored when created)
+    item.object.scale.copy(item.originalScale);
+    item.object.rotation.set(0, 0, 0);
+    // Keep current position - don't reset to (0,0,0)
+
+    // Reset material properties for built-in furniture only
     item.object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
         const material = child.material as THREE.MeshStandardMaterial;
@@ -472,8 +503,6 @@ export class FurnitureManager {
         material.needsUpdate = true;
       }
     });
-
-    return true;
   }
 
   // Inventory management methods
@@ -532,6 +561,36 @@ export class FurnitureManager {
     // Remove from furniture map
     this.furniture.delete(id);
     return true;
+  }
+
+  // Create temporary furniture for thumbnail generation (doesn't add to scene)
+  public async createTemporaryFurnitureForThumbnail(
+    furnitureType: string,
+  ): Promise<THREE.Object3D | null> {
+    console.log(
+      `🖼️ Creating temporary furniture for thumbnail: ${furnitureType}`,
+    );
+
+    try {
+      // Create the furniture object using the factory
+      const furnitureObject = await this.furnitureFactory.create(furnitureType);
+
+      if (!furnitureObject) {
+        console.warn(
+          `❌ Failed to create temporary furniture of type: ${furnitureType}`,
+        );
+        return null;
+      }
+
+      // Don't add to scene or furniture map - just return the object for thumbnail generation
+      console.log(
+        `✅ Temporary furniture created successfully: ${furnitureType}`,
+      );
+      return furnitureObject;
+    } catch (error) {
+      console.error(`Error creating temporary furniture for thumbnail:`, error);
+      return null;
+    }
   }
 
   public async addFurnitureFromInventory(

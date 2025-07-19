@@ -82,6 +82,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [lampStates, setLampStates] = useState<{ [key: string]: boolean }>({});
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [decorationsLoaded, setDecorationsLoaded] = useState(false);
+  const [catalogRefreshTrigger, setCatalogRefreshTrigger] = useState(0);
 
   // Estados para controles de admin dos móveis
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
@@ -263,6 +264,50 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         const furnitureType = item.type || "furniture";
         console.log(`📦 Adding to inventory with type: ${furnitureType}`);
 
+        // Generate thumbnail for purchased item by temporarily loading the model
+        let thumbnail = "";
+
+        try {
+          if (
+            experienceRef.current &&
+            (item.adminOnly || furnitureType.startsWith("custom_"))
+          ) {
+            // For GLB/custom furniture, temporarily load and generate thumbnail
+            console.log(
+              `🖼️ Generating thumbnail for GLB: ${item.name} (${furnitureType})`,
+            );
+            thumbnail =
+              await experienceRef.current.generateThumbnailForPurchasedItem(
+                item.id,
+                furnitureType,
+              );
+
+            if (thumbnail) {
+              console.log(`✅ Thumbnail generated: ${item.name}`);
+              // Save thumbnail to service so it appears in catalog too
+              try {
+                const { simpleFurnitureService } = await import(
+                  "../../services/simpleFurnitureService"
+                );
+                simpleFurnitureService.updateFurnitureThumbnail(
+                  item.id,
+                  thumbnail,
+                );
+                console.log(`💾 Thumbnail saved to service for ${item.name}`);
+                // Trigger catalog refresh to show new thumbnail
+                setCatalogRefreshTrigger((prev) => prev + 1);
+              } catch (error) {
+                console.error("Error saving thumbnail to service:", error);
+              }
+            } else {
+              console.log(`❌ Thumbnail empty: ${item.name}`);
+            }
+          }
+        } catch (error) {
+          console.error(`⚠️ Thumbnail error for ${item.name}:`, error);
+          thumbnail = ""; // Fallback to default icon
+        }
+
         // Add to inventory (generate unique ID for each purchase)
         setInventory((prev) => {
           // Generate unique ID for this specific purchase instance
@@ -277,7 +322,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               id: uniqueId,
               name: item.name,
               type: furnitureType,
-              thumbnail: "", // Will be generated when placed
+              thumbnail: thumbnail, // Now we generate thumbnail on purchase
               properties: null, // No custom properties for new items
               originalStoreId: item.id, // Keep reference to original store item
             },
@@ -391,13 +436,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       case "catalog":
         const newCatalogState = !showCatalogModal;
         setShowCatalogModal(newCatalogState);
-        if (showInventoryModal) setShowInventoryModal(false);
         setActiveNav(newCatalogState ? "catalog" : "");
         break;
       case "inventory":
         const newInventoryState = !showInventoryModal;
         setShowInventoryModal(newInventoryState);
-        if (showCatalogModal) setShowCatalogModal(false);
         setActiveNav(newInventoryState ? "inventory" : "");
         break;
       case "edit":
@@ -480,12 +523,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           }
         }
 
-        // Get the correct furniture type to preserve it
+        // Get the correct furniture type and original store ID to preserve them
         let furnitureType = "furniture";
+        let originalStoreId = undefined;
+
         if (experienceRef.current) {
           const actualType = experienceRef.current.getFurnitureType(objectId);
           if (actualType) {
             furnitureType = actualType;
+          }
+
+          // Try to recover originalStoreId from 3D object userData
+          const furnitureObj =
+            experienceRef.current.getFurnitureById?.(objectId);
+          if (furnitureObj?.object?.userData?.originalStoreId) {
+            originalStoreId = furnitureObj.object.userData.originalStoreId;
+            console.log(
+              `🔍 Recovered originalStoreId: ${originalStoreId} for ${objectId}`,
+            );
           }
         }
 
@@ -529,6 +584,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               name: furnitureName,
               type: furnitureType,
               thumbnail,
+              originalStoreId, // Preserve original store ID for proper stacking
               // Store modified properties
               properties: furnitureProperties
                 ? {
@@ -630,15 +686,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             if (success) {
               console.log(`✅ Successfully placed furniture: ${item.id}`);
 
-              // Store original name in 3D object userData for later retrieval
+              // Store original data in 3D object userData for later retrieval
               if (experienceRef.current) {
                 const furnitureObj = experienceRef.current.getFurnitureById?.(
                   item.id,
                 );
                 if (furnitureObj?.object) {
                   furnitureObj.object.userData.originalName = item.name;
+                  furnitureObj.object.userData.originalStoreId =
+                    item.originalStoreId; // Preserve store ID
                   console.log(
-                    `💾 Stored original name "${item.name}" for ${item.id}`,
+                    `💾 Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
@@ -2201,7 +2259,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <button
                   onClick={() => {
+                    console.log(
+                      `🔄 Reset button clicked for furniture: ${selectedFurniture}`,
+                    );
                     if (experienceRef.current && selectedFurniture) {
+                      console.log(
+                        `📞 Calling resetFurnitureToDefaults for: ${selectedFurniture}`,
+                      );
                       experienceRef.current.resetFurnitureToDefaults(
                         selectedFurniture,
                       );
@@ -2215,13 +2279,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         emissive: "#000000",
                         color: "#ffffff",
                       });
+                      console.log(`✅ Reset completed, local state updated`);
+                    } else {
+                      console.warn(
+                        `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
+                      );
                     }
                   }}
                   className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
                 >
-                  <RefreshCcw size={16} />
-                  Restaurar Padrões
+                  Restaurar Padrão
                 </button>
+
+                {/* Temporary debug button */}
               </div>
             </motion.div>
           )}
@@ -2237,6 +2307,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         isAdmin={user?.isAdmin || false}
         onPurchaseItem={handleFurniturePurchase}
         onNotification={addNotification}
+        refreshTrigger={catalogRefreshTrigger}
+        roomExperience={experienceRef.current}
       />
 
       {/* Inventory Modal */}
@@ -2256,15 +2328,48 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             {inventory
               .reduce((uniqueItems, item) => {
                 // Find if we already have this type of item
-                const existingIndex = uniqueItems.findIndex(
-                  (unique) =>
-                    unique.originalStoreId === item.originalStoreId &&
+                // For better stacking, check multiple criteria:
+                const existingIndex = uniqueItems.findIndex((unique) => {
+                  // First, try exact match with originalStoreId
+                  if (
+                    unique.originalStoreId &&
+                    item.originalStoreId &&
+                    unique.originalStoreId === item.originalStoreId
+                  ) {
+                    return true;
+                  }
+
+                  // If no originalStoreId match, check type and name
+                  // This catches items placed in room and then stored
+                  if (unique.type === item.type && unique.name === item.name) {
+                    // For GLB items, also check if they're both custom types
+                    if (
+                      unique.type.startsWith("custom_") &&
+                      item.type.startsWith("custom_")
+                    ) {
+                      return unique.type === item.type; // Same custom type
+                    }
+                    return true; // Same type and name for regular items
+                  }
+
+                  // Special case: If one has originalStoreId and other doesn't,
+                  // but they match by type/name, still stack them
+                  if (
+                    (unique.originalStoreId || item.originalStoreId) &&
                     unique.type === item.type &&
-                    unique.name === item.name,
-                );
+                    unique.name === item.name
+                  ) {
+                    return true;
+                  }
+
+                  return false;
+                });
 
                 if (existingIndex === -1) {
                   // First occurrence of this item type
+                  console.log(
+                    `📦 New stack created for: ${item.name} (${item.type})`,
+                  );
                   uniqueItems.push({
                     ...item,
                     stackCount: 1,
@@ -2272,6 +2377,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   });
                 } else {
                   // Increment stack count for existing item type
+                  console.log(
+                    `📚 Stacked item: ${item.name} (count: ${uniqueItems[existingIndex].stackCount + 1})`,
+                  );
                   uniqueItems[existingIndex].stackCount += 1;
                   uniqueItems[existingIndex].allIds.push(item.id);
                 }

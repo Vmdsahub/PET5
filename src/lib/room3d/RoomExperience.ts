@@ -486,45 +486,60 @@ export class RoomExperience {
     const furniture = this.furnitureManager.getFurnitureById(objectId);
     if (!furniture) return "";
 
+    return this.generateThumbnailFromObject(furniture.object);
+  }
+
+  // Helper method to generate thumbnail from a 3D object
+  private generateThumbnailFromObject(object: THREE.Object3D): string {
     // Create a temporary scene for thumbnail rendering
     const thumbScene = new THREE.Scene();
-    thumbScene.background = new THREE.Color(0xf0f0f0); // Light gray background
+    thumbScene.background = null; // Transparent background
     const thumbCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 
-    // Clone the furniture object for thumbnail
-    const clonedObject = furniture.object.clone();
+    // Clone the object for thumbnail
+    const clonedObject = object.clone();
     thumbScene.add(clonedObject);
 
-    // Add bright lighting for thumbnail
-    const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
-    light1.position.set(2, 3, 2);
+    // Add bright lighting for thumbnail - optimized for front view
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    light1.position.set(0, 3, 3); // Front-top lighting
     thumbScene.add(light1);
 
-    const light2 = new THREE.DirectionalLight(0xffffff, 1);
-    light2.position.set(-2, 2, -1);
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light2.position.set(-2, 1, 2); // Left-front lighting
     thumbScene.add(light2);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const light3 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light3.position.set(2, 1, 2); // Right-front lighting
+    thumbScene.add(light3);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     thumbScene.add(ambientLight);
 
-    // Position camera to frame the object
+    // Position camera to frame the object - FRONT VIEW
     const box = new THREE.Box3().setFromObject(clonedObject);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
 
+    // Position camera directly in front of the object (front view with zoom out)
     thumbCamera.position.set(
-      center.x + maxDim * 1.2,
-      center.y + maxDim * 0.8,
-      center.z + maxDim * 1.2,
+      center.x, // Center X - no offset
+      center.y + maxDim * 0.1, // Slightly above center
+      center.z + maxDim * 2.2, // Further back for zoom out
     );
     thumbCamera.lookAt(center);
 
-    // Create render target for thumbnail
+    // Create render target for thumbnail with transparency support
     const renderTarget = new THREE.WebGLRenderTarget(128, 128, {
       format: THREE.RGBAFormat,
       type: THREE.UnsignedByteType,
     });
+
+    // Enable transparency in renderer for this render
+    const originalAlpha = this.renderer.getClearAlpha();
+    const originalClearColor = this.renderer.getClearColor(new THREE.Color());
+    this.renderer.setClearColor(0x000000, 0); // Transparent clear color
 
     // Render thumbnail
     this.renderer.setRenderTarget(renderTarget);
@@ -564,15 +579,57 @@ export class RoomExperience {
 
       context.putImageData(imgData, 0, 0);
 
+      // Restore original renderer settings
+      this.renderer.setClearColor(originalClearColor, originalAlpha);
+
       // Clean up
       renderTarget.dispose();
 
-      return canvas.toDataURL();
+      // Return as PNG with transparency
+      return canvas.toDataURL("image/png");
     }
+
+    // Restore original renderer settings
+    this.renderer.setClearColor(originalClearColor, originalAlpha);
 
     // Clean up
     renderTarget.dispose();
     return "";
+  }
+
+  // Generate thumbnail for purchased items by loading the GLB model temporarily
+  public async generateThumbnailForPurchasedItem(
+    storeItemId: string,
+    furnitureType: string,
+  ): Promise<string> {
+    try {
+      console.log(
+        `🎯 Generating thumbnail for purchased GLB: ${storeItemId} (${furnitureType})`,
+      );
+
+      // Load the GLB model directly from the furniture factory
+      const model =
+        await this.furnitureManager.createTemporaryFurnitureForThumbnail(
+          furnitureType,
+        );
+
+      if (!model) {
+        console.warn(`❌ Could not load model for ${furnitureType}`);
+        return "";
+      }
+
+      // Generate thumbnail from the loaded model
+      const thumbnail = this.generateThumbnailFromObject(model);
+
+      console.log(`✅ Thumbnail generated successfully for ${storeItemId}`);
+      return thumbnail;
+    } catch (error) {
+      console.error(
+        `Error generating thumbnail for purchased item ${storeItemId}:`,
+        error,
+      );
+      return "";
+    }
   }
 
   // Toggle furniture light (for lamps)
@@ -629,6 +686,16 @@ export class RoomExperience {
 
   public resetFurnitureToDefaults(objectId: string): void {
     this.furnitureManager.resetFurnitureToDefaults(objectId);
+  }
+
+  // Debug method to check cache keys
+  public getCacheKeys(): string[] {
+    return this.furnitureManager.getCacheKeys();
+  }
+
+  // Clear all furniture from room
+  public clearAllFurniture(): void {
+    this.furnitureManager.clearAllFurniture();
   }
 
   public destroy(): void {
