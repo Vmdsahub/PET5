@@ -22,7 +22,7 @@ export interface FurnitureUploadData {
   name: string;
   description?: string;
   price?: number;
-  currency?: "xenocoins" | "cash";
+  currency?: "xenocoins" | "xenocash";
   category?: "admin" | "premium" | "seasonal";
   tags?: string[];
   metadata?: object;
