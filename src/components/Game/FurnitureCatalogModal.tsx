@@ -198,18 +198,51 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         const createCatalogItem = (
           furniture: any,
           sectionId: string,
-        ): FurnitureItem => ({
-          id: furniture.id,
-          name: furniture.name,
-          price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
-          currency: furniture.currency || "xenocoins",
-          thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
-          category: sectionId,
-          description: furniture.description || "Móvel customizado.",
-          adminOnly: sectionId === "admin",
-          type: `custom_${furniture.id}`,
-          catalogSection: furniture.catalogSection || "admin", // Store original section
-        });
+        ): FurnitureItem => {
+          // Check if this furniture has modified properties in the room
+          const furnitureType = `custom_${furniture.id}`;
+          let modifiedState: FurnitureState | undefined;
+
+          // Look for any furniture in the room that uses this type
+          for (const [
+            furnitureId,
+            state,
+          ] of modifiedFurnitureStates.entries()) {
+            if (state.furniture_type === furnitureType) {
+              modifiedState = state;
+              console.log(
+                `🎯 Found modified state for ${furniture.id}:`,
+                modifiedState,
+              );
+              break;
+            }
+          }
+
+          const baseItem: FurnitureItem = {
+            id: furniture.id,
+            name: furniture.name,
+            price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
+            currency: furniture.currency || "xenocoins",
+            thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
+            category: sectionId,
+            description: furniture.description || "Móvel customizado.",
+            adminOnly: sectionId === "admin",
+            type: furnitureType,
+            catalogSection: furniture.catalogSection || "admin", // Store original section
+          };
+
+          // Add modified properties if they exist
+          if (modifiedState && isAdmin) {
+            baseItem.description += modifiedState.scale
+              ? ` (Escala: ${modifiedState.scale.x.toFixed(1)}x${modifiedState.scale.y.toFixed(1)}x${modifiedState.scale.z.toFixed(1)})`
+              : "";
+            baseItem.description += modifiedState.material
+              ? ` (Cor: ${modifiedState.material.color})`
+              : "";
+          }
+
+          return baseItem;
+        };
 
         // Distribute custom furniture to appropriate sections
         const adminItems = customFurniture
