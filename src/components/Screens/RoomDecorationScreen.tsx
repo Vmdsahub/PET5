@@ -98,7 +98,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     color: "#ffffff",
   });
 
-    const { user } = useAuthStore();
+  const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
   // Debug function to track furniture state
@@ -222,11 +222,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             decoration.furniture_type,
           );
 
-                    if (success) {
-            console.log(`🔧 Applying saved decoration for ${decoration.furniture_id}:`, {
-              scale: decoration.scale,
-              material: decoration.material,
-            });
+          if (success) {
+            console.log(
+              `🔧 Applying saved decoration for ${decoration.furniture_id}:`,
+              {
+                scale: decoration.scale,
+                material: decoration.material,
+              },
+            );
 
             // Apply saved transformations and materials
             experienceRef.current.updateFurnitureScale(
@@ -250,8 +253,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             }
 
             // Debug: Check state after applying saved decoration
-            debugFurnitureState(decoration.furniture_id, "After Loading from DB");
-          }
+            debugFurnitureState(
+              decoration.furniture_id,
+              "After Loading from DB",
+            );
 
             console.log(
               `✅ Successfully restored furniture: ${decoration.furniture_id}`,
@@ -2029,14 +2034,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               [axis]: parseFloat(e.target.value),
                             };
                             setCurrentScale(newScale);
-                                                        if (experienceRef.current && selectedFurniture) {
+                            if (experienceRef.current && selectedFurniture) {
                               experienceRef.current.updateFurnitureScale(
                                 selectedFurniture,
                                 newScale,
                               );
 
                               // Debug: Check state after scale update
-                              debugFurnitureState(selectedFurniture, "After Scale Update");
+                              debugFurnitureState(
+                                selectedFurniture,
+                                "After Scale Update",
+                              );
 
                               // Auto-save the change
                               saveFurnitureState(selectedFurniture);
