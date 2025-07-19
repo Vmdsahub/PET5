@@ -239,9 +239,30 @@ export class FurnitureManager {
     scale: { x: number; y: number; z: number },
   ): boolean {
     const item = this.furniture.get(id);
-    if (!item) return false;
+    if (!item) {
+      console.warn(`❌ updateFurnitureScale: furniture ${id} not found`);
+      return false;
+    }
+
+    console.log(`📐 updateFurnitureScale: ${id}`, {
+      currentScale: {
+        x: item.object.scale.x,
+        y: item.object.scale.y,
+        z: item.object.scale.z,
+      },
+      newScale: scale,
+    });
 
     item.object.scale.set(scale.x, scale.y, scale.z);
+
+    console.log(`✅ updateFurnitureScale applied: ${id}`, {
+      appliedScale: {
+        x: item.object.scale.x,
+        y: item.object.scale.y,
+        z: item.object.scale.z,
+      },
+    });
+
     return true;
   }
 
