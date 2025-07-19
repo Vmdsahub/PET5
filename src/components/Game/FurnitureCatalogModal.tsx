@@ -654,147 +654,23 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        {section.items.map((item) => (
-                          <motion.div
-                            key={item.id}
-                            className={`p-3 mx-4 mb-2 border border-gray-200 rounded-lg cursor-pointer transition-all ${
-                              selectedItem?.id === item.id
-                                ? "bg-blue-50 border-blue-300"
-                                : "hover:bg-gray-50"
-                            } ${!canAfford(item) ? "opacity-60" : ""}`}
-                            onClick={() => setSelectedItem(item)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                                {item.type?.startsWith("custom_") ? (
-                                  <CatalogThumbnail item={item} />
-                                ) : (
-                                  <Package className="w-5 h-5 text-gray-500" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-gray-800">
-                                    {item.name}
-                                  </span>
-                                  {item.isLimited && (
-                                    <Clock className="w-3 h-3 text-orange-500" />
-                                  )}
-                                  {item.adminOnly && (
-                                    <Crown className="w-3 h-3 text-purple-500" />
-                                  )}
-                                  {/* Show indicator if furniture has been modified by admin */}
-                                  {isAdmin &&
-                                    item.description?.includes("Escala:") && (
-                                      <span
-                                        className="bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded"
-                                        title="Móvel modificado pelo admin"
-                                      >
-                                        Mod
-                                      </span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-1 mt-1">
-                                  {getCurrencyIcon(item.currency)}
-                                  <span className="text-xs font-semibold text-gray-600">
-                                    {item.price.toLocaleString()}
-                                  </span>
-                                </div>
-                              </div>
-                              {/* Action buttons for custom items */}
-                              {item.type?.startsWith("custom_") && isAdmin && (
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex gap-1">
-                                    {/* Move to section dropdown */}
-                                    <select
-                                      onClick={(e) => e.stopPropagation()}
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        handleMoveToSection(
-                                          item.id,
-                                          e.target.value as any,
-                                        );
-                                      }}
-                                      value={item.catalogSection || "admin"}
-                                      className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
-                                      title="Mover para seção"
-                                    >
-                                      <option value="admin">Admin</option>
-                                      <option value="basic">Básicos</option>
-                                      <option value="xenocash">Xenocash</option>
-                                      <option value="limited">Limitado</option>
-                                    </select>
-
-                                    {/* Delete button */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteCustomFurniture(item.id);
-                                      }}
-                                      className="p-1 hover:bg-red-100 rounded transition-colors"
-                                      title="Deletar modelo"
-                                    >
-                                      <Trash2 className="w-3 h-3 text-red-600" />
-                                    </button>
-                                  </div>
-
-                                  {/* Price editing for non-admin sections */}
-                                  {item.catalogSection !== "admin" && (
-                                    <div className="flex gap-1 items-center">
-                                      <input
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                        value={item.price || 0}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          const newPrice =
-                                            e.target.value === ""
-                                              ? 0
-                                              : Number(e.target.value);
-                                          console.log(
-                                            `💰 Updating price from ${item.price} to: ${newPrice} (${item.currency})`,
-                                          );
-                                          console.log(
-                                            `📊 Input value: "${e.target.value}", Parsed: ${newPrice}, Type: ${typeof newPrice}`,
-                                          );
-                                          handleUpdatePrice(
-                                            item.id,
-                                            newPrice,
-                                            item.currency,
-                                          );
-                                        }}
-                                        className="w-16 text-xs px-1 py-1 border rounded"
-                                        title="Preço (0 = gratuito)"
-                                        placeholder="0"
-                                      />
-                                      <select
-                                        value={item.currency}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          handleUpdatePrice(
-                                            item.id,
-                                            item.price,
-                                            e.target.value as any,
-                                          );
-                                        }}
-                                        className="text-xs px-1 py-1 border rounded"
-                                        title="Moeda"
-                                      >
-                                        <option value="xenocoins">XC</option>
-                                        <option value="xenocash">XS</option>
-                                      </select>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
+                        {/* Grid layout for furniture items */}
+                        <div className="grid grid-cols-3 gap-3 p-4">
+                          {section.items.map((item) => (
+                            <FurnitureGridCard
+                              key={item.id}
+                              item={item}
+                              isSelected={selectedItem?.id === item.id}
+                              canAfford={canAfford(item)}
+                              isAdmin={isAdmin}
+                              onSelect={setSelectedItem}
+                              onMoveToSection={handleMoveToSection}
+                              onUpdatePrice={handleUpdatePrice}
+                              onDelete={handleDeleteCustomFurniture}
+                              getCurrencyIcon={getCurrencyIcon}
+                            />
+                          ))}
+                        </div>
 
                         {/* Upload button for admin section */}
                         {section.id === "admin" &&
