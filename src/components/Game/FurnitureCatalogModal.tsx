@@ -124,13 +124,13 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   }, [isAdmin]);
 
-  // Reload furniture when modal opens
+  // Reload furniture when modal opens or refresh trigger changes
   useEffect(() => {
     if (isOpen && isAdmin) {
       console.log("Modal opened, reloading custom furniture...");
       loadCustomFurniture();
     }
-  }, [isOpen, isAdmin]);
+  }, [isOpen, isAdmin, refreshTrigger]);
 
   // Initialize sample data on first load (local version)
   useEffect(() => {
