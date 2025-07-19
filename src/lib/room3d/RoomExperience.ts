@@ -490,7 +490,7 @@ export class RoomExperience {
   }
 
   // Helper method to generate thumbnail from a 3D object
-  private generateThumbnailFromObject(object: THREE.Object3D): string {
+  public generateThumbnailFromObject(object: THREE.Object3D): string {
     // Create a temporary scene for thumbnail rendering
     const thumbScene = new THREE.Scene();
     thumbScene.background = null; // Transparent background
