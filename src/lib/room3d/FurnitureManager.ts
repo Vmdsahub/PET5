@@ -387,7 +387,7 @@ export class FurnitureManager {
     if (!template) return;
 
     console.log(
-      `���� Applying template to all instances of type: ${furnitureType}`,
+      `🌐 Applying template to all instances of type: ${furnitureType}`,
     );
 
     let instanceCount = 0;
@@ -1014,6 +1014,52 @@ export class FurnitureManager {
     // Create the furniture
     await this.addFurniture(id, furnitureType, position, 0);
     return true;
+  }
+
+  // Template management methods
+  public getFurnitureTemplate(furnitureType: string):
+    | {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    | undefined {
+    return this.furnitureTemplates.get(furnitureType);
+  }
+
+  public setFurnitureTemplate(
+    furnitureType: string,
+    template: {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    },
+  ): void {
+    this.furnitureTemplates.set(furnitureType, template);
+    console.log(`💾 Set template for ${furnitureType}:`, template);
+  }
+
+  public getAllTemplates(): Map<
+    string,
+    {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    }
+  > {
+    return new Map(this.furnitureTemplates);
   }
 
   // Toggle furniture light (for lamps)
