@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -1189,98 +1188,88 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
         </div>
       )}
 
-      {/* Admin context menu rendered as portal */}
-      {showAdminMenu &&
-        isAdmin &&
-        item.type?.startsWith("custom_") &&
-        createPortal(
-          <div
-            className="fixed bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-[99999] p-4 min-w-60 max-w-72"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              top: `${menuPosition.y}px`,
-              left: `${menuPosition.x}px`,
-            }}
-          >
-            <div className="space-y-2">
-              {/* Section selector */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1">
-                  Seção:
-                </label>
-                <select
-                  value={item.catalogSection || "admin"}
-                  onChange={(e) => {
-                    onMoveToSection(item.id, e.target.value as any);
-                    setShowAdminMenu(false);
-                  }}
-                  className="w-full text-xs px-2 py-1 border rounded"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="basic">Básicos</option>
-                  <option value="xenocash">Xenocash</option>
-                  <option value="limited">Limitado</option>
-                </select>
-              </div>
-
-              {/* Price editor for non-admin sections */}
-              {item.catalogSection !== "admin" && (
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-600 block">Preço:</label>
-                  <div className="flex gap-1">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={item.price || 0}
-                      onChange={(e) => {
-                        const newPrice =
-                          e.target.value === "" ? 0 : Number(e.target.value);
-                        onUpdatePrice(item.id, newPrice, item.currency);
-                      }}
-                      className="flex-1 text-xs px-2 py-1 border rounded"
-                      placeholder="0"
-                    />
-                    <select
-                      value={item.currency}
-                      onChange={(e) => {
-                        onUpdatePrice(
-                          item.id,
-                          item.price,
-                          e.target.value as any,
-                        );
-                      }}
-                      className="text-xs px-2 py-1 border rounded"
-                    >
-                      <option value="xenocoins">XC</option>
-                      <option value="xenocash">XS</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {/* Delete button */}
-              <button
-                onClick={() => {
-                  onDelete(item.id);
+      {/* Admin context menu */}
+      {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
+        <div
+          className="absolute bg-red-500 border-4 border-yellow-400 rounded-lg shadow-xl z-[9999] p-4 min-w-60 max-w-72"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            top: "100%",
+            left: "0",
+            marginTop: "5px",
+          }}
+        >
+          <div className="space-y-2">
+            {/* Section selector */}
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Seção:</label>
+              <select
+                value={item.catalogSection || "admin"}
+                onChange={(e) => {
+                  onMoveToSection(item.id, e.target.value as any);
                   setShowAdminMenu(false);
                 }}
-                className="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+                className="w-full text-xs px-2 py-1 border rounded"
               >
-                Deletar
-              </button>
+                <option value="admin">Admin</option>
+                <option value="basic">Básicos</option>
+                <option value="xenocash">Xenocash</option>
+                <option value="limited">Limitado</option>
+              </select>
+            </div>
 
-              {/* Close button */}
-              <button
-                onClick={() => setShowAdminMenu(false)}
-                className="w-full px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
-              >
-                Fechar
-              </button>
-                        </div>
-          </div>,
-          document.body
-        )
+            {/* Price editor for non-admin sections */}
+            {item.catalogSection !== "admin" && (
+              <div className="space-y-1">
+                <label className="text-xs text-gray-600 block">Preço:</label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={item.price || 0}
+                    onChange={(e) => {
+                      const newPrice =
+                        e.target.value === "" ? 0 : Number(e.target.value);
+                      onUpdatePrice(item.id, newPrice, item.currency);
+                    }}
+                    className="flex-1 text-xs px-2 py-1 border rounded"
+                    placeholder="0"
+                  />
+                  <select
+                    value={item.currency}
+                    onChange={(e) => {
+                      onUpdatePrice(item.id, item.price, e.target.value as any);
+                    }}
+                    className="text-xs px-2 py-1 border rounded"
+                  >
+                    <option value="xenocoins">XC</option>
+                    <option value="xenocash">XS</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Delete button */}
+            <button
+              onClick={() => {
+                onDelete(item.id);
+                setShowAdminMenu(false);
+              }}
+              className="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+            >
+              Deletar
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdminMenu(false)}
+              className="w-full px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
       )}
     </motion.div>
   );
