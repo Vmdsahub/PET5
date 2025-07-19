@@ -32,6 +32,7 @@ interface FurnitureItem {
   isLimited?: boolean;
   adminOnly?: boolean;
   type?: string; // For custom furniture types
+  catalogSection?: "admin" | "basic" | "xenocash" | "limited"; // Which section it belongs to
 }
 
 interface CatalogSection {
