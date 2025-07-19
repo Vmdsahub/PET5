@@ -145,6 +145,44 @@ class RoomDecorationService {
   }> {
     try {
       console.log(`🔍 Loading decorations for user: ${userId}`);
+
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE DETECTED: Loading from localStorage fallback",
+        );
+
+        // Load from localStorage in mock mode
+        const decorations: FurnitureState[] = [];
+        const storagePrefix = `furniture_${userId}_`;
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(storagePrefix)) {
+            try {
+              const storedData = JSON.parse(localStorage.getItem(key) || "{}");
+              if (storedData.is_active) {
+                decorations.push({
+                  furniture_id: storedData.furniture_id,
+                  furniture_type: storedData.furniture_type,
+                  position: storedData.position,
+                  rotation: storedData.rotation,
+                  scale: storedData.scale,
+                  material: storedData.material,
+                });
+              }
+            } catch (error) {
+              console.warn(`Failed to parse localStorage item ${key}:`, error);
+            }
+          }
+        }
+
+        console.log(
+          `📦 Loaded ${decorations.length} decorations from localStorage:`,
+          decorations,
+        );
+        return { success: true, decorations };
+      }
+
       console.log("🗄️ Querying database table: user_room_decorations");
 
       // Query with user_id and filter active ones locally
