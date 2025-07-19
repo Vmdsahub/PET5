@@ -676,22 +676,13 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         {section.id === "admin" &&
                           isAdmin &&
                           section.isExpanded && (
-                            <motion.button
+                            <button
                               onClick={() => setShowUploadModal(true)}
-                              className="mx-4 mb-2 p-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 transition-colors bg-purple-50 hover:bg-purple-100"
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              className="mx-4 mb-2 px-3 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
                             >
-                              <div className="flex items-center justify-center gap-3 text-purple-700">
-                                <Upload className="w-5 h-5" />
-                                <span className="font-medium">
-                                  Enviar modelo 3D
-                                </span>
-                              </div>
-                              <p className="text-xs text-purple-600 mt-1">
-                                Adicione arquivos GLB ao catálogo
-                              </p>
-                            </motion.button>
+                              <Upload className="w-4 h-4" />
+                              <span>Enviar 3D</span>
+                            </button>
                           )}
                       </motion.div>
                     )}
@@ -1101,6 +1092,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
   getCurrencyIcon,
 }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -1125,6 +1117,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       onContextMenu={(e) => {
         e.preventDefault();
         if (isAdmin && item.type?.startsWith("custom_")) {
+          setMenuPosition({ x: e.clientX, y: e.clientY });
           setShowAdminMenu(!showAdminMenu);
         }
       }}
@@ -1172,8 +1165,13 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       {/* Admin context menu */}
       {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
         <div
-          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 p-3 min-w-52 max-w-64"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-xl z-[200] p-3 min-w-52 max-w-64"
           onClick={(e) => e.stopPropagation()}
+          style={{
+            top: `${menuPosition.y}px`,
+            left: `${menuPosition.x}px`,
+            transform: "translate(-10px, -10px)",
+          }}
         >
           <div className="space-y-2">
             {/* Section selector */}
