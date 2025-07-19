@@ -303,6 +303,31 @@ class SimpleFurnitureService {
     );
   }
 
+  // Update furniture price and currency
+  updateFurniturePrice(
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "cash",
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update price and currency
+    furniture.price = price;
+    furniture.currency = currency;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(
+      `✅ Updated furniture ${furnitureId} price: ${price} ${currency}`,
+    );
+    return { success: true };
+  }
+
   // For testing
   testSystem(): boolean {
     try {
