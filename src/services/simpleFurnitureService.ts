@@ -7,7 +7,7 @@ export interface CustomFurniture {
   glb_url: string;
   thumbnail_url?: string;
   price: number;
-  currency: "xenocoins" | "cash";
+  currency: "xenocoins" | "xenocash";
   created_by?: string;
   is_active: boolean;
   category: "admin" | "premium" | "seasonal";
