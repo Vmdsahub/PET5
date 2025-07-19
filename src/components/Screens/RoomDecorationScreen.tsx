@@ -101,6 +101,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const { user } = useAuthStore();
   const { xenocoins, cash, updateCurrency, addNotification } = useGameStore();
 
+  // Debug function to track furniture state
+  const debugFurnitureState = (furnitureId: string, stage: string) => {
+    if (!experienceRef.current) return;
+
+    const properties = experienceRef.current.getFurniture(furnitureId);
+    console.log(`🔍 [${stage}] Furniture ${furnitureId} state:`, {
+      scale: properties?.scale,
+      material: properties?.material,
+      position: properties?.position,
+      rotation: properties?.rotation,
+    });
+  };
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
@@ -128,7 +141,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         material: properties.material,
       };
 
-      console.log(`💾 Saving furniture state:`, furnitureState);
+      console.log(`💾 SAVE FURNITURE STATE START for ${furnitureId}:`, {
+        furnitureType,
+        scale: properties.scale,
+        material: properties.material,
+        position: properties.position,
+        rotation: properties.rotation,
+      });
+
+      console.log(`🔍 User ID: ${user.id}`);
+      console.log(`📋 Will call roomDecorationService.saveFurnitureState`);
 
       const result = await roomDecorationService.saveFurnitureState(
         user.id,
@@ -136,7 +158,23 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       );
 
       if (result.success) {
-        console.log(`✅ Furniture state saved for ${furnitureId}`);
+        console.log(`✅ SAVE SUCCESS for ${furnitureId}`);
+        console.log(`🔍 Save result:`, result);
+
+        // Save furniture templates (admin modifications)
+        if (experienceRef.current) {
+          const templates = experienceRef.current.getAllTemplates?.();
+          if (templates && templates.size > 0) {
+            console.log(`💾 Saving furniture templates:`, templates);
+            roomDecorationService.saveFurnitureTemplates(user.id, templates);
+          }
+        }
+
+        // Trigger catalog refresh to show updated furniture states
+        setCatalogRefreshTrigger((prev) => prev + 1);
+        console.log(
+          `🔄 Triggered catalog refresh to show updated furniture state`,
+        );
 
         // Also update inventory if this item is there (shouldn't happen in normal flow, but just in case)
         setInventory((prev) =>
@@ -158,6 +196,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       } else {
         console.error(`❌ Failed to save furniture state: ${result.error}`);
       }
+
+      // Debug: Check what's actually in localStorage
+      console.log(`🔍 DEBUGGING LOCALSTORAGE:`);
+      const storageKey = `furniture_${user.id}_${furnitureId}`;
+      const storedData = localStorage.getItem(storageKey);
+      console.log(`📋 Storage key: ${storageKey}`);
+      console.log(
+        `💾 Stored data:`,
+        storedData ? JSON.parse(storedData) : "NOT FOUND",
+      );
     } catch (error) {
       console.error("Error saving furniture state:", error);
     }
@@ -165,7 +213,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   // Load saved room decorations
   const loadSavedDecorations = async () => {
-    if (!user?.id || !experienceRef.current || decorationsLoaded) return;
+    console.log(`🏠 LOAD SAVED DECORATIONS START`);
+    console.log(`👤 User ID: ${user?.id}`);
+    console.log(`🎮 Experience ref: ${!!experienceRef.current}`);
+    console.log(`📋 Decorations loaded: ${decorationsLoaded}`);
+
+    if (!user?.id || !experienceRef.current || decorationsLoaded) {
+      console.log(`⏭️ SKIPPING decoration load - conditions not met`);
+      return;
+    }
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
@@ -198,6 +254,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           );
 
           if (success) {
+            console.log(
+              `🔧 Applying saved decoration for ${decoration.furniture_id}:`,
+              {
+                scale: decoration.scale,
+                material: decoration.material,
+              },
+            );
+
             // Apply saved transformations and materials
             experienceRef.current.updateFurnitureScale(
               decoration.furniture_id,
@@ -219,6 +283,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
             }
 
+            // Debug: Check state after applying saved decoration
+            debugFurnitureState(
+              decoration.furniture_id,
+              "After Loading from DB",
+            );
+
             console.log(
               `✅ Successfully restored furniture: ${decoration.furniture_id}`,
             );
@@ -227,6 +297,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               `❌ Failed to restore furniture: ${decoration.furniture_id}`,
             );
           }
+        }
+
+        // Load furniture templates
+        const templatesResult =
+          await roomDecorationService.loadFurnitureTemplates(user.id);
+        if (
+          templatesResult.success &&
+          templatesResult.templates &&
+          experienceRef.current
+        ) {
+          console.log(
+            `🎯 Loading furniture templates:`,
+            templatesResult.templates,
+          );
+
+          // Set templates in furniture manager
+          templatesResult.templates.forEach((template, furnitureType) => {
+            experienceRef.current?.setFurnitureTemplate?.(
+              furnitureType,
+              template,
+            );
+          });
+
+          console.log(
+            `✅ Loaded ${templatesResult.templates.size} furniture templates`,
+          );
         }
 
         // Mark decorations as loaded to prevent multiple loads
@@ -696,7 +792,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   furnitureObj.object.userData.originalStoreId =
                     item.originalStoreId; // Preserve store ID
                   console.log(
-                    `💾 Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
+                    `��� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
@@ -1725,7 +1821,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-blue-400" />
-                  <span className="text-white font-medium">🧱 Paredes</span>
+                  <span className="text-white font-medium">���� Paredes</span>
                 </div>
 
                 <div className="space-y-3">
@@ -1996,11 +2092,26 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                             };
                             setCurrentScale(newScale);
                             if (experienceRef.current && selectedFurniture) {
+                              console.log(
+                                `🔧 SCALE CHANGE: ${selectedFurniture} - ${axis}: ${parseFloat(e.target.value)}`,
+                              );
+                              console.log(`📊 New scale object:`, newScale);
+
                               experienceRef.current.updateFurnitureScale(
                                 selectedFurniture,
                                 newScale,
                               );
+
+                              // Debug: Check state after scale update
+                              debugFurnitureState(
+                                selectedFurniture,
+                                "After Scale Update",
+                              );
+
                               // Auto-save the change
+                              console.log(
+                                `💾 Calling saveFurnitureState for: ${selectedFurniture}`,
+                              );
                               saveFurnitureState(selectedFurniture);
                             }
                           }}
@@ -2269,17 +2380,56 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       experienceRef.current.resetFurnitureToDefaults(
                         selectedFurniture,
                       );
-                      // Reset local state
-                      setCurrentScale({ x: 1, y: 1, z: 1 });
-                      setCurrentRotation({ x: 0, y: 0, z: 0 });
-                      setCurrentPosition({ x: 0, y: 0, z: 0 });
-                      setCurrentMaterial({
-                        roughness: 0.5,
-                        metalness: 0,
-                        emissive: "#000000",
-                        color: "#ffffff",
-                      });
-                      console.log(`✅ Reset completed, local state updated`);
+
+                      // Update UI state from actual 3D scene properties after reset
+                      setTimeout(() => {
+                        if (experienceRef.current && selectedFurniture) {
+                          const furniture =
+                            experienceRef.current.getFurniture(
+                              selectedFurniture,
+                            );
+                          if (furniture) {
+                            console.log(
+                              `🔄 Reading actual properties after reset:`,
+                              furniture,
+                            );
+                            setCurrentScale(
+                              furniture.scale || { x: 1, y: 1, z: 1 },
+                            );
+                            setCurrentRotation(
+                              furniture.rotation || { x: 0, y: 0, z: 0 },
+                            );
+                            setCurrentPosition(
+                              furniture.position || { x: 0, y: 0, z: 0 },
+                            );
+                            if (furniture.material) {
+                              setCurrentMaterial({
+                                roughness: furniture.material.roughness || 0.5,
+                                metalness: furniture.material.metalness || 0,
+                                emissive:
+                                  furniture.material.emissive || "#000000",
+                                color: furniture.material.color || "#ffffff",
+                              });
+                            } else {
+                              setCurrentMaterial({
+                                roughness: 0.5,
+                                metalness: 0,
+                                emissive: "#000000",
+                                color: "#ffffff",
+                              });
+                            }
+                            console.log(
+                              `✅ UI state updated from actual 3D scene properties`,
+                            );
+                          }
+                        }
+                      }, 100); // Small delay to ensure 3D reset is complete
+
+                      // Auto-save the reset state to database
+                      console.log(
+                        `💾 Saving reset state to database for: ${selectedFurniture}`,
+                      );
+                      saveFurnitureState(selectedFurniture);
                     } else {
                       console.warn(
                         `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,

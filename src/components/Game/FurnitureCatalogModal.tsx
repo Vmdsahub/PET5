@@ -20,6 +20,11 @@ import {
   simpleFurnitureService as furnitureService,
   CustomFurniture,
 } from "../../services/simpleFurnitureService";
+import {
+  roomDecorationService,
+  FurnitureState,
+} from "../../services/roomDecorationService";
+import { useAuthStore } from "../../store/authStore";
 
 interface FurnitureItem {
   id: string;
@@ -73,6 +78,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [customFurniture, setCustomFurniture] = useState<CustomFurniture[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [modifiedFurnitureStates, setModifiedFurnitureStates] = useState<
+    Map<string, FurnitureState>
+  >(new Map());
+  const { user } = useAuthStore();
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadData, setUploadData] = useState({
@@ -119,18 +128,49 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   };
 
+  // Load modified furniture states from database
+  const loadModifiedFurnitureStates = async () => {
+    if (!user?.id || !isAdmin) return;
+
+    try {
+      console.log("📊 Loading modified furniture states for catalog...");
+      const result = await roomDecorationService.loadUserRoomDecorations(
+        user.id,
+      );
+
+      if (result.success && result.decorations) {
+        const statesMap = new Map<string, FurnitureState>();
+        result.decorations.forEach((decoration) => {
+          // Create a mapping of furniture_id to its current state
+          statesMap.set(decoration.furniture_id, decoration);
+        });
+
+        console.log(
+          `📊 Loaded ${statesMap.size} modified furniture states for catalog`,
+        );
+        setModifiedFurnitureStates(statesMap);
+      }
+    } catch (error) {
+      console.error("Error loading modified furniture states:", error);
+    }
+  };
+
   // Add admin section with custom furniture
   useEffect(() => {
     if (isAdmin) {
       loadCustomFurniture();
+      loadModifiedFurnitureStates();
     }
   }, [isAdmin]);
 
   // Reload furniture when modal opens or refresh trigger changes
   useEffect(() => {
     if (isOpen && isAdmin) {
-      console.log("Modal opened, reloading custom furniture...");
+      console.log(
+        "Modal opened, reloading custom furniture and modified states...",
+      );
       loadCustomFurniture();
+      loadModifiedFurnitureStates();
     }
   }, [isOpen, isAdmin, refreshTrigger]);
 
@@ -158,18 +198,51 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
         const createCatalogItem = (
           furniture: any,
           sectionId: string,
-        ): FurnitureItem => ({
-          id: furniture.id,
-          name: furniture.name,
-          price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
-          currency: furniture.currency || "xenocoins",
-          thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
-          category: sectionId,
-          description: furniture.description || "Móvel customizado.",
-          adminOnly: sectionId === "admin",
-          type: `custom_${furniture.id}`,
-          catalogSection: furniture.catalogSection || "admin", // Store original section
-        });
+        ): FurnitureItem => {
+          // Check if this furniture has modified properties in the room
+          const furnitureType = `custom_${furniture.id}`;
+          let modifiedState: FurnitureState | undefined;
+
+          // Look for any furniture in the room that uses this type
+          for (const [
+            furnitureId,
+            state,
+          ] of modifiedFurnitureStates.entries()) {
+            if (state.furniture_type === furnitureType) {
+              modifiedState = state;
+              console.log(
+                `🎯 Found modified state for ${furniture.id}:`,
+                modifiedState,
+              );
+              break;
+            }
+          }
+
+          const baseItem: FurnitureItem = {
+            id: furniture.id,
+            name: furniture.name,
+            price: sectionId === "admin" ? 0 : (furniture.price ?? 100), // Admin items are free, others keep their price
+            currency: furniture.currency || "xenocoins",
+            thumbnail: furniture.thumbnail_url || "", // Use stored thumbnail if available
+            category: sectionId,
+            description: furniture.description || "Móvel customizado.",
+            adminOnly: sectionId === "admin",
+            type: furnitureType,
+            catalogSection: furniture.catalogSection || "admin", // Store original section
+          };
+
+          // Add modified properties if they exist
+          if (modifiedState && isAdmin) {
+            baseItem.description += modifiedState.scale
+              ? ` (Escala: ${modifiedState.scale.x.toFixed(1)}x${modifiedState.scale.y.toFixed(1)}x${modifiedState.scale.z.toFixed(1)})`
+              : "";
+            baseItem.description += modifiedState.material
+              ? ` (Cor: ${modifiedState.material.color})`
+              : "";
+          }
+
+          return baseItem;
+        };
 
         // Distribute custom furniture to appropriate sections
         const adminItems = customFurniture
@@ -581,137 +654,23 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        {section.items.map((item) => (
-                          <motion.div
-                            key={item.id}
-                            className={`p-3 mx-4 mb-2 border border-gray-200 rounded-lg cursor-pointer transition-all ${
-                              selectedItem?.id === item.id
-                                ? "bg-blue-50 border-blue-300"
-                                : "hover:bg-gray-50"
-                            } ${!canAfford(item) ? "opacity-60" : ""}`}
-                            onClick={() => setSelectedItem(item)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                                {item.type?.startsWith("custom_") ? (
-                                  <CatalogThumbnail item={item} />
-                                ) : (
-                                  <Package className="w-5 h-5 text-gray-500" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-gray-800">
-                                    {item.name}
-                                  </span>
-                                  {item.isLimited && (
-                                    <Clock className="w-3 h-3 text-orange-500" />
-                                  )}
-                                  {item.adminOnly && (
-                                    <Crown className="w-3 h-3 text-purple-500" />
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-1 mt-1">
-                                  {getCurrencyIcon(item.currency)}
-                                  <span className="text-xs font-semibold text-gray-600">
-                                    {item.price.toLocaleString()}
-                                  </span>
-                                </div>
-                              </div>
-                              {/* Action buttons for custom items */}
-                              {item.type?.startsWith("custom_") && isAdmin && (
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex gap-1">
-                                    {/* Move to section dropdown */}
-                                    <select
-                                      onClick={(e) => e.stopPropagation()}
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        handleMoveToSection(
-                                          item.id,
-                                          e.target.value as any,
-                                        );
-                                      }}
-                                      value={item.catalogSection || "admin"}
-                                      className="text-xs px-1 py-1 border rounded hover:bg-gray-50 transition-colors"
-                                      title="Mover para seção"
-                                    >
-                                      <option value="admin">Admin</option>
-                                      <option value="basic">Básicos</option>
-                                      <option value="xenocash">Xenocash</option>
-                                      <option value="limited">Limitado</option>
-                                    </select>
-
-                                    {/* Delete button */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteCustomFurniture(item.id);
-                                      }}
-                                      className="p-1 hover:bg-red-100 rounded transition-colors"
-                                      title="Deletar modelo"
-                                    >
-                                      <Trash2 className="w-3 h-3 text-red-600" />
-                                    </button>
-                                  </div>
-
-                                  {/* Price editing for non-admin sections */}
-                                  {item.catalogSection !== "admin" && (
-                                    <div className="flex gap-1 items-center">
-                                      <input
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                        value={item.price || 0}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          const newPrice =
-                                            e.target.value === ""
-                                              ? 0
-                                              : Number(e.target.value);
-                                          console.log(
-                                            `💰 Updating price from ${item.price} to: ${newPrice} (${item.currency})`,
-                                          );
-                                          console.log(
-                                            `📊 Input value: "${e.target.value}", Parsed: ${newPrice}, Type: ${typeof newPrice}`,
-                                          );
-                                          handleUpdatePrice(
-                                            item.id,
-                                            newPrice,
-                                            item.currency,
-                                          );
-                                        }}
-                                        className="w-16 text-xs px-1 py-1 border rounded"
-                                        title="Preço (0 = gratuito)"
-                                        placeholder="0"
-                                      />
-                                      <select
-                                        value={item.currency}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          handleUpdatePrice(
-                                            item.id,
-                                            item.price,
-                                            e.target.value as any,
-                                          );
-                                        }}
-                                        className="text-xs px-1 py-1 border rounded"
-                                        title="Moeda"
-                                      >
-                                        <option value="xenocoins">XC</option>
-                                        <option value="xenocash">XS</option>
-                                      </select>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
+                        {/* Grid layout for furniture items */}
+                        <div className="grid grid-cols-4 gap-2 p-3">
+                          {section.items.map((item) => (
+                            <FurnitureGridCard
+                              key={item.id}
+                              item={item}
+                              isSelected={selectedItem?.id === item.id}
+                              canAfford={canAfford(item)}
+                              isAdmin={isAdmin}
+                              onSelect={setSelectedItem}
+                              onMoveToSection={handleMoveToSection}
+                              onUpdatePrice={handleUpdatePrice}
+                              onDelete={handleDeleteCustomFurniture}
+                              getCurrencyIcon={getCurrencyIcon}
+                            />
+                          ))}
+                        </div>
 
                         {/* Upload button for admin section */}
                         {section.id === "admin" &&
@@ -748,8 +707,12 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
               <div className="flex flex-col h-full">
                 {/* Item Image */}
                 <div className="flex-1 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                  <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <Package className="w-16 h-16 text-gray-400" />
+                  <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                    {selectedItem.type?.startsWith("custom_") ? (
+                      <CatalogThumbnail item={selectedItem} size="large" />
+                    ) : (
+                      <Package className="w-16 h-16 text-gray-400" />
+                    )}
                   </div>
                 </div>
 
@@ -1047,7 +1010,10 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
 };
 
 // Component to show thumbnails for catalog items
-const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
+const CatalogThumbnail: React.FC<{
+  item: FurnitureItem;
+  size?: "small" | "large";
+}> = ({ item, size = "small" }) => {
   // If we have a stored thumbnail (real 3D thumbnail), use it
   if (
     item.thumbnail &&
@@ -1070,15 +1036,217 @@ const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
 
   // For GLB items without thumbnail, show a better 3D indicator
   if (item.type?.startsWith("custom_")) {
+    const isLarge = size === "large";
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 rounded">
-        <div className="w-6 h-6 bg-gradient-to-br from-purple-200 to-blue-200 rounded-lg flex items-center justify-center mb-1 shadow-sm">
-          <span className="text-purple-700 font-bold text-xs">3D</span>
+        <div
+          className={`${isLarge ? "w-16 h-16" : "w-6 h-6"} bg-gradient-to-br from-purple-200 to-blue-200 rounded-lg flex items-center justify-center ${isLarge ? "mb-2" : "mb-1"} shadow-sm`}
+        >
+          <span
+            className={`text-purple-700 font-bold ${isLarge ? "text-lg" : "text-xs"}`}
+          >
+            3D
+          </span>
         </div>
-        <span className="text-purple-600 text-xs font-medium">Model</span>
+        <span
+          className={`text-purple-600 ${isLarge ? "text-sm" : "text-xs"} font-medium`}
+        >
+          Model
+        </span>
+        {isLarge && (
+          <span className="text-purple-500 text-xs mt-1 text-center px-2">
+            {item.name}
+          </span>
+        )}
       </div>
     );
   }
 
-  return <Package className="w-5 h-5 text-gray-500" />;
+  return (
+    <Package
+      className={`${size === "large" ? "w-16 h-16" : "w-5 h-5"} text-gray-500`}
+    />
+  );
+};
+
+// Grid card component for furniture items
+interface FurnitureGridCardProps {
+  item: FurnitureItem;
+  isSelected: boolean;
+  canAfford: boolean;
+  isAdmin: boolean;
+  onSelect: (item: FurnitureItem) => void;
+  onMoveToSection: (
+    furnitureId: string,
+    newSection: "admin" | "basic" | "xenocash" | "limited",
+  ) => void;
+  onUpdatePrice: (
+    furnitureId: string,
+    price: number,
+    currency: "xenocoins" | "xenocash",
+  ) => void;
+  onDelete: (furnitureId: string) => void;
+  getCurrencyIcon: (currency: "xenocoins" | "xenocash") => React.ReactNode;
+}
+
+const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
+  item,
+  isSelected,
+  canAfford,
+  isAdmin,
+  onSelect,
+  onMoveToSection,
+  onUpdatePrice,
+  onDelete,
+  getCurrencyIcon,
+}) => {
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowAdminMenu(false);
+    };
+
+    if (showAdminMenu) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showAdminMenu]);
+
+  return (
+    <motion.div
+      className={`relative aspect-square border-2 rounded-lg cursor-pointer transition-all ${
+        isSelected
+          ? "border-blue-500 bg-blue-50"
+          : "border-gray-200 hover:border-gray-300"
+      } ${!canAfford ? "opacity-60" : ""}`}
+      onClick={() => onSelect(item)}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (isAdmin && item.type?.startsWith("custom_")) {
+          setShowAdminMenu(!showAdminMenu);
+        }
+      }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      {/* Thumbnail */}
+      <div className="w-full h-3/4 bg-gray-100 rounded-t-lg flex items-center justify-center overflow-hidden">
+        {item.type?.startsWith("custom_") ? (
+          <CatalogThumbnail item={item} />
+        ) : (
+          <Package className="w-8 h-8 text-gray-500" />
+        )}
+      </div>
+
+      {/* Price and currency */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-white rounded-b-lg border-t border-gray-200 flex items-center justify-center px-2">
+        <div className="flex items-center gap-1">
+          {getCurrencyIcon(item.currency)}
+          <span className="text-sm font-semibold text-gray-700">
+            {item.price.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      {/* Status indicators */}
+      <div className="absolute top-1 right-1 flex gap-1">
+        {item.isLimited && (
+          <div className="bg-orange-500 rounded-full p-1">
+            <Clock className="w-3 h-3 text-white" />
+          </div>
+        )}
+        {item.adminOnly && (
+          <div className="bg-purple-500 rounded-full p-1">
+            <Crown className="w-3 h-3 text-white" />
+          </div>
+        )}
+        {isAdmin && item.description?.includes("Escala:") && (
+          <div className="bg-blue-500 rounded-full p-1">
+            <span className="text-white text-xs font-bold">M</span>
+          </div>
+        )}
+      </div>
+
+      {/* Admin context menu */}
+      {showAdminMenu && isAdmin && item.type?.startsWith("custom_") && (
+        <div
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 p-3 min-w-52 max-w-64"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="space-y-2">
+            {/* Section selector */}
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Seção:</label>
+              <select
+                value={item.catalogSection || "admin"}
+                onChange={(e) => {
+                  onMoveToSection(item.id, e.target.value as any);
+                  setShowAdminMenu(false);
+                }}
+                className="w-full text-xs px-2 py-1 border rounded"
+              >
+                <option value="admin">Admin</option>
+                <option value="basic">Básicos</option>
+                <option value="xenocash">Xenocash</option>
+                <option value="limited">Limitado</option>
+              </select>
+            </div>
+
+            {/* Price editor for non-admin sections */}
+            {item.catalogSection !== "admin" && (
+              <div className="space-y-1">
+                <label className="text-xs text-gray-600 block">Preço:</label>
+                <div className="flex gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={item.price || 0}
+                    onChange={(e) => {
+                      const newPrice =
+                        e.target.value === "" ? 0 : Number(e.target.value);
+                      onUpdatePrice(item.id, newPrice, item.currency);
+                    }}
+                    className="flex-1 text-xs px-2 py-1 border rounded"
+                    placeholder="0"
+                  />
+                  <select
+                    value={item.currency}
+                    onChange={(e) => {
+                      onUpdatePrice(item.id, item.price, e.target.value as any);
+                    }}
+                    className="text-xs px-2 py-1 border rounded"
+                  >
+                    <option value="xenocoins">XC</option>
+                    <option value="xenocash">XS</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Delete button */}
+            <button
+              onClick={() => {
+                onDelete(item.id);
+                setShowAdminMenu(false);
+              }}
+              className="w-full px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+            >
+              Deletar
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdminMenu(false)}
+              className="w-full px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
 };

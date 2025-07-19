@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { supabase, isMockMode } from "../lib/supabase";
 
 export interface RoomDecoration {
   id?: number;
@@ -46,6 +46,24 @@ class RoomDecorationService {
     furnitureState: FurnitureState,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE DETECTED: Using localStorage fallback for persistence",
+        );
+
+        // Use localStorage as fallback in mock mode
+        const storageKey = `furniture_${userId}_${furnitureState.furniture_id}`;
+        const dataToStore = {
+          ...furnitureState,
+          updated_at: new Date().toISOString(),
+          is_active: true,
+        };
+
+        localStorage.setItem(storageKey, JSON.stringify(dataToStore));
+        console.log("💾 Saved to localStorage:", storageKey, dataToStore);
+
+        return { success: true };
+      }
       const decorationData: Partial<RoomDecoration> = {
         user_id: userId,
         furniture_id: furnitureState.furniture_id,
@@ -70,6 +88,11 @@ class RoomDecorationService {
         decorationData.material_emissive = furnitureState.material.emissive;
       }
 
+      console.log("🗄️ Attempting to save to database:", {
+        table: "user_room_decorations",
+        data: decorationData,
+      });
+
       const { error } = await supabase
         .from("user_room_decorations")
         .upsert(decorationData, {
@@ -77,10 +100,12 @@ class RoomDecorationService {
         });
 
       if (error) {
-        console.error("Error saving furniture state:", error);
+        console.error("❌ Database save error:", error);
         console.error("Error details:", {
           code: error.code,
           message: error.message,
+          details: error.details,
+          hint: error.hint,
         });
 
         // If table doesn't exist, warn but don't fail
@@ -89,7 +114,10 @@ class RoomDecorationService {
           error.message.includes("does not exist")
         ) {
           console.warn(
-            "⚠️ user_room_decorations table does not exist yet. Skipping save.",
+            "⚠️ DATABASE TABLE MISSING: user_room_decorations table does not exist yet. FURNITURE STATE NOT SAVED!",
+          );
+          console.warn(
+            "📋 This means all furniture modifications will be lost!",
           );
           return { success: true }; // Return success to not break the flow
         }
@@ -118,11 +146,56 @@ class RoomDecorationService {
     try {
       console.log(`🔍 Loading decorations for user: ${userId}`);
 
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE DETECTED: Loading from localStorage fallback",
+        );
+
+        // Load from localStorage in mock mode
+        const decorations: FurnitureState[] = [];
+        const storagePrefix = `furniture_${userId}_`;
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(storagePrefix)) {
+            try {
+              const storedData = JSON.parse(localStorage.getItem(key) || "{}");
+              if (storedData.is_active) {
+                decorations.push({
+                  furniture_id: storedData.furniture_id,
+                  furniture_type: storedData.furniture_type,
+                  position: storedData.position,
+                  rotation: storedData.rotation,
+                  scale: storedData.scale,
+                  material: storedData.material,
+                });
+              }
+            } catch (error) {
+              console.warn(`Failed to parse localStorage item ${key}:`, error);
+            }
+          }
+        }
+
+        console.log(
+          `📦 Loaded ${decorations.length} decorations from localStorage:`,
+          decorations,
+        );
+        return { success: true, decorations };
+      }
+
+      console.log("🗄️ Querying database table: user_room_decorations");
+
       // Query with user_id and filter active ones locally
       const { data, error } = await supabase
         .from("user_room_decorations")
         .select("*")
         .eq("user_id", userId);
+
+      console.log("📊 Database query result:", {
+        dataCount: data?.length || 0,
+        hasError: !!error,
+        errorCode: error?.code,
+      });
 
       if (error) {
         console.error("Error loading room decorations:", error);
@@ -139,7 +212,10 @@ class RoomDecorationService {
           error.message.includes("does not exist")
         ) {
           console.warn(
-            "⚠️ user_room_decorations table does not exist yet. Returning empty decorations.",
+            "⚠️ DATABASE TABLE MISSING: user_room_decorations table does not exist yet. NO FURNITURE STATE CAN BE LOADED!",
+          );
+          console.warn(
+            "📋 This explains why furniture modifications are not persisting!",
           );
           return { success: true, decorations: [] };
         }
@@ -353,6 +429,108 @@ class RoomDecorationService {
       return { success: true, furniture };
     } catch (error) {
       console.error("Error in getFurnitureState:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
+
+  /**
+   * Save furniture templates (admin modifications that apply to all instances)
+   */
+  async saveFurnitureTemplates(
+    userId: string,
+    templates: Map<
+      string,
+      {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    >,
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE: Saving furniture templates to localStorage",
+        );
+
+        const storageKey = `furniture_templates_${userId}`;
+        const templatesData = Object.fromEntries(templates);
+
+        localStorage.setItem(storageKey, JSON.stringify(templatesData));
+        console.log(
+          "💾 Saved furniture templates to localStorage:",
+          templatesData,
+        );
+
+        return { success: true };
+      }
+
+      // TODO: Implement real database storage for templates
+      console.log("📋 Real database template storage not implemented yet");
+      return { success: true };
+    } catch (error) {
+      console.error("Error saving furniture templates:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
+
+  /**
+   * Load furniture templates
+   */
+  async loadFurnitureTemplates(userId: string): Promise<{
+    success: boolean;
+    templates?: Map<
+      string,
+      {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    >;
+    error?: string;
+  }> {
+    try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE: Loading furniture templates from localStorage",
+        );
+
+        const storageKey = `furniture_templates_${userId}`;
+        const storedData = localStorage.getItem(storageKey);
+
+        if (storedData) {
+          const templatesData = JSON.parse(storedData);
+          const templates = new Map(Object.entries(templatesData));
+          console.log(
+            "📦 Loaded furniture templates from localStorage:",
+            templatesData,
+          );
+          return { success: true, templates };
+        } else {
+          console.log("📦 No furniture templates found in localStorage");
+          return { success: true, templates: new Map() };
+        }
+      }
+
+      // TODO: Implement real database loading for templates
+      console.log("📋 Real database template loading not implemented yet");
+      return { success: true, templates: new Map() };
+    } catch (error) {
+      console.error("Error loading furniture templates:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",

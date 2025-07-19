@@ -651,6 +651,30 @@ export class RoomExperience {
     return this.furnitureManager.getFurnitureById(objectId);
   }
 
+  // Template management methods
+  public getAllTemplates() {
+    return this.furnitureManager.getAllTemplates();
+  }
+
+  public setFurnitureTemplate(
+    furnitureType: string,
+    template: {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    },
+  ) {
+    return this.furnitureManager.setFurnitureTemplate(furnitureType, template);
+  }
+
+  public getFurnitureTemplate(furnitureType: string) {
+    return this.furnitureManager.getFurnitureTemplate(furnitureType);
+  }
+
   public updateFurnitureScale(
     objectId: string,
     scale: { x: number; y: number; z: number },

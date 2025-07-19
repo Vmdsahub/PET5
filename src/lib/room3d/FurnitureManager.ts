@@ -6,6 +6,15 @@ interface FurnitureItem {
   object: THREE.Object3D;
   type: string;
   originalScale: THREE.Vector3;
+  originalMaterials: Map<
+    THREE.Mesh,
+    {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    }
+  >;
   canMove: boolean;
   canRotate: boolean;
   canScale: boolean;
@@ -17,6 +26,20 @@ export class FurnitureManager {
   private furniture: Map<string, FurnitureItem>;
   private furnitureFactory: FurnitureFactory;
   private furnitureLights: Map<string, THREE.PointLight>;
+
+  // Global furniture templates for admin modifications
+  private furnitureTemplates: Map<
+    string,
+    {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    }
+  > = new Map();
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -84,11 +107,53 @@ export class FurnitureManager {
       `✅ Furniture positioned at: ${furnitureObject.position.x}, ${furnitureObject.position.y}, ${furnitureObject.position.z}`,
     );
 
+    // Store original material properties
+    const originalMaterials = new Map<
+      THREE.Mesh,
+      {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      }
+    >();
+
+    furnitureObject.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          // For material arrays, store the first material as representative
+          const mat = child.material[0] as THREE.MeshStandardMaterial;
+          if (mat) {
+            originalMaterials.set(child, {
+              roughness: mat.roughness || 0.5,
+              metalness: mat.metalness || 0,
+              color: "#" + mat.color.getHexString(),
+              emissive: "#" + mat.emissive.getHexString(),
+            });
+          }
+        } else {
+          const mat = child.material as THREE.MeshStandardMaterial;
+          originalMaterials.set(child, {
+            roughness: mat.roughness || 0.5,
+            metalness: mat.metalness || 0,
+            color: "#" + mat.color.getHexString(),
+            emissive: "#" + mat.emissive.getHexString(),
+          });
+        }
+      }
+    });
+
+    console.log(
+      `📦 Stored original materials for ${id}:`,
+      Array.from(originalMaterials.values()),
+    );
+
     const furnitureItem: FurnitureItem = {
       id,
       object: furnitureObject,
       type,
       originalScale: furnitureObject.scale.clone(),
+      originalMaterials,
       canMove: true,
       canRotate: true,
       canScale: true,
@@ -96,6 +161,29 @@ export class FurnitureManager {
 
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
+
+    // Apply any existing template modifications for this furniture type
+    const template = this.furnitureTemplates.get(type);
+    if (template) {
+      console.log(
+        `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
+        template,
+      );
+
+      if (template.scale) {
+        furnitureObject.scale.set(
+          template.scale.x,
+          template.scale.y,
+          template.scale.z,
+        );
+        console.log(`  📐 Applied template scale:`, template.scale);
+      }
+
+      if (template.material) {
+        this.applyMaterialToObject(furnitureObject, template.material);
+        console.log(`  🎨 Applied template material:`, template.material);
+      }
+    }
   }
 
   public getFurnitureById(id: string): FurnitureItem | undefined {
@@ -239,10 +327,129 @@ export class FurnitureManager {
     scale: { x: number; y: number; z: number },
   ): boolean {
     const item = this.furniture.get(id);
-    if (!item) return false;
+    if (!item) {
+      console.warn(`❌ updateFurnitureScale: furniture ${id} not found`);
+      return false;
+    }
 
-    item.object.scale.set(scale.x, scale.y, scale.z);
+    console.log(`📐 updateFurnitureScale: ${id}`, {
+      currentScale: {
+        x: item.object.scale.x,
+        y: item.object.scale.y,
+        z: item.object.scale.z,
+      },
+      newScale: scale,
+      furnitureType: item.type,
+    });
+
+    // Update the template for this furniture type
+    this.updateFurnitureTemplate(item.type, { scale });
+
+    // Apply scale to ALL instances of this furniture type
+    this.applyTemplateToAllInstances(item.type);
+
     return true;
+  }
+
+  public updateFurnitureTemplate(
+    furnitureType: string,
+    modifications: {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    },
+  ): void {
+    console.log(
+      `🎯 Updating template for furniture type: ${furnitureType}`,
+      modifications,
+    );
+
+    let template = this.furnitureTemplates.get(furnitureType) || {};
+
+    if (modifications.scale) {
+      template.scale = modifications.scale;
+    }
+
+    if (modifications.material) {
+      template.material = modifications.material;
+    }
+
+    this.furnitureTemplates.set(furnitureType, template);
+    console.log(`💾 Template updated for ${furnitureType}:`, template);
+  }
+
+  public applyTemplateToAllInstances(furnitureType: string): void {
+    const template = this.furnitureTemplates.get(furnitureType);
+    if (!template) return;
+
+    console.log(
+      `🌐 Applying template to all instances of type: ${furnitureType}`,
+    );
+
+    let instanceCount = 0;
+    this.furniture.forEach((item, itemId) => {
+      if (item.type === furnitureType) {
+        instanceCount++;
+        console.log(`  🔄 Updating instance: ${itemId}`);
+
+        // Apply scale if defined in template
+        if (template.scale) {
+          item.object.scale.set(
+            template.scale.x,
+            template.scale.y,
+            template.scale.z,
+          );
+          console.log(`    📐 Applied scale:`, template.scale);
+        }
+
+        // Apply material if defined in template
+        if (template.material) {
+          this.applyMaterialToObject(item.object, template.material);
+          console.log(`    🎨 Applied material:`, template.material);
+        }
+      }
+    });
+
+    console.log(
+      `✅ Applied template to ${instanceCount} instances of ${furnitureType}`,
+    );
+  }
+
+  private applyMaterialToObject(
+    object: THREE.Object3D,
+    materialProps: {
+      roughness: number;
+      metalness: number;
+      color: string;
+      emissive: string;
+    },
+  ): void {
+    object.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((material) => {
+            if (material instanceof THREE.MeshStandardMaterial) {
+              material.roughness = materialProps.roughness;
+              material.metalness = materialProps.metalness;
+              material.color.setStyle(materialProps.color);
+              material.emissive.setStyle(materialProps.emissive);
+              material.needsUpdate = true;
+            }
+          });
+        } else {
+          const material = child.material as THREE.MeshStandardMaterial;
+          material.roughness = materialProps.roughness;
+          material.metalness = materialProps.metalness;
+          material.color.setStyle(materialProps.color);
+          material.emissive.setStyle(materialProps.emissive);
+          material.needsUpdate = true;
+        }
+      }
+    });
   }
 
   public updateFurnitureRotation(
@@ -291,41 +498,32 @@ export class FurnitureManager {
       return false;
     }
 
-    let meshCount = 0;
-    item.object.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        meshCount++;
-        const material = child.material as THREE.MeshStandardMaterial;
-        console.log(`🔧 Updating mesh ${meshCount} material:`, {
-          oldRoughness: material.roughness,
-          oldMetalness: material.metalness,
-          newProps: materialProps,
-        });
+    // Create complete material object for template
+    const currentMaterial = this.getFurnitureProperties(id)?.material || {
+      roughness: 0.5,
+      metalness: 0,
+      color: "#ffffff",
+      emissive: "#000000",
+    };
 
-        if (materialProps.roughness !== undefined) {
-          material.roughness = materialProps.roughness;
-        }
-        if (materialProps.metalness !== undefined) {
-          material.metalness = materialProps.metalness;
-        }
-        if (materialProps.color !== undefined) {
-          material.color.setStyle(materialProps.color);
-        }
-        if (materialProps.emissive !== undefined) {
-          material.emissive.setStyle(materialProps.emissive);
-        }
+    const updatedMaterial = {
+      roughness: materialProps.roughness ?? currentMaterial.roughness,
+      metalness: materialProps.metalness ?? currentMaterial.metalness,
+      color: materialProps.color ?? currentMaterial.color,
+      emissive: materialProps.emissive ?? currentMaterial.emissive,
+    };
 
-        material.needsUpdate = true;
-        console.log(`✅ Material updated:`, {
-          roughness: material.roughness,
-          metalness: material.metalness,
-          color: material.color.getHexString(),
-          emissive: material.emissive.getHexString(),
-        });
-      }
-    });
+    console.log(
+      `🎯 Updating template for type: ${item.type} with material:`,
+      updatedMaterial,
+    );
 
-    console.log(`📊 Total meshes updated: ${meshCount}`);
+    // Update the template for this furniture type
+    this.updateFurnitureTemplate(item.type, { material: updatedMaterial });
+
+    // Apply to ALL instances of this furniture type
+    this.applyTemplateToAllInstances(item.type);
+
     return true;
   }
 
@@ -377,16 +575,42 @@ export class FurnitureManager {
 
     console.log(`🔄 Resetting furniture to defaults: ${id} (${item.type})`);
 
-    // For custom GLB furniture, reload from cache to get original state
-    if (item.type.startsWith("custom_")) {
-      console.log(`🎯 Resetting custom GLB furniture: ${id}`);
-      this.resetCustomFurnitureToOriginal(id, item);
-    } else {
-      console.log(`🏠 Resetting built-in furniture: ${id}`);
-      this.resetBuiltInFurnitureToDefaults(item);
-    }
+    // Clear the template for this furniture type so all instances reset
+    console.log(`🗑️ Clearing template for furniture type: ${item.type}`);
+    this.furnitureTemplates.delete(item.type);
+
+    // Reset ALL instances of this furniture type to original state
+    this.resetAllInstancesOfType(item.type);
 
     return true;
+  }
+
+  private resetAllInstancesOfType(furnitureType: string): void {
+    console.log(`🌐 Resetting ALL instances of type: ${furnitureType}`);
+
+    let instanceCount = 0;
+    this.furniture.forEach((item, itemId) => {
+      if (item.type === furnitureType) {
+        instanceCount++;
+        console.log(`  🔄 Resetting instance: ${itemId}`);
+
+        // Reset scale to original
+        item.object.scale.copy(item.originalScale);
+        console.log(`    📐 Reset scale to original:`, {
+          x: item.originalScale.x,
+          y: item.originalScale.y,
+          z: item.originalScale.z,
+        });
+
+        // Reset materials to original
+        this.resetMaterialProperties(item.object, itemId);
+        console.log(`    🎨 Reset materials to original`);
+      }
+    });
+
+    console.log(
+      `✅ Reset ${instanceCount} instances of ${furnitureType} to original state`,
+    );
   }
 
   // Debug method to get cache keys
@@ -455,10 +679,22 @@ export class FurnitureManager {
         this.furnitureGroup.remove(item.object);
         console.log(`🗑️ Removed current object from scene`);
 
+        // Store current userData to preserve it
+        const currentUserData = { ...item.object.userData };
+        console.log(`💾 Preserving userData:`, currentUserData);
+
         // Clone the original model
         const resetObject = originalModel.clone();
         resetObject.position.copy(currentPosition); // Keep current position
-        resetObject.userData = { id, type: item.type }; // Restore userData
+
+        // Restore userData with all original information
+        resetObject.userData = {
+          id,
+          type: item.type,
+          ...currentUserData, // Preserve originalName, originalStoreId, etc.
+        };
+
+        console.log(`✅ Restored userData:`, resetObject.userData);
 
         console.log(`📐 Reset object scale:`, resetObject.scale);
         console.log(`📍 Reset object position:`, resetObject.position);
@@ -466,6 +702,39 @@ export class FurnitureManager {
         // Update the furniture item
         item.object = resetObject;
         item.originalScale = resetObject.scale.clone();
+
+        // Update the original materials map to point to the new cloned meshes
+        const newOriginalMaterials = new Map();
+        resetObject.traverse((child) => {
+          if (child instanceof THREE.Mesh && child.material) {
+            // Find corresponding original material properties
+            if (Array.isArray(child.material)) {
+              const mat = child.material[0] as THREE.MeshStandardMaterial;
+              if (mat) {
+                newOriginalMaterials.set(child, {
+                  roughness: mat.roughness || 0.5,
+                  metalness: mat.metalness || 0,
+                  color: "#" + mat.color.getHexString(),
+                  emissive: "#" + mat.emissive.getHexString(),
+                });
+              }
+            } else {
+              const mat = child.material as THREE.MeshStandardMaterial;
+              newOriginalMaterials.set(child, {
+                roughness: mat.roughness || 0.5,
+                metalness: mat.metalness || 0,
+                color: "#" + mat.color.getHexString(),
+                emissive: "#" + mat.emissive.getHexString(),
+              });
+            }
+          }
+        });
+
+        item.originalMaterials = newOriginalMaterials;
+        console.log(
+          `🎨 Updated original materials for cloned object:`,
+          Array.from(newOriginalMaterials.values()),
+        );
 
         // Add back to scene
         this.furnitureGroup.add(resetObject);
@@ -477,32 +746,128 @@ export class FurnitureManager {
           `🧰 Available cache keys:`,
           Array.from(this.furnitureFactory.getCacheKeys()),
         );
-        console.log(`⬇️ Falling back to basic reset`);
-        this.resetBuiltInFurnitureToDefaults(item);
+        console.log(
+          `⬇️ Falling back to material-only reset for custom furniture`,
+        );
+        // For custom furniture without cache, just reset materials and scale
+        this.resetCustomFurnitureMaterialsOnly(item);
       }
     } catch (error) {
       console.error(`❌ Error resetting custom furniture ${id}:`, error);
-      this.resetBuiltInFurnitureToDefaults(item);
+      this.resetCustomFurnitureMaterialsOnly(item);
     }
   }
 
   private resetBuiltInFurnitureToDefaults(item: FurnitureItem): void {
+    console.log(`🔄 Resetting built-in furniture: ${item.id}`);
+
     // Reset to original scale (stored when created)
     item.object.scale.copy(item.originalScale);
     item.object.rotation.set(0, 0, 0);
     // Keep current position - don't reset to (0,0,0)
 
-    // Reset material properties for built-in furniture only
-    item.object.traverse((child) => {
+    // Reset material properties for built-in furniture
+    this.resetMaterialProperties(item.object, item.id);
+    console.log(`✅ Built-in furniture reset completed: ${item.id}`);
+  }
+
+  private resetCustomFurnitureMaterialsOnly(item: FurnitureItem): void {
+    console.log(
+      `🎨 Resetting custom furniture materials and scale only: ${item.id}`,
+    );
+
+    // Reset to original scale (stored when created)
+    item.object.scale.copy(item.originalScale);
+    item.object.rotation.set(0, 0, 0);
+    // Keep current position - don't reset to (0,0,0)
+
+    // Reset material properties for custom furniture
+    this.resetMaterialProperties(item.object, item.id);
+    console.log(`✅ Custom furniture materials reset completed: ${item.id}`);
+  }
+
+  private resetMaterialProperties(
+    object: THREE.Object3D,
+    furnitureId?: string,
+  ): void {
+    console.log(
+      `🎨 Resetting material properties for object (furniture: ${furnitureId})`,
+    );
+    let meshCount = 0;
+
+    // Try to get the furniture item to access original materials
+    const furnitureItem = furnitureId ? this.furniture.get(furnitureId) : null;
+
+    object.traverse((child) => {
       if (child instanceof THREE.Mesh && child.material) {
-        const material = child.material as THREE.MeshStandardMaterial;
-        material.roughness = 0.5;
-        material.metalness = 0;
-        material.color.setStyle("#ffffff");
-        material.emissive.setStyle("#000000");
-        material.needsUpdate = true;
+        meshCount++;
+
+        // Try to get original material properties for this mesh
+        const originalMaterial = furnitureItem?.originalMaterials.get(child);
+
+        // Handle both single materials and material arrays
+        if (Array.isArray(child.material)) {
+          console.log(
+            `🔧 Resetting material array for mesh ${meshCount} (${child.material.length} materials)`,
+          );
+          child.material.forEach((material, index) => {
+            if (material instanceof THREE.MeshStandardMaterial) {
+              console.log(
+                `   📝 Resetting material ${index + 1}/${child.material.length}:`,
+                {
+                  oldRoughness: material.roughness,
+                  oldMetalness: material.metalness,
+                  oldColor: material.color.getHexString(),
+                  oldEmissive: material.emissive.getHexString(),
+                  originalMaterial,
+                },
+              );
+
+              // Use original material properties if available, otherwise use defaults
+              material.roughness = originalMaterial?.roughness ?? 0.5;
+              material.metalness = originalMaterial?.metalness ?? 0;
+              material.color.setStyle(originalMaterial?.color ?? "#ffffff");
+              material.emissive.setStyle(
+                originalMaterial?.emissive ?? "#000000",
+              );
+              material.needsUpdate = true;
+
+              console.log(`   ✅ Material ${index + 1} reset to original:`, {
+                newRoughness: material.roughness,
+                newMetalness: material.metalness,
+                newColor: material.color.getHexString(),
+                newEmissive: material.emissive.getHexString(),
+              });
+            }
+          });
+        } else {
+          const material = child.material as THREE.MeshStandardMaterial;
+          console.log(`🔧 Resetting single material for mesh ${meshCount}:`, {
+            oldRoughness: material.roughness,
+            oldMetalness: material.metalness,
+            oldColor: material.color.getHexString(),
+            oldEmissive: material.emissive.getHexString(),
+            originalMaterial,
+          });
+
+          // Use original material properties if available, otherwise use defaults
+          material.roughness = originalMaterial?.roughness ?? 0.5;
+          material.metalness = originalMaterial?.metalness ?? 0;
+          material.color.setStyle(originalMaterial?.color ?? "#ffffff");
+          material.emissive.setStyle(originalMaterial?.emissive ?? "#000000");
+          material.needsUpdate = true;
+
+          console.log(`✅ Material reset for mesh ${meshCount} to original:`, {
+            newRoughness: material.roughness,
+            newMetalness: material.metalness,
+            newColor: material.color.getHexString(),
+            newEmissive: material.emissive.getHexString(),
+          });
+        }
       }
     });
+
+    console.log(`📊 Total meshes with materials reset: ${meshCount}`);
   }
 
   // Inventory management methods
@@ -675,6 +1040,52 @@ export class FurnitureManager {
     // Create the furniture
     await this.addFurniture(id, furnitureType, position, 0);
     return true;
+  }
+
+  // Template management methods
+  public getFurnitureTemplate(furnitureType: string):
+    | {
+        scale?: { x: number; y: number; z: number };
+        material?: {
+          roughness: number;
+          metalness: number;
+          color: string;
+          emissive: string;
+        };
+      }
+    | undefined {
+    return this.furnitureTemplates.get(furnitureType);
+  }
+
+  public setFurnitureTemplate(
+    furnitureType: string,
+    template: {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    },
+  ): void {
+    this.furnitureTemplates.set(furnitureType, template);
+    console.log(`💾 Set template for ${furnitureType}:`, template);
+  }
+
+  public getAllTemplates(): Map<
+    string,
+    {
+      scale?: { x: number; y: number; z: number };
+      material?: {
+        roughness: number;
+        metalness: number;
+        color: string;
+        emissive: string;
+      };
+    }
+  > {
+    return new Map(this.furnitureTemplates);
   }
 
   // Toggle furniture light (for lamps)
