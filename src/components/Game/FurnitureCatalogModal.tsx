@@ -1092,6 +1092,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
   getCurrencyIcon,
 }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   // Close menu when clicking outside
   useEffect(() => {
