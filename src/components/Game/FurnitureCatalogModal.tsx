@@ -867,8 +867,8 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             {/* Delete button */}
             <button
               onClick={() => {
-                if (selectedItem) {
-                  onDelete(selectedItem.id);
+                if (menuSelectedItem) {
+                  onDelete(menuSelectedItem.id);
                   setShowAdminMenu(false);
                 }
               }}
