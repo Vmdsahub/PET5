@@ -470,10 +470,10 @@ export class FurnitureManager {
     return true;
   }
 
-  private async resetCustomFurnitureToOriginal(
+  private resetCustomFurnitureToOriginal(
     id: string,
     item: FurnitureItem,
-  ): Promise<void> {
+  ): void {
     try {
       // Get the original cached model
       const furnitureId = item.type.replace("custom_", "");
@@ -482,12 +482,15 @@ export class FurnitureManager {
       if (originalModel) {
         console.log(`📦 Found cached original model for: ${furnitureId}`);
 
+        // Store current position
+        const currentPosition = item.object.position.clone();
+
         // Remove current object from scene
         this.furnitureGroup.remove(item.object);
 
         // Clone the original model
         const resetObject = originalModel.clone();
-        resetObject.position.copy(item.object.position); // Keep current position
+        resetObject.position.copy(currentPosition); // Keep current position
         resetObject.userData = { id, type: item.type }; // Restore userData
 
         // Update the furniture item
