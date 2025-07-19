@@ -1005,17 +1005,104 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
   );
 };
 
-// Component to show thumbnails for catalog items (same as inventory)
+// Component to show real thumbnails for catalog items
 const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
-  if (item.type?.startsWith("custom_")) {
-    // For GLB items, show 3D indicator - thumbnails will be generated when purchased
-    // This matches the behavior where thumbnails are created during the purchase flow
+  const [realThumbnail, setRealThumbnail] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateRealThumbnail = async () => {
+    if (!item.type?.startsWith("custom_") || isGenerating || realThumbnail) {
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      console.log(
+        `📸 Generating real thumbnail for catalog item: ${item.name}`,
+      );
+
+      // Access the global experience instance if available
+      const roomScreenElement = document.querySelector("[data-room-screen]");
+      if (roomScreenElement) {
+        // Try to access the experience from the room screen
+        const experienceScript = document.createElement("script");
+        experienceScript.textContent = `
+          window.generateCatalogThumbnail = async function(itemId, itemType) {
+            try {
+              // This will be executed in the context where experienceRef is available
+              const experienceRef = window.globalExperienceRef;
+              if (experienceRef?.current) {
+                const thumbnail = await experienceRef.current.generateThumbnailForPurchasedItem(itemId, itemType);
+                return thumbnail;
+              }
+            } catch (error) {
+              console.error('Error in catalog thumbnail generation:', error);
+            }
+            return null;
+          };
+        `;
+        document.head.appendChild(experienceScript);
+
+        // Try to generate thumbnail
+        const thumbnail = await (window as any).generateCatalogThumbnail?.(
+          item.id,
+          item.type,
+        );
+
+        if (thumbnail) {
+          console.log(`✅ Generated real thumbnail for catalog: ${item.name}`);
+          setRealThumbnail(thumbnail);
+        }
+
+        // Cleanup
+        document.head.removeChild(experienceScript);
+      }
+    } catch (error) {
+      console.error("Error generating real catalog thumbnail:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // If we have a stored thumbnail, use it
+  if (item.thumbnail && item.thumbnail.startsWith("data:image")) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-purple-50 rounded">
-        <div className="w-6 h-6 bg-purple-200 rounded flex items-center justify-center mb-1">
-          <span className="text-purple-700 font-bold text-xs">3D</span>
-        </div>
-        <span className="text-purple-600 text-xs font-medium">GLB</span>
+      <img
+        src={item.thumbnail}
+        alt={item.name}
+        className="w-full h-full object-cover rounded"
+      />
+    );
+  }
+
+  // If we generated a real thumbnail, use it
+  if (realThumbnail) {
+    return (
+      <img
+        src={realThumbnail}
+        alt={item.name}
+        className="w-full h-full object-cover rounded"
+      />
+    );
+  }
+
+  if (item.type?.startsWith("custom_")) {
+    return (
+      <div
+        className="w-full h-full flex flex-col items-center justify-center bg-purple-50 rounded cursor-pointer hover:bg-purple-100 transition-colors"
+        onClick={generateRealThumbnail}
+        title="Clique para gerar thumbnail real"
+      >
+        {isGenerating ? (
+          <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          <>
+            <div className="w-6 h-6 bg-purple-200 rounded flex items-center justify-center mb-1">
+              <span className="text-purple-700 font-bold text-xs">3D</span>
+            </div>
+            <span className="text-purple-600 text-xs font-medium">GLB</span>
+          </>
+        )}
       </div>
     );
   }
