@@ -1316,7 +1316,7 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
       {/* Thumbnail */}
       <div className="w-full h-3/4 bg-gray-100 rounded-t-lg flex items-center justify-center overflow-hidden">
         {item.type?.startsWith("custom_") ? (
-          <CatalogThumbnail item={item} />
+          <CatalogThumbnail item={item} roomExperience={roomExperience} />
         ) : (
           <Package className="w-8 h-8 text-gray-500" />
         )}
