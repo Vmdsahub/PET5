@@ -819,7 +819,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
             </div>
 
             {/* Price editor for non-admin sections */}
-            {selectedItem?.catalogSection !== "admin" && (
+            {menuSelectedItem?.catalogSection !== "admin" && (
               <div className="space-y-1">
                 <label className="text-xs font-medium text-gray-600 block">
                   Preço:
@@ -829,15 +829,15 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     type="number"
                     min="0"
                     step="1"
-                    value={selectedItem?.price || 0}
+                    value={menuSelectedItem?.price || 0}
                     onChange={(e) => {
-                      if (selectedItem) {
+                      if (menuSelectedItem) {
                         const newPrice =
                           e.target.value === "" ? 0 : Number(e.target.value);
                         onUpdatePrice(
-                          selectedItem.id,
+                          menuSelectedItem.id,
                           newPrice,
-                          selectedItem.currency,
+                          menuSelectedItem.currency,
                         );
                       }
                     }}
@@ -845,12 +845,12 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     placeholder="0"
                   />
                   <select
-                    value={selectedItem?.currency}
+                    value={menuSelectedItem?.currency}
                     onChange={(e) => {
-                      if (selectedItem) {
+                      if (menuSelectedItem) {
                         onUpdatePrice(
-                          selectedItem.id,
-                          selectedItem.price,
+                          menuSelectedItem.id,
+                          menuSelectedItem.price,
                           e.target.value as any,
                         );
                       }
