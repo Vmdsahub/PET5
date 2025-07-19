@@ -891,13 +891,17 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     placeholder="0"
                   />
                   <select
-                    value={menuSelectedItem?.currency}
+                    value={localCurrency}
                     onChange={(e) => {
+                      const newCurrency = e.target.value as
+                        | "xenocoins"
+                        | "xenocash";
+                      setLocalCurrency(newCurrency);
                       if (menuSelectedItem) {
                         handleUpdatePrice(
                           menuSelectedItem.id,
-                          menuSelectedItem.price,
-                          e.target.value as any,
+                          Number(localPrice) || 0,
+                          newCurrency,
                         );
                       }
                     }}
