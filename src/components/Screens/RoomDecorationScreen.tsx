@@ -2278,25 +2278,6 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 </button>
 
                 {/* Temporary debug button */}
-                <button
-                  onClick={() => {
-                    if (experienceRef.current && selectedFurniture) {
-                      const furniture =
-                        experienceRef.current.getFurnitureById(
-                          selectedFurniture,
-                        );
-                      console.log(`🐛 DEBUG - Selected furniture:`, {
-                        id: selectedFurniture,
-                        type: furniture?.type,
-                        userData: furniture?.object?.userData,
-                        cacheKeys: experienceRef.current.getCacheKeys?.(),
-                      });
-                    }
-                  }}
-                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-all text-sm"
-                >
-                  🐛 Debug Info
-                </button>
               </div>
             </motion.div>
           )}
