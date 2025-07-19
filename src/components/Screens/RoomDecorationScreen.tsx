@@ -138,6 +138,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       if (result.success) {
         console.log(`✅ Furniture state saved for ${furnitureId}`);
 
+        // Trigger catalog refresh to show updated furniture states
+        setCatalogRefreshTrigger((prev) => prev + 1);
+        console.log(
+          `🔄 Triggered catalog refresh to show updated furniture state`,
+        );
+
         // Also update inventory if this item is there (shouldn't happen in normal flow, but just in case)
         setInventory((prev) =>
           prev.map((item) => {
@@ -1725,7 +1731,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-blue-400" />
-                  <span className="text-white font-medium">🧱 Paredes</span>
+                  <span className="text-white font-medium">���� Paredes</span>
                 </div>
 
                 <div className="space-y-3">
