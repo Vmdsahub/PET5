@@ -128,6 +128,33 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   };
 
+  // Load modified furniture states from database
+  const loadModifiedFurnitureStates = async () => {
+    if (!user?.id || !isAdmin) return;
+
+    try {
+      console.log("📊 Loading modified furniture states for catalog...");
+      const result = await roomDecorationService.loadUserRoomDecorations(
+        user.id,
+      );
+
+      if (result.success && result.decorations) {
+        const statesMap = new Map<string, FurnitureState>();
+        result.decorations.forEach((decoration) => {
+          // Create a mapping of furniture_id to its current state
+          statesMap.set(decoration.furniture_id, decoration);
+        });
+
+        console.log(
+          `📊 Loaded ${statesMap.size} modified furniture states for catalog`,
+        );
+        setModifiedFurnitureStates(statesMap);
+      }
+    } catch (error) {
+      console.error("Error loading modified furniture states:", error);
+    }
+  };
+
   // Add admin section with custom furniture
   useEffect(() => {
     if (isAdmin) {
