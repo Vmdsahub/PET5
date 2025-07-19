@@ -2274,6 +2274,27 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   }}
                   className="w-full px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
                 >
+                  Restaurar Padrão
+                </button>
+
+                {/* Temporary debug button */}
+                <button
+                  onClick={() => {
+                    if (experienceRef.current && selectedFurniture) {
+                      const furniture =
+                        experienceRef.current.getFurnitureById(
+                          selectedFurniture,
+                        );
+                      console.log(`🐛 DEBUG - Selected furniture:`, {
+                        id: selectedFurniture,
+                        type: furniture?.type,
+                        userData: furniture?.object?.userData,
+                        cacheKeys: experienceRef.current.getCacheKeys?.(),
+                      });
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-all text-sm"
+                >
                   <RefreshCcw size={16} />
                   Restaurar Padrões
                 </button>
