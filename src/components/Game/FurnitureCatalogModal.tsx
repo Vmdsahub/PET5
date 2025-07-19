@@ -1277,8 +1277,8 @@ const FurnitureGridCard: React.FC<FurnitureGridCardProps> = ({
               >
                 Fechar
               </button>
-            </div>
-                    </div>,
+                        </div>
+          </div>,
           document.body
         )
       )}
