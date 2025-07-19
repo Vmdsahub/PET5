@@ -158,7 +158,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       );
 
       if (result.success) {
-        console.log(`✅ Furniture state saved for ${furnitureId}`);
+        console.log(`✅ SAVE SUCCESS for ${furnitureId}`);
+        console.log(`🔍 Save result:`, result);
 
         // Trigger catalog refresh to show updated furniture states
         setCatalogRefreshTrigger((prev) => prev + 1);
