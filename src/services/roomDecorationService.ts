@@ -46,6 +46,16 @@ class RoomDecorationService {
     furnitureState: FurnitureState,
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      if (isMockMode) {
+        console.warn(
+          "⚠️ MOCK MODE DETECTED: Furniture state will NOT be saved to database!",
+        );
+        console.warn(
+          "🔧 Configure Supabase environment variables to enable real persistence",
+        );
+        console.warn("📋 Pretending to save:", furnitureState);
+        return { success: true }; // Mock success
+      }
       const decorationData: Partial<RoomDecoration> = {
         user_id: userId,
         furniture_id: furnitureState.furniture_id,
