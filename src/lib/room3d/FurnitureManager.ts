@@ -478,8 +478,15 @@ export class FurnitureManager {
       console.log(`🔄 Starting reset for custom furniture: ${id}`);
       console.log(`🏷️ Item type: ${item.type}`);
 
-      // Get the original cached model
-      const furnitureId = item.type.replace("custom_", "");
+      // Get the original cached model - extract the base furniture ID
+      let furnitureId = item.type.replace("custom_", "");
+
+      // If the item has userData with originalStoreId, use that instead
+      if (item.object.userData?.originalStoreId) {
+        furnitureId = item.object.userData.originalStoreId;
+        console.log(`🔍 Using originalStoreId from userData: ${furnitureId}`);
+      }
+
       console.log(`🎯 Looking for cached model with ID: ${furnitureId}`);
 
       const originalModel = this.furnitureFactory.getFromCache(furnitureId);
