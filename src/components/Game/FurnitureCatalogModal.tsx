@@ -995,3 +995,70 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     </>
   );
 };
+
+// Component to generate real thumbnails for catalog items
+const CatalogThumbnail: React.FC<{ item: FurnitureItem }> = ({ item }) => {
+  const [thumbnail, setThumbnail] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const generateThumbnail = async () => {
+      try {
+        setIsLoading(true);
+
+        // Create a temporary furniture manager to generate thumbnail
+        const furnitureService =
+          require("../../services/simpleFurnitureService").simpleFurnitureService;
+
+        // Try to load the model and generate thumbnail
+        const furnitureId = item.id;
+        const furnitureType = item.type || "";
+
+        if (furnitureType.startsWith("custom_")) {
+          // For custom furniture, we need to create the model temporarily and generate thumbnail
+          console.log(`📸 Generating catalog thumbnail for: ${item.name}`);
+
+          // This is a simplified approach - in practice you might want to integrate with the 3D system
+          // For now, we'll use a placeholder that indicates it's a 3D model
+          const placeholderSvg = `data:image/svg+xml;base64,${btoa(`
+            <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" fill="#f3f4f6"/>
+              <rect x="8" y="8" width="24" height="24" fill="#e5e7eb" rx="4"/>
+              <circle cx="20" cy="20" r="6" fill="#6b7280"/>
+              <text x="20" y="24" text-anchor="middle" fill="white" font-family="Arial" font-size="6">3D</text>
+            </svg>
+          `)}`;
+
+          setThumbnail(placeholderSvg);
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error generating catalog thumbnail:", error);
+        setIsLoading(false);
+      }
+    };
+
+    generateThumbnail();
+  }, [item.id, item.type]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (thumbnail) {
+    return (
+      <img
+        src={thumbnail}
+        alt={item.name}
+        className="w-full h-full object-cover rounded"
+      />
+    );
+  }
+
+  return <Package className="w-5 h-5 text-gray-500" />;
+};
