@@ -328,6 +328,27 @@ class SimpleFurnitureService {
     return { success: true };
   }
 
+  // Update furniture thumbnail
+  updateFurnitureThumbnail(
+    furnitureId: string,
+    thumbnailUrl: string,
+  ): { success: boolean; error?: string } {
+    const furniture = this.furniture.get(furnitureId);
+
+    if (!furniture) {
+      return { success: false, error: "Móvel não encontrado" };
+    }
+
+    // Update thumbnail
+    furniture.thumbnail_url = thumbnailUrl;
+    furniture.updated_at = new Date().toISOString();
+
+    this.furniture.set(furnitureId, furniture);
+
+    console.log(`✅ Updated furniture ${furnitureId} thumbnail updated`);
+    return { success: true };
+  }
+
   // For testing
   testSystem(): boolean {
     try {
