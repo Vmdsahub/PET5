@@ -986,10 +986,15 @@ export class FurnitureManager {
       `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
     );
 
-            // Check if furniture already exists
+                // Check if furniture already exists
     if (this.furniture.has(id)) {
-      console.warn(`❌ Furniture with id ${id} already exists, cannot add duplicate`);
-      return false;
+      if (isRestoration) {
+        console.log(`🔄 Removing existing furniture ${id} for restoration`);
+        this.removeFurniture(id);
+      } else {
+        console.warn(`❌ Furniture with id ${id} already exists, cannot add duplicate`);
+        return false;
+      }
     }
 
     // Use provided type if available, otherwise infer from id
