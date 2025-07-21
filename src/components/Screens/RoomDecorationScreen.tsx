@@ -328,10 +328,30 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
-                    // Add furniture to scene with saved state (mark as restoration to skip templates)
+                    // Validate position before restoration to avoid buggy furniture at (0,0,0)
+          const validPosition = {
+            x: isNaN(decoration.position.x) ? 0 : decoration.position.x,
+            y: isNaN(decoration.position.y) ? 0 : Math.max(0, decoration.position.y), // Ensure Y >= 0
+            z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
+          };
+
+          // Check if position is at problematic center (0,0,0) which can cause visual bugs
+          if (validPosition.x === 0 && validPosition.z === 0) {
+            console.warn(`⚠️ Furniture ${restoreId} has center position (0,0,0), adjusting to avoid visual bugs...`);
+            validPosition.x = Math.random() * 2 - 1; // Random position between -1 and 1
+            validPosition.z = Math.random() * 2 - 1;
+          }
+
+          console.log(`📍 Position validation for ${restoreId}:`, {
+            original: decoration.position,
+            validated: validPosition,
+            adjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
+          });
+
+          // Add furniture to scene with validated position (mark as restoration to skip templates)
           const success = await experienceRef.current.addFurnitureFromInventory(
             restoreId,
-            decoration.position,
+            validPosition,
             decoration.furniture_type,
             true, // isRestoration = true to skip template application
           );
