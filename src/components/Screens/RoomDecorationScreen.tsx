@@ -678,7 +678,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             // If there's a significant mismatch, clean up corrupted data
             if (expectedCount > 5 && actualCount < expectedCount / 3) {
-              console.log(`🧹 Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
+              console.log(`���� Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
               if (user?.id) {
                 const debugInfo = getStorageDebugInfo(user.id);
                 console.log(`🔍 Storage debug info:`, debugInfo);
@@ -720,6 +720,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             }
           } else {
             console.log(`✅ All furniture loaded successfully!`);
+
+            // Even if counts match, check for ghost furniture in problematic positions
+            if (experienceRef.current) {
+              setTimeout(() => {
+                const ghostResult = detectGhostFurniture(experienceRef.current?.furnitureManager);
+                if (ghostResult.found > 0) {
+                  console.warn(`👻 Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+
+                  if (ghostResult.removed > 0) {
+                    addNotification({
+                      type: "warning",
+                      title: "Móveis Fantasmas Removidos",
+                      message: `Detectados e removidos ${ghostResult.removed} móveis em posições problemáticas.`,
+                    });
+                  }
+                }
+              }, 2000); // Wait a bit more for scene to stabilize
+            }
           }
         }, 1000); // Wait for all async operations to complete
 
