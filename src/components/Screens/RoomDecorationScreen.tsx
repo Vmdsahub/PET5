@@ -589,14 +589,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setMaterialProperties(materials);
       }
 
-      // Load saved decorations when user changes or experience is ready
+            // Load saved decorations when user changes or experience is ready
       if (user?.id) {
-        // Reset decorations loaded flag when user changes
-        if (!decorationsLoaded) {
-          setTimeout(() => {
-            loadSavedDecorations();
-          }, 500); // Small delay to ensure scene is ready
-        }
+        // Always reset decorations loaded flag when entering the decoration screen
+        console.log("🔄 Resetting decorationsLoaded flag for fresh loading");
+        setDecorationsLoaded(false);
+
+        setTimeout(() => {
+          loadSavedDecorations();
+        }, 500); // Small delay to ensure scene is ready
       } else {
         // Reset flag when user logs out
         setDecorationsLoaded(false);
