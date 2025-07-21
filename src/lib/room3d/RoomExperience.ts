@@ -466,13 +466,18 @@ export class RoomExperience {
       intersectionPoint,
     );
 
-        if (intersection) {
-            // Constrain position to room bounds based on actual floor dimensions
+            if (intersection) {
+      // Admin users can position furniture anywhere (no constraints)
+      if (this.isUserAdmin()) {
+        return new THREE.Vector3(intersection.x, 0, intersection.z);
+      }
+
+      // Regular users must keep furniture within room boundaries
       const dimensions = this.world.getRoomDimensions();
       const roomHalfWidth = dimensions.floorWidth / 2;
       const roomHalfDepth = dimensions.floorDepth / 2;
-            // Minimal margin to prevent clipping through walls
-      const margin = 0.1;
+      // No margin for regular users - strict wall boundaries
+      const margin = 0;
 
       const constrainedX = Math.max(
         -roomHalfWidth + margin,
