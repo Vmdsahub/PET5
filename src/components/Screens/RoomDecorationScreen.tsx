@@ -24,6 +24,11 @@ import {
   roomDecorationService,
   FurnitureState,
 } from "../../services/roomDecorationService";
+import {
+  generateFurnitureDatabaseId,
+  extractOriginalStoreId,
+  debugIdMapping,
+} from "../../utils/furnitureIdGenerator";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -132,7 +137,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         return;
       }
 
-                  // Use existing database ID or create new one
+                  // Use existing database ID or create new one using UUID
       let databaseId = furnitureId;
       if (experienceRef.current) {
         const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
@@ -141,15 +146,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           if (furnitureObj.object.userData.databaseId) {
             databaseId = furnitureObj.object.userData.databaseId;
             console.log(`🔑 Using existing database ID: ${databaseId} for ${furnitureId}`);
+            debugIdMapping(databaseId, 'saveFurnitureState-existing');
           }
           // For new furniture, create database ID from originalStoreId
           else if (furnitureObj.object.userData.originalStoreId) {
             const originalId = furnitureObj.object.userData.originalStoreId;
-            // Generate unique database ID to prevent conflicts
-            databaseId = `${originalId}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+            // Generate unique database ID using UUID for guaranteed uniqueness
+            databaseId = generateFurnitureDatabaseId(originalId);
             // Store the database ID back in userData for future saves
             furnitureObj.object.userData.databaseId = databaseId;
             console.log(`🔑 Created new database ID: ${databaseId} for ${furnitureId} (originalStoreId: ${originalId})`);
+            debugIdMapping(databaseId, 'saveFurnitureState-new');
           }
         }
       }
@@ -291,13 +298,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
 
-                              // Extract original store ID from database ID
-          let originalStoreId = decoration.furniture_id;
+                              // Extract original store ID from database ID using utility
+          const originalStoreId = extractOriginalStoreId(decoration.furniture_id);
+          debugIdMapping(decoration.furniture_id, 'loadSavedDecorations');
+          console.log(`🔍 Extracted originalStoreId: ${originalStoreId} from databaseId: ${decoration.furniture_id}`);
 
-          // Handle database IDs that have instance numbers (e.g., "sofa_2" -> "sofa")
-          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
-            originalStoreId = decoration.furniture_id.split('_')[0];
-          }
 
           // Generate unique ID for this restored furniture instance
                     const restoreId = decoration.furniture_id;
@@ -334,7 +339,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                         // Apply saved transformations and materials with debugging
             console.log(`🔧 Applying transformations to ${restoreId}:`);
             console.log(`  📐 Scale:`, decoration.scale);
-            console.log(`  🔄 Rotation:`, decoration.rotation);
+            console.log(`  ���� Rotation:`, decoration.rotation);
             console.log(`  📍 Position:`, decoration.position);
 
             experienceRef.current.updateFurnitureScale(
@@ -1084,7 +1089,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              🏠 Modo Decoraç��o
+              🏠 Modo Decoração
             </span>
           </div>
 
