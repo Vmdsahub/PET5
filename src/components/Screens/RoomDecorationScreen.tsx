@@ -301,11 +301,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           console.log(`🔄 Restoring with unique ID: ${uniqueRestoreId} (database ID: ${decoration.furniture_id})`);
 
-          // Add furniture to scene with saved state
+                    // Add furniture to scene with saved state (mark as restoration to skip templates)
           const success = await experienceRef.current.addFurnitureFromInventory(
             uniqueRestoreId,
             decoration.position,
             decoration.furniture_type,
+            true, // isRestoration = true to skip template application
           );
 
                     if (success) {
