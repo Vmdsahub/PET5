@@ -423,7 +423,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           });
 
           console.log(
-            `✅ Loaded ${templatesResult.templates.size} furniture templates`,
+            `��� Loaded ${templatesResult.templates.size} furniture templates`,
           );
         }
 
@@ -644,6 +644,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const handleNavigation = (id: string) => {
     switch (id) {
       case "globe":
+        // Save any pending changes before leaving
+        if (isEditMode && selectedObject && user?.id) {
+          console.log("💾 Saving pending changes before navigation...");
+          saveFurnitureState(selectedObject);
+        }
         onNavigateBack();
         break;
       case "catalog":
@@ -657,8 +662,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setActiveNav(newInventoryState ? "inventory" : "");
         break;
       case "edit":
-        setIsEditMode(!isEditMode);
-        setActiveNav(isEditMode ? "" : "edit");
+        const wasInEditMode = isEditMode;
+        const newEditMode = !isEditMode;
+
+        // If exiting edit mode and there's a selected object, save its state
+        if (wasInEditMode && !newEditMode && selectedObject && user?.id) {
+          console.log("💾 Saving final changes when exiting edit mode...");
+          saveFurnitureState(selectedObject);
+        }
+
+        setIsEditMode(newEditMode);
+        setActiveNav(newEditMode ? "edit" : "");
         break;
     }
   };
@@ -2266,7 +2280,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   {["x", "y", "z"].map((axis) => (
                     <div key={axis}>
                       <label className="text-slate-300 text-xs block mb-1">
-                        Rotação {axis.toUpperCase()}
+                        Rotaç��o {axis.toUpperCase()}
                       </label>
                       <div className="flex items-center gap-3">
                         <input
@@ -2560,7 +2574,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       saveFurnitureState(selectedFurniture);
                     } else {
                       console.warn(
-                        `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
+                        `⚠��� Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
                       );
                     }
                   }}
