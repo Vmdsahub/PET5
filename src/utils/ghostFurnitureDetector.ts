@@ -12,16 +12,45 @@ export interface GhostDetectionResult {
  * Check if a position is problematic (center or invalid)
  */
 export function isProblematicPosition(position: { x: number; y: number; z: number }): boolean {
-  return (
-    // Very close to center (problematic)
-    (Math.abs(position.x) < 0.3 && Math.abs(position.z) < 0.3) ||
-    // Invalid positions
-    isNaN(position.x) || isNaN(position.y) || isNaN(position.z) ||
+  // More comprehensive checks for problematic positions
+  const checks = {
+    // Very close to center (most common problem)
+    nearCenter: Math.abs(position.x) < 0.5 && Math.abs(position.z) < 0.5,
+
+    // Exact center (critical problem)
+    exactCenter: position.x === 0 && position.z === 0,
+
+    // Invalid/NaN positions
+    invalidX: isNaN(position.x) || !isFinite(position.x),
+    invalidY: isNaN(position.y) || !isFinite(position.y),
+    invalidZ: isNaN(position.z) || !isFinite(position.z),
+
     // Too extreme positions
-    Math.abs(position.x) > 100 || Math.abs(position.z) > 100 ||
+    tooFarX: Math.abs(position.x) > 100,
+    tooFarZ: Math.abs(position.z) > 100,
+
     // Underground or too high
-    position.y < -5 || position.y > 50
-  );
+    underground: position.y < -1,
+    tooHigh: position.y > 50,
+
+    // Null/undefined checks
+    nullPosition: position.x == null || position.y == null || position.z == null
+  };
+
+  const isProblematic = Object.values(checks).some(check => check);
+
+  if (isProblematic) {
+    console.log(`🔍 Position (${position.x}, ${position.y}, ${position.z}) is problematic:`, {
+      nearCenter: checks.nearCenter,
+      exactCenter: checks.exactCenter,
+      invalidCoords: checks.invalidX || checks.invalidY || checks.invalidZ,
+      tooExtreme: checks.tooFarX || checks.tooFarZ,
+      wrongHeight: checks.underground || checks.tooHigh,
+      nullValues: checks.nullPosition
+    });
+  }
+
+  return isProblematic;
 }
 
 /**
