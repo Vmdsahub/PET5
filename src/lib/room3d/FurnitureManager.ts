@@ -73,11 +73,12 @@ export class FurnitureManager {
     );
   }
 
-  private async addFurniture(
+    private async addFurniture(
     id: string,
     type: string,
     position: THREE.Vector3,
     rotationY: number = 0,
+    skipTemplate: boolean = false,
   ): Promise<void> {
     console.log(
       `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
