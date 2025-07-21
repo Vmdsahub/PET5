@@ -26,6 +26,7 @@ export class FurnitureManager {
   private furniture: Map<string, FurnitureItem>;
   private furnitureFactory: FurnitureFactory;
   private furnitureLights: Map<string, THREE.PointLight>;
+  private getRoomDimensions: () => any;
 
   // Global furniture templates for admin modifications
   private furnitureTemplates: Map<
