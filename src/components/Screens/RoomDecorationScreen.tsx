@@ -1020,85 +1020,38 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     },
   ];
 
-  // Aggressive monitoring for problematic furniture
+  // Enhanced position monitoring using the new monitoring system
   useEffect(() => {
     if (!experienceRef.current || !user?.id) return;
 
-    let checkCount = 0;
-    const maxChecks = 20; // Limit to prevent infinite loops
+    let monitoringCleanup: (() => void) | null = null;
 
-    // Immediate and frequent checks after loading
-    const aggressiveInterval = setInterval(() => {
-      checkCount++;
+    // Start the enhanced position monitoring system
+    const startMonitoring = () => {
+      if (experienceRef.current?.furnitureManager) {
+        console.log(`🔍 Starting enhanced position monitoring for user ${user.id}`);
 
-      if (experienceRef.current && checkCount <= maxChecks) {
-        const allFurniture = experienceRef.current.getAllFurniture?.() || [];
-        let foundProblematic = false;
-
-        allFurniture.forEach((furniture: any) => {
-          if (furniture?.object?.position) {
-            const pos = furniture.object.position;
-            if (isProblematicPosition(pos)) {
-              foundProblematic = true;
-              console.error(`❌️ MONITORING: Found problematic furniture ${furniture.id} at (${pos.x}, ${pos.y}, ${pos.z})`);
-
-              // Emergency correction
-              const emergencyX = 8 + Math.random() * 4; // Random position away from center
-              const emergencyZ = 8 + Math.random() * 4;
-
-              furniture.object.position.set(emergencyX, 0.1, emergencyZ);
-              furniture.object.updateMatrix();
-              furniture.object.updateMatrixWorld(true);
-
-              console.log(`⚕️ EMERGENCY FIX: Moved ${furniture.id} to (${emergencyX.toFixed(2)}, 0.1, ${emergencyZ.toFixed(2)})`);
-
-              // Save the emergency fix
-              if (user?.id) {
-                setTimeout(() => {
-                  saveFurnitureState(furniture.id);
-                }, 300);
-              }
-            }
-          }
-        });
-
-        if (foundProblematic) {
-          addNotification({
-            type: "warning",
-            title: "Correção Automática",
-            message: "Móveis em posições problemáticas foram corrigidos automaticamente.",
-          });
-        }
-
-        // After several checks without problems, switch to less frequent monitoring
-        if (checkCount >= 10 && !foundProblematic) {
-          clearInterval(aggressiveInterval);
-
-          // Start periodic monitoring
-          const periodicInterval = setInterval(() => {
-            if (experienceRef.current && !isEditMode) {
-              const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
-              if (ghostResult.found > 0) {
-                console.warn(`👻 Periodic check: found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
-              }
-            }
-          }, 30000); // Check every 30 seconds
-
-          // Store interval for cleanup
-          (window as any).furniturePeriodicInterval = periodicInterval;
-        }
-      } else if (checkCount > maxChecks) {
-        clearInterval(aggressiveInterval);
-      }
-    }, 2000); // Check every 2 seconds initially
-
-    return () => {
-      clearInterval(aggressiveInterval);
-      if ((window as any).furniturePeriodicInterval) {
-        clearInterval((window as any).furniturePeriodicInterval);
+        monitoringCleanup = startPositionMonitoring(
+          experienceRef.current.furnitureManager,
+          (furnitureId: string) => {
+            console.log(`💾 Auto-saving furniture ${furnitureId} after monitoring correction`);
+            saveFurnitureState(furnitureId);
+          },
+          3000 // Check every 3 seconds
+        );
       }
     };
-  }, [experienceRef.current, user?.id, isEditMode]);
+
+    // Start monitoring after a brief delay to ensure furniture is loaded
+    const startDelay = setTimeout(startMonitoring, 2000);
+
+    return () => {
+      clearTimeout(startDelay);
+      if (monitoringCleanup) {
+        monitoringCleanup();
+      }
+    };
+  }, [experienceRef.current, user?.id, decorationsLoaded]);
 
   useEffect(() => {
     if (canvasRef.current && !experienceRef.current) {
@@ -2296,7 +2249,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-yellow-400" />
                   <span className="text-white font-medium">
-                    ���� Parede Direita
+                    ������ Parede Direita
                   </span>
                 </div>
 
@@ -2832,7 +2785,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                               // Auto-save the change
                               console.log(
-                                `��� Calling saveFurnitureState for: ${selectedFurniture}`,
+                                `💾 Calling saveFurnitureState for: ${selectedFurniture}`,
                               );
                               saveFurnitureState(selectedFurniture);
                             }
