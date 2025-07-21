@@ -39,6 +39,11 @@ import {
   getStorageDebugInfo,
   cleanCorruptedEntries,
 } from "../../utils/storageCleanup";
+import {
+  detectGhostFurniture,
+  forceCleanFurnitureGroup,
+  isProblematicPosition,
+} from "../../utils/ghostFurnitureDetector";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
