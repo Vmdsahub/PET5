@@ -124,9 +124,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     });
   };
 
+  // Track recent saves to prevent duplicate saves
+  const recentSaves = useRef<Set<string>>(new Set());
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
+
+    // Prevent duplicate saves within 2 seconds
+    const saveKey = `${user.id}_${furnitureId}`;
+    if (recentSaves.current.has(saveKey)) {
+      console.log(`⏱️ Skipping duplicate save for ${furnitureId} (recent save in progress)`);
+      return;
+    }
+
+    recentSaves.current.add(saveKey);
+    setTimeout(() => {
+      recentSaves.current.delete(saveKey);
+    }, 2000); // Remove from recent saves after 2 seconds
 
     // Small delay to ensure changes are applied in THREE.js before saving
     await new Promise((resolve) => setTimeout(resolve, 100));
