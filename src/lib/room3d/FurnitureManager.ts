@@ -125,6 +125,9 @@ export class FurnitureManager {
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
 
+    // Apply absolute center position protection to this furniture
+    protectFromCenterPositioning(furnitureObject, id);
+
     // FINAL VERIFICATION - if somehow still at center, emergency move
     const finalPos = furnitureObject.position;
     if (finalPos.x === 0 && finalPos.z === 0) {
