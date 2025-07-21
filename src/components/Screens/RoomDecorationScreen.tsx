@@ -236,7 +236,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       const storedData = localStorage.getItem(storageKey);
       console.log(`📋 Storage key: ${storageKey}`);
       console.log(
-        `💾 Stored data:`,
+        `�� Stored data:`,
         storedData ? JSON.parse(storedData) : "NOT FOUND",
       );
     } catch (error) {
@@ -395,7 +395,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   expectedPosition: decoration.position,
                   rotation: finalObj.object.rotation,
                   scale: finalObj.object.scale,
+                  hasCorrectUserData: !!finalObj.object.userData.databaseId,
+                  databaseId: finalObj.object.userData.databaseId,
+                  originalStoreId: finalObj.object.userData.originalStoreId,
                 });
+
+                // For GLB furniture, ensure it will be saved correctly in the future
+                if (isCustomType && !finalObj.object.userData.databaseId) {
+                  console.warn(`⚠️ GLB furniture ${restoreId} missing databaseId, adding it...`);
+                  finalObj.object.userData.databaseId = decoration.furniture_id;
+                }
               }
             }, 100);
 
