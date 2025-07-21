@@ -300,7 +300,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           }
 
           // Generate unique ID for this restored furniture instance
-          const uniqueRestoreId = `restored_${decoration.furniture_id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+                    const restoreId = decoration.furniture_id;
 
           console.log(`🔄 Restoring with unique ID: ${uniqueRestoreId} (database ID: ${decoration.furniture_id})`);
 
