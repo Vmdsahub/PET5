@@ -274,7 +274,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (result.success) {
         console.log(`✅ SAVE SUCCESS for ${furnitureId}`);
-        console.log(`🔍 Save result:`, result);
+        console.log(`���� Save result:`, result);
 
         // Save furniture templates (admin modifications)
         if (experienceRef.current) {
@@ -619,26 +619,81 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 // If furniture is still in a problematic position after restoration, force move it
                 if (isStillProblematic) {
                   console.error(`❌️ CRITICAL: Furniture ${restoreId} is still in problematic position after restoration!`);
-                  console.log(`🔄 Force moving ${restoreId} to safe position...`);
+                  console.log(`🔄 EMERGENCY: Force moving ${restoreId} to guaranteed safe position...`);
 
-                  // Calculate a safe position
+                  // Multiple fallback strategies to ensure we find a safe position
+                  let safePosition;
                   const safeIndex = validDecorations.indexOf(decoration);
-                  const safeAngle = (safeIndex * 45) * (Math.PI / 180);
-                  const safeRadius = 3 + (safeIndex * 0.7);
-                  const safePosition = {
-                    x: Math.cos(safeAngle) * safeRadius,
-                    y: 0,
-                    z: Math.sin(safeAngle) * safeRadius
+
+                  // Strategy 1: Circular arrangement far from center
+                  const angle1 = (safeIndex * 60) * (Math.PI / 180);
+                  const radius1 = 5 + (safeIndex * 1.0); // Further from center
+                  safePosition = {
+                    x: Math.cos(angle1) * radius1,
+                    y: 0.1, // Slightly above floor to ensure visibility
+                    z: Math.sin(angle1) * radius1
                   };
 
-                  finalObj.object.position.set(safePosition.x, safePosition.y, safePosition.z);
-                  console.log(`✅ Moved ${restoreId} to safe position: (${safePosition.x.toFixed(2)}, ${safePosition.y}, ${safePosition.z.toFixed(2)})`);
+                  // Verify this position is actually safe
+                  if (isProblematicPosition(safePosition)) {
+                    console.warn(`⚠️ First safe position still problematic, trying strategy 2...`);
 
-                  // Save the corrected position
-                  if (user?.id) {
-                    setTimeout(() => {
-                      saveFurnitureState(restoreId);
-                    }, 500);
+                    // Strategy 2: Grid arrangement
+                    const gridX = (safeIndex % 5) * 2 - 4; // -4 to 4
+                    const gridZ = Math.floor(safeIndex / 5) * 2 + 2; // 2, 4, 6...
+                    safePosition = { x: gridX, y: 0.1, z: gridZ };
+
+                    if (isProblematicPosition(safePosition)) {
+                      console.warn(`⚠️ Second safe position still problematic, using emergency fallback...`);
+
+                      // Strategy 3: Emergency fallback - guaranteed safe position
+                      safePosition = {
+                        x: 10 + safeIndex, // Far from center, each item offset
+                        y: 0.1,
+                        z: 10
+                      };
+                    }
+                  }
+
+                  // Apply the safe position with multiple checks
+                  console.log(`🎯 Final safe position for ${restoreId}:`, safePosition);
+
+                  // Set position using multiple methods to ensure it sticks
+                  finalObj.object.position.x = safePosition.x;
+                  finalObj.object.position.y = safePosition.y;
+                  finalObj.object.position.z = safePosition.z;
+                  finalObj.object.position.set(safePosition.x, safePosition.y, safePosition.z);
+
+                  // Force update the transform
+                  finalObj.object.updateMatrix();
+                  finalObj.object.updateMatrixWorld(true);
+
+                  console.log(`✅ FORCED position for ${restoreId} to: (${finalObj.object.position.x.toFixed(2)}, ${finalObj.object.position.y.toFixed(2)}, ${finalObj.object.position.z.toFixed(2)})`);
+
+                  // Verify the position actually changed
+                  const verifyPosition = finalObj.object.position;
+                  if (isProblematicPosition(verifyPosition)) {
+                    console.error(`❌️ EMERGENCY FAILURE: Could not move ${restoreId} to safe position! Removing furniture...`);
+
+                    // Last resort: remove the problematic furniture entirely
+                    if (experienceRef.current?.removeFurniture) {
+                      experienceRef.current.removeFurniture(restoreId);
+                      console.log(`🗑️ Removed problematic furniture ${restoreId} as last resort`);
+
+                      addNotification({
+                        type: "warning",
+                        title: "Móvel Problemático Removido",
+                        message: `Móvel ${restoreId} foi removido por estar em posição problemática.`,
+                      });
+                    }
+                  } else {
+                    // Save the corrected position immediately
+                    if (user?.id) {
+                      setTimeout(() => {
+                        console.log(`💾 Saving corrected position for ${restoreId}...`);
+                        saveFurnitureState(restoreId);
+                      }, 200);
+                    }
                   }
                 }
 
@@ -712,7 +767,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             const loadedIds = new Set(loadedFurniture.map(f => f.id));
             validDecorations.forEach(decoration => {
               if (!loadedIds.has(decoration.furniture_id)) {
-                console.warn(`��️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
+                console.warn(`⚠️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
               }
             });
 
@@ -766,7 +821,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               setTimeout(() => {
                 const ghostResult = detectGhostFurniture(experienceRef.current?.furnitureManager);
                 if (ghostResult.found > 0) {
-                  console.warn(`��� Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+                  console.warn(`👻 Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
 
                   if (ghostResult.removed > 0) {
                     addNotification({
@@ -1338,7 +1393,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   furnitureObj.object.userData.originalStoreId =
                     item.originalStoreId; // Preserve store ID
                   console.log(
-                    `���� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
+                    `��� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
@@ -3184,7 +3239,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               onClick={() => handleContextMenuAction("inspect")}
               className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
             >
-              🔍 Inspecionar
+              ��� Inspecionar
             </button>
 
             {/* Show light toggle for lamps */}
