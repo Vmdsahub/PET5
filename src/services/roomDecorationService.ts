@@ -240,6 +240,7 @@ class RoomDecorationService {
       const decorations: FurnitureState[] = activeDecorations.map((item) => ({
         furniture_id: item.furniture_id,
         furniture_type: item.furniture_type,
+        furniture_name: item.furniture_name, // Carregar nome original
         position: {
           x: item.position_x,
           y: item.position_y,
