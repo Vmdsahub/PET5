@@ -7,6 +7,7 @@ interface InteractionOptions {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  onObjectChanged?: (objectId: string) => void;
   furnitureManager: FurnitureManager;
 }
 
@@ -24,6 +25,7 @@ export class InteractionManager {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  private onObjectChanged?: (objectId: string) => void;
   private furnitureManager: FurnitureManager;
   private dragPlane: THREE.Plane;
   private intersection: THREE.Vector3;
@@ -41,6 +43,7 @@ export class InteractionManager {
     this.furnitureManager = options.furnitureManager;
     this.onObjectSelect = options.onObjectSelect;
     this.onRightClickFurniture = options.onRightClickFurniture;
+    this.onObjectChanged = options.onObjectChanged;
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
@@ -152,6 +155,12 @@ export class InteractionManager {
     if (this.isDragging) {
       this.isDragging = false;
       this.domElement.style.cursor = this.editMode ? "crosshair" : "default";
+
+      // Notify that object was changed after drag
+      if (this.selectedObject && this.onObjectChanged) {
+        console.log(`🔄 Object ${this.selectedObject} was moved, triggering save...`);
+        this.onObjectChanged(this.selectedObject);
+      }
     }
   }
 
