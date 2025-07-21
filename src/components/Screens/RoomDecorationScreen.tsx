@@ -259,55 +259,71 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             continue;
           }
 
+                    // Extract original store ID from database ID
+          let originalStoreId = decoration.furniture_id;
+          let restoreId = decoration.furniture_id;
+
+          // Handle database IDs that have instance numbers (e.g., "sofa_2" -> "sofa")
+          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
+            originalStoreId = decoration.furniture_id.split('_')[0];
+          }
+
           // Add furniture to scene with saved state
           const success = await experienceRef.current.addFurnitureFromInventory(
-            decoration.furniture_id,
+            restoreId,
             decoration.position,
             decoration.furniture_type,
           );
 
           if (success) {
             console.log(
-              `🔧 Applying saved decoration for ${decoration.furniture_id}:`,
+              `🔧 Applying saved decoration for ${restoreId} (originalStoreId: ${originalStoreId}):`,
               {
                 scale: decoration.scale,
                 material: decoration.material,
               },
             );
 
+            // Store originalStoreId in the furniture object for consistency
+            const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
+            if (furnitureObj?.object?.userData) {
+              furnitureObj.object.userData.originalStoreId = originalStoreId;
+              console.log(`🔑 Set originalStoreId: ${originalStoreId} for ${restoreId}`);
+            }
+
             // Apply saved transformations and materials
             experienceRef.current.updateFurnitureScale(
-              decoration.furniture_id,
+              restoreId,
               decoration.scale,
             );
             experienceRef.current.updateFurnitureRotation(
-              decoration.furniture_id,
+              restoreId,
               decoration.rotation,
             );
             experienceRef.current.updateFurniturePosition(
-              decoration.furniture_id,
+              restoreId,
               decoration.position,
             );
 
             if (decoration.material) {
               experienceRef.current.updateFurnitureMaterial(
-                decoration.furniture_id,
+                restoreId,
                 decoration.material,
               );
             }
 
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
-              decoration.furniture_id,
+              restoreId,
               "After Loading from DB",
             );
 
             console.log(
-              `✅ Successfully restored furniture: ${decoration.furniture_id}`,
+              `✅ Successfully restored furniture: ${restoreId}`,
             );
           } else {
             console.warn(
-              `❌ Failed to restore furniture: ${decoration.furniture_id}`,
+              `❌ Failed to restore furniture: ${restoreId}`,
             );
           }
         }
