@@ -423,7 +423,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           });
 
           console.log(
-            `��� Loaded ${templatesResult.templates.size} furniture templates`,
+            `✅ Loaded ${templatesResult.templates.size} furniture templates`,
           );
         }
 
@@ -602,6 +602,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
 
     return () => {
+      // Save any pending changes before cleanup
+      if (experienceRef.current && selectedObject && user?.id && isEditMode) {
+        console.log("💾 Saving pending changes before component cleanup...");
+        saveFurnitureState(selectedObject);
+      }
+
       if (experienceRef.current) {
         experienceRef.current.destroy();
         experienceRef.current = null;
@@ -1078,7 +1084,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              🏠 Modo Decoração
+              🏠 Modo Decoraç��o
             </span>
           </div>
 
@@ -2280,7 +2286,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   {["x", "y", "z"].map((axis) => (
                     <div key={axis}>
                       <label className="text-slate-300 text-xs block mb-1">
-                        Rotaç��o {axis.toUpperCase()}
+                        Rotação {axis.toUpperCase()}
                       </label>
                       <div className="flex items-center gap-3">
                         <input
@@ -2574,7 +2580,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                       saveFurnitureState(selectedFurniture);
                     } else {
                       console.warn(
-                        `⚠��� Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
+                        `⚠️ Cannot reset: experienceRef=${!!experienceRef.current}, selectedFurniture=${selectedFurniture}`,
                       );
                     }
                   }}
