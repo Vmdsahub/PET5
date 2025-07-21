@@ -44,7 +44,14 @@ import {
   detectGhostFurniture,
   forceCleanFurnitureGroup,
   isProblematicPosition,
+  generateSafePosition,
+  correctPositionImmediately,
 } from "../../utils/ghostFurnitureDetector";
+import {
+  performEmergencyPositionFix,
+  validateAndCorrectPosition,
+  startPositionMonitoring,
+} from "../../utils/criticalPositionFixer";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -179,49 +186,39 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     console.log(`✨ Manual cleanup completed, starting fresh`);
   };
 
-  // Emergency reset function for critical position problems
+  // Emergency reset function using the new critical position fixer
   const handleEmergencyReset = () => {
     if (!user?.id || !experienceRef.current) return;
 
-    console.log(`🆘 Emergency reset requested - fixing all problematic positions`);
+    console.log(`🆘 Emergency reset requested - using critical position fixer`);
 
-    const allFurniture = experienceRef.current.getAllFurniture?.() || [];
-    let fixedCount = 0;
-
-    allFurniture.forEach((furniture: any, index: number) => {
-      if (furniture?.object?.position) {
-        const pos = furniture.object.position;
-        if (isProblematicPosition(pos)) {
-          // Emergency repositioning in a guaranteed safe grid
-          const gridX = (index % 4) * 3 + 5; // Grid starting at x=5
-          const gridZ = Math.floor(index / 4) * 3 + 5; // Grid starting at z=5
-
-          furniture.object.position.set(gridX, 0.1, gridZ);
-          furniture.object.updateMatrix();
-          furniture.object.updateMatrixWorld(true);
-
-          console.log(`⚕️ Emergency reset: ${furniture.id} -> (${gridX}, 0.1, ${gridZ})`);
-          fixedCount++;
-
-          // Save immediately
-          setTimeout(() => {
-            saveFurnitureState(furniture.id);
-          }, index * 100); // Stagger saves
-        }
+    const result = performEmergencyPositionFix(
+      experienceRef.current.furnitureManager,
+      (furnitureId: string) => {
+        saveFurnitureState(furnitureId);
       }
-    });
+    );
 
-    if (fixedCount > 0) {
+    if (result.fixed > 0 || result.removed > 0) {
       addNotification({
         type: "success",
         title: "Reset de Emergência",
-        message: `${fixedCount} móveis foram reposicionados para posições seguras.`,
+        message: `${result.fixed} móveis corrigidos, ${result.removed} removidos.`,
       });
     } else {
       addNotification({
         type: "info",
         title: "Reset de Emergência",
         message: "Nenhum móvel em posição problemática encontrado.",
+      });
+    }
+
+    if (result.errors.length > 0) {
+      console.error(`❌ Emergency reset errors:`, result.errors);
+      addNotification({
+        type: "error",
+        title: "Erros no Reset",
+        message: `${result.errors.length} erros ocorreram durante o reset.`,
       });
     }
   };
@@ -508,30 +505,22 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
-                    // Validate position before restoration to avoid buggy furniture at (0,0,0)
+                    // Validate and correct position before restoration using the new validation system
           let validPosition = {
             x: isNaN(decoration.position.x) ? 0 : decoration.position.x,
             y: isNaN(decoration.position.y) ? 0 : Math.max(0, decoration.position.y), // Ensure Y >= 0
             z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
           };
 
-          // Use the robust problematic position checker from ghostFurnitureDetector
-          if (isProblematicPosition(validPosition)) {
-            console.warn(`⚠️ Furniture ${restoreId} has problematic position (${validPosition.x}, ${validPosition.y}, ${validPosition.z}), adjusting...`);
+          // Use the enhanced position validation and correction
+          const fallbackIndex = validDecorations.indexOf(decoration);
+          validPosition = validateAndCorrectPosition(validPosition, restoreId, fallbackIndex);
 
-            // Use a more predictable fallback position based on index
-            const fallbackIndex = validDecorations.indexOf(decoration);
-            const angle = (fallbackIndex * 60) * (Math.PI / 180); // 60 degrees apart
-            const radius = 2 + (fallbackIndex * 0.5); // Increase radius for each item
-
-            validPosition = {
-              x: Math.cos(angle) * radius, // Circular arrangement
-              y: 0, // Always on the floor
-              z: Math.sin(angle) * radius,
-            };
-
-            console.log(`🔧 Adjusted to fallback position: (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
-          }
+          console.log(`📍 Position validation for ${restoreId}:`, {
+            original: decoration.position,
+            validated: validPosition,
+            adjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
+          });
 
           console.log(`📍 Position validation for ${restoreId}:`, {
             original: decoration.position,
@@ -646,52 +635,48 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
             }
 
-            // IMMEDIATE position verification and correction (no timeout)
-            const immediateCorrection = () => {
+            // CRITICAL IMMEDIATE position verification using enhanced system
+            const performCriticalCheck = () => {
               const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
                 const finalPosition = finalObj.object.position;
                 const isStillProblematic = isProblematicPosition(finalPosition);
 
-                console.log(`🔍 IMMEDIATE check position for ${restoreId}:`, {
+                console.log(`🔍 CRITICAL check position for ${restoreId}:`, {
                   position: finalPosition,
-                  expectedPosition: decoration.position,
+                  expectedPosition: validPosition,
                   isProblematic: isStillProblematic
                 });
 
-                // CRITICAL: If position is problematic, fix it IMMEDIATELY
+                // CRITICAL: If position is problematic, use the emergency fixer
                 if (isStillProblematic) {
-                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is in problematic position! IMMEDIATE CORRECTION...`);
+                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is still in problematic position after restoration!`);
 
-                  // Calculate guaranteed safe position based on index
+                  // Use the emergency position fixer for this specific furniture
                   const safeIndex = validDecorations.indexOf(decoration);
-                  const guaranteedSafePosition = {
-                    x: 15 + (safeIndex * 2), // Start far from center, space apart
-                    y: 0.1,
-                    z: 15 + (safeIndex % 3) * 2 // Some variation in Z
-                  };
+                  const emergencySafePosition = generateSafePosition(safeIndex, 15);
 
-                  console.log(`🆘 EMERGENCY: Moving ${restoreId} to guaranteed safe position:`, guaranteedSafePosition);
+                  console.log(`🆘 EMERGENCY: Moving ${restoreId} to guaranteed safe position:`, emergencySafePosition);
 
                   // Apply position immediately and forcefully
-                  finalObj.object.position.copy(new THREE.Vector3(guaranteedSafePosition.x, guaranteedSafePosition.y, guaranteedSafePosition.z));
+                  finalObj.object.position.set(emergencySafePosition.x, emergencySafePosition.y, emergencySafePosition.z);
                   finalObj.object.updateMatrix();
                   finalObj.object.updateMatrixWorld(true);
 
-                  // Double-check the correction worked
-                  const doubleCheck = finalObj.object.position;
-                  if (isProblematicPosition(doubleCheck)) {
-                    console.error(`❌️ ULTIMATE FAILURE: Cannot fix ${restoreId}! REMOVING...`);
+                  // Triple-check the correction worked
+                  const tripleCheck = finalObj.object.position;
+                  if (isProblematicPosition(tripleCheck)) {
+                    console.error(`❌️ ULTIMATE FAILURE: Cannot fix ${restoreId} even with emergency system! REMOVING...`);
                     // Remove the problematic furniture as absolute last resort
                     experienceRef.current?.removeFurniture(restoreId);
 
                     addNotification({
                       type: "error",
                       title: "Móvel Removido",
-                      message: `Móvel problemático foi removido automaticamente.`,
+                      message: `Móvel ${restoreId} não pôde ser corrigido e foi removido.`,
                     });
                   } else {
-                    console.log(`✅ SUCCESS: ${restoreId} moved to safe position (${doubleCheck.x.toFixed(2)}, ${doubleCheck.y.toFixed(2)}, ${doubleCheck.z.toFixed(2)})`);
+                    console.log(`✅ EMERGENCY SUCCESS: ${restoreId} moved to safe position (${tripleCheck.x.toFixed(2)}, ${tripleCheck.y.toFixed(2)}, ${tripleCheck.z.toFixed(2)})`);
 
                     // Save immediately
                     if (user?.id) {
@@ -708,11 +693,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               }
             };
 
-            // Run immediate correction
-            immediateCorrection();
+            // Run critical check immediately
+            performCriticalCheck();
 
             // Also run delayed check as backup
-            setTimeout(immediateCorrection, 100);
+            setTimeout(performCriticalCheck, 100);
 
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
