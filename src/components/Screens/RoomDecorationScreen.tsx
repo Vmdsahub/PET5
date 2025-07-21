@@ -586,6 +586,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             y: position.y,
           });
                 },
+        onObjectChanged: (objectId: string) => {
+          // Save furniture state when object is changed (moved, rotated, scaled)
+          console.log(`💾 Auto-saving changes for furniture: ${objectId}`);
+          if (user?.id) {
+            // Add small delay to ensure Three.js transformations are complete
+            setTimeout(() => {
+              saveFurnitureState(objectId);
+            }, 100);
+          }
+        },
         editMode: isEditMode,
         isUserAdmin: () => user?.isAdmin || false,
       });
@@ -2633,7 +2643,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 if (existingIndex === -1) {
                   // First occurrence of this item type
                   console.log(
-                    `📦 New stack created for: ${item.name} (${item.type})`,
+                    `��� New stack created for: ${item.name} (${item.type})`,
                   );
                   uniqueItems.push({
                     ...item,
