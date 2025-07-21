@@ -301,12 +301,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
+          console.log(`🔍 Decoration type: ${decoration.furniture_type}`);
 
                               // Extract original store ID from database ID using utility
           const originalStoreId = extractOriginalStoreId(decoration.furniture_id);
           debugIdMapping(decoration.furniture_id, 'loadSavedDecorations');
           console.log(`🔍 Extracted originalStoreId: ${originalStoreId} from databaseId: ${decoration.furniture_id}`);
 
+          // Validate that we can actually load this furniture type
+          const isCustomType = decoration.furniture_type.startsWith('custom_');
+          console.log(`🔍 Is custom furniture: ${isCustomType}`);
 
           // Generate unique ID for this restored furniture instance
                     const restoreId = decoration.furniture_id;
@@ -329,6 +333,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 material: decoration.material,
                 position: decoration.position,
                 rotation: decoration.rotation,
+                furnitureType: decoration.furniture_type,
               },
             );
 
