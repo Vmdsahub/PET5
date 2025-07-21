@@ -29,6 +29,11 @@ import {
   extractOriginalStoreId,
   debugIdMapping,
 } from "../../utils/furnitureIdGenerator";
+import {
+  recoverFurnitureName,
+  generateFriendlyName,
+  isGeneratedName,
+} from "../../utils/furnitureNameRecovery";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
