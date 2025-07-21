@@ -584,7 +584,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             );
           } else {
             console.warn(
-              `❌ Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
+              `�� Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           }
         }
@@ -640,22 +640,44 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             });
 
             // If there's a significant mismatch, clean up corrupted data
-            if (expectedCount > 10 && actualCount < expectedCount / 2) {
-              console.log(`🧹 Significant data corruption detected, cleaning up...`);
+            if (expectedCount > 5 && actualCount < expectedCount / 3) {
+              console.log(`🧹 Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
               if (user?.id) {
                 const debugInfo = getStorageDebugInfo(user.id);
                 console.log(`🔍 Storage debug info:`, debugInfo);
 
-                const cleanupStats = cleanCorruptedEntries(user.id);
-                console.log(`🧹 Cleanup completed:`, cleanupStats);
+                // If there are way too many entries (like 21 vs 3), do a complete cleanup
+                if (expectedCount > 15 && actualCount < 5) {
+                  console.log(`🧹 Excessive corruption detected, performing complete cleanup...`);
+                  const completeCleanup = cleanUserFurnitureData(user.id);
+                  console.log(`🧹 Complete cleanup completed:`, completeCleanup);
 
-                if (cleanupStats.totalCleaned > 0) {
-                  console.log(`🔄 Reloading decorations after cleanup...`);
+                  addNotification({
+                    type: "warning",
+                    title: "Dados Corrompidos Detectados",
+                    message: `Encontrados ${expectedCount} registros corrompidos. Dados limpos automaticamente.`,
+                  });
+
+                  // Force a fresh start
                   setTimeout(() => {
                     setDecorationsLoaded(false);
-                    loadSavedDecorations();
-                  }, 1000);
+                    setInventory([]); // Clear inventory too
+                    console.log(`🔄 Starting fresh after complete cleanup...`);
+                  }, 2000);
                   return;
+                } else {
+                  // Try partial cleanup first
+                  const cleanupStats = cleanCorruptedEntries(user.id);
+                  console.log(`🧹 Partial cleanup completed:`, cleanupStats);
+
+                  if (cleanupStats.totalCleaned > 0) {
+                    console.log(`🔄 Reloading decorations after cleanup...`);
+                    setTimeout(() => {
+                      setDecorationsLoaded(false);
+                      loadSavedDecorations();
+                    }, 1000);
+                    return;
+                  }
                 }
               }
             }
