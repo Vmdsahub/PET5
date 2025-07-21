@@ -165,9 +165,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         }
       }
 
+      // Extract furniture name from 3D object userData or generate fallback
+      let furnitureName: string | undefined;
+      if (experienceRef.current) {
+        const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
+        if (furnitureObj?.object?.userData?.originalName) {
+          furnitureName = furnitureObj.object.userData.originalName;
+          console.log(`📝 Using original name from userData: "${furnitureName}"`);
+        }
+      }
+
       const furnitureState: FurnitureState = {
         furniture_id: databaseId,
         furniture_type: furnitureType,
+        furniture_name: furnitureName, // Include name in save
         position: properties.position,
         rotation: properties.rotation,
         scale: properties.scale,
@@ -638,7 +649,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 },
         onObjectChanged: (objectId: string) => {
           // Save furniture state when object is changed (moved, rotated, scaled)
-          console.log(`💾 Auto-saving changes for furniture: ${objectId}`);
+          console.log(`���� Auto-saving changes for furniture: ${objectId}`);
           if (user?.id) {
             // Add small delay to ensure Three.js transformations are complete
             setTimeout(() => {
