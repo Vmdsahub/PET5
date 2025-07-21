@@ -70,6 +70,7 @@ class RoomDecorationService {
         user_id: userId,
         furniture_id: furnitureState.furniture_id,
         furniture_type: furnitureState.furniture_type,
+        furniture_name: furnitureState.furniture_name, // Salvar nome original
         position_x: furnitureState.position.x,
         position_y: furnitureState.position.y,
         position_z: furnitureState.position.z,
