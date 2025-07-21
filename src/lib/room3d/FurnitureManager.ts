@@ -238,11 +238,12 @@ export class FurnitureManager {
     this.scaleFurniture(id, scale);
   }
 
-    private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
+      private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
     const dimensions = this.getRoomDimensions();
     const roomHalfWidth = dimensions.floorWidth / 2;
     const roomHalfDepth = dimensions.floorDepth / 2;
-    const margin = 1; // Keep furniture away from walls
+    // Use a smaller proportional margin - 2.5% of room size, minimum 0.2
+    const margin = Math.max(0.2, Math.min(dimensions.floorWidth, dimensions.floorDepth) * 0.025);
 
     return new THREE.Vector3(
       Math.max(-roomHalfWidth + margin, Math.min(roomHalfWidth - margin, position.x)),
