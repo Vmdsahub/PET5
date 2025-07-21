@@ -130,6 +130,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       const furnitureType = experienceRef.current.getFurnitureType(furnitureId);
       const properties = experienceRef.current.getFurniture(furnitureId);
 
+      console.log(`💾 SAVE START - Furniture ID: ${furnitureId}`);
+      console.log(`💾 SAVE START - Furniture Type: ${furnitureType}`);
+      debugIdMapping(furnitureId, 'saveFurnitureState-start');
+
       if (!furnitureType || !properties) {
         console.warn(
           `Cannot save state for furniture ${furnitureId}: missing data`,
