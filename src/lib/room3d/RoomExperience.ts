@@ -463,16 +463,20 @@ export class RoomExperience {
       intersectionPoint,
     );
 
-    if (intersection) {
-      // Constrain position to room bounds
-      const roomSize = 9; // Keep furniture within room bounds
+        if (intersection) {
+      // Constrain position to room bounds based on actual floor dimensions
+      const dimensions = this.world.getRoomDimensions();
+      const roomHalfWidth = dimensions.floorWidth / 2;
+      const roomHalfDepth = dimensions.floorDepth / 2;
+      const margin = 1; // Keep furniture away from walls
+
       const constrainedX = Math.max(
-        -roomSize,
-        Math.min(roomSize, intersection.x),
+        -roomHalfWidth + margin,
+        Math.min(roomHalfWidth - margin, intersection.x),
       );
       const constrainedZ = Math.max(
-        -roomSize,
-        Math.min(roomSize, intersection.z),
+        -roomHalfDepth + margin,
+        Math.min(roomHalfDepth - margin, intersection.z),
       );
 
       return new THREE.Vector3(constrainedX, 0, constrainedZ);
