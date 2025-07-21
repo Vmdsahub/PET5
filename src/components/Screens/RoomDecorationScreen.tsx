@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 import {
   Globe,
   ShoppingCart,
@@ -24,6 +25,36 @@ import {
   roomDecorationService,
   FurnitureState,
 } from "../../services/roomDecorationService";
+import {
+  generateFurnitureDatabaseId,
+  extractOriginalStoreId,
+  debugIdMapping,
+} from "../../utils/furnitureIdGenerator";
+import {
+  recoverFurnitureName,
+  generateFriendlyName,
+  isGeneratedName,
+} from "../../utils/furnitureNameRecovery";
+import {
+  cleanUserFurnitureData,
+  getStorageDebugInfo,
+  cleanCorruptedEntries,
+} from "../../utils/storageCleanup";
+import {
+  detectGhostFurniture,
+  forceCleanFurnitureGroup,
+  isProblematicPosition,
+  generateSafePosition,
+  correctPositionImmediately,
+} from "../../utils/ghostFurnitureDetector";
+import {
+  performEmergencyPositionFix,
+  validateAndCorrectPosition,
+  startPositionMonitoring,
+} from "../../utils/criticalPositionFixer";
+import {
+  startCenterPositionMonitoring,
+} from "../../utils/centerPositionProtector";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -83,6 +114,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [decorationsLoaded, setDecorationsLoaded] = useState(false);
   const [catalogRefreshTrigger, setCatalogRefreshTrigger] = useState(0);
+  const [showCleanupButton, setShowCleanupButton] = useState(false);
 
   // Estados para controles de admin dos móveis
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
@@ -114,9 +146,101 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     });
   };
 
+  // Track recent saves to prevent duplicate saves
+  const recentSaves = useRef<Set<string>>(new Set());
+
+  // Manual cleanup function for extreme cases
+  const handleManualCleanup = () => {
+    if (!user?.id) return;
+
+    console.log(`🧹 Manual cleanup requested by user`);
+
+    const debugInfo = getStorageDebugInfo(user.id);
+    console.log(`🔍 Pre-cleanup storage info:`, debugInfo);
+
+    const cleanupStats = cleanUserFurnitureData(user.id);
+    console.log(`🧹 Manual cleanup completed:`, cleanupStats);
+
+    // Clear the scene and detect ghosts
+    if (experienceRef.current) {
+      // First try to detect and remove ghost furniture
+      const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+      console.log(`👻 Ghost detection during manual cleanup:`, ghostResult);
+
+      // Force clean any remaining problematic objects from the scene
+      const forceCleanedCount = forceCleanFurnitureGroup(experienceRef.current.scene);
+      console.log(`🧹 Force cleaned ${forceCleanedCount} objects from scene`);
+
+      // Clear all furniture normally
+      experienceRef.current.clearAllFurniture();
+    }
+
+    // Reset state
+    setInventory([]);
+    setDecorationsLoaded(false);
+    setShowCleanupButton(false);
+
+    addNotification({
+      type: "success",
+      title: "Limpeza Completa",
+      message: `Removidos ${cleanupStats.totalCleaned} itens corrompidos. Quarto resetado.`,
+    });
+
+    console.log(`✨ Manual cleanup completed, starting fresh`);
+  };
+
+  // Emergency reset function using the new critical position fixer
+  const handleEmergencyReset = () => {
+    if (!user?.id || !experienceRef.current) return;
+
+    console.log(`🆘 Emergency reset requested - using critical position fixer`);
+
+    const result = performEmergencyPositionFix(
+      experienceRef.current.furnitureManager,
+      (furnitureId: string) => {
+        saveFurnitureState(furnitureId);
+      }
+    );
+
+    if (result.fixed > 0 || result.removed > 0) {
+      addNotification({
+        type: "success",
+        title: "Reset de Emergência",
+        message: `${result.fixed} móveis corrigidos, ${result.removed} removidos.`,
+      });
+    } else {
+      addNotification({
+        type: "info",
+        title: "Reset de Emergência",
+        message: "Nenhum móvel em posição problemática encontrado.",
+      });
+    }
+
+    if (result.errors.length > 0) {
+      console.error(`❌ Emergency reset errors:`, result.errors);
+      addNotification({
+        type: "error",
+        title: "Erros no Reset",
+        message: `${result.errors.length} erros ocorreram durante o reset.`,
+      });
+    }
+  };
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
+
+    // Prevent duplicate saves within 2 seconds
+    const saveKey = `${user.id}_${furnitureId}`;
+    if (recentSaves.current.has(saveKey)) {
+      console.log(`⏱️ Skipping duplicate save for ${furnitureId} (recent save in progress)`);
+      return;
+    }
+
+    recentSaves.current.add(saveKey);
+    setTimeout(() => {
+      recentSaves.current.delete(saveKey);
+    }, 2000); // Remove from recent saves after 2 seconds
 
     // Small delay to ensure changes are applied in THREE.js before saving
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -125,6 +249,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       const furnitureType = experienceRef.current.getFurnitureType(furnitureId);
       const properties = experienceRef.current.getFurniture(furnitureId);
 
+      console.log(`💾 SAVE START - Furniture ID: ${furnitureId}`);
+      console.log(`💾 SAVE START - Furniture Type: ${furnitureType}`);
+      debugIdMapping(furnitureId, 'saveFurnitureState-start');
+
       if (!furnitureType || !properties) {
         console.warn(
           `Cannot save state for furniture ${furnitureId}: missing data`,
@@ -132,7 +260,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         return;
       }
 
-                  // Use existing database ID or create new one
+                  // Use existing database ID or create new one using UUID
       let databaseId = furnitureId;
       if (experienceRef.current) {
         const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
@@ -141,22 +269,35 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           if (furnitureObj.object.userData.databaseId) {
             databaseId = furnitureObj.object.userData.databaseId;
             console.log(`🔑 Using existing database ID: ${databaseId} for ${furnitureId}`);
+            debugIdMapping(databaseId, 'saveFurnitureState-existing');
           }
           // For new furniture, create database ID from originalStoreId
           else if (furnitureObj.object.userData.originalStoreId) {
             const originalId = furnitureObj.object.userData.originalStoreId;
-            // Generate unique database ID to prevent conflicts
-            databaseId = `${originalId}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+            // Generate unique database ID using UUID for guaranteed uniqueness
+            databaseId = generateFurnitureDatabaseId(originalId);
             // Store the database ID back in userData for future saves
             furnitureObj.object.userData.databaseId = databaseId;
             console.log(`🔑 Created new database ID: ${databaseId} for ${furnitureId} (originalStoreId: ${originalId})`);
+            debugIdMapping(databaseId, 'saveFurnitureState-new');
           }
+        }
+      }
+
+      // Extract furniture name from 3D object userData or generate fallback
+      let furnitureName: string | undefined;
+      if (experienceRef.current) {
+        const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
+        if (furnitureObj?.object?.userData?.originalName) {
+          furnitureName = furnitureObj.object.userData.originalName;
+          console.log(`📝 Using original name from userData: "${furnitureName}"`);
         }
       }
 
       const furnitureState: FurnitureState = {
         furniture_id: databaseId,
         furniture_type: furnitureType,
+        furniture_name: furnitureName, // Include name in save
         position: properties.position,
         rotation: properties.rotation,
         scale: properties.scale,
@@ -246,13 +387,29 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
 
         // Clear any existing furniture from the scene first to prevent conflicts
-    console.log("🧹 Clearing existing furniture from scene before loading saved decorations");
+    const existingFurniture = experienceRef.current?.getAllFurniture?.() || [];
+    console.log(`🧹 Clearing ${existingFurniture.length} existing furniture from scene before loading saved decorations`);
+
     if (experienceRef.current.clearAllFurniture) {
       experienceRef.current.clearAllFurniture();
+      console.log("✅ Furniture cleared successfully");
     }
 
     // Wait for cleanup to complete
     await new Promise(resolve => setTimeout(resolve, 100));
+    console.log("⏱️ Cleanup delay completed");
+
+    // Additional ghost furniture detection after clearing
+    if (experienceRef.current) {
+      const remainingFurniture = experienceRef.current.getAllFurniture?.() || [];
+      if (remainingFurniture.length > 0) {
+        console.warn(`⚠️ ${remainingFurniture.length} furniture items remain after clear, detecting ghosts...`);
+        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+        if (ghostResult.found > 0) {
+          console.log(`👻 Pre-load ghost detection: found ${ghostResult.found}, removed ${ghostResult.removed}`);
+        }
+      }
+    }
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
@@ -262,6 +419,44 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (result.success && result.decorations) {
         console.log(`📋 Found ${result.decorations.length} saved decorations`);
+
+        // Validate and clean decorations data
+        const validDecorations = result.decorations.filter((decoration, index) => {
+          const isValid =
+            decoration &&
+            decoration.furniture_id &&
+            decoration.furniture_type &&
+            typeof decoration.position === 'object' &&
+            decoration.position.x !== undefined &&
+            decoration.position.y !== undefined &&
+            decoration.position.z !== undefined;
+
+          if (!isValid) {
+            console.warn(`⚠�� Invalid decoration data at index ${index}:`, decoration);
+            return false;
+          }
+
+          // Check for duplicate IDs
+          const duplicateIndex = result.decorations.findIndex((d, i) =>
+            i !== index && d.furniture_id === decoration.furniture_id
+          );
+
+          if (duplicateIndex !== -1) {
+            console.warn(`⚠️ Duplicate furniture ID found: ${decoration.furniture_id} at indices ${index} and ${duplicateIndex}`);
+            return index < duplicateIndex; // Keep only the first occurrence
+          }
+
+          return true;
+        });
+
+        console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
+
+        if (validDecorations.length !== result.decorations.length) {
+          console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
+        }
+
+        // Use validated decorations
+        result.decorations = validDecorations;
 
                 // First, clean up inventory items that have matching furniture in the saved decorations
         // This prevents duplicates when furniture was placed and saved
@@ -289,14 +484,23 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         }));
 
         for (const decoration of result.decorations) {
-          console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
+          console.log(`🪑 [${result.decorations.indexOf(decoration) + 1}/${result.decorations.length}] Restoring furniture: ${decoration.furniture_id}`);
+          console.log(`🔍 Decoration type: ${decoration.furniture_type}`);
+          console.log(`🔍 Full decoration data:`, decoration);
 
-                              // Extract original store ID from database ID
-          let originalStoreId = decoration.furniture_id;
+                              // Extract original store ID from database ID using utility
+          const originalStoreId = extractOriginalStoreId(decoration.furniture_id);
+          debugIdMapping(decoration.furniture_id, 'loadSavedDecorations');
+          console.log(`🔍 Extracted originalStoreId: ${originalStoreId} from databaseId: ${decoration.furniture_id}`);
 
-          // Handle database IDs that have instance numbers (e.g., "sofa_2" -> "sofa")
-          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
-            originalStoreId = decoration.furniture_id.split('_')[0];
+          // Validate that we can actually load this furniture type
+          const isCustomType = decoration.furniture_type.startsWith('custom_');
+          console.log(`🔍 Is custom furniture: ${isCustomType}`);
+
+          // Additional validation
+          if (!decoration.furniture_type || decoration.furniture_type.trim() === '') {
+            console.error(`❌ Invalid furniture_type for ${decoration.furniture_id}:`, decoration.furniture_type);
+            continue; // Skip this decoration
           }
 
           // Generate unique ID for this restored furniture instance
@@ -304,13 +508,62 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
-                    // Add furniture to scene with saved state (mark as restoration to skip templates)
+                    // Validate position and generate safe fallback for invalid values
+          let validPosition;
+
+          // Check if position data is valid
+          const hasValidPosition =
+            !isNaN(decoration.position.x) &&
+            !isNaN(decoration.position.y) &&
+            !isNaN(decoration.position.z) &&
+            decoration.position.x !== null &&
+            decoration.position.y !== null &&
+            decoration.position.z !== null;
+
+          if (hasValidPosition) {
+            validPosition = {
+              x: decoration.position.x,
+              y: Math.max(0, decoration.position.y), // Ensure Y >= 0
+              z: decoration.position.z,
+            };
+          } else {
+            // Generate safe position instead of using (0,0,0)
+            console.warn(`⚠️ Invalid position data for ${restoreId}, generating safe position`);
+            const fallbackIndex = validDecorations.indexOf(decoration);
+            validPosition = generateSafePosition(fallbackIndex, 8);
+            console.log(`🔧 Generated safe position for ${restoreId}: (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
+          }
+
+          // Only validate for truly problematic positions, not normal positions
+          if (isProblematicPosition(validPosition)) {
+            console.warn(`⚠️ Furniture ${restoreId} has truly problematic position, adjusting...`);
+            const fallbackIndex = validDecorations.indexOf(decoration);
+            validPosition = generateSafePosition(fallbackIndex, 8);
+            console.log(`🔧 Adjusted ${restoreId} from (${decoration.position.x}, ${decoration.position.y}, ${decoration.position.z}) to (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
+          }
+
+          console.log(`📍 Position check for ${restoreId}:`, {
+            original: decoration.position,
+            final: validPosition,
+            wasAdjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
+          });
+
+          // Add furniture to scene with validated position (mark as restoration to skip templates)
+          console.log(`🛠️ About to call addFurnitureFromInventory with:`, {
+            restoreId,
+            validPosition,
+            furnitureType: decoration.furniture_type,
+            isRestoration: true
+          });
+
           const success = await experienceRef.current.addFurnitureFromInventory(
             restoreId,
-            decoration.position,
+            validPosition,
             decoration.furniture_type,
             true, // isRestoration = true to skip template application
           );
+
+          console.log(`🔄 addFurnitureFromInventory result for ${restoreId}: ${success ? 'SUCCESS' : 'FAILED'}`);
 
                     if (success) {
             console.log(
@@ -320,21 +573,51 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 material: decoration.material,
                 position: decoration.position,
                 rotation: decoration.rotation,
+                furnitureType: decoration.furniture_type,
               },
             );
 
-            // Store database mapping in the furniture object
+            // Store database mapping and name in the furniture object
             const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
             if (furnitureObj?.object?.userData) {
               furnitureObj.object.userData.originalStoreId = originalStoreId;
               furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
-              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
+
+              // Restore original name from database if available
+              if (decoration.furniture_name && !isGeneratedName(decoration.furniture_name)) {
+                furnitureObj.object.userData.originalName = decoration.furniture_name;
+                console.log(`📝 Restored original name from database: "${decoration.furniture_name}"`);
+              } else {
+                console.warn(`⚠️ No valid saved name for furniture ${restoreId}, attempting recovery...`);
+
+                // Attempt to recover the original name
+                const recoveredName = await recoverFurnitureName(originalStoreId, decoration.furniture_type);
+                if (recoveredName) {
+                  furnitureObj.object.userData.originalName = recoveredName;
+                  console.log(`✨ Recovered name: "${recoveredName}" for ${restoreId}`);
+
+                  // Save the recovered name back to the database
+                  setTimeout(() => {
+                    if (user?.id) {
+                      console.log(`💾 Saving recovered name back to database...`);
+                      saveFurnitureState(restoreId);
+                    }
+                  }, 1000);
+                } else {
+                  // Generate a friendly fallback name
+                  const friendlyName = generateFriendlyName(originalStoreId);
+                  furnitureObj.object.userData.originalName = friendlyName;
+                  console.log(`🎨 Generated friendly name: "${friendlyName}" for ${restoreId}`);
+                }
+              }
+
+              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}, name=${decoration.furniture_name || 'N/A'}`);
             }
 
                         // Apply saved transformations and materials with debugging
             console.log(`🔧 Applying transformations to ${restoreId}:`);
             console.log(`  📐 Scale:`, decoration.scale);
-            console.log(`  🔄 Rotation:`, decoration.rotation);
+            console.log(`  ���� Rotation:`, decoration.rotation);
             console.log(`  📍 Position:`, decoration.position);
 
             experienceRef.current.updateFurnitureScale(
@@ -372,16 +655,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
             }
 
-            // Verify final position after all transformations
+            // Simple position verification - only check for truly problematic positions
             setTimeout(() => {
               const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
-                console.log(`🔍 Final restored position for ${restoreId}:`, {
-                  position: finalObj.object.position,
-                  expectedPosition: decoration.position,
-                  rotation: finalObj.object.rotation,
-                  scale: finalObj.object.scale,
-                });
+                const finalPosition = finalObj.object.position;
+
+                console.log(`✅ Furniture ${restoreId} restored at position (${finalPosition.x.toFixed(2)}, ${finalPosition.y.toFixed(2)}, ${finalPosition.z.toFixed(2)})`);
+
+                // For GLB furniture, ensure it will be saved correctly in the future
+                if (isCustomType && !finalObj.object.userData.databaseId) {
+                  console.warn(`⚠️ GLB furniture ${restoreId} missing databaseId, adding it...`);
+                  finalObj.object.userData.databaseId = decoration.furniture_id;
+                }
               }
             }, 100);
 
@@ -427,8 +713,98 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           );
         }
 
+        // Simple loading completion log
+        console.log(`✅ Furniture loading completed - ${validDecorations.length} decorations processed`);
+
         // Mark decorations as loaded to prevent multiple loads
         setDecorationsLoaded(true);
+
+        // Final integrity check for GLB furniture
+        setTimeout(() => {
+          const loadedFurniture = experienceRef.current?.getAllFurniture?.() || [];
+          const expectedCount = validDecorations.length; // Use validDecorations instead
+          const actualCount = loadedFurniture.length;
+
+          console.log(`🔍 Integrity Check:`);
+          console.log(`  Expected decorations: ${expectedCount}`);
+          console.log(`  Loaded furniture: ${actualCount}`);
+
+          if (actualCount !== expectedCount) {
+            console.warn(`⚠️ INTEGRITY ISSUE: Expected ${expectedCount} furniture but only ${actualCount} loaded!`);
+
+            // Log details of what's missing
+            const loadedIds = new Set(loadedFurniture.map(f => f.id));
+            validDecorations.forEach(decoration => {
+              if (!loadedIds.has(decoration.furniture_id)) {
+                console.warn(`⚠️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
+              }
+            });
+
+            // If there's a significant mismatch, clean up corrupted data
+            if (expectedCount > 5 && actualCount < expectedCount / 3) {
+              console.log(`🧹 Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
+              if (user?.id) {
+                const debugInfo = getStorageDebugInfo(user.id);
+                console.log(`🔍 Storage debug info:`, debugInfo);
+
+                // If there are way too many entries (like 21 vs 3), do a complete cleanup
+                if (expectedCount > 15 && actualCount < 5) {
+                  console.log(`🧹 Excessive corruption detected, performing complete cleanup...`);
+                  const completeCleanup = cleanUserFurnitureData(user.id);
+                  console.log(`🧹 Complete cleanup completed:`, completeCleanup);
+
+                  addNotification({
+                    type: "warning",
+                    title: "Dados Corrompidos Detectados",
+                    message: `Encontrados ${expectedCount} registros corrompidos. Dados limpos automaticamente.`,
+                  });
+
+                  // Force a fresh start
+                  setTimeout(() => {
+                    setDecorationsLoaded(false);
+                    setInventory([]); // Clear inventory too
+                    console.log(`🔄 Starting fresh after complete cleanup...`);
+                  }, 2000);
+                  return;
+                } else {
+                  // Try partial cleanup first
+                  const cleanupStats = cleanCorruptedEntries(user.id);
+                  console.log(`🧹 Partial cleanup completed:`, cleanupStats);
+
+                  if (cleanupStats.totalCleaned > 0) {
+                    console.log(`🔄 Reloading decorations after cleanup...`);
+                    setTimeout(() => {
+                      setDecorationsLoaded(false);
+                      loadSavedDecorations();
+                    }, 1000);
+                    return;
+                  }
+                }
+              }
+            }
+          } else {
+            console.log(`✅ All furniture loaded successfully!`);
+
+            // Even if counts match, check for ghost furniture in problematic positions
+            if (experienceRef.current) {
+              setTimeout(() => {
+                const ghostResult = detectGhostFurniture(experienceRef.current?.furnitureManager);
+                if (ghostResult.found > 0) {
+                  console.warn(`👻 Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+
+                  if (ghostResult.removed > 0) {
+                    addNotification({
+                      type: "warning",
+                      title: "Móveis Fantasmas Removidos",
+                      message: `Detectados e removidos ${ghostResult.removed} móveis em posições problemáticas.`,
+                    });
+                  }
+                }
+              }, 2000); // Wait a bit more for scene to stabilize
+            }
+          }
+        }, 1000); // Wait for all async operations to complete
+
         console.log(`🏁 Decorations loading completed`);
       } else if (result.error) {
         console.error("Error loading decorations:", result.error);
@@ -460,7 +836,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (success) {
         const furnitureType = item.type || "furniture";
-        console.log(`📦 Adding to inventory with type: ${furnitureType}`);
+        console.log(`���� Adding to inventory with type: ${furnitureType}`);
 
         // Generate thumbnail for purchased item by temporarily loading the model
         let thumbnail = "";
@@ -508,12 +884,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                         // Add to inventory (use globally unique IDs)
         setInventory((prev) => {
-          // Generate globally unique ID that won't conflict
-          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+          // Generate globally unique ID using UUID for guaranteed uniqueness
+          const uniqueId = generateFurnitureDatabaseId(item.id);
 
           console.log(
             `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
           );
+          debugIdMapping(uniqueId, 'handleFurniturePurchase');
           return [
             ...prev,
             {
@@ -567,6 +944,47 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     },
   ];
 
+  // Enhanced monitoring with absolute center protection
+  useEffect(() => {
+    if (!experienceRef.current || !user?.id || !decorationsLoaded) return;
+
+    let centerMonitoringCleanup: (() => void) | null = null;
+
+    // Start absolute center position monitoring
+    const startMonitoring = () => {
+      if (experienceRef.current?.furnitureManager) {
+        console.log(`👻 Running initial ghost detection for user ${user.id}`);
+
+        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+        if (ghostResult.found > 0) {
+          console.warn(`👻 Initial ghost detection: found ${ghostResult.found}, removed ${ghostResult.removed}`);
+
+          if (ghostResult.removed > 0) {
+            addNotification({
+              type: "warning",
+              title: "Móveis Fantasmas Removidos",
+              message: `Detectados e removidos ${ghostResult.removed} móveis em posições realmente problemáticas.`,
+            });
+          }
+        }
+
+        // Start absolute center monitoring
+        console.log(`🔴 Starting ABSOLUTE center position monitoring`);
+        centerMonitoringCleanup = startCenterPositionMonitoring(experienceRef.current.furnitureManager);
+      }
+    };
+
+    // Run monitoring after a brief delay to ensure all furniture is loaded
+    const monitoringDelay = setTimeout(startMonitoring, 3000);
+
+    return () => {
+      clearTimeout(monitoringDelay);
+      if (centerMonitoringCleanup) {
+        centerMonitoringCleanup();
+      }
+    };
+  }, [experienceRef.current, user?.id, decorationsLoaded]);
+
   useEffect(() => {
     if (canvasRef.current && !experienceRef.current) {
       experienceRef.current = new RoomExperience({
@@ -586,12 +1004,28 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             y: position.y,
           });
                 },
+        onObjectChanged: (objectId: string) => {
+          // Save furniture state when object is changed (moved, rotated, scaled)
+          console.log(`💾 Auto-saving changes for furniture: ${objectId}`);
+          if (user?.id) {
+            // Add small delay to ensure Three.js transformations are complete
+            setTimeout(() => {
+              saveFurnitureState(objectId);
+            }, 100);
+          }
+        },
         editMode: isEditMode,
         isUserAdmin: () => user?.isAdmin || false,
       });
     }
 
     return () => {
+      // Save any pending changes before cleanup
+      if (experienceRef.current && selectedObject && user?.id && isEditMode) {
+        console.log("💾 Saving pending changes before component cleanup...");
+        saveFurnitureState(selectedObject);
+      }
+
       if (experienceRef.current) {
         experienceRef.current.destroy();
         experienceRef.current = null;
@@ -611,26 +1045,34 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setRoomDimensions(dimensions);
         setMaterialProperties(materials);
       }
-
-            // Load saved decorations when user changes or experience is ready
-      if (user?.id) {
-        // Always reset decorations loaded flag when entering the decoration screen
-        console.log("🔄 Resetting decorationsLoaded flag for fresh loading");
-        setDecorationsLoaded(false);
-
-        setTimeout(() => {
-          loadSavedDecorations();
-        }, 500); // Small delay to ensure scene is ready
-      } else {
-        // Reset flag when user logs out
-        setDecorationsLoaded(false);
-      }
     }
-  }, [isEditMode, user?.isAdmin, user?.id]);
+  }, [isEditMode, user?.isAdmin]);
+
+  // Separate effect for loading decorations to avoid dependency conflicts
+  useEffect(() => {
+    if (experienceRef.current && user?.id) {
+      // Always reset decorations loaded flag when user changes
+      console.log(`🔄 User changed to ${user.id}, resetting decorationsLoaded flag`);
+      setDecorationsLoaded(false);
+
+      setTimeout(() => {
+        loadSavedDecorations();
+      }, 500); // Small delay to ensure scene is ready
+    } else if (!user?.id) {
+      // Reset flag when user logs out
+      console.log("👤 User logged out, resetting decorationsLoaded flag");
+      setDecorationsLoaded(false);
+    }
+  }, [user?.id]); // Only depend on user ID changes
 
   const handleNavigation = (id: string) => {
     switch (id) {
       case "globe":
+        // Save any pending changes before leaving
+        if (isEditMode && selectedObject && user?.id) {
+          console.log("💾 Saving pending changes before navigation...");
+          saveFurnitureState(selectedObject);
+        }
         onNavigateBack();
         break;
       case "catalog":
@@ -644,8 +1086,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setActiveNav(newInventoryState ? "inventory" : "");
         break;
       case "edit":
-        setIsEditMode(!isEditMode);
-        setActiveNav(isEditMode ? "" : "edit");
+        const wasInEditMode = isEditMode;
+        const newEditMode = !isEditMode;
+
+        // If exiting edit mode and there's a selected object, save its state
+        if (wasInEditMode && !newEditMode && selectedObject && user?.id) {
+          console.log("💾 Saving final changes when exiting edit mode...");
+          saveFurnitureState(selectedObject);
+        }
+
+        setIsEditMode(newEditMode);
+        setActiveNav(newEditMode ? "edit" : "");
         break;
     }
   };
@@ -702,25 +1153,40 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         break;
       case "store":
         // Add to inventory and remove from scene
-        // Try to get the original name from the 3D object userData
-        let furnitureName = objectId
-          .replace(/-/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase());
+        // Try to get the original name from the 3D object userData with improved fallback
+        let furnitureName: string;
 
-        // Check if the 3D object has the original name stored
         if (experienceRef.current) {
-          const furnitureObj =
-            experienceRef.current.getFurnitureById?.(objectId);
+          const furnitureObj = experienceRef.current.getFurnitureById?.(objectId);
+
           if (furnitureObj?.object?.userData?.originalName) {
+            // Use stored original name (best option)
             furnitureName = furnitureObj.object.userData.originalName;
-            console.log(
-              `📝 Using original name: "${furnitureName}" for ${objectId}`,
-            );
+            console.log(`📝 Using original name: "${furnitureName}" for ${objectId}`);
           } else {
-            console.log(
-              `⚠️ No original name found for ${objectId}, using generated name: "${furnitureName}"`,
-            );
+            // Fallback: try to get originalStoreId and look up in services
+            const originalStoreId = furnitureObj?.object?.userData?.originalStoreId;
+            if (originalStoreId) {
+              console.log(`🔍 Attempting to recover name from originalStoreId: ${originalStoreId}`);
+              // For now, generate a user-friendly name from the originalStoreId
+              furnitureName = originalStoreId
+                .replace(/[-_]/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              console.log(`📝 Generated name from originalStoreId: "${furnitureName}"`);
+            } else {
+              // Last resort: generate from objectId
+              furnitureName = objectId
+                .replace(/[-_]/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              console.warn(`⚠️ No original data found for ${objectId}, using fallback name: "${furnitureName}"`);
+            }
           }
+        } else {
+          // Experience not available, use basic fallback
+          furnitureName = objectId
+            .replace(/[-_]/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+          console.warn(`⚠️ Experience not available, using basic fallback name: "${furnitureName}"`);
         }
 
         // Get the correct furniture type and original store ID to preserve them
@@ -880,17 +1346,30 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
+            // Basic position validation - avoid exact center only
+            const validPosition = {
+              x: worldPosition.x,
+              y: Math.max(0, worldPosition.y), // Ensure Y >= 0
+              z: worldPosition.z,
+            };
+
+            // Only adjust if at exact problematic position
+            if (isProblematicPosition(validPosition)) {
+              console.warn(`⚠️ Adjusting furniture placement away from problematic position`);
+              validPosition.x += validPosition.x >= 0 ? 0.5 : -0.5;
+              validPosition.z += validPosition.z >= 0 ? 0.5 : -0.5;
+              console.log(`🔧 Position adjusted for ${item.id}: (${worldPosition.x.toFixed(2)}, ${worldPosition.y.toFixed(2)}, ${worldPosition.z.toFixed(2)}) -> (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
+            }
+
             console.log(
               `🎯 Placing furniture from inventory: ID=${item.id}, Type=${item.type}, Name=${item.name}`,
             );
+            console.log(`📍 Position: (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
+
             const success =
               await experienceRef.current.addFurnitureFromInventory(
                 item.id,
-                {
-                  x: worldPosition.x,
-                  y: worldPosition.y,
-                  z: worldPosition.z,
-                },
+                validPosition,
                 item.type,
               );
 
@@ -1159,6 +1638,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               }`}
             >
               🎨 Materiais
+            </button>
+            <button
+              onClick={handleManualCleanup}
+              className="px-4 py-2 rounded-lg font-medium transition-all bg-red-600 text-white hover:bg-red-700 flex items-center gap-2"
+              title="Limpar todos os dados corrompidos do quarto"
+            >
+              🧹 Limpar Dados
+            </button>
+            <button
+              onClick={handleEmergencyReset}
+              className="px-4 py-2 rounded-lg font-medium transition-all bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
+              title="Reset de emergência para móveis em posições problemáticas"
+            >
+              🆘 Reset Emergência
             </button>
             {selectedFurniture && (
               <button
@@ -1689,7 +2182,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-yellow-400" />
                   <span className="text-white font-medium">
-                    ���� Parede Direita
+                    ������ Parede Direita
                   </span>
                 </div>
 

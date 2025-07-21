@@ -12,6 +12,7 @@ interface RoomExperienceOptions {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  onObjectChanged?: (objectId: string) => void;
   editMode?: boolean;
   isUserAdmin?: () => boolean;
 }
@@ -32,6 +33,7 @@ export class RoomExperience {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  private onObjectChanged?: (objectId: string) => void;
   private isUserAdmin: () => boolean;
 
   constructor(options: RoomExperienceOptions) {
@@ -39,6 +41,7 @@ export class RoomExperience {
     this.onObjectSelect = options.onObjectSelect;
     this.isUserAdmin = options.isUserAdmin || (() => false);
     this.onRightClickFurniture = options.onRightClickFurniture;
+    this.onObjectChanged = options.onObjectChanged;
 
     this.initScene();
     this.initCamera();
@@ -192,6 +195,7 @@ export class RoomExperience {
       {
         onObjectSelect: this.onObjectSelect,
         onRightClickFurniture: this.onRightClickFurniture,
+        onObjectChanged: this.onObjectChanged,
         furnitureManager: this.furnitureManager,
       },
     );
@@ -236,14 +240,29 @@ export class RoomExperience {
 
   public rotateObject(objectId: string, rotation: number): void {
     this.furnitureManager.rotateObject(objectId, rotation);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was rotated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public scaleObject(objectId: string, scale: number): void {
     this.furnitureManager.scaleObject(objectId, scale);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was scaled, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public moveObject(objectId: string, position: THREE.Vector3): void {
     this.furnitureManager.moveObject(objectId, position);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was moved, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   // Lighting controls for admin
@@ -440,12 +459,22 @@ export class RoomExperience {
     type?: string,
     isRestoration: boolean = false,
   ): Promise<boolean> {
-    return await this.furnitureManager.addFurnitureFromInventory(
+    console.log(`🎭 RoomExperience.addFurnitureFromInventory: ${objectId}, type=${type}, isRestoration=${isRestoration}`);
+
+    const result = await this.furnitureManager.addFurnitureFromInventory(
       objectId,
       new THREE.Vector3(position.x, position.y, position.z),
       type,
       isRestoration,
     );
+
+    console.log(`🎭 RoomExperience.addFurnitureFromInventory result: ${result}`);
+
+    // Verify furniture was actually added
+    const furnitureCheck = this.furnitureManager.getFurnitureById(objectId);
+    console.log(`🔍 Post-add verification for ${objectId}:`, furnitureCheck ? 'FOUND' : 'NOT FOUND');
+
+    return result;
   }
 
   // Convert screen coordinates to 3D world position using raycasting
@@ -695,6 +724,11 @@ export class RoomExperience {
     scale: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurnitureScale(objectId, scale);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} scale was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurnitureRotation(
@@ -702,6 +736,11 @@ export class RoomExperience {
     rotation: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurnitureRotation(objectId, rotation);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} rotation was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurniturePosition(
@@ -709,6 +748,11 @@ export class RoomExperience {
     position: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurniturePosition(objectId, position);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} position was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurnitureMaterial(
@@ -721,6 +765,11 @@ export class RoomExperience {
     },
   ): void {
     this.furnitureManager.updateFurnitureMaterial(objectId, materialProps);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} material was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public resetFurnitureToDefaults(objectId: string): void {
@@ -734,7 +783,15 @@ export class RoomExperience {
 
   // Clear all furniture from room
   public clearAllFurniture(): void {
+    console.log(`🧹 RoomExperience.clearAllFurniture called`);
     this.furnitureManager.clearAllFurniture();
+  }
+
+  // Get all furniture for debugging
+  public getAllFurniture() {
+    const furniture = this.furnitureManager.getAllFurniture();
+    console.log(`📋 RoomExperience.getAllFurniture: ${furniture.length} items`);
+    return furniture;
   }
 
   public destroy(): void {

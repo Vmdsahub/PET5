@@ -1,5 +1,18 @@
 import * as THREE from "three";
 import { FurnitureFactory } from "./FurnitureFactory";
+import {
+  extractFurnitureIdFromType,
+  isCustomFurnitureType,
+  debugIdMapping,
+} from "../../utils/furnitureIdGenerator";
+import {
+  validateAndCorrectPosition,
+} from "../../utils/criticalPositionFixer";
+import {
+  protectFromCenterPositioning,
+  startCenterPositionMonitoring,
+} from "../../utils/centerPositionProtector";
+import { simpleFurnitureService } from "../../services/simpleFurnitureService";
 
 interface FurnitureItem {
   id: string;
@@ -28,6 +41,7 @@ export class FurnitureManager {
   private furnitureLights: Map<string, THREE.PointLight>;
   private getRoomDimensions: () => any;
   private isUserAdmin: () => boolean;
+  private centerMonitoringCleanup: (() => void) | null = null;
 
   // Global furniture templates for admin modifications
   private furnitureTemplates: Map<
@@ -55,6 +69,9 @@ export class FurnitureManager {
 
     // Initialize furniture asynchronously
     this.initializeFurniture();
+
+    // Start center position monitoring
+    this.centerMonitoringCleanup = startCenterPositionMonitoring(this);
   }
 
   private async initializeFurniture(): Promise<void> {
@@ -81,18 +98,45 @@ export class FurnitureManager {
     skipTemplate: boolean = false,
   ): Promise<void> {
     console.log(
-      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
+      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=(${position.x}, ${position.y}, ${position.z}), RotationY=${rotationY}, SkipTemplate=${skipTemplate}`,
     );
+
+    console.log(`🏭 Calling furnitureFactory.create(${type})...`);
     const furnitureObject = await this.furnitureFactory.create(type);
+    console.log(`🏭 furnitureFactory.create result:`, furnitureObject ? 'SUCCESS' : 'FAILED');
 
     if (!furnitureObject) {
       console.warn(`Failed to create furniture of type: ${type}`);
       return;
     }
 
-    furnitureObject.position.copy(position);
+    // ABSOLUTE PROTECTION: Never allow center positioning during creation
+    const safePosition = new THREE.Vector3(
+      (position.x === 0) ? 5 + Math.random() * 2 : position.x,
+      Math.max(0, position.y),
+      (position.z === 0) ? 5 + Math.random() * 2 : position.z
+    );
+
+    if (safePosition.x !== position.x || safePosition.z !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER CREATION for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
+    }
+
+    furnitureObject.position.copy(safePosition);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
+
+    // Apply absolute center position protection to this furniture
+    protectFromCenterPositioning(furnitureObject, id);
+
+    // FINAL VERIFICATION - if somehow still at center, emergency move
+    const finalPos = furnitureObject.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center after creation! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      furnitureObject.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
+    }
 
     // Auto-correct Y position for GLB models to ensure they sit on the floor
     if (type.startsWith("custom_")) {
@@ -167,6 +211,14 @@ export class FurnitureManager {
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
 
+    // Verify furniture was added correctly
+    const addedFurniture = this.furniture.get(id);
+    if (addedFurniture) {
+      console.log(`✅ Furniture ${id} successfully added to map. Total furniture count: ${this.furniture.size}`);
+    } else {
+      console.error(`❌ Failed to add furniture ${id} to map!`);
+    }
+
         // Apply any existing template modifications for this furniture type (unless skipping templates)
     if (!skipTemplate) {
       const template = this.furnitureTemplates.get(type);
@@ -207,9 +259,31 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item || !item.canMove) return false;
 
-    // Constrain movement to room bounds
-    const constrainedPosition = this.constrainPosition(position);
+    // ABSOLUTE PROTECTION: Create safe position for movement
+    const safePosition = new THREE.Vector3(
+      (position.x === 0) ? 5 + Math.random() * 2 : position.x,
+      position.y,
+      (position.z === 0) ? 5 + Math.random() * 2 : position.z
+    );
+
+    if (safePosition.x !== position.x || safePosition.z !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER MOVEMENT for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
+    }
+
+    // Constrain movement to room bounds with safe position
+    const constrainedPosition = this.constrainPosition(safePosition);
     item.object.position.copy(constrainedPosition);
+
+    // FINAL VERIFICATION - if somehow still at center, emergency move
+    const finalPos = item.object.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center after movement! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      item.object.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
+    }
+
     return true;
   }
 
@@ -493,10 +567,39 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
+    // Prevent center positioning
+    if (position.x === 0 && position.z === 0) {
+      console.error(`⚠️ CRITICAL: Attempted to move furniture ${id} to center (0,0,0)! Stack trace:`, new Error().stack);
+      // Force to a safe position instead
+      position.x = 5 + Math.random() * 2;
+      position.z = 5 + Math.random() * 2;
+      console.log(`🔧 Corrected ${id} position to: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    }
+
     console.log(
       `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
     );
-    item.object.position.set(position.x, position.y, position.z);
+
+    // ABSOLUTE PROTECTION: Never allow center positioning
+    const safeX = (position.x === 0) ? 5 + Math.random() * 2 : position.x;
+    const safeZ = (position.z === 0) ? 5 + Math.random() * 2 : position.z;
+
+    if (safeX !== position.x || safeZ !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER POSITIONING for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safeX}, ${position.y}, ${safeZ})`);
+    }
+
+    item.object.position.set(safeX, position.y, safeZ);
+
+    // FINAL VERIFICATION - if still at center, force move again
+    const finalPos = item.object.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      item.object.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
+    }
+
     return true;
   }
 
@@ -668,15 +771,20 @@ export class FurnitureManager {
       console.log(`🔄 Starting reset for custom furniture: ${id}`);
       console.log(`🏷️ Item type: ${item.type}`);
 
-      // Get the original cached model - extract the base furniture ID
-      let furnitureId = item.type.replace("custom_", "");
+      // Get the original cached model - extract the base furniture ID using utility
+      let furnitureId: string;
 
-      // If the item has userData with originalStoreId, use that instead
       if (item.object.userData?.originalStoreId) {
+        // Use originalStoreId from userData if available (most reliable)
         furnitureId = item.object.userData.originalStoreId;
         console.log(`🔍 Using originalStoreId from userData: ${furnitureId}`);
+      } else {
+        // Extract from type using utility function
+        furnitureId = extractFurnitureIdFromType(item.type);
+        console.log(`🔍 Extracted furnitureId from type ${item.type}: ${furnitureId}`);
       }
 
+      debugIdMapping(furnitureId, 'resetCustomFurnitureToOriginal');
       console.log(`🎯 Looking for cached model with ID: ${furnitureId}`);
 
       const originalModel = this.furnitureFactory.getFromCache(furnitureId);
@@ -786,7 +894,7 @@ export class FurnitureManager {
 
     // Reset material properties for built-in furniture
     this.resetMaterialProperties(item.object, item.id);
-    console.log(`✅ Built-in furniture reset completed: ${item.id}`);
+    console.log(`��� Built-in furniture reset completed: ${item.id}`);
   }
 
   private resetCustomFurnitureMaterialsOnly(item: FurnitureItem): void {
@@ -905,9 +1013,8 @@ export class FurnitureManager {
 
     // Only dispose resources for built-in furniture, not custom GLB furniture
     // Custom GLB furniture uses cached models that should not be disposed
-    const isCustomFurniture =
-      item.type.startsWith("custom_") ||
-      (!item.type.startsWith("custom_") &&
+    const isCustomFurniture = isCustomFurnitureType(item.type) ||
+      (!isCustomFurnitureType(item.type) &&
         ![
           "sofa",
           "table",
@@ -924,6 +1031,9 @@ export class FurnitureManager {
           "wallClock",
           "pendantLight",
         ].includes(item.type));
+
+    console.log(`🗑️ Furniture removal - Type: ${item.type}, IsCustom: ${isCustomFurniture}`);
+    debugIdMapping(item.type, 'removeFurniture-typeCheck');
 
     if (!isCustomFurniture) {
       // Dispose of geometry and materials only for built-in furniture
@@ -983,7 +1093,7 @@ export class FurnitureManager {
     isRestoration: boolean = false,
   ): Promise<boolean> {
     console.log(
-      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
+      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}, Position=(${position.x}, ${position.y}, ${position.z}), IsRestoration=${isRestoration}`,
     );
 
                 // Check if furniture already exists
@@ -995,6 +1105,8 @@ export class FurnitureManager {
         console.warn(`❌ Furniture with id ${id} already exists, cannot add duplicate`);
         return false;
       }
+    } else {
+      console.log(`✅ Furniture ${id} does not exist, proceeding with creation`);
     }
 
     // Use provided type if available, otherwise infer from id
@@ -1006,15 +1118,19 @@ export class FurnitureManager {
       // First, check if this is a custom furniture GLB by checking if it exists in the custom furniture list
       try {
         const customFurniture =
-          await this.furnitureFactory.getCustomFurnitureList();
+          await simpleFurnitureService.getAllCustomFurniture();
         const matchingCustom = customFurniture.find((f) => f.id === id);
 
         if (matchingCustom) {
           console.log(`🎯 Found custom furniture: ${matchingCustom.name}`);
           furnitureType = `custom_${id}`;
+          debugIdMapping(furnitureType, 'addFurnitureFromInventory-customMatch');
         } else {
-          // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
-          furnitureType = id.split("-")[0]; // Get first part of hyphenated id
+          // Extract type from id using utility, then try to parse first part
+          let extractedId = extractFurnitureIdFromType(id);
+          furnitureType = extractedId.split("-")[0]; // Get first part of hyphenated id
+          debugIdMapping(id, 'addFurnitureFromInventory-extractType');
+          console.log(`🔍 Type extraction: ${id} -> ${extractedId} -> ${furnitureType}`);
 
           // Map some common ids to furniture types
           const typeMapping: { [key: string]: string } = {
@@ -1062,8 +1178,14 @@ export class FurnitureManager {
         console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}, Restoration: ${isRestoration}`);
 
     // Create the furniture (skip templates during restoration)
-    await this.addFurniture(id, furnitureType, position, 0, isRestoration);
-    return true;
+    try {
+      await this.addFurniture(id, furnitureType, position, 0, isRestoration);
+      console.log(`✅ Successfully created furniture ${id} of type ${furnitureType}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ Failed to create furniture ${id} of type ${furnitureType}:`, error);
+      return false;
+    }
   }
 
   // Template management methods
@@ -1141,6 +1263,15 @@ export class FurnitureManager {
       if (light) {
         light.intensity = 0;
       }
+    }
+  }
+
+  // Cleanup method to stop monitoring
+  public destroy(): void {
+    if (this.centerMonitoringCleanup) {
+      this.centerMonitoringCleanup();
+      this.centerMonitoringCleanup = null;
+      console.log(`🗑️ FurnitureManager cleanup: Center monitoring stopped`);
     }
   }
 }

@@ -5,6 +5,7 @@ export interface RoomDecoration {
   user_id: string;
   furniture_id: string;
   furniture_type: string;
+  furniture_name?: string; // Nome original do móvel
   position_x: number;
   position_y: number;
   position_z: number;
@@ -26,6 +27,7 @@ export interface RoomDecoration {
 export interface FurnitureState {
   furniture_id: string;
   furniture_type: string;
+  furniture_name?: string; // Nome original do móvel
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   scale: { x: number; y: number; z: number };
@@ -53,14 +55,38 @@ class RoomDecorationService {
 
         // Use localStorage as fallback in mock mode
         const storageKey = `furniture_${userId}_${furnitureState.furniture_id}`;
+
+        // Ensure all data is properly stored, especially the name
         const dataToStore = {
-          ...furnitureState,
-          updated_at: new Date().toISOString(),
+          id: Date.now(), // Generate a mock ID
+          user_id: userId,
+          furniture_id: furnitureState.furniture_id,
+          furniture_type: furnitureState.furniture_type,
+          furniture_name: furnitureState.furniture_name, // Preserve name!
+          position_x: furnitureState.position.x,
+          position_y: furnitureState.position.y,
+          position_z: furnitureState.position.z,
+          rotation_x: furnitureState.rotation.x,
+          rotation_y: furnitureState.rotation.y,
+          rotation_z: furnitureState.rotation.z,
+          scale_x: furnitureState.scale.x,
+          scale_y: furnitureState.scale.y,
+          scale_z: furnitureState.scale.z,
+          material_roughness: furnitureState.material?.roughness || null,
+          material_metalness: furnitureState.material?.metalness || null,
+          material_color: furnitureState.material?.color || null,
+          material_emissive: furnitureState.material?.emissive || null,
           is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         };
 
         localStorage.setItem(storageKey, JSON.stringify(dataToStore));
-        console.log("💾 Saved to localStorage:", storageKey, dataToStore);
+        console.log("💾 Saved to localStorage:", storageKey, {
+          furniture_id: dataToStore.furniture_id,
+          furniture_name: dataToStore.furniture_name,
+          position: { x: dataToStore.position_x, y: dataToStore.position_y, z: dataToStore.position_z }
+        });
 
         return { success: true };
       }
@@ -68,6 +94,7 @@ class RoomDecorationService {
         user_id: userId,
         furniture_id: furnitureState.furniture_id,
         furniture_type: furnitureState.furniture_type,
+        furniture_name: furnitureState.furniture_name, // Salvar nome original
         position_x: furnitureState.position.x,
         position_y: furnitureState.position.y,
         position_z: furnitureState.position.z,
@@ -161,14 +188,52 @@ class RoomDecorationService {
             try {
               const storedData = JSON.parse(localStorage.getItem(key) || "{}");
               if (storedData.is_active) {
-                decorations.push({
+                // Handle both new format (with separate position_x, etc) and old format
+
+                // Validate position data - skip furniture with invalid/missing position
+                const hasValidPosition =
+                  (storedData.position &&
+                   typeof storedData.position.x === 'number' &&
+                   typeof storedData.position.y === 'number' &&
+                   typeof storedData.position.z === 'number') ||
+                  (typeof storedData.position_x === 'number' &&
+                   typeof storedData.position_y === 'number' &&
+                   typeof storedData.position_z === 'number');
+
+                if (!hasValidPosition) {
+                  console.warn(`⚠️ Skipping furniture ${storedData.furniture_id} with invalid position data`);
+                  continue; // Skip this furniture item
+                }
+
+                const furniture: FurnitureState = {
                   furniture_id: storedData.furniture_id,
                   furniture_type: storedData.furniture_type,
-                  position: storedData.position,
-                  rotation: storedData.rotation,
-                  scale: storedData.scale,
-                  material: storedData.material,
-                });
+                  furniture_name: storedData.furniture_name, // Preserve name!
+                  position: storedData.position || {
+                    x: storedData.position_x,
+                    y: storedData.position_y,
+                    z: storedData.position_z
+                  },
+                  rotation: storedData.rotation || {
+                    x: storedData.rotation_x || 0,
+                    y: storedData.rotation_y || 0,
+                    z: storedData.rotation_z || 0
+                  },
+                  scale: storedData.scale || {
+                    x: storedData.scale_x || 1,
+                    y: storedData.scale_y || 1,
+                    z: storedData.scale_z || 1
+                  },
+                  material: (storedData.material_roughness !== null && storedData.material_roughness !== undefined) ? {
+                    roughness: storedData.material_roughness || 0.5,
+                    metalness: storedData.material_metalness || 0,
+                    color: storedData.material_color || "#ffffff",
+                    emissive: storedData.material_emissive || "#000000"
+                  } : storedData.material
+                };
+
+                decorations.push(furniture);
+                console.log(`💼 Loaded from localStorage: ${furniture.furniture_id} (name: ${furniture.furniture_name || 'N/A'})`);
               }
             } catch (error) {
               console.warn(`Failed to parse localStorage item ${key}:`, error);
@@ -237,6 +302,7 @@ class RoomDecorationService {
       const decorations: FurnitureState[] = activeDecorations.map((item) => ({
         furniture_id: item.furniture_id,
         furniture_type: item.furniture_type,
+        furniture_name: item.furniture_name, // Carregar nome original
         position: {
           x: item.position_x,
           y: item.position_y,
