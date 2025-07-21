@@ -150,8 +150,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     const cleanupStats = cleanUserFurnitureData(user.id);
     console.log(`🧹 Manual cleanup completed:`, cleanupStats);
 
-    // Clear the scene
+    // Clear the scene and detect ghosts
     if (experienceRef.current) {
+      // First try to detect and remove ghost furniture
+      const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+      console.log(`👻 Ghost detection during manual cleanup:`, ghostResult);
+
+      // Force clean any remaining problematic objects from the scene
+      const forceCleanedCount = forceCleanFurnitureGroup(experienceRef.current.scene);
+      console.log(`🧹 Force cleaned ${forceCleanedCount} objects from scene`);
+
+      // Clear all furniture normally
       experienceRef.current.clearAllFurniture();
     }
 
@@ -678,7 +687,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             // If there's a significant mismatch, clean up corrupted data
             if (expectedCount > 5 && actualCount < expectedCount / 3) {
-              console.log(`���� Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
+              console.log(`🧹 Significant data corruption detected (${expectedCount} expected vs ${actualCount} loaded), cleaning up...`);
               if (user?.id) {
                 const debugInfo = getStorageDebugInfo(user.id);
                 console.log(`🔍 Storage debug info:`, debugInfo);
