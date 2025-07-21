@@ -714,6 +714,11 @@ export class RoomExperience {
     scale: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurnitureScale(objectId, scale);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} scale was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurnitureRotation(
@@ -721,6 +726,11 @@ export class RoomExperience {
     rotation: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurnitureRotation(objectId, rotation);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} rotation was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurniturePosition(
@@ -728,6 +738,11 @@ export class RoomExperience {
     position: { x: number; y: number; z: number },
   ): void {
     this.furnitureManager.updateFurniturePosition(objectId, position);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} position was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public updateFurnitureMaterial(
@@ -740,6 +755,11 @@ export class RoomExperience {
     },
   ): void {
     this.furnitureManager.updateFurnitureMaterial(objectId, materialProps);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} material was updated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public resetFurnitureToDefaults(objectId: string): void {
