@@ -132,16 +132,25 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         return;
       }
 
-            // Use originalStoreId for database consistency, fallback to furnitureId
+                  // Use existing database ID or create new one
       let databaseId = furnitureId;
       if (experienceRef.current) {
         const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
-        if (furnitureObj?.object?.userData?.originalStoreId) {
-          // For purchased items, use originalStoreId + position to create consistent ID
-          const originalId = furnitureObj.object.userData.originalStoreId;
-          const instanceNumber = furnitureId.includes('_') ? furnitureId.split('_').pop() : '1';
-          databaseId = instanceNumber !== '1' ? `${originalId}_${instanceNumber}` : originalId;
-          console.log(`🔑 Using database ID: ${databaseId} (from originalStoreId: ${originalId})`);
+        if (furnitureObj?.object?.userData) {
+          // If this is a restored furniture with existing database ID, use it
+          if (furnitureObj.object.userData.databaseId) {
+            databaseId = furnitureObj.object.userData.databaseId;
+            console.log(`🔑 Using existing database ID: ${databaseId} for ${furnitureId}`);
+          }
+          // For new furniture, create database ID from originalStoreId
+          else if (furnitureObj.object.userData.originalStoreId) {
+            const originalId = furnitureObj.object.userData.originalStoreId;
+            // Generate unique database ID to prevent conflicts
+            databaseId = `${originalId}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+            // Store the database ID back in userData for future saves
+            furnitureObj.object.userData.databaseId = databaseId;
+            console.log(`🔑 Created new database ID: ${databaseId} for ${furnitureId} (originalStoreId: ${originalId})`);
+          }
         }
       }
 
