@@ -1461,18 +1461,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
-            // Validate position to avoid problematic center placement
-            const validPosition = {
+            // Use enhanced position validation and correction
+            let proposedPosition = {
               x: worldPosition.x,
               y: Math.max(0, worldPosition.y), // Ensure Y >= 0
               z: worldPosition.z,
             };
 
-            // Avoid exact center (0,0,0) placement which can cause visual bugs
-            if (Math.abs(validPosition.x) < 0.1 && Math.abs(validPosition.z) < 0.1) {
-              console.warn(`⚠️ Adjusting furniture placement away from center to avoid visual bugs`);
-              validPosition.x += validPosition.x >= 0 ? 0.5 : -0.5;
-              validPosition.z += validPosition.z >= 0 ? 0.5 : -0.5;
+            // Validate and correct the position using the robust validation system
+            const validPosition = validateAndCorrectPosition(proposedPosition, item.id, inventory.length);
+
+            if (validPosition.x !== proposedPosition.x || validPosition.z !== proposedPosition.z) {
+              console.log(`🔧 Position corrected for ${item.id}: (${proposedPosition.x.toFixed(2)}, ${proposedPosition.y.toFixed(2)}, ${proposedPosition.z.toFixed(2)}) -> (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
             }
 
             console.log(
@@ -2832,7 +2832,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                               // Auto-save the change
                               console.log(
-                                `💾 Calling saveFurnitureState for: ${selectedFurniture}`,
+                                `��� Calling saveFurnitureState for: ${selectedFurniture}`,
                               );
                               saveFurnitureState(selectedFurniture);
                             }
