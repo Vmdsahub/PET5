@@ -180,8 +180,8 @@ export class RoomExperience {
     this.lighting = new RoomLighting(this.scene);
   }
 
-    private initFurniture(): void {
-    this.furnitureManager = new FurnitureManager(this.scene, () => this.world.getRoomDimensions());
+      private initFurniture(): void {
+    this.furnitureManager = new FurnitureManager(this.scene, () => this.world.getRoomDimensions(), this.isUserAdmin);
   }
 
   private initInteraction(): void {
