@@ -241,9 +241,24 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item || !item.canMove) return false;
 
+    // Prevent center positioning during movement
+    if (position.x === 0 && position.z === 0) {
+      console.error(`⚠️ CRITICAL: Attempted to move furniture ${id} to center during drag! Stack trace:`, new Error().stack);
+      position.x = 5 + Math.random() * 2;
+      position.z = 5 + Math.random() * 2;
+      console.log(`🔧 Corrected ${id} drag position to: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    }
+
     // Constrain movement to room bounds
     const constrainedPosition = this.constrainPosition(position);
     item.object.position.copy(constrainedPosition);
+
+    // Verify final position
+    const finalPos = item.object.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ CRITICAL: Furniture ${id} at center after movement! Position:`, finalPos);
+    }
+
     return true;
   }
 
