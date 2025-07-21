@@ -345,17 +345,36 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
                     // Validate position before restoration to avoid buggy furniture at (0,0,0)
-          const validPosition = {
+          let validPosition = {
             x: isNaN(decoration.position.x) ? 0 : decoration.position.x,
             y: isNaN(decoration.position.y) ? 0 : Math.max(0, decoration.position.y), // Ensure Y >= 0
             z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
           };
 
-          // Check if position is at problematic center (0,0,0) which can cause visual bugs
-          if (validPosition.x === 0 && validPosition.z === 0) {
-            console.warn(`⚠️ Furniture ${restoreId} has center position (0,0,0), adjusting to avoid visual bugs...`);
-            validPosition.x = Math.random() * 2 - 1; // Random position between -1 and 1
-            validPosition.z = Math.random() * 2 - 1;
+          // More comprehensive check for problematic positions
+          const isProblematicPosition = (
+            // Exact center
+            (validPosition.x === 0 && validPosition.z === 0) ||
+            // Very close to center (within 0.1 units)
+            (Math.abs(validPosition.x) < 0.1 && Math.abs(validPosition.z) < 0.1) ||
+            // Positions that are too extreme
+            Math.abs(validPosition.x) > 50 || Math.abs(validPosition.z) > 50 ||
+            // Invalid Y positions
+            validPosition.y < 0 || validPosition.y > 20
+          );
+
+          if (isProblematicPosition) {
+            console.warn(`⚠️ Furniture ${restoreId} has problematic position (${validPosition.x}, ${validPosition.y}, ${validPosition.z}), adjusting...`);
+
+            // Use a more predictable fallback position instead of random
+            const fallbackIndex = result.decorations.indexOf(decoration);
+            validPosition = {
+              x: 1 + (fallbackIndex * 1.5), // Spread furniture 1.5 units apart
+              y: Math.max(0, validPosition.y),
+              z: 1,
+            };
+
+            console.log(`🔧 Adjusted to fallback position: (${validPosition.x}, ${validPosition.y}, ${validPosition.z})`);
           }
 
           console.log(`📍 Position validation for ${restoreId}:`, {
@@ -1529,7 +1548,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-green-400" />
-                  <span className="text-white font-medium">���� Piso</span>
+                  <span className="text-white font-medium">�� Piso</span>
                 </div>
 
                 <div className="space-y-3">
@@ -2729,7 +2748,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               });
                             }
                             console.log(
-                              `��� UI state updated from actual 3D scene properties`,
+                              `����� UI state updated from actual 3D scene properties`,
                             );
                           }
                         }
