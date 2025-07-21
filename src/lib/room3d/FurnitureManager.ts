@@ -1054,10 +1054,10 @@ export class FurnitureManager {
       }
     }
 
-    console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}`);
+        console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}, Restoration: ${isRestoration}`);
 
-    // Create the furniture
-    await this.addFurniture(id, furnitureType, position, 0);
+    // Create the furniture (skip templates during restoration)
+    await this.addFurniture(id, furnitureType, position, 0, isRestoration);
     return true;
   }
 
