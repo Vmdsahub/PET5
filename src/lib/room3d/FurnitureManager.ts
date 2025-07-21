@@ -996,7 +996,7 @@ export class FurnitureManager {
     isRestoration: boolean = false,
   ): Promise<boolean> {
     console.log(
-      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
+      `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}, Position=(${position.x}, ${position.y}, ${position.z}), IsRestoration=${isRestoration}`,
     );
 
                 // Check if furniture already exists
@@ -1008,6 +1008,8 @@ export class FurnitureManager {
         console.warn(`❌ Furniture with id ${id} already exists, cannot add duplicate`);
         return false;
       }
+    } else {
+      console.log(`✅ Furniture ${id} does not exist, proceeding with creation`);
     }
 
     // Use provided type if available, otherwise infer from id
@@ -1079,8 +1081,14 @@ export class FurnitureManager {
         console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}, Restoration: ${isRestoration}`);
 
     // Create the furniture (skip templates during restoration)
-    await this.addFurniture(id, furnitureType, position, 0, isRestoration);
-    return true;
+    try {
+      await this.addFurniture(id, furnitureType, position, 0, isRestoration);
+      console.log(`✅ Successfully created furniture ${id} of type ${furnitureType}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ Failed to create furniture ${id} of type ${furnitureType}:`, error);
+      return false;
+    }
   }
 
   // Template management methods
