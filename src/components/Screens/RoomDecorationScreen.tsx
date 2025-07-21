@@ -302,11 +302,11 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           // Generate unique ID for this restored furniture instance
                     const restoreId = decoration.furniture_id;
 
-          console.log(`🔄 Restoring with unique ID: ${uniqueRestoreId} (database ID: ${decoration.furniture_id})`);
+          console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
                     // Add furniture to scene with saved state (mark as restoration to skip templates)
           const success = await experienceRef.current.addFurnitureFromInventory(
-            uniqueRestoreId,
+            restoreId,
             decoration.position,
             decoration.furniture_type,
             true, // isRestoration = true to skip template application
@@ -314,7 +314,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                     if (success) {
             console.log(
-              `🔧 Applying saved decoration for ${uniqueRestoreId} (database ID: ${decoration.furniture_id}, originalStoreId: ${originalStoreId}):`,
+              `🔧 Applying saved decoration for ${restoreId} (database ID: ${decoration.furniture_id}, originalStoreId: ${originalStoreId}):`,
               {
                 scale: decoration.scale,
                 material: decoration.material,
@@ -324,37 +324,37 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             );
 
             // Store database mapping in the furniture object
-            const furnitureObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
+            const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
             if (furnitureObj?.object?.userData) {
               furnitureObj.object.userData.originalStoreId = originalStoreId;
               furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
-              console.log(`🔑 Set metadata for ${uniqueRestoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
+              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
             }
 
                         // Apply saved transformations and materials with debugging
-            console.log(`🔧 Applying transformations to ${uniqueRestoreId}:`);
+            console.log(`🔧 Applying transformations to ${restoreId}:`);
             console.log(`  📐 Scale:`, decoration.scale);
             console.log(`  🔄 Rotation:`, decoration.rotation);
             console.log(`  📍 Position:`, decoration.position);
 
             experienceRef.current.updateFurnitureScale(
-              uniqueRestoreId,
+              restoreId,
               decoration.scale,
             );
             experienceRef.current.updateFurnitureRotation(
-              uniqueRestoreId,
+              restoreId,
               decoration.rotation,
             );
             experienceRef.current.updateFurniturePosition(
-              uniqueRestoreId,
+              restoreId,
               decoration.position,
             );
 
             // Verify position was applied correctly
             setTimeout(() => {
-              const furnitureObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
+              const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (furnitureObj?.object) {
-                console.log(`✅ Verified position for ${uniqueRestoreId}:`, {
+                console.log(`✅ Verified position for ${restoreId}:`, {
                   actualPosition: furnitureObj.object.position,
                   expectedPosition: decoration.position,
                   positionMatch:
@@ -367,16 +367,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                         if (decoration.material) {
               experienceRef.current.updateFurnitureMaterial(
-                uniqueRestoreId,
+                restoreId,
                 decoration.material,
               );
             }
 
             // Verify final position after all transformations
             setTimeout(() => {
-              const finalObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
+              const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
-                console.log(`🔍 Final restored position for ${uniqueRestoreId}:`, {
+                console.log(`🔍 Final restored position for ${restoreId}:`, {
                   position: finalObj.object.position,
                   expectedPosition: decoration.position,
                   rotation: finalObj.object.rotation,
@@ -387,16 +387,16 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
-              uniqueRestoreId,
+              restoreId,
               "After Loading from DB",
             );
 
             console.log(
-              `✅ Successfully restored furniture: ${uniqueRestoreId} (database: ${decoration.furniture_id})`,
+              `✅ Successfully restored furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           } else {
             console.warn(
-              `❌ Failed to restore furniture: ${uniqueRestoreId} (database: ${decoration.furniture_id})`,
+              `❌ Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           }
         }
