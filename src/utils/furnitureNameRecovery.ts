@@ -13,20 +13,29 @@ export async function recoverFurnitureName(
 ): Promise<string | null> {
   try {
     console.log(`🔍 Attempting to recover name for ${originalStoreId} (type: ${furnitureType})`);
-    
+
     // For custom GLB furniture, try to get from simpleFurnitureService
     if (furnitureType.startsWith('custom_')) {
-      const customFurniture = await simpleFurnitureService.getAllCustomFurniture();
-      const matchingFurniture = customFurniture.find(f => f.id === originalStoreId);
-      
-      if (matchingFurniture) {
-        console.log(`✅ Recovered name "${matchingFurniture.name}" for ${originalStoreId}`);
-        return matchingFurniture.name;
+      try {
+        const customFurniture = await simpleFurnitureService.getAllCustomFurniture();
+
+        if (Array.isArray(customFurniture)) {
+          const matchingFurniture = customFurniture.find(f => f && f.id === originalStoreId);
+
+          if (matchingFurniture && matchingFurniture.name) {
+            console.log(`✅ Recovered name "${matchingFurniture.name}" for ${originalStoreId}`);
+            return matchingFurniture.name;
+          }
+        } else {
+          console.warn(`⚠️ getAllCustomFurniture returned non-array:`, typeof customFurniture);
+        }
+      } catch (serviceError) {
+        console.error(`Error calling getAllCustomFurniture:`, serviceError);
       }
     }
-    
+
     // Could add more recovery methods here for other furniture types
-    
+
     console.log(`❌ Could not recover name for ${originalStoreId}`);
     return null;
   } catch (error) {
