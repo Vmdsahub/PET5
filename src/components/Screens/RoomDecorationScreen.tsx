@@ -621,22 +621,25 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setRoomDimensions(dimensions);
         setMaterialProperties(materials);
       }
-
-            // Load saved decorations when user changes or experience is ready
-      if (user?.id) {
-        // Always reset decorations loaded flag when entering the decoration screen
-        console.log("🔄 Resetting decorationsLoaded flag for fresh loading");
-        setDecorationsLoaded(false);
-
-        setTimeout(() => {
-          loadSavedDecorations();
-        }, 500); // Small delay to ensure scene is ready
-      } else {
-        // Reset flag when user logs out
-        setDecorationsLoaded(false);
-      }
     }
-  }, [isEditMode, user?.isAdmin, user?.id]);
+  }, [isEditMode, user?.isAdmin]);
+
+  // Separate effect for loading decorations to avoid dependency conflicts
+  useEffect(() => {
+    if (experienceRef.current && user?.id) {
+      // Always reset decorations loaded flag when user changes
+      console.log(`🔄 User changed to ${user.id}, resetting decorationsLoaded flag`);
+      setDecorationsLoaded(false);
+
+      setTimeout(() => {
+        loadSavedDecorations();
+      }, 500); // Small delay to ensure scene is ready
+    } else if (!user?.id) {
+      // Reset flag when user logs out
+      console.log("👤 User logged out, resetting decorationsLoaded flag");
+      setDecorationsLoaded(false);
+    }
+  }, [user?.id]); // Only depend on user ID changes
 
   const handleNavigation = (id: string) => {
     switch (id) {
@@ -2643,7 +2646,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 if (existingIndex === -1) {
                   // First occurrence of this item type
                   console.log(
-                    `��� New stack created for: ${item.name} (${item.type})`,
+                    `📦 New stack created for: ${item.name} (${item.type})`,
                   );
                   uniqueItems.push({
                     ...item,
