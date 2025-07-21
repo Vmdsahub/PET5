@@ -188,14 +188,36 @@ class RoomDecorationService {
             try {
               const storedData = JSON.parse(localStorage.getItem(key) || "{}");
               if (storedData.is_active) {
-                decorations.push({
+                // Handle both new format (with separate position_x, etc) and old format
+                const furniture: FurnitureState = {
                   furniture_id: storedData.furniture_id,
                   furniture_type: storedData.furniture_type,
-                  position: storedData.position,
-                  rotation: storedData.rotation,
-                  scale: storedData.scale,
-                  material: storedData.material,
-                });
+                  furniture_name: storedData.furniture_name, // Preserve name!
+                  position: storedData.position || {
+                    x: storedData.position_x || 0,
+                    y: storedData.position_y || 0,
+                    z: storedData.position_z || 0
+                  },
+                  rotation: storedData.rotation || {
+                    x: storedData.rotation_x || 0,
+                    y: storedData.rotation_y || 0,
+                    z: storedData.rotation_z || 0
+                  },
+                  scale: storedData.scale || {
+                    x: storedData.scale_x || 1,
+                    y: storedData.scale_y || 1,
+                    z: storedData.scale_z || 1
+                  },
+                  material: (storedData.material_roughness !== null && storedData.material_roughness !== undefined) ? {
+                    roughness: storedData.material_roughness || 0.5,
+                    metalness: storedData.material_metalness || 0,
+                    color: storedData.material_color || "#ffffff",
+                    emissive: storedData.material_emissive || "#000000"
+                  } : storedData.material
+                };
+
+                decorations.push(furniture);
+                console.log(`💼 Loaded from localStorage: ${furniture.furniture_id} (name: ${furniture.furniture_name || 'N/A'})`);
               }
             } catch (error) {
               console.warn(`Failed to parse localStorage item ${key}:`, error);
