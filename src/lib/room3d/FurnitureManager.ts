@@ -5,6 +5,9 @@ import {
   isCustomFurnitureType,
   debugIdMapping,
 } from "../../utils/furnitureIdGenerator";
+import {
+  validateAndCorrectPosition,
+} from "../../utils/criticalPositionFixer";
 import { simpleFurnitureService } from "../../services/simpleFurnitureService";
 
 interface FurnitureItem {
@@ -224,9 +227,17 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item || !item.canMove) return false;
 
-    // Constrain movement to room bounds
+    // First constrain movement to room bounds
     const constrainedPosition = this.constrainPosition(position);
-    item.object.position.copy(constrainedPosition);
+
+    // Then validate and correct for problematic positions
+    const validatedPosition = validateAndCorrectPosition(
+      { x: constrainedPosition.x, y: constrainedPosition.y, z: constrainedPosition.z },
+      id,
+      this.furniture.size
+    );
+
+    item.object.position.set(validatedPosition.x, validatedPosition.y, validatedPosition.z);
     return true;
   }
 
@@ -510,10 +521,17 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
+    // Validate and correct the position before applying it
+    const validatedPosition = validateAndCorrectPosition(position, id, this.furniture.size);
+
+    if (validatedPosition.x !== position.x || validatedPosition.z !== position.z) {
+      console.warn(`⚠️ Position corrected for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${validatedPosition.x}, ${validatedPosition.y}, ${validatedPosition.z})`);
+    }
+
     console.log(
-      `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
+      `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${validatedPosition.x}, ${validatedPosition.y}, ${validatedPosition.z})`,
     );
-    item.object.position.set(position.x, position.y, position.z);
+    item.object.position.set(validatedPosition.x, validatedPosition.y, validatedPosition.z);
     return true;
   }
 
