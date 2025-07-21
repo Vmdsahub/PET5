@@ -273,13 +273,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     }
 
         // Clear any existing furniture from the scene first to prevent conflicts
-    console.log("🧹 Clearing existing furniture from scene before loading saved decorations");
+    const existingFurniture = experienceRef.current?.getAllFurniture?.() || [];
+    console.log(`🧹 Clearing ${existingFurniture.length} existing furniture from scene before loading saved decorations`);
+
     if (experienceRef.current.clearAllFurniture) {
       experienceRef.current.clearAllFurniture();
+      console.log("✅ Furniture cleared successfully");
     }
 
     // Wait for cleanup to complete
     await new Promise(resolve => setTimeout(resolve, 100));
+    console.log("⏱️ Cleanup delay completed");
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
@@ -1525,7 +1529,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-green-400" />
-                  <span className="text-white font-medium">�� Piso</span>
+                  <span className="text-white font-medium">���� Piso</span>
                 </div>
 
                 <div className="space-y-3">
