@@ -43,9 +43,10 @@ export class FurnitureManager {
     }
   > = new Map();
 
-    constructor(scene: THREE.Scene, getRoomDimensions: () => any) {
+      constructor(scene: THREE.Scene, getRoomDimensions: () => any, isUserAdmin: () => boolean) {
     this.scene = scene;
     this.getRoomDimensions = getRoomDimensions;
+    this.isUserAdmin = isUserAdmin;
     this.furnitureGroup = new THREE.Group();
     this.scene.add(this.furnitureGroup);
     this.furniture = new Map();
