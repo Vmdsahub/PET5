@@ -274,7 +274,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (result.success) {
         console.log(`✅ SAVE SUCCESS for ${furnitureId}`);
-        console.log(`���� Save result:`, result);
+        console.log(`🔍 Save result:`, result);
 
         // Save furniture templates (admin modifications)
         if (experienceRef.current) {
@@ -975,21 +975,83 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     },
   ];
 
-  // Periodic ghost furniture detection
+  // Aggressive monitoring for problematic furniture
   useEffect(() => {
     if (!experienceRef.current || !user?.id) return;
 
-    const ghostCheckInterval = setInterval(() => {
-      if (experienceRef.current && !isEditMode) {
-        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
-        if (ghostResult.found > 0) {
-          console.warn(`👻 Periodic check: found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+    let checkCount = 0;
+    const maxChecks = 20; // Limit to prevent infinite loops
+
+    // Immediate and frequent checks after loading
+    const aggressiveInterval = setInterval(() => {
+      checkCount++;
+
+      if (experienceRef.current && checkCount <= maxChecks) {
+        const allFurniture = experienceRef.current.getAllFurniture?.() || [];
+        let foundProblematic = false;
+
+        allFurniture.forEach((furniture: any) => {
+          if (furniture?.object?.position) {
+            const pos = furniture.object.position;
+            if (isProblematicPosition(pos)) {
+              foundProblematic = true;
+              console.error(`❌️ MONITORING: Found problematic furniture ${furniture.id} at (${pos.x}, ${pos.y}, ${pos.z})`);
+
+              // Emergency correction
+              const emergencyX = 8 + Math.random() * 4; // Random position away from center
+              const emergencyZ = 8 + Math.random() * 4;
+
+              furniture.object.position.set(emergencyX, 0.1, emergencyZ);
+              furniture.object.updateMatrix();
+              furniture.object.updateMatrixWorld(true);
+
+              console.log(`⚕️ EMERGENCY FIX: Moved ${furniture.id} to (${emergencyX.toFixed(2)}, 0.1, ${emergencyZ.toFixed(2)})`);
+
+              // Save the emergency fix
+              if (user?.id) {
+                setTimeout(() => {
+                  saveFurnitureState(furniture.id);
+                }, 300);
+              }
+            }
+          }
+        });
+
+        if (foundProblematic) {
+          addNotification({
+            type: "warning",
+            title: "Correção Automática",
+            message: "Móveis em posições problemáticas foram corrigidos automaticamente.",
+          });
         }
+
+        // After several checks without problems, switch to less frequent monitoring
+        if (checkCount >= 10 && !foundProblematic) {
+          clearInterval(aggressiveInterval);
+
+          // Start periodic monitoring
+          const periodicInterval = setInterval(() => {
+            if (experienceRef.current && !isEditMode) {
+              const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+              if (ghostResult.found > 0) {
+                console.warn(`👻 Periodic check: found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+              }
+            }
+          }, 30000); // Check every 30 seconds
+
+          // Store interval for cleanup
+          (window as any).furniturePeriodicInterval = periodicInterval;
+        }
+      } else if (checkCount > maxChecks) {
+        clearInterval(aggressiveInterval);
       }
-    }, 30000); // Check every 30 seconds
+    }, 2000); // Check every 2 seconds initially
 
     return () => {
-      clearInterval(ghostCheckInterval);
+      clearInterval(aggressiveInterval);
+      if ((window as any).furniturePeriodicInterval) {
+        clearInterval((window as any).furniturePeriodicInterval);
+      }
     };
   }, [experienceRef.current, user?.id, isEditMode]);
 
@@ -3239,7 +3301,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               onClick={() => handleContextMenuAction("inspect")}
               className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-gray-700 font-medium"
             >
-              ��� Inspecionar
+              🔍 Inspecionar
             </button>
 
             {/* Show light toggle for lamps */}
