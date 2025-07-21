@@ -294,6 +294,44 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       if (result.success && result.decorations) {
         console.log(`📋 Found ${result.decorations.length} saved decorations`);
 
+        // Validate and clean decorations data
+        const validDecorations = result.decorations.filter((decoration, index) => {
+          const isValid =
+            decoration &&
+            decoration.furniture_id &&
+            decoration.furniture_type &&
+            typeof decoration.position === 'object' &&
+            decoration.position.x !== undefined &&
+            decoration.position.y !== undefined &&
+            decoration.position.z !== undefined;
+
+          if (!isValid) {
+            console.warn(`⚠️ Invalid decoration data at index ${index}:`, decoration);
+            return false;
+          }
+
+          // Check for duplicate IDs
+          const duplicateIndex = result.decorations.findIndex((d, i) =>
+            i !== index && d.furniture_id === decoration.furniture_id
+          );
+
+          if (duplicateIndex !== -1) {
+            console.warn(`⚠️ Duplicate furniture ID found: ${decoration.furniture_id} at indices ${index} and ${duplicateIndex}`);
+            return index < duplicateIndex; // Keep only the first occurrence
+          }
+
+          return true;
+        });
+
+        console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
+
+        if (validDecorations.length !== result.decorations.length) {
+          console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
+        }
+
+        // Use validated decorations
+        result.decorations = validDecorations;
+
                 // First, clean up inventory items that have matching furniture in the saved decorations
         // This prevents duplicates when furniture was placed and saved
         const decorationIds = new Set(result.decorations.map(d => d.furniture_id));
@@ -2748,7 +2786,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               });
                             }
                             console.log(
-                              `����� UI state updated from actual 3D scene properties`,
+                              `��� UI state updated from actual 3D scene properties`,
                             );
                           }
                         }
