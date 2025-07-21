@@ -52,6 +52,9 @@ import {
   validateAndCorrectPosition,
   startPositionMonitoring,
 } from "../../utils/criticalPositionFixer";
+import {
+  startCenterPositionMonitoring,
+} from "../../utils/centerPositionProtector";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
@@ -941,12 +944,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     },
   ];
 
-  // Basic ghost detection only (no aggressive monitoring)
+  // Enhanced monitoring with absolute center protection
   useEffect(() => {
     if (!experienceRef.current || !user?.id || !decorationsLoaded) return;
 
-    // Only run ghost detection once after decorations are loaded, not continuously
-    const runInitialGhostDetection = () => {
+    let centerMonitoringCleanup: (() => void) | null = null;
+
+    // Start absolute center position monitoring
+    const startMonitoring = () => {
       if (experienceRef.current?.furnitureManager) {
         console.log(`👻 Running initial ghost detection for user ${user.id}`);
 
@@ -961,17 +966,22 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               message: `Detectados e removidos ${ghostResult.removed} móveis em posições realmente problemáticas.`,
             });
           }
-        } else {
-          console.log(`✅ No ghost furniture detected`);
         }
+
+        // Start absolute center monitoring
+        console.log(`🔴 Starting ABSOLUTE center position monitoring`);
+        centerMonitoringCleanup = startCenterPositionMonitoring(experienceRef.current.furnitureManager);
       }
     };
 
-    // Run detection after a brief delay to ensure all furniture is loaded
-    const detectionDelay = setTimeout(runInitialGhostDetection, 3000);
+    // Run monitoring after a brief delay to ensure all furniture is loaded
+    const monitoringDelay = setTimeout(startMonitoring, 3000);
 
     return () => {
-      clearTimeout(detectionDelay);
+      clearTimeout(monitoringDelay);
+      if (centerMonitoringCleanup) {
+        centerMonitoringCleanup();
+      }
     };
   }, [experienceRef.current, user?.id, decorationsLoaded]);
 
