@@ -176,6 +176,14 @@ export class FurnitureManager {
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
 
+    // Verify furniture was added correctly
+    const addedFurniture = this.furniture.get(id);
+    if (addedFurniture) {
+      console.log(`✅ Furniture ${id} successfully added to map. Total furniture count: ${this.furniture.size}`);
+    } else {
+      console.error(`❌ Failed to add furniture ${id} to map!`);
+    }
+
         // Apply any existing template modifications for this furniture type (unless skipping templates)
     if (!skipTemplate) {
       const template = this.furnitureTemplates.get(type);
