@@ -132,8 +132,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         return;
       }
 
+            // Use originalStoreId for database consistency, fallback to furnitureId
+      let databaseId = furnitureId;
+      if (experienceRef.current) {
+        const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
+        if (furnitureObj?.object?.userData?.originalStoreId) {
+          // For purchased items, use originalStoreId + position to create consistent ID
+          const originalId = furnitureObj.object.userData.originalStoreId;
+          const instanceNumber = furnitureId.includes('_') ? furnitureId.split('_').pop() : '1';
+          databaseId = instanceNumber !== '1' ? `${originalId}_${instanceNumber}` : originalId;
+          console.log(`🔑 Using database ID: ${databaseId} (from originalStoreId: ${originalId})`);
+        }
+      }
+
       const furnitureState: FurnitureState = {
-        furniture_id: furnitureId,
+        furniture_id: databaseId,
         furniture_type: furnitureType,
         position: properties.position,
         rotation: properties.rotation,
