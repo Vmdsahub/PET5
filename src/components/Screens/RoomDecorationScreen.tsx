@@ -34,6 +34,11 @@ import {
   generateFriendlyName,
   isGeneratedName,
 } from "../../utils/furnitureNameRecovery";
+import {
+  cleanUserFurnitureData,
+  getStorageDebugInfo,
+  cleanCorruptedEntries,
+} from "../../utils/storageCleanup";
 
 interface RoomDecorationScreenProps {
   onNavigateBack: () => void;
