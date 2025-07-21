@@ -236,7 +236,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       const storedData = localStorage.getItem(storageKey);
       console.log(`📋 Storage key: ${storageKey}`);
       console.log(
-        `�� Stored data:`,
+        `💾 Stored data:`,
         storedData ? JSON.parse(storedData) : "NOT FOUND",
       );
     } catch (error) {
@@ -452,6 +452,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         // Mark decorations as loaded to prevent multiple loads
         setDecorationsLoaded(true);
+
+        // Final integrity check for GLB furniture
+        setTimeout(() => {
+          const loadedFurniture = experienceRef.current?.getAllFurniture?.() || [];
+          const expectedCount = result.decorations.length;
+          const actualCount = loadedFurniture.length;
+
+          console.log(`🔍 Integrity Check:`);
+          console.log(`  Expected decorations: ${expectedCount}`);
+          console.log(`  Loaded furniture: ${actualCount}`);
+
+          if (actualCount !== expectedCount) {
+            console.warn(`⚠️ INTEGRITY ISSUE: Expected ${expectedCount} furniture but only ${actualCount} loaded!`);
+
+            // Log details of what's missing
+            const loadedIds = new Set(loadedFurniture.map(f => f.id));
+            result.decorations.forEach(decoration => {
+              if (!loadedIds.has(decoration.furniture_id)) {
+                console.warn(`⚠️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
+              }
+            });
+          } else {
+            console.log(`✅ All furniture loaded successfully!`);
+          }
+        }, 1000); // Wait for all async operations to complete
+
         console.log(`🏁 Decorations loading completed`);
       } else if (result.error) {
         console.error("Error loading decorations:", result.error);
