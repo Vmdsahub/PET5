@@ -102,22 +102,29 @@ export class FurnitureManager {
       return;
     }
 
-    // Log and prevent center positioning
-    if (position.x === 0 && position.z === 0) {
-      console.error(`⚠️ CRITICAL: Attempted to create furniture ${id} at center (0,0,0)! Stack trace:`, new Error().stack);
-      // Force to a safe position instead
-      position.set(5 + Math.random() * 2, Math.max(0, position.y), 5 + Math.random() * 2);
-      console.log(`🔧 Moved ${id} from center to safe position: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    // ABSOLUTE PROTECTION: Never allow center positioning during creation
+    const safePosition = new THREE.Vector3(
+      (position.x === 0) ? 5 + Math.random() * 2 : position.x,
+      Math.max(0, position.y),
+      (position.z === 0) ? 5 + Math.random() * 2 : position.z
+    );
+
+    if (safePosition.x !== position.x || safePosition.z !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER CREATION for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
     }
 
-    furnitureObject.position.copy(position);
+    furnitureObject.position.copy(safePosition);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
 
-    // Verify final position
+    // FINAL VERIFICATION - if somehow still at center, emergency move
     const finalPos = furnitureObject.position;
     if (finalPos.x === 0 && finalPos.z === 0) {
-      console.error(`❌ CRITICAL: Furniture ${id} ended up at center despite protection! Position:`, finalPos);
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center after creation! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      furnitureObject.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
     }
 
     // Auto-correct Y position for GLB models to ensure they sit on the floor
