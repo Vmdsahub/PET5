@@ -1024,9 +1024,13 @@ export class FurnitureManager {
         if (matchingCustom) {
           console.log(`🎯 Found custom furniture: ${matchingCustom.name}`);
           furnitureType = `custom_${id}`;
+          debugIdMapping(furnitureType, 'addFurnitureFromInventory-customMatch');
         } else {
-          // Extract type from id (assumes format like "sofa", "coffee-table", etc.)
-          furnitureType = id.split("-")[0]; // Get first part of hyphenated id
+          // Extract type from id using utility, then try to parse first part
+          let extractedId = extractFurnitureIdFromType(id);
+          furnitureType = extractedId.split("-")[0]; // Get first part of hyphenated id
+          debugIdMapping(id, 'addFurnitureFromInventory-extractType');
+          console.log(`🔍 Type extraction: ${id} -> ${extractedId} -> ${furnitureType}`);
 
           // Map some common ids to furniture types
           const typeMapping: { [key: string]: string } = {
