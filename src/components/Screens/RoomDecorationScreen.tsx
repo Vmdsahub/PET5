@@ -505,12 +505,31 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
 
-                    // Validate and correct position before restoration using the new validation system
-          let validPosition = {
-            x: isNaN(decoration.position.x) ? 0 : decoration.position.x,
-            y: isNaN(decoration.position.y) ? 0 : Math.max(0, decoration.position.y), // Ensure Y >= 0
-            z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
-          };
+                    // Validate position and generate safe fallback for invalid values
+          let validPosition;
+
+          // Check if position data is valid
+          const hasValidPosition =
+            !isNaN(decoration.position.x) &&
+            !isNaN(decoration.position.y) &&
+            !isNaN(decoration.position.z) &&
+            decoration.position.x !== null &&
+            decoration.position.y !== null &&
+            decoration.position.z !== null;
+
+          if (hasValidPosition) {
+            validPosition = {
+              x: decoration.position.x,
+              y: Math.max(0, decoration.position.y), // Ensure Y >= 0
+              z: decoration.position.z,
+            };
+          } else {
+            // Generate safe position instead of using (0,0,0)
+            console.warn(`⚠️ Invalid position data for ${restoreId}, generating safe position`);
+            const fallbackIndex = validDecorations.indexOf(decoration);
+            validPosition = generateSafePosition(fallbackIndex, 8);
+            console.log(`🔧 Generated safe position for ${restoreId}: (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
+          }
 
           // Only validate for truly problematic positions, not normal positions
           if (isProblematicPosition(validPosition)) {
