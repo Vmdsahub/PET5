@@ -755,6 +755,57 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           );
         }
 
+        // CRITICAL: Force check and fix ALL furniture positions before marking as loaded
+        console.log(`🔴 FINAL SWEEP: Checking all furniture positions for problems...`);
+
+        setTimeout(() => {
+          if (experienceRef.current) {
+            const allFurniture = experienceRef.current.getAllFurniture?.() || [];
+            let criticalIssues = 0;
+
+            allFurniture.forEach((furniture: any, index: number) => {
+              if (furniture?.object?.position) {
+                const pos = furniture.object.position;
+                if (isProblematicPosition(pos)) {
+                  criticalIssues++;
+                  console.error(`❌️ FINAL SWEEP CRITICAL: ${furniture.id} at problematic position (${pos.x}, ${pos.y}, ${pos.z})`);
+
+                  // IMMEDIATE forced correction
+                  const emergencyPos = {
+                    x: 20 + (index * 3), // Far from center, well spaced
+                    y: 0.1,
+                    z: 20 + ((index % 2) * 5) // Alternating Z positions
+                  };
+
+                  furniture.object.position.set(emergencyPos.x, emergencyPos.y, emergencyPos.z);
+                  furniture.object.updateMatrix();
+                  furniture.object.updateMatrixWorld(true);
+
+                  console.log(`⚕️ FINAL SWEEP FIX: ${furniture.id} -> (${emergencyPos.x}, ${emergencyPos.y}, ${emergencyPos.z})`);
+
+                  // Save the fix immediately
+                  if (user?.id) {
+                    setTimeout(() => {
+                      saveFurnitureState(furniture.id);
+                    }, index * 50); // Stagger saves
+                  }
+                }
+              }
+            });
+
+            if (criticalIssues > 0) {
+              console.warn(`⚠️ FINAL SWEEP: Fixed ${criticalIssues} critical position issues`);
+              addNotification({
+                type: "warning",
+                title: "Posições Corrigidas",
+                message: `${criticalIssues} móveis foram automaticamente reposicionados.`,
+              });
+            } else {
+              console.log(`✅ FINAL SWEEP: All furniture positions are safe`);
+            }
+          }
+        }, 500); // Give time for all furniture to be positioned
+
         // Mark decorations as loaded to prevent multiple loads
         setDecorationsLoaded(true);
 
@@ -1615,7 +1666,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <div className="space-y-4">
               <div className="bg-white/60 rounded-2xl p-3 border-2 border-yellow-200">
                 <p className="text-sm text-amber-700 mb-1 font-medium">
-                  🪑 Móvel Selecionado:
+                  ���� Móvel Selecionado:
                 </p>
                 <p className="font-bold text-amber-900 capitalize">
                   {selectedObject.replace(/-/g, " ")}
