@@ -328,7 +328,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               console.log(`🔑 Set metadata for ${uniqueRestoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
             }
 
-            // Apply saved transformations and materials
+                        // Apply saved transformations and materials with debugging
+            console.log(`🔧 Applying transformations to ${uniqueRestoreId}:`);
+            console.log(`  📐 Scale:`, decoration.scale);
+            console.log(`  🔄 Rotation:`, decoration.rotation);
+            console.log(`  📍 Position:`, decoration.position);
+
             experienceRef.current.updateFurnitureScale(
               uniqueRestoreId,
               decoration.scale,
@@ -341,6 +346,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               uniqueRestoreId,
               decoration.position,
             );
+
+            // Verify position was applied correctly
+            setTimeout(() => {
+              const furnitureObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
+              if (furnitureObj?.object) {
+                console.log(`✅ Verified position for ${uniqueRestoreId}:`, {
+                  actualPosition: furnitureObj.object.position,
+                  expectedPosition: decoration.position,
+                  positionMatch:
+                    Math.abs(furnitureObj.object.position.x - decoration.position.x) < 0.1 &&
+                    Math.abs(furnitureObj.object.position.y - decoration.position.y) < 0.1 &&
+                    Math.abs(furnitureObj.object.position.z - decoration.position.z) < 0.1
+                });
+              }
+            }, 50);
 
                         if (decoration.material) {
               experienceRef.current.updateFurnitureMaterial(
