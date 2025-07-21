@@ -12,16 +12,13 @@ export interface GhostDetectionResult {
  * Check if a position is problematic (center or invalid)
  */
 export function isProblematicPosition(position: { x: number; y: number; z: number }): boolean {
-  // ULTRA STRICT checks for problematic positions to prevent ALL issues
+  // More targeted checks for truly problematic positions only
   const checks = {
-    // Any position close to center is problematic (expanded range)
-    nearCenter: Math.abs(position.x) < 1.5 && Math.abs(position.z) < 1.5,
-
-    // Exact center coordinates
+    // Only exact center is problematic (not nearby positions)
     exactCenter: position.x === 0 && position.z === 0,
 
-    // Very small coordinates (likely errors)
-    tinyCoords: Math.abs(position.x) < 0.1 && Math.abs(position.z) < 0.1,
+    // Very small coordinates that indicate placement errors (much smaller range)
+    tinyCoords: Math.abs(position.x) < 0.01 && Math.abs(position.z) < 0.01,
 
     // Invalid/NaN positions
     invalidX: isNaN(position.x) || !isFinite(position.x),
@@ -33,14 +30,11 @@ export function isProblematicPosition(position: { x: number; y: number; z: numbe
     tooFarZ: Math.abs(position.z) > 100,
 
     // Underground or too high
-    underground: position.y < -0.1, // Even more strict
+    underground: position.y < -0.1,
     tooHigh: position.y > 50,
 
     // Null/undefined checks
-    nullPosition: position.x == null || position.y == null || position.z == null,
-
-    // Zero positions (often problematic)
-    zeroPosition: position.x === 0 || position.z === 0
+    nullPosition: position.x == null || position.y == null || position.z == null
   };
 
   const isProblematic = Object.values(checks).some(check => check);
