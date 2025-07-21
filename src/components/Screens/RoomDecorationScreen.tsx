@@ -404,22 +404,27 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           thumbnail = ""; // Fallback to default icon
         }
 
-        // Add to inventory (generate unique ID for each purchase)
+                // Add to inventory (use consistent ID strategy)
         setInventory((prev) => {
-          // Generate unique ID for this specific purchase instance
-          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          // Use originalStoreId as base, with instance counter for multiple copies
+          const existingCount = prev.filter(
+            (existingItem) => existingItem.originalStoreId === item.id
+          ).length;
+
+          // Create consistent ID: originalStoreId + instance number
+          const consistentId = existingCount > 0 ? `${item.id}_${existingCount + 1}` : item.id;
 
           console.log(
-            `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
+            `➕ Adding purchased item ${item.name} with consistent ID: ${consistentId}`,
           );
           return [
             ...prev,
             {
-              id: uniqueId,
+              id: consistentId,
               name: item.name,
               type: furnitureType,
-              thumbnail: thumbnail, // Now we generate thumbnail on purchase
-              properties: null, // No custom properties for new items
+              thumbnail: thumbnail,
+              properties: null,
               originalStoreId: item.id, // Keep reference to original store item
             },
           ];
