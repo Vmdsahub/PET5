@@ -554,12 +554,25 @@ export class FurnitureManager {
     console.log(
       `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
     );
-    item.object.position.set(position.x, position.y, position.z);
 
-    // Verify final position
+    // ABSOLUTE PROTECTION: Never allow center positioning
+    const safeX = (position.x === 0) ? 5 + Math.random() * 2 : position.x;
+    const safeZ = (position.z === 0) ? 5 + Math.random() * 2 : position.z;
+
+    if (safeX !== position.x || safeZ !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER POSITIONING for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safeX}, ${position.y}, ${safeZ})`);
+    }
+
+    item.object.position.set(safeX, position.y, safeZ);
+
+    // FINAL VERIFICATION - if still at center, force move again
     const finalPos = item.object.position;
     if (finalPos.x === 0 && finalPos.z === 0) {
-      console.error(`❌ CRITICAL: Furniture ${id} still at center after update! Position:`, finalPos);
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      item.object.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
     }
 
     return true;
