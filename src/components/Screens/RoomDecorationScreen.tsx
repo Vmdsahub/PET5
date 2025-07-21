@@ -245,11 +245,14 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       return;
     }
 
-    // Clear any existing furniture from the scene first to prevent conflicts
+        // Clear any existing furniture from the scene first to prevent conflicts
     console.log("🧹 Clearing existing furniture from scene before loading saved decorations");
     if (experienceRef.current.clearAllFurniture) {
       experienceRef.current.clearAllFurniture();
     }
+
+    // Wait for cleanup to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
@@ -810,7 +813,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               databaseId = furnitureObj.object.userData.databaseId;
               console.log(`🗑️ Removing from database with stored ID: ${databaseId}`);
             } else {
-              console.log(`🗑️ No database ID found for ${objectId}, using object ID`);
+              console.log(`🗑��� No database ID found for ${objectId}, using object ID`);
             }
           }
           roomDecorationService.removeFurnitureFromRoom(user.id, databaseId);
