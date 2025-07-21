@@ -265,7 +265,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       });
 
       console.log(`🔍 User ID: ${user.id}`);
-      console.log(`📋 Will call roomDecorationService.saveFurnitureState`);
+      console.log(`���� Will call roomDecorationService.saveFurnitureState`);
 
       const result = await roomDecorationService.saveFurnitureState(
         user.id,
@@ -350,6 +350,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     // Wait for cleanup to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     console.log("⏱️ Cleanup delay completed");
+
+    // Additional ghost furniture detection after clearing
+    if (experienceRef.current) {
+      const remainingFurniture = experienceRef.current.getAllFurniture?.() || [];
+      if (remainingFurniture.length > 0) {
+        console.warn(`⚠️ ${remainingFurniture.length} furniture items remain after clear, detecting ghosts...`);
+        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+        if (ghostResult.found > 0) {
+          console.log(`👻 Pre-load ghost detection: found ${ghostResult.found}, removed ${ghostResult.removed}`);
+        }
+      }
+    }
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
