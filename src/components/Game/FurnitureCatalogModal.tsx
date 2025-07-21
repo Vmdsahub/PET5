@@ -1081,20 +1081,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     >
                       Testar Sistema
                     </button>
-                    <button
-                      onClick={() => {
-                        furnitureService.addSampleData();
-                        loadCustomFurniture();
-                        onNotification?.({
-                          type: "success",
-                          title: "Exemplo Adicionado",
-                          message: "Item de exemplo adicionado com sucesso.",
-                        });
-                      }}
-                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                    >
-                      Adicionar Exemplo
-                    </button>
+                    
                     <button
                                             onClick={() => {
                         furnitureService.clearAll();
