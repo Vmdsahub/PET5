@@ -240,14 +240,29 @@ export class RoomExperience {
 
   public rotateObject(objectId: string, rotation: number): void {
     this.furnitureManager.rotateObject(objectId, rotation);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was rotated, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public scaleObject(objectId: string, scale: number): void {
     this.furnitureManager.scaleObject(objectId, scale);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was scaled, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   public moveObject(objectId: string, position: THREE.Vector3): void {
     this.furnitureManager.moveObject(objectId, position);
+    // Notify that object was changed
+    if (this.onObjectChanged) {
+      console.log(`🔄 Object ${objectId} was moved, triggering save...`);
+      this.onObjectChanged(objectId);
+    }
   }
 
   // Lighting controls for admin
