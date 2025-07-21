@@ -468,8 +468,8 @@ export class RoomExperience {
       const dimensions = this.world.getRoomDimensions();
       const roomHalfWidth = dimensions.floorWidth / 2;
       const roomHalfDepth = dimensions.floorDepth / 2;
-      // Use a smaller proportional margin - 2.5% of room size, minimum 0.2
-      const margin = Math.max(0.2, Math.min(dimensions.floorWidth, dimensions.floorDepth) * 0.025);
+            // Minimal margin to prevent clipping through walls
+      const margin = 0.1;
 
       const constrainedX = Math.max(
         -roomHalfWidth + margin,
