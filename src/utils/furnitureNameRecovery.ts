@@ -16,7 +16,7 @@ export async function recoverFurnitureName(
     
     // For custom GLB furniture, try to get from simpleFurnitureService
     if (furnitureType.startsWith('custom_')) {
-      const customFurniture = await simpleFurnitureService.getCustomFurnitureList();
+      const customFurniture = await simpleFurnitureService.getAllCustomFurniture();
       const matchingFurniture = customFurniture.find(f => f.id === originalStoreId);
       
       if (matchingFurniture) {
