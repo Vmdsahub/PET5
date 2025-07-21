@@ -685,7 +685,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                 // For GLB furniture, ensure it will be saved correctly in the future
                 if (isCustomType && !finalObj.object.userData.databaseId) {
-                  console.warn(`��️ GLB furniture ${restoreId} missing databaseId, adding it...`);
+                  console.warn(`⚠️ GLB furniture ${restoreId} missing databaseId, adding it...`);
                   finalObj.object.userData.databaseId = decoration.furniture_id;
                 }
               }
@@ -1018,36 +1018,37 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     },
   ];
 
-  // Enhanced position monitoring using the new monitoring system
+  // Basic ghost detection only (no aggressive monitoring)
   useEffect(() => {
-    if (!experienceRef.current || !user?.id) return;
+    if (!experienceRef.current || !user?.id || !decorationsLoaded) return;
 
-    let monitoringCleanup: (() => void) | null = null;
-
-    // Start the enhanced position monitoring system
-    const startMonitoring = () => {
+    // Only run ghost detection once after decorations are loaded, not continuously
+    const runInitialGhostDetection = () => {
       if (experienceRef.current?.furnitureManager) {
-        console.log(`🔍 Starting enhanced position monitoring for user ${user.id}`);
+        console.log(`👻 Running initial ghost detection for user ${user.id}`);
 
-        monitoringCleanup = startPositionMonitoring(
-          experienceRef.current.furnitureManager,
-          (furnitureId: string) => {
-            console.log(`💾 Auto-saving furniture ${furnitureId} after monitoring correction`);
-            saveFurnitureState(furnitureId);
-          },
-          3000 // Check every 3 seconds
-        );
+        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+        if (ghostResult.found > 0) {
+          console.warn(`👻 Initial ghost detection: found ${ghostResult.found}, removed ${ghostResult.removed}`);
+
+          if (ghostResult.removed > 0) {
+            addNotification({
+              type: "warning",
+              title: "Móveis Fantasmas Removidos",
+              message: `Detectados e removidos ${ghostResult.removed} móveis em posições realmente problemáticas.`,
+            });
+          }
+        } else {
+          console.log(`✅ No ghost furniture detected`);
+        }
       }
     };
 
-    // Start monitoring after a brief delay to ensure furniture is loaded
-    const startDelay = setTimeout(startMonitoring, 2000);
+    // Run detection after a brief delay to ensure all furniture is loaded
+    const detectionDelay = setTimeout(runInitialGhostDetection, 3000);
 
     return () => {
-      clearTimeout(startDelay);
-      if (monitoringCleanup) {
-        monitoringCleanup();
-      }
+      clearTimeout(detectionDelay);
     };
   }, [experienceRef.current, user?.id, decorationsLoaded]);
 
