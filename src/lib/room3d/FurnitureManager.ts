@@ -240,12 +240,18 @@ export class FurnitureManager {
     this.scaleFurniture(id, scale);
   }
 
-      private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
+        private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
+    // Admin users can position furniture anywhere (no constraints)
+    if (this.isUserAdmin()) {
+      return new THREE.Vector3(position.x, Math.max(0, position.y), position.z);
+    }
+
+    // Regular users must keep furniture within room boundaries
     const dimensions = this.getRoomDimensions();
     const roomHalfWidth = dimensions.floorWidth / 2;
     const roomHalfDepth = dimensions.floorDepth / 2;
-        // Minimal margin to prevent clipping through walls
-    const margin = 0.1;
+    // No margin for regular users - strict wall boundaries
+    const margin = 0;
 
     return new THREE.Vector3(
       Math.max(-roomHalfWidth + margin, Math.min(roomHalfWidth - margin, position.x)),
