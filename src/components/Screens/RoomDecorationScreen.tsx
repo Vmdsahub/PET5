@@ -1510,6 +1510,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             >
               🎨 Materiais
             </button>
+            <button
+              onClick={handleManualCleanup}
+              className="px-4 py-2 rounded-lg font-medium transition-all bg-red-600 text-white hover:bg-red-700 flex items-center gap-2"
+              title="Limpar todos os dados corrompidos do quarto"
+            >
+              🧹 Limpar Dados
+            </button>
             {selectedFurniture && (
               <button
                 onClick={() => setShowFurniturePanel(!showFurniturePanel)}
