@@ -28,14 +28,16 @@ export class RoomExperience {
   private targetElement: HTMLElement;
   private animationId: number | null = null;
   private onObjectSelect?: (objectId: string | null) => void;
-  private onRightClickFurniture?: (
+    private onRightClickFurniture?: (
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  private isUserAdmin: () => boolean;
 
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
     this.onObjectSelect = options.onObjectSelect;
+    this.isUserAdmin = options.isUserAdmin || (() => false);
     this.onRightClickFurniture = options.onRightClickFurniture;
 
     this.initScene();
