@@ -411,28 +411,31 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
           // More comprehensive check for problematic positions
           const isProblematicPosition = (
-            // Exact center
-            (validPosition.x === 0 && validPosition.z === 0) ||
-            // Very close to center (within 0.1 units)
-            (Math.abs(validPosition.x) < 0.1 && Math.abs(validPosition.z) < 0.1) ||
+            // Exact center or very close to center (within 0.5 units)
+            (Math.abs(validPosition.x) < 0.5 && Math.abs(validPosition.z) < 0.5) ||
             // Positions that are too extreme
             Math.abs(validPosition.x) > 50 || Math.abs(validPosition.z) > 50 ||
             // Invalid Y positions
-            validPosition.y < 0 || validPosition.y > 20
+            validPosition.y < 0 || validPosition.y > 20 ||
+            // NaN positions
+            isNaN(validPosition.x) || isNaN(validPosition.y) || isNaN(validPosition.z)
           );
 
           if (isProblematicPosition) {
             console.warn(`⚠️ Furniture ${restoreId} has problematic position (${validPosition.x}, ${validPosition.y}, ${validPosition.z}), adjusting...`);
 
-            // Use a more predictable fallback position instead of random
-            const fallbackIndex = result.decorations.indexOf(decoration);
+            // Use a more predictable fallback position based on index
+            const fallbackIndex = validDecorations.indexOf(decoration);
+            const angle = (fallbackIndex * 60) * (Math.PI / 180); // 60 degrees apart
+            const radius = 2 + (fallbackIndex * 0.5); // Increase radius for each item
+
             validPosition = {
-              x: 1 + (fallbackIndex * 1.5), // Spread furniture 1.5 units apart
-              y: Math.max(0, validPosition.y),
-              z: 1,
+              x: Math.cos(angle) * radius, // Circular arrangement
+              y: 0, // Always on the floor
+              z: Math.sin(angle) * radius,
             };
 
-            console.log(`🔧 Adjusted to fallback position: (${validPosition.x}, ${validPosition.y}, ${validPosition.z})`);
+            console.log(`🔧 Adjusted to fallback position: (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
           }
 
           console.log(`📍 Position validation for ${restoreId}:`, {
