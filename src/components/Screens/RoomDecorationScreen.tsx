@@ -341,25 +341,38 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               decoration.position,
             );
 
-            if (decoration.material) {
+                        if (decoration.material) {
               experienceRef.current.updateFurnitureMaterial(
-                restoreId,
+                uniqueRestoreId,
                 decoration.material,
               );
             }
 
+            // Verify final position after all transformations
+            setTimeout(() => {
+              const finalObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
+              if (finalObj?.object) {
+                console.log(`🔍 Final restored position for ${uniqueRestoreId}:`, {
+                  position: finalObj.object.position,
+                  expectedPosition: decoration.position,
+                  rotation: finalObj.object.rotation,
+                  scale: finalObj.object.scale,
+                });
+              }
+            }, 100);
+
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
-              restoreId,
+              uniqueRestoreId,
               "After Loading from DB",
             );
 
             console.log(
-              `✅ Successfully restored furniture: ${restoreId}`,
+              `✅ Successfully restored furniture: ${uniqueRestoreId} (database: ${decoration.furniture_id})`,
             );
           } else {
             console.warn(
-              `❌ Failed to restore furniture: ${restoreId}`,
+              `❌ Failed to restore furniture: ${uniqueRestoreId} (database: ${decoration.furniture_id})`,
             );
           }
         }
