@@ -5,6 +5,7 @@ export interface RoomDecoration {
   user_id: string;
   furniture_id: string;
   furniture_type: string;
+  furniture_name?: string; // Nome original do móvel
   position_x: number;
   position_y: number;
   position_z: number;
@@ -26,6 +27,7 @@ export interface RoomDecoration {
 export interface FurnitureState {
   furniture_id: string;
   furniture_type: string;
+  furniture_name?: string; // Nome original do móvel
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   scale: { x: number; y: number; z: number };
