@@ -1,5 +1,10 @@
 import * as THREE from "three";
 import { FurnitureFactory } from "./FurnitureFactory";
+import {
+  extractFurnitureIdFromType,
+  isCustomFurnitureType,
+  debugIdMapping,
+} from "../../utils/furnitureIdGenerator";
 
 interface FurnitureItem {
   id: string;
@@ -668,15 +673,20 @@ export class FurnitureManager {
       console.log(`🔄 Starting reset for custom furniture: ${id}`);
       console.log(`🏷️ Item type: ${item.type}`);
 
-      // Get the original cached model - extract the base furniture ID
-      let furnitureId = item.type.replace("custom_", "");
+      // Get the original cached model - extract the base furniture ID using utility
+      let furnitureId: string;
 
-      // If the item has userData with originalStoreId, use that instead
       if (item.object.userData?.originalStoreId) {
+        // Use originalStoreId from userData if available (most reliable)
         furnitureId = item.object.userData.originalStoreId;
         console.log(`🔍 Using originalStoreId from userData: ${furnitureId}`);
+      } else {
+        // Extract from type using utility function
+        furnitureId = extractFurnitureIdFromType(item.type);
+        console.log(`🔍 Extracted furnitureId from type ${item.type}: ${furnitureId}`);
       }
 
+      debugIdMapping(furnitureId, 'resetCustomFurnitureToOriginal');
       console.log(`🎯 Looking for cached model with ID: ${furnitureId}`);
 
       const originalModel = this.furnitureFactory.getFromCache(furnitureId);
