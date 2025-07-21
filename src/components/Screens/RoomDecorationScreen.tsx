@@ -298,33 +298,36 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             decoration.furniture_type,
           );
 
-          if (success) {
+                    if (success) {
             console.log(
-              `🔧 Applying saved decoration for ${restoreId} (originalStoreId: ${originalStoreId}):`,
+              `🔧 Applying saved decoration for ${uniqueRestoreId} (database ID: ${decoration.furniture_id}, originalStoreId: ${originalStoreId}):`,
               {
                 scale: decoration.scale,
                 material: decoration.material,
+                position: decoration.position,
+                rotation: decoration.rotation,
               },
             );
 
-            // Store originalStoreId in the furniture object for consistency
-            const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
+            // Store database mapping in the furniture object
+            const furnitureObj = experienceRef.current.getFurnitureById?.(uniqueRestoreId);
             if (furnitureObj?.object?.userData) {
               furnitureObj.object.userData.originalStoreId = originalStoreId;
-              console.log(`🔑 Set originalStoreId: ${originalStoreId} for ${restoreId}`);
+              furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
+              console.log(`🔑 Set metadata for ${uniqueRestoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
             }
 
             // Apply saved transformations and materials
             experienceRef.current.updateFurnitureScale(
-              restoreId,
+              uniqueRestoreId,
               decoration.scale,
             );
             experienceRef.current.updateFurnitureRotation(
-              restoreId,
+              uniqueRestoreId,
               decoration.rotation,
             );
             experienceRef.current.updateFurniturePosition(
-              restoreId,
+              uniqueRestoreId,
               decoration.position,
             );
 
