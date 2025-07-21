@@ -242,8 +242,8 @@ export class FurnitureManager {
     const dimensions = this.getRoomDimensions();
     const roomHalfWidth = dimensions.floorWidth / 2;
     const roomHalfDepth = dimensions.floorDepth / 2;
-    // Use a smaller proportional margin - 2.5% of room size, minimum 0.2
-    const margin = Math.max(0.2, Math.min(dimensions.floorWidth, dimensions.floorDepth) * 0.025);
+        // Minimal margin to prevent clipping through walls
+    const margin = 0.1;
 
     return new THREE.Vector3(
       Math.max(-roomHalfWidth + margin, Math.min(roomHalfWidth - margin, position.x)),
