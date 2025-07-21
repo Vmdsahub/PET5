@@ -483,8 +483,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             x: position.x,
             y: position.y,
           });
-        },
+                },
         editMode: isEditMode,
+        isUserAdmin: () => user?.isAdmin || false,
       });
     }
 
