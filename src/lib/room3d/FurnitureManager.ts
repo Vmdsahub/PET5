@@ -527,10 +527,26 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item) return false;
 
+    // Prevent center positioning
+    if (position.x === 0 && position.z === 0) {
+      console.error(`⚠️ CRITICAL: Attempted to move furniture ${id} to center (0,0,0)! Stack trace:`, new Error().stack);
+      // Force to a safe position instead
+      position.x = 5 + Math.random() * 2;
+      position.z = 5 + Math.random() * 2;
+      console.log(`🔧 Corrected ${id} position to: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    }
+
     console.log(
       `🔄 Updating furniture ${id} position from (${item.object.position.x}, ${item.object.position.y}, ${item.object.position.z}) to (${position.x}, ${position.y}, ${position.z})`,
     );
     item.object.position.set(position.x, position.y, position.z);
+
+    // Verify final position
+    const finalPos = item.object.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ CRITICAL: Furniture ${id} still at center after update! Position:`, finalPos);
+    }
+
     return true;
   }
 
