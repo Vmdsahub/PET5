@@ -417,7 +417,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       );
 
       if (result.success && result.decorations) {
-        console.log(`��� Found ${result.decorations.length} saved decorations`);
+        console.log(`📋 Found ${result.decorations.length} saved decorations`);
 
         // Validate and clean decorations data
         const validDecorations = result.decorations.filter((decoration, index) => {
@@ -894,7 +894,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
-    console.log(`���� Purchasing furniture item:`, item);
+    console.log(`📋 Purchasing furniture item:`, item);
 
     // Check if player has enough currency
     const currentAmount = item.currency === "xenocoins" ? xenocoins : cash;
@@ -1761,6 +1761,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               title="Limpar todos os dados corrompidos do quarto"
             >
               🧹 Limpar Dados
+            </button>
+            <button
+              onClick={handleEmergencyReset}
+              className="px-4 py-2 rounded-lg font-medium transition-all bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
+              title="Reset de emergência para móveis em posições problemáticas"
+            >
+              🆘 Reset Emergência
             </button>
             {selectedFurniture && (
               <button
