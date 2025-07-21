@@ -274,12 +274,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           originalStoreIds.add(originalId);
         });
 
-        // Remove inventory items that are already placed in the room
+                // Note: Do NOT remove items from inventory based on originalStoreId
+        // because multiple instances of the same furniture type should be allowed
+        // Only remove items that have exact matching IDs (which shouldn't happen with unique IDs)
         setInventory(prev => prev.filter(item => {
-          const shouldRemove = decorationIds.has(item.id) ||
-                              (item.originalStoreId && originalStoreIds.has(item.originalStoreId));
+          const shouldRemove = decorationIds.has(item.id);
           if (shouldRemove) {
-            console.log(`🧹 Removing from inventory: ${item.id} (matches placed furniture)`);
+            console.log(`🧹 Removing from inventory: ${item.id} (exact ID match with placed furniture)`);
           }
           return !shouldRemove;
         }));
