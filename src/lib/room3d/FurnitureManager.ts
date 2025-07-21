@@ -102,9 +102,20 @@ export class FurnitureManager {
       return;
     }
 
-    furnitureObject.position.copy(position);
+    // Validate and correct position before applying it
+    const safePosition = validateAndCorrectPosition(
+      { x: position.x, y: position.y, z: position.z },
+      id,
+      this.furniture.size
+    );
+
+    furnitureObject.position.set(safePosition.x, safePosition.y, safePosition.z);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
+
+    if (safePosition.x !== position.x || safePosition.z !== position.z) {
+      console.log(`🔧 Position corrected during furniture creation for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safePosition.x}, ${safePosition.y}, ${safePosition.z})`);
+    }
 
     // Auto-correct Y position for GLB models to ensure they sit on the floor
     if (type.startsWith("custom_")) {
@@ -964,7 +975,7 @@ export class FurnitureManager {
           "pendantLight",
         ].includes(item.type));
 
-    console.log(`🗑️ Furniture removal - Type: ${item.type}, IsCustom: ${isCustomFurniture}`);
+    console.log(`🗑�� Furniture removal - Type: ${item.type}, IsCustom: ${isCustomFurniture}`);
     debugIdMapping(item.type, 'removeFurniture-typeCheck');
 
     if (!isCustomFurniture) {
