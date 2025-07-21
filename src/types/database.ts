@@ -385,6 +385,7 @@ export interface Database {
           user_id: string;
           furniture_id: string;
           furniture_type: string;
+          furniture_name: string | null;
           position_x: number;
           position_y: number;
           position_z: number;
@@ -407,6 +408,7 @@ export interface Database {
           user_id: string;
           furniture_id: string;
           furniture_type: string;
+          furniture_name?: string | null;
           position_x?: number;
           position_y?: number;
           position_z?: number;
@@ -429,6 +431,7 @@ export interface Database {
           user_id?: string;
           furniture_id?: string;
           furniture_type?: string;
+          furniture_name?: string | null;
           position_x?: number;
           position_y?: number;
           position_z?: number;
