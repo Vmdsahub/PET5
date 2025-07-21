@@ -429,7 +429,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             decoration.position.z !== undefined;
 
           if (!isValid) {
-            console.warn(`⚠️ Invalid decoration data at index ${index}:`, decoration);
+            console.warn(`⚠�� Invalid decoration data at index ${index}:`, decoration);
             return false;
           }
 
@@ -633,55 +633,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
             }
 
-            // CRITICAL IMMEDIATE position verification using enhanced system
-            const performCriticalCheck = () => {
+            // Simple position verification - only check for truly problematic positions
+            setTimeout(() => {
               const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
                 const finalPosition = finalObj.object.position;
-                const isStillProblematic = isProblematicPosition(finalPosition);
 
-                console.log(`🔍 CRITICAL check position for ${restoreId}:`, {
-                  position: finalPosition,
-                  expectedPosition: validPosition,
-                  isProblematic: isStillProblematic
-                });
-
-                // CRITICAL: If position is problematic, use the emergency fixer
-                if (isStillProblematic) {
-                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is still in problematic position after restoration!`);
-
-                  // Use the emergency position fixer for this specific furniture
-                  const safeIndex = validDecorations.indexOf(decoration);
-                  const emergencySafePosition = generateSafePosition(safeIndex, 15);
-
-                  console.log(`🆘 EMERGENCY: Moving ${restoreId} to guaranteed safe position:`, emergencySafePosition);
-
-                  // Apply position immediately and forcefully
-                  finalObj.object.position.set(emergencySafePosition.x, emergencySafePosition.y, emergencySafePosition.z);
-                  finalObj.object.updateMatrix();
-                  finalObj.object.updateMatrixWorld(true);
-
-                  // Triple-check the correction worked
-                  const tripleCheck = finalObj.object.position;
-                  if (isProblematicPosition(tripleCheck)) {
-                    console.error(`❌️ ULTIMATE FAILURE: Cannot fix ${restoreId} even with emergency system! REMOVING...`);
-                    // Remove the problematic furniture as absolute last resort
-                    experienceRef.current?.removeFurniture(restoreId);
-
-                    addNotification({
-                      type: "error",
-                      title: "Móvel Removido",
-                      message: `Móvel ${restoreId} não pôde ser corrigido e foi removido.`,
-                    });
-                  } else {
-                    console.log(`✅ EMERGENCY SUCCESS: ${restoreId} moved to safe position (${tripleCheck.x.toFixed(2)}, ${tripleCheck.y.toFixed(2)}, ${tripleCheck.z.toFixed(2)})`);
-
-                    // Save immediately
-                    if (user?.id) {
-                      saveFurnitureState(restoreId);
-                    }
-                  }
-                }
+                console.log(`✅ Furniture ${restoreId} restored at position (${finalPosition.x.toFixed(2)}, ${finalPosition.y.toFixed(2)}, ${finalPosition.z.toFixed(2)})`);
 
                 // For GLB furniture, ensure it will be saved correctly in the future
                 if (isCustomType && !finalObj.object.userData.databaseId) {
@@ -689,13 +647,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   finalObj.object.userData.databaseId = decoration.furniture_id;
                 }
               }
-            };
-
-            // Run critical check immediately
-            performCriticalCheck();
-
-            // Also run delayed check as backup
-            setTimeout(performCriticalCheck, 100);
+            }, 100);
 
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
