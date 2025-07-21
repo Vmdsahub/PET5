@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 import {
   Globe,
   ShoppingCart,
@@ -1666,7 +1667,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             <div className="space-y-4">
               <div className="bg-white/60 rounded-2xl p-3 border-2 border-yellow-200">
                 <p className="text-sm text-amber-700 mb-1 font-medium">
-                  ���� Móvel Selecionado:
+                  🪑 Móvel Selecionado:
                 </p>
                 <p className="font-bold text-amber-900 capitalize">
                   {selectedObject.replace(/-/g, " ")}
