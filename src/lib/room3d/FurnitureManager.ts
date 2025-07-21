@@ -1265,4 +1265,13 @@ export class FurnitureManager {
       }
     }
   }
+
+  // Cleanup method to stop monitoring
+  public destroy(): void {
+    if (this.centerMonitoringCleanup) {
+      this.centerMonitoringCleanup();
+      this.centerMonitoringCleanup = null;
+      console.log(`🗑️ FurnitureManager cleanup: Center monitoring stopped`);
+    }
+  }
 }
