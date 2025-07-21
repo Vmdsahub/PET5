@@ -645,101 +645,56 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               );
             }
 
-            // Verify final position after all transformations
-            setTimeout(() => {
+            // IMMEDIATE position verification and correction (no timeout)
+            const immediateCorrection = () => {
               const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
                 const finalPosition = finalObj.object.position;
                 const isStillProblematic = isProblematicPosition(finalPosition);
 
-                console.log(`🔍 Final restored position for ${restoreId}:`, {
+                console.log(`🔍 IMMEDIATE check position for ${restoreId}:`, {
                   position: finalPosition,
                   expectedPosition: decoration.position,
-                  isProblematic: isStillProblematic,
-                  rotation: finalObj.object.rotation,
-                  scale: finalObj.object.scale,
-                  hasCorrectUserData: !!finalObj.object.userData.databaseId,
-                  databaseId: finalObj.object.userData.databaseId,
-                  originalStoreId: finalObj.object.userData.originalStoreId,
+                  isProblematic: isStillProblematic
                 });
 
-                // If furniture is still in a problematic position after restoration, force move it
+                // CRITICAL: If position is problematic, fix it IMMEDIATELY
                 if (isStillProblematic) {
-                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is still in problematic position after restoration!`);
-                  console.log(`🔄 EMERGENCY: Force moving ${restoreId} to guaranteed safe position...`);
+                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is in problematic position! IMMEDIATE CORRECTION...`);
 
-                  // Multiple fallback strategies to ensure we find a safe position
-                  let safePosition;
+                  // Calculate guaranteed safe position based on index
                   const safeIndex = validDecorations.indexOf(decoration);
-
-                  // Strategy 1: Circular arrangement far from center
-                  const angle1 = (safeIndex * 60) * (Math.PI / 180);
-                  const radius1 = 5 + (safeIndex * 1.0); // Further from center
-                  safePosition = {
-                    x: Math.cos(angle1) * radius1,
-                    y: 0.1, // Slightly above floor to ensure visibility
-                    z: Math.sin(angle1) * radius1
+                  const guaranteedSafePosition = {
+                    x: 15 + (safeIndex * 2), // Start far from center, space apart
+                    y: 0.1,
+                    z: 15 + (safeIndex % 3) * 2 // Some variation in Z
                   };
 
-                  // Verify this position is actually safe
-                  if (isProblematicPosition(safePosition)) {
-                    console.warn(`⚠️ First safe position still problematic, trying strategy 2...`);
+                  console.log(`🆘 EMERGENCY: Moving ${restoreId} to guaranteed safe position:`, guaranteedSafePosition);
 
-                    // Strategy 2: Grid arrangement
-                    const gridX = (safeIndex % 5) * 2 - 4; // -4 to 4
-                    const gridZ = Math.floor(safeIndex / 5) * 2 + 2; // 2, 4, 6...
-                    safePosition = { x: gridX, y: 0.1, z: gridZ };
-
-                    if (isProblematicPosition(safePosition)) {
-                      console.warn(`⚠️ Second safe position still problematic, using emergency fallback...`);
-
-                      // Strategy 3: Emergency fallback - guaranteed safe position
-                      safePosition = {
-                        x: 10 + safeIndex, // Far from center, each item offset
-                        y: 0.1,
-                        z: 10
-                      };
-                    }
-                  }
-
-                  // Apply the safe position with multiple checks
-                  console.log(`🎯 Final safe position for ${restoreId}:`, safePosition);
-
-                  // Set position using multiple methods to ensure it sticks
-                  finalObj.object.position.x = safePosition.x;
-                  finalObj.object.position.y = safePosition.y;
-                  finalObj.object.position.z = safePosition.z;
-                  finalObj.object.position.set(safePosition.x, safePosition.y, safePosition.z);
-
-                  // Force update the transform
+                  // Apply position immediately and forcefully
+                  finalObj.object.position.copy(new THREE.Vector3(guaranteedSafePosition.x, guaranteedSafePosition.y, guaranteedSafePosition.z));
                   finalObj.object.updateMatrix();
                   finalObj.object.updateMatrixWorld(true);
 
-                  console.log(`✅ FORCED position for ${restoreId} to: (${finalObj.object.position.x.toFixed(2)}, ${finalObj.object.position.y.toFixed(2)}, ${finalObj.object.position.z.toFixed(2)})`);
+                  // Double-check the correction worked
+                  const doubleCheck = finalObj.object.position;
+                  if (isProblematicPosition(doubleCheck)) {
+                    console.error(`❌️ ULTIMATE FAILURE: Cannot fix ${restoreId}! REMOVING...`);
+                    // Remove the problematic furniture as absolute last resort
+                    experienceRef.current?.removeFurniture(restoreId);
 
-                  // Verify the position actually changed
-                  const verifyPosition = finalObj.object.position;
-                  if (isProblematicPosition(verifyPosition)) {
-                    console.error(`❌️ EMERGENCY FAILURE: Could not move ${restoreId} to safe position! Removing furniture...`);
-
-                    // Last resort: remove the problematic furniture entirely
-                    if (experienceRef.current?.removeFurniture) {
-                      experienceRef.current.removeFurniture(restoreId);
-                      console.log(`🗑️ Removed problematic furniture ${restoreId} as last resort`);
-
-                      addNotification({
-                        type: "warning",
-                        title: "Móvel Problemático Removido",
-                        message: `Móvel ${restoreId} foi removido por estar em posição problemática.`,
-                      });
-                    }
+                    addNotification({
+                      type: "error",
+                      title: "Móvel Removido",
+                      message: `Móvel problemático foi removido automaticamente.`,
+                    });
                   } else {
-                    // Save the corrected position immediately
+                    console.log(`✅ SUCCESS: ${restoreId} moved to safe position (${doubleCheck.x.toFixed(2)}, ${doubleCheck.y.toFixed(2)}, ${doubleCheck.z.toFixed(2)})`);
+
+                    // Save immediately
                     if (user?.id) {
-                      setTimeout(() => {
-                        console.log(`💾 Saving corrected position for ${restoreId}...`);
-                        saveFurnitureState(restoreId);
-                      }, 200);
+                      saveFurnitureState(restoreId);
                     }
                   }
                 }
@@ -750,7 +705,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   finalObj.object.userData.databaseId = decoration.furniture_id;
                 }
               }
-            }, 100);
+            };
+
+            // Run immediate correction
+            immediateCorrection();
+
+            // Also run delayed check as backup
+            setTimeout(immediateCorrection, 100);
 
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
