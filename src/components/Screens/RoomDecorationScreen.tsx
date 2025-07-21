@@ -348,12 +348,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               },
             );
 
-            // Store database mapping in the furniture object
+            // Store database mapping and name in the furniture object
             const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
             if (furnitureObj?.object?.userData) {
               furnitureObj.object.userData.originalStoreId = originalStoreId;
               furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
-              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
+
+              // Restore original name from database if available
+              if (decoration.furniture_name) {
+                furnitureObj.object.userData.originalName = decoration.furniture_name;
+                console.log(`📝 Restored original name from database: "${decoration.furniture_name}"`);
+              } else {
+                console.warn(`⚠️ No saved name for furniture ${restoreId}, will generate from ID`);
+              }
+
+              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}, name=${decoration.furniture_name || 'N/A'}`);
             }
 
                         // Apply saved transformations and materials with debugging
@@ -649,7 +658,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 },
         onObjectChanged: (objectId: string) => {
           // Save furniture state when object is changed (moved, rotated, scaled)
-          console.log(`���� Auto-saving changes for furniture: ${objectId}`);
+          console.log(`💾 Auto-saving changes for furniture: ${objectId}`);
           if (user?.id) {
             // Add small delay to ensure Three.js transformations are complete
             setTimeout(() => {
