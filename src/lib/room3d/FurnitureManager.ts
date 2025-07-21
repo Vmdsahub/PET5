@@ -8,6 +8,10 @@ import {
 import {
   validateAndCorrectPosition,
 } from "../../utils/criticalPositionFixer";
+import {
+  protectFromCenterPositioning,
+  startCenterPositionMonitoring,
+} from "../../utils/centerPositionProtector";
 import { simpleFurnitureService } from "../../services/simpleFurnitureService";
 
 interface FurnitureItem {
@@ -37,6 +41,7 @@ export class FurnitureManager {
   private furnitureLights: Map<string, THREE.PointLight>;
   private getRoomDimensions: () => any;
   private isUserAdmin: () => boolean;
+  private centerMonitoringCleanup: (() => void) | null = null;
 
   // Global furniture templates for admin modifications
   private furnitureTemplates: Map<
@@ -64,6 +69,9 @@ export class FurnitureManager {
 
     // Initialize furniture asynchronously
     this.initializeFurniture();
+
+    // Start center position monitoring
+    this.centerMonitoringCleanup = startCenterPositionMonitoring(this);
   }
 
   private async initializeFurniture(): Promise<void> {
@@ -213,7 +221,7 @@ export class FurnitureManager {
       const template = this.furnitureTemplates.get(type);
       if (template) {
         console.log(
-          `���� Applying existing template to new furniture ${id} of type ${type}:`,
+          `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
           template,
         );
 
