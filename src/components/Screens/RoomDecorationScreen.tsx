@@ -98,6 +98,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [decorationsLoaded, setDecorationsLoaded] = useState(false);
   const [catalogRefreshTrigger, setCatalogRefreshTrigger] = useState(0);
+  const [showCleanupButton, setShowCleanupButton] = useState(false);
 
   // Estados para controles de admin dos móveis
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(
@@ -343,7 +344,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           return true;
         });
 
-        console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
+        console.log(`���� After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
 
         if (validDecorations.length !== result.decorations.length) {
           console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
@@ -584,7 +585,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             );
           } else {
             console.warn(
-              `�� Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
+              `❌ Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           }
         }
