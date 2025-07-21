@@ -459,12 +459,22 @@ export class RoomExperience {
     type?: string,
     isRestoration: boolean = false,
   ): Promise<boolean> {
-    return await this.furnitureManager.addFurnitureFromInventory(
+    console.log(`🎭 RoomExperience.addFurnitureFromInventory: ${objectId}, type=${type}, isRestoration=${isRestoration}`);
+
+    const result = await this.furnitureManager.addFurnitureFromInventory(
       objectId,
       new THREE.Vector3(position.x, position.y, position.z),
       type,
       isRestoration,
     );
+
+    console.log(`🎭 RoomExperience.addFurnitureFromInventory result: ${result}`);
+
+    // Verify furniture was actually added
+    const furnitureCheck = this.furnitureManager.getFurnitureById(objectId);
+    console.log(`🔍 Post-add verification for ${objectId}:`, furnitureCheck ? 'FOUND' : 'NOT FOUND');
+
+    return result;
   }
 
   // Convert screen coordinates to 3D world position using raycasting
