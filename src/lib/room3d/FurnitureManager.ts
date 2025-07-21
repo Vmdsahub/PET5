@@ -102,9 +102,23 @@ export class FurnitureManager {
       return;
     }
 
+    // Log and prevent center positioning
+    if (position.x === 0 && position.z === 0) {
+      console.error(`⚠️ CRITICAL: Attempted to create furniture ${id} at center (0,0,0)! Stack trace:`, new Error().stack);
+      // Force to a safe position instead
+      position.set(5 + Math.random() * 2, Math.max(0, position.y), 5 + Math.random() * 2);
+      console.log(`🔧 Moved ${id} from center to safe position: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    }
+
     furnitureObject.position.copy(position);
     furnitureObject.rotation.y = rotationY;
     furnitureObject.userData = { id, type };
+
+    // Verify final position
+    const finalPos = furnitureObject.position;
+    if (finalPos.x === 0 && finalPos.z === 0) {
+      console.error(`❌ CRITICAL: Furniture ${id} ended up at center despite protection! Position:`, finalPos);
+    }
 
     // Auto-correct Y position for GLB models to ensure they sit on the floor
     if (type.startsWith("custom_")) {
