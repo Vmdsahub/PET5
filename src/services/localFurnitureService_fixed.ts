@@ -435,31 +435,9 @@ class LocalFurnitureService {
     console.log("🗑️ Local data cleared");
   }
 
-  addSampleData(): void {
-    const sampleFurniture: CustomFurniture[] = [
-      {
-        id: "sample_1",
-        name: "Mesa de Teste Local",
-        description: "Uma mesa de teste armazenada localmente",
-        glb_url: "data:text/plain;base64,dGVzdGU=",
-        price: 0,
-        currency: "xenocoins",
-        category: "admin",
-        tags: ["teste", "local"],
-        is_active: true,
-        created_by: "local_admin",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        metadata: {},
-      },
-    ];
-
-    const success = this.setStoredFurniture(sampleFurniture);
-    if (success) {
-      console.log("✅ Sample furniture data added");
-    } else {
-      console.log("❌ Failed to add sample furniture data");
-    }
+    addSampleData(): void {
+    // No sample data will be created - admin can upload their own 3D models
+    console.log("📝 Sample data creation disabled - please upload your own 3D models");
   }
 
   getStorageInfo() {

@@ -13,6 +13,7 @@ interface RoomExperienceOptions {
     position: { x: number; y: number },
   ) => void;
   editMode?: boolean;
+  isUserAdmin?: () => boolean;
 }
 
 export class RoomExperience {
@@ -27,14 +28,16 @@ export class RoomExperience {
   private targetElement: HTMLElement;
   private animationId: number | null = null;
   private onObjectSelect?: (objectId: string | null) => void;
-  private onRightClickFurniture?: (
+    private onRightClickFurniture?: (
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  private isUserAdmin: () => boolean;
 
   constructor(options: RoomExperienceOptions) {
     this.targetElement = options.targetElement;
     this.onObjectSelect = options.onObjectSelect;
+    this.isUserAdmin = options.isUserAdmin || (() => false);
     this.onRightClickFurniture = options.onRightClickFurniture;
 
     this.initScene();
@@ -177,8 +180,8 @@ export class RoomExperience {
     this.lighting = new RoomLighting(this.scene);
   }
 
-  private initFurniture(): void {
-    this.furnitureManager = new FurnitureManager(this.scene);
+      private initFurniture(): void {
+    this.furnitureManager = new FurnitureManager(this.scene, () => this.world.getRoomDimensions(), this.isUserAdmin);
   }
 
   private initInteraction(): void {
@@ -431,15 +434,17 @@ export class RoomExperience {
     this.furnitureManager.removeFurniture(objectId);
   }
 
-  public async addFurnitureFromInventory(
+    public async addFurnitureFromInventory(
     objectId: string,
     position: { x: number; y: number; z: number },
     type?: string,
+    isRestoration: boolean = false,
   ): Promise<boolean> {
     return await this.furnitureManager.addFurnitureFromInventory(
       objectId,
       new THREE.Vector3(position.x, position.y, position.z),
       type,
+      isRestoration,
     );
   }
 
@@ -463,16 +468,26 @@ export class RoomExperience {
       intersectionPoint,
     );
 
-    if (intersection) {
-      // Constrain position to room bounds
-      const roomSize = 9; // Keep furniture within room bounds
+            if (intersection) {
+      // Admin users can position furniture anywhere (no constraints)
+      if (this.isUserAdmin()) {
+        return new THREE.Vector3(intersection.x, 0, intersection.z);
+      }
+
+      // Regular users must keep furniture within room boundaries
+      const dimensions = this.world.getRoomDimensions();
+      const roomHalfWidth = dimensions.floorWidth / 2;
+      const roomHalfDepth = dimensions.floorDepth / 2;
+      // No margin for regular users - strict wall boundaries
+      const margin = 0;
+
       const constrainedX = Math.max(
-        -roomSize,
-        Math.min(roomSize, intersection.x),
+        -roomHalfWidth + margin,
+        Math.min(roomHalfWidth - margin, intersection.x),
       );
       const constrainedZ = Math.max(
-        -roomSize,
-        Math.min(roomSize, intersection.z),
+        -roomHalfDepth + margin,
+        Math.min(roomHalfDepth - margin, intersection.z),
       );
 
       return new THREE.Vector3(constrainedX, 0, constrainedZ);

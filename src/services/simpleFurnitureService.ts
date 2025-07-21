@@ -242,29 +242,9 @@ class SimpleFurnitureService {
     console.log("🗑️ All furniture data cleared");
   }
 
-  addSampleData(): void {
-    const sampleId = this.generateId();
-    const sampleFurniture: CustomFurniture = {
-      id: sampleId,
-      name: "Sofá Teste GLB",
-      description: "Móvel GLB de teste para validar thumbnails",
-      glb_url: "https://threejs.org/examples/models/gltf/Flamingo.glb", // URL de teste público
-      price: 0,
-      currency: "xenocoins",
-      category: "admin",
-      tags: ["teste", "glb"],
-      is_active: true,
-      created_by: "admin",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      metadata: {},
-    };
-
-    this.furniture.set(sampleId, sampleFurniture);
-    console.log(
-      "✅ Sample GLB furniture added with URL:",
-      sampleFurniture.glb_url,
-    );
+    addSampleData(): void {
+    // No sample data will be created - admin can upload their own 3D models
+    console.log("📝 Sample data creation disabled - please upload your own 3D models");
   }
 
   getCount(): number {

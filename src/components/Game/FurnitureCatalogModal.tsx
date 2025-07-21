@@ -203,21 +203,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   }, [isOpen, isAdmin, refreshTrigger]);
 
-  // Initialize sample data on first load (local version)
-  useEffect(() => {
-    if (isAdmin) {
-      // Add sample data if no furniture exists (for testing)
-      const checkAndAddSample = async () => {
-        const existing = await furnitureService.getAllCustomFurniture();
-        if (existing.length === 0) {
-          console.log("No furniture found, adding sample data...");
-          furnitureService.addSampleData();
-          loadCustomFurniture();
-        }
-      };
-      checkAndAddSample();
-    }
-  }, [isAdmin]);
+    // No automatic sample data creation - admin can manually add furniture
 
   useEffect(() => {
     if (customFurniture.length >= 0) {
@@ -1095,33 +1081,20 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                     >
                       Testar Sistema
                     </button>
+                    
                     <button
-                      onClick={() => {
-                        furnitureService.addSampleData();
-                        loadCustomFurniture();
-                        onNotification?.({
-                          type: "success",
-                          title: "Exemplo Adicionado",
-                          message: "Item de exemplo adicionado com sucesso.",
-                        });
-                      }}
-                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                    >
-                      Adicionar Exemplo
-                    </button>
-                    <button
-                      onClick={() => {
+                                            onClick={() => {
                         furnitureService.clearAll();
                         setCustomFurniture([]);
                         onNotification?.({
                           type: "success",
-                          title: "Limpo",
-                          message: "Todos os itens foram removidos.",
+                          title: "Modelos Removidos",
+                          message: "Todos os modelos de teste foram removidos.",
                         });
                       }}
                       className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                     >
-                      Limpar Tudo
+                      Remover Modelos de Teste
                     </button>
                   </div>
                 </div>

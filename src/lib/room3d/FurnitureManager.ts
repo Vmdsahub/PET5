@@ -26,6 +26,8 @@ export class FurnitureManager {
   private furniture: Map<string, FurnitureItem>;
   private furnitureFactory: FurnitureFactory;
   private furnitureLights: Map<string, THREE.PointLight>;
+  private getRoomDimensions: () => any;
+  private isUserAdmin: () => boolean;
 
   // Global furniture templates for admin modifications
   private furnitureTemplates: Map<
@@ -41,8 +43,10 @@ export class FurnitureManager {
     }
   > = new Map();
 
-  constructor(scene: THREE.Scene) {
+      constructor(scene: THREE.Scene, getRoomDimensions: () => any, isUserAdmin: () => boolean) {
     this.scene = scene;
+    this.getRoomDimensions = getRoomDimensions;
+    this.isUserAdmin = isUserAdmin;
     this.furnitureGroup = new THREE.Group();
     this.scene.add(this.furnitureGroup);
     this.furniture = new Map();
@@ -69,11 +73,12 @@ export class FurnitureManager {
     );
   }
 
-  private async addFurniture(
+    private async addFurniture(
     id: string,
     type: string,
     position: THREE.Vector3,
     rotationY: number = 0,
+    skipTemplate: boolean = false,
   ): Promise<void> {
     console.log(
       `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
@@ -162,27 +167,31 @@ export class FurnitureManager {
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
 
-    // Apply any existing template modifications for this furniture type
-    const template = this.furnitureTemplates.get(type);
-    if (template) {
-      console.log(
-        `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
-        template,
-      );
-
-      if (template.scale) {
-        furnitureObject.scale.set(
-          template.scale.x,
-          template.scale.y,
-          template.scale.z,
+        // Apply any existing template modifications for this furniture type (unless skipping templates)
+    if (!skipTemplate) {
+      const template = this.furnitureTemplates.get(type);
+      if (template) {
+        console.log(
+          `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
+          template,
         );
-        console.log(`  📐 Applied template scale:`, template.scale);
-      }
 
-      if (template.material) {
-        this.applyMaterialToObject(furnitureObject, template.material);
-        console.log(`  🎨 Applied template material:`, template.material);
+        if (template.scale) {
+          furnitureObject.scale.set(
+            template.scale.x,
+            template.scale.y,
+            template.scale.z,
+          );
+          console.log(`  📐 Applied template scale:`, template.scale);
+        }
+
+        if (template.material) {
+          this.applyMaterialToObject(furnitureObject, template.material);
+          console.log(`  🎨 Applied template material:`, template.material);
+        }
       }
+    } else {
+      console.log(`⏭️ Skipping template application for restored furniture ${id} of type ${type}`);
     }
   }
 
@@ -236,14 +245,23 @@ export class FurnitureManager {
     this.scaleFurniture(id, scale);
   }
 
-  private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
-    const roomSize = 10; // Half of room size (20/2)
-    const margin = 1; // Keep furniture away from walls
+        private constrainPosition(position: THREE.Vector3): THREE.Vector3 {
+    // Admin users can position furniture anywhere (no constraints)
+    if (this.isUserAdmin()) {
+      return new THREE.Vector3(position.x, Math.max(0, position.y), position.z);
+    }
+
+    // Regular users must keep furniture within room boundaries
+    const dimensions = this.getRoomDimensions();
+    const roomHalfWidth = dimensions.floorWidth / 2;
+    const roomHalfDepth = dimensions.floorDepth / 2;
+    // No margin for regular users - strict wall boundaries
+    const margin = 0;
 
     return new THREE.Vector3(
-      Math.max(-roomSize + margin, Math.min(roomSize - margin, position.x)),
+      Math.max(-roomHalfWidth + margin, Math.min(roomHalfWidth - margin, position.x)),
       Math.max(0, position.y),
-      Math.max(-roomSize + margin, Math.min(roomSize - margin, position.z)),
+      Math.max(-roomHalfDepth + margin, Math.min(roomHalfDepth - margin, position.z)),
     );
   }
 
@@ -958,19 +976,25 @@ export class FurnitureManager {
     }
   }
 
-  public async addFurnitureFromInventory(
+    public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
     type?: string,
+    isRestoration: boolean = false,
   ): Promise<boolean> {
     console.log(
       `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
     );
 
-    // Check if furniture already exists
+                // Check if furniture already exists
     if (this.furniture.has(id)) {
-      console.warn(`❌ Furniture with id ${id} already exists`);
-      return false;
+      if (isRestoration) {
+        console.log(`🔄 Removing existing furniture ${id} for restoration`);
+        this.removeFurniture(id);
+      } else {
+        console.warn(`❌ Furniture with id ${id} already exists, cannot add duplicate`);
+        return false;
+      }
     }
 
     // Use provided type if available, otherwise infer from id
@@ -1035,10 +1059,10 @@ export class FurnitureManager {
       }
     }
 
-    console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}`);
+        console.log(`🏠 Creating furniture - ID: ${id}, Type: ${furnitureType}, Restoration: ${isRestoration}`);
 
-    // Create the furniture
-    await this.addFurniture(id, furnitureType, position, 0);
+    // Create the furniture (skip templates during restoration)
+    await this.addFurniture(id, furnitureType, position, 0, isRestoration);
     return true;
   }
 

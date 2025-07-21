@@ -132,8 +132,30 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         return;
       }
 
+                  // Use existing database ID or create new one
+      let databaseId = furnitureId;
+      if (experienceRef.current) {
+        const furnitureObj = experienceRef.current.getFurnitureById?.(furnitureId);
+        if (furnitureObj?.object?.userData) {
+          // If this is a restored furniture with existing database ID, use it
+          if (furnitureObj.object.userData.databaseId) {
+            databaseId = furnitureObj.object.userData.databaseId;
+            console.log(`🔑 Using existing database ID: ${databaseId} for ${furnitureId}`);
+          }
+          // For new furniture, create database ID from originalStoreId
+          else if (furnitureObj.object.userData.originalStoreId) {
+            const originalId = furnitureObj.object.userData.originalStoreId;
+            // Generate unique database ID to prevent conflicts
+            databaseId = `${originalId}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+            // Store the database ID back in userData for future saves
+            furnitureObj.object.userData.databaseId = databaseId;
+            console.log(`🔑 Created new database ID: ${databaseId} for ${furnitureId} (originalStoreId: ${originalId})`);
+          }
+        }
+      }
+
       const furnitureState: FurnitureState = {
-        furniture_id: furnitureId,
+        furniture_id: databaseId,
         furniture_type: furnitureType,
         position: properties.position,
         rotation: properties.rotation,
@@ -218,10 +240,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     console.log(`🎮 Experience ref: ${!!experienceRef.current}`);
     console.log(`📋 Decorations loaded: ${decorationsLoaded}`);
 
-    if (!user?.id || !experienceRef.current || decorationsLoaded) {
+        if (!user?.id || !experienceRef.current || decorationsLoaded) {
       console.log(`⏭️ SKIPPING decoration load - conditions not met`);
       return;
     }
+
+        // Clear any existing furniture from the scene first to prevent conflicts
+    console.log("🧹 Clearing existing furniture from scene before loading saved decorations");
+    if (experienceRef.current.clearAllFurniture) {
+      experienceRef.current.clearAllFurniture();
+    }
+
+    // Wait for cleanup to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
       console.log(`🏠 Loading saved decorations for user ${user.id}`);
@@ -232,69 +263,140 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       if (result.success && result.decorations) {
         console.log(`📋 Found ${result.decorations.length} saved decorations`);
 
+                // First, clean up inventory items that have matching furniture in the saved decorations
+        // This prevents duplicates when furniture was placed and saved
+        const decorationIds = new Set(result.decorations.map(d => d.furniture_id));
+        const originalStoreIds = new Set();
+
+        // Extract originalStoreIds from decoration IDs
+        result.decorations.forEach(decoration => {
+          let originalId = decoration.furniture_id;
+          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
+            originalId = decoration.furniture_id.split('_')[0];
+          }
+          originalStoreIds.add(originalId);
+        });
+
+                // Note: Do NOT remove items from inventory based on originalStoreId
+        // because multiple instances of the same furniture type should be allowed
+        // Only remove items that have exact matching IDs (which shouldn't happen with unique IDs)
+        setInventory(prev => prev.filter(item => {
+          const shouldRemove = decorationIds.has(item.id);
+          if (shouldRemove) {
+            console.log(`🧹 Removing from inventory: ${item.id} (exact ID match with placed furniture)`);
+          }
+          return !shouldRemove;
+        }));
+
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
 
-          // Check if this furniture is in the inventory (if so, skip loading from DB)
-          const isInInventory = inventory.some(
-            (item) => item.id === decoration.furniture_id,
-          );
-          if (isInInventory) {
-            console.log(
-              `⏭️ Skipping ${decoration.furniture_id} - it's in inventory`,
-            );
-            continue;
+                              // Extract original store ID from database ID
+          let originalStoreId = decoration.furniture_id;
+
+          // Handle database IDs that have instance numbers (e.g., "sofa_2" -> "sofa")
+          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
+            originalStoreId = decoration.furniture_id.split('_')[0];
           }
 
-          // Add furniture to scene with saved state
+          // Generate unique ID for this restored furniture instance
+                    const restoreId = decoration.furniture_id;
+
+          console.log(`🔄 Restoring with unique ID: ${restoreId} (database ID: ${decoration.furniture_id})`);
+
+                    // Add furniture to scene with saved state (mark as restoration to skip templates)
           const success = await experienceRef.current.addFurnitureFromInventory(
-            decoration.furniture_id,
+            restoreId,
             decoration.position,
             decoration.furniture_type,
+            true, // isRestoration = true to skip template application
           );
 
-          if (success) {
+                    if (success) {
             console.log(
-              `🔧 Applying saved decoration for ${decoration.furniture_id}:`,
+              `🔧 Applying saved decoration for ${restoreId} (database ID: ${decoration.furniture_id}, originalStoreId: ${originalStoreId}):`,
               {
                 scale: decoration.scale,
                 material: decoration.material,
+                position: decoration.position,
+                rotation: decoration.rotation,
               },
             );
 
-            // Apply saved transformations and materials
+            // Store database mapping in the furniture object
+            const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
+            if (furnitureObj?.object?.userData) {
+              furnitureObj.object.userData.originalStoreId = originalStoreId;
+              furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
+              console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}`);
+            }
+
+                        // Apply saved transformations and materials with debugging
+            console.log(`🔧 Applying transformations to ${restoreId}:`);
+            console.log(`  📐 Scale:`, decoration.scale);
+            console.log(`  🔄 Rotation:`, decoration.rotation);
+            console.log(`  📍 Position:`, decoration.position);
+
             experienceRef.current.updateFurnitureScale(
-              decoration.furniture_id,
+              restoreId,
               decoration.scale,
             );
             experienceRef.current.updateFurnitureRotation(
-              decoration.furniture_id,
+              restoreId,
               decoration.rotation,
             );
             experienceRef.current.updateFurniturePosition(
-              decoration.furniture_id,
+              restoreId,
               decoration.position,
             );
 
-            if (decoration.material) {
+            // Verify position was applied correctly
+            setTimeout(() => {
+              const furnitureObj = experienceRef.current.getFurnitureById?.(restoreId);
+              if (furnitureObj?.object) {
+                console.log(`✅ Verified position for ${restoreId}:`, {
+                  actualPosition: furnitureObj.object.position,
+                  expectedPosition: decoration.position,
+                  positionMatch:
+                    Math.abs(furnitureObj.object.position.x - decoration.position.x) < 0.1 &&
+                    Math.abs(furnitureObj.object.position.y - decoration.position.y) < 0.1 &&
+                    Math.abs(furnitureObj.object.position.z - decoration.position.z) < 0.1
+                });
+              }
+            }, 50);
+
+                        if (decoration.material) {
               experienceRef.current.updateFurnitureMaterial(
-                decoration.furniture_id,
+                restoreId,
                 decoration.material,
               );
             }
 
+            // Verify final position after all transformations
+            setTimeout(() => {
+              const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
+              if (finalObj?.object) {
+                console.log(`🔍 Final restored position for ${restoreId}:`, {
+                  position: finalObj.object.position,
+                  expectedPosition: decoration.position,
+                  rotation: finalObj.object.rotation,
+                  scale: finalObj.object.scale,
+                });
+              }
+            }, 100);
+
             // Debug: Check state after applying saved decoration
             debugFurnitureState(
-              decoration.furniture_id,
+              restoreId,
               "After Loading from DB",
             );
 
             console.log(
-              `✅ Successfully restored furniture: ${decoration.furniture_id}`,
+              `✅ Successfully restored furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           } else {
             console.warn(
-              `❌ Failed to restore furniture: ${decoration.furniture_id}`,
+              `❌ Failed to restore furniture: ${restoreId} (database: ${decoration.furniture_id})`,
             );
           }
         }
@@ -404,10 +506,10 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           thumbnail = ""; // Fallback to default icon
         }
 
-        // Add to inventory (generate unique ID for each purchase)
+                        // Add to inventory (use globally unique IDs)
         setInventory((prev) => {
-          // Generate unique ID for this specific purchase instance
-          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          // Generate globally unique ID that won't conflict
+          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
           console.log(
             `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
@@ -418,8 +520,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               id: uniqueId,
               name: item.name,
               type: furnitureType,
-              thumbnail: thumbnail, // Now we generate thumbnail on purchase
-              properties: null, // No custom properties for new items
+              thumbnail: thumbnail,
+              properties: null,
               originalStoreId: item.id, // Keep reference to original store item
             },
           ];
@@ -483,8 +585,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             x: position.x,
             y: position.y,
           });
-        },
+                },
         editMode: isEditMode,
+        isUserAdmin: () => user?.isAdmin || false,
       });
     }
 
@@ -509,14 +612,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         setMaterialProperties(materials);
       }
 
-      // Load saved decorations when user changes or experience is ready
+            // Load saved decorations when user changes or experience is ready
       if (user?.id) {
-        // Reset decorations loaded flag when user changes
-        if (!decorationsLoaded) {
-          setTimeout(() => {
-            loadSavedDecorations();
-          }, 500); // Small delay to ensure scene is ready
-        }
+        // Always reset decorations loaded flag when entering the decoration screen
+        console.log("🔄 Resetting decorationsLoaded flag for fresh loading");
+        setDecorationsLoaded(false);
+
+        setTimeout(() => {
+          loadSavedDecorations();
+        }, 500); // Small delay to ensure scene is ready
       } else {
         // Reset flag when user logs out
         setDecorationsLoaded(false);
@@ -699,9 +803,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           experienceRef.current.removeFurniture(objectId);
         }
 
-        // Remove from database if user is logged in
+                        // Remove from database if user is logged in
         if (user?.id) {
-          roomDecorationService.removeFurnitureFromRoom(user.id, objectId);
+          // Use stored database ID if available
+          let databaseId = objectId;
+          if (experienceRef.current) {
+            const furnitureObj = experienceRef.current.getFurnitureById?.(objectId);
+            if (furnitureObj?.object?.userData?.databaseId) {
+              databaseId = furnitureObj.object.userData.databaseId;
+              console.log(`🗑️ Removing from database with stored ID: ${databaseId}`);
+            } else {
+              console.log(`🗑��� No database ID found for ${objectId}, using object ID`);
+            }
+          }
+          roomDecorationService.removeFurnitureFromRoom(user.id, databaseId);
         }
 
         // Remove lamp state if it's a lamp
@@ -1219,7 +1334,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-green-400" />
-                  <span className="text-white font-medium">🟫 Piso</span>
+                  <span className="text-white font-medium">�� Piso</span>
                 </div>
 
                 <div className="space-y-3">
@@ -1574,7 +1689,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-yellow-400" />
                   <span className="text-white font-medium">
-                    🧱 Parede Direita
+                    ���� Parede Direita
                   </span>
                 </div>
 
@@ -2419,7 +2534,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               });
                             }
                             console.log(
-                              `✅ UI state updated from actual 3D scene properties`,
+                              `��� UI state updated from actual 3D scene properties`,
                             );
                           }
                         }
