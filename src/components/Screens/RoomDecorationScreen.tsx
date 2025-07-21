@@ -764,17 +764,17 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           experienceRef.current.removeFurniture(objectId);
         }
 
-                // Remove from database if user is logged in
+                        // Remove from database if user is logged in
         if (user?.id) {
-          // Use the same database ID format as save operation
+          // Use stored database ID if available
           let databaseId = objectId;
           if (experienceRef.current) {
             const furnitureObj = experienceRef.current.getFurnitureById?.(objectId);
-            if (furnitureObj?.object?.userData?.originalStoreId) {
-              const originalId = furnitureObj.object.userData.originalStoreId;
-              const instanceNumber = objectId.includes('_') ? objectId.split('_').pop() : '1';
-              databaseId = instanceNumber !== '1' ? `${originalId}_${instanceNumber}` : originalId;
-              console.log(`🗑️ Removing from database with ID: ${databaseId}`);
+            if (furnitureObj?.object?.userData?.databaseId) {
+              databaseId = furnitureObj.object.userData.databaseId;
+              console.log(`🗑️ Removing from database with stored ID: ${databaseId}`);
+            } else {
+              console.log(`🗑️ No database ID found for ${objectId}, using object ID`);
             }
           }
           roomDecorationService.removeFurnitureFromRoom(user.id, databaseId);
