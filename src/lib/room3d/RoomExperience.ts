@@ -13,6 +13,7 @@ interface RoomExperienceOptions {
     position: { x: number; y: number },
   ) => void;
   editMode?: boolean;
+  isUserAdmin?: () => boolean;
 }
 
 export class RoomExperience {
