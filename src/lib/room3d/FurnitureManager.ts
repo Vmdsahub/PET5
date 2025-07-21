@@ -167,27 +167,31 @@ export class FurnitureManager {
     this.furniture.set(id, furnitureItem);
     this.furnitureGroup.add(furnitureObject);
 
-    // Apply any existing template modifications for this furniture type
-    const template = this.furnitureTemplates.get(type);
-    if (template) {
-      console.log(
-        `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
-        template,
-      );
-
-      if (template.scale) {
-        furnitureObject.scale.set(
-          template.scale.x,
-          template.scale.y,
-          template.scale.z,
+        // Apply any existing template modifications for this furniture type (unless skipping templates)
+    if (!skipTemplate) {
+      const template = this.furnitureTemplates.get(type);
+      if (template) {
+        console.log(
+          `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
+          template,
         );
-        console.log(`  📐 Applied template scale:`, template.scale);
-      }
 
-      if (template.material) {
-        this.applyMaterialToObject(furnitureObject, template.material);
-        console.log(`  🎨 Applied template material:`, template.material);
+        if (template.scale) {
+          furnitureObject.scale.set(
+            template.scale.x,
+            template.scale.y,
+            template.scale.z,
+          );
+          console.log(`  📐 Applied template scale:`, template.scale);
+        }
+
+        if (template.material) {
+          this.applyMaterialToObject(furnitureObject, template.material);
+          console.log(`  🎨 Applied template material:`, template.material);
+        }
       }
+    } else {
+      console.log(`⏭️ Skipping template application for restored furniture ${id} of type ${type}`);
     }
   }
 
