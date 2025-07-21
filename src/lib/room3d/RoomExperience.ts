@@ -12,6 +12,7 @@ interface RoomExperienceOptions {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  onObjectChanged?: (objectId: string) => void;
   editMode?: boolean;
   isUserAdmin?: () => boolean;
 }
@@ -32,6 +33,7 @@ export class RoomExperience {
     objectId: string,
     position: { x: number; y: number },
   ) => void;
+  private onObjectChanged?: (objectId: string) => void;
   private isUserAdmin: () => boolean;
 
   constructor(options: RoomExperienceOptions) {
@@ -39,6 +41,7 @@ export class RoomExperience {
     this.onObjectSelect = options.onObjectSelect;
     this.isUserAdmin = options.isUserAdmin || (() => false);
     this.onRightClickFurniture = options.onRightClickFurniture;
+    this.onObjectChanged = options.onObjectChanged;
 
     this.initScene();
     this.initCamera();
@@ -192,6 +195,7 @@ export class RoomExperience {
       {
         onObjectSelect: this.onObjectSelect,
         onRightClickFurniture: this.onRightClickFurniture,
+        onObjectChanged: this.onObjectChanged,
         furnitureManager: this.furnitureManager,
       },
     );
