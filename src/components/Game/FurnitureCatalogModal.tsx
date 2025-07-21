@@ -203,21 +203,7 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
     }
   }, [isOpen, isAdmin, refreshTrigger]);
 
-  // Initialize sample data on first load (local version)
-  useEffect(() => {
-    if (isAdmin) {
-      // Add sample data if no furniture exists (for testing)
-      const checkAndAddSample = async () => {
-        const existing = await furnitureService.getAllCustomFurniture();
-        if (existing.length === 0) {
-          console.log("No furniture found, adding sample data...");
-          furnitureService.addSampleData();
-          loadCustomFurniture();
-        }
-      };
-      checkAndAddSample();
-    }
-  }, [isAdmin]);
+    // No automatic sample data creation - admin can manually add furniture
 
   useEffect(() => {
     if (customFurniture.length >= 0) {
