@@ -512,20 +512,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
           };
 
-          // Use the enhanced position validation and correction
-          const fallbackIndex = validDecorations.indexOf(decoration);
-          validPosition = validateAndCorrectPosition(validPosition, restoreId, fallbackIndex);
+          // Only validate for truly problematic positions, not normal positions
+          if (isProblematicPosition(validPosition)) {
+            console.warn(`⚠️ Furniture ${restoreId} has truly problematic position, adjusting...`);
+            const fallbackIndex = validDecorations.indexOf(decoration);
+            validPosition = generateSafePosition(fallbackIndex, 8);
+            console.log(`🔧 Adjusted ${restoreId} from (${decoration.position.x}, ${decoration.position.y}, ${decoration.position.z}) to (${validPosition.x.toFixed(2)}, ${validPosition.y}, ${validPosition.z.toFixed(2)})`);
+          }
 
-          console.log(`📍 Position validation for ${restoreId}:`, {
+          console.log(`📍 Position check for ${restoreId}:`, {
             original: decoration.position,
-            validated: validPosition,
-            adjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
-          });
-
-          console.log(`📍 Position validation for ${restoreId}:`, {
-            original: decoration.position,
-            validated: validPosition,
-            adjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
+            final: validPosition,
+            wasAdjusted: validPosition.x !== decoration.position.x || validPosition.z !== decoration.position.z
           });
 
           // Add furniture to scene with validated position (mark as restoration to skip templates)
@@ -1597,7 +1595,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              🏠 Modo Decoração
+              ��� Modo Decoração
             </span>
           </div>
 
