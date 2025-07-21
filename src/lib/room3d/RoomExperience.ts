@@ -464,11 +464,12 @@ export class RoomExperience {
     );
 
         if (intersection) {
-      // Constrain position to room bounds based on actual floor dimensions
+            // Constrain position to room bounds based on actual floor dimensions
       const dimensions = this.world.getRoomDimensions();
       const roomHalfWidth = dimensions.floorWidth / 2;
       const roomHalfDepth = dimensions.floorDepth / 2;
-      const margin = 1; // Keep furniture away from walls
+      // Use a smaller proportional margin - 2.5% of room size, minimum 0.2
+      const margin = Math.max(0.2, Math.min(dimensions.floorWidth, dimensions.floorDepth) * 0.025);
 
       const constrainedX = Math.max(
         -roomHalfWidth + margin,
