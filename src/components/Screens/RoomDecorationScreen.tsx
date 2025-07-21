@@ -452,23 +452,18 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           thumbnail = ""; // Fallback to default icon
         }
 
-                // Add to inventory (use consistent ID strategy)
+                        // Add to inventory (use globally unique IDs)
         setInventory((prev) => {
-          // Use originalStoreId as base, with instance counter for multiple copies
-          const existingCount = prev.filter(
-            (existingItem) => existingItem.originalStoreId === item.id
-          ).length;
-
-          // Create consistent ID: originalStoreId + instance number
-          const consistentId = existingCount > 0 ? `${item.id}_${existingCount + 1}` : item.id;
+          // Generate globally unique ID that won't conflict
+          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
 
           console.log(
-            `➕ Adding purchased item ${item.name} with consistent ID: ${consistentId}`,
+            `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
           );
           return [
             ...prev,
             {
-              id: consistentId,
+              id: uniqueId,
               name: item.name,
               type: furnitureType,
               thumbnail: thumbnail,
@@ -1639,7 +1634,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-yellow-400" />
                   <span className="text-white font-medium">
-                    🧱 Parede Direita
+                    ���� Parede Direita
                   </span>
                 </div>
 
@@ -2484,7 +2479,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                               });
                             }
                             console.log(
-                              `✅ UI state updated from actual 3D scene properties`,
+                              `��� UI state updated from actual 3D scene properties`,
                             );
                           }
                         }
