@@ -189,14 +189,30 @@ class RoomDecorationService {
               const storedData = JSON.parse(localStorage.getItem(key) || "{}");
               if (storedData.is_active) {
                 // Handle both new format (with separate position_x, etc) and old format
+
+                // Validate position data - skip furniture with invalid/missing position
+                const hasValidPosition =
+                  (storedData.position &&
+                   typeof storedData.position.x === 'number' &&
+                   typeof storedData.position.y === 'number' &&
+                   typeof storedData.position.z === 'number') ||
+                  (typeof storedData.position_x === 'number' &&
+                   typeof storedData.position_y === 'number' &&
+                   typeof storedData.position_z === 'number');
+
+                if (!hasValidPosition) {
+                  console.warn(`⚠️ Skipping furniture ${storedData.furniture_id} with invalid position data`);
+                  continue; // Skip this furniture item
+                }
+
                 const furniture: FurnitureState = {
                   furniture_id: storedData.furniture_id,
                   furniture_type: storedData.furniture_type,
                   furniture_name: storedData.furniture_name, // Preserve name!
                   position: storedData.position || {
-                    x: storedData.position_x || 0,
-                    y: storedData.position_y || 0,
-                    z: storedData.position_z || 0
+                    x: storedData.position_x,
+                    y: storedData.position_y,
+                    z: storedData.position_z
                   },
                   rotation: storedData.rotation || {
                     x: storedData.rotation_x || 0,
