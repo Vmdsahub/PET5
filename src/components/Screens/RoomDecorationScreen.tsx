@@ -245,19 +245,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       if (result.success && result.decorations) {
         console.log(`📋 Found ${result.decorations.length} saved decorations`);
 
+                // First, clean up inventory items that have matching furniture in the saved decorations
+        // This prevents duplicates when furniture was placed and saved
+        const decorationIds = new Set(result.decorations.map(d => d.furniture_id));
+        const originalStoreIds = new Set();
+
+        // Extract originalStoreIds from decoration IDs
+        result.decorations.forEach(decoration => {
+          let originalId = decoration.furniture_id;
+          if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
+            originalId = decoration.furniture_id.split('_')[0];
+          }
+          originalStoreIds.add(originalId);
+        });
+
+        // Remove inventory items that are already placed in the room
+        setInventory(prev => prev.filter(item => {
+          const shouldRemove = decorationIds.has(item.id) ||
+                              (item.originalStoreId && originalStoreIds.has(item.originalStoreId));
+          if (shouldRemove) {
+            console.log(`🧹 Removing from inventory: ${item.id} (matches placed furniture)`);
+          }
+          return !shouldRemove;
+        }));
+
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
-
-          // Check if this furniture is in the inventory (if so, skip loading from DB)
-          const isInInventory = inventory.some(
-            (item) => item.id === decoration.furniture_id,
-          );
-          if (isInInventory) {
-            console.log(
-              `⏭️ Skipping ${decoration.furniture_id} - it's in inventory`,
-            );
-            continue;
-          }
 
                     // Extract original store ID from database ID
           let originalStoreId = decoration.furniture_id;
