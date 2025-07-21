@@ -380,11 +380,31 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               furnitureObj.object.userData.databaseId = decoration.furniture_id; // For saving back
 
               // Restore original name from database if available
-              if (decoration.furniture_name) {
+              if (decoration.furniture_name && !isGeneratedName(decoration.furniture_name)) {
                 furnitureObj.object.userData.originalName = decoration.furniture_name;
                 console.log(`📝 Restored original name from database: "${decoration.furniture_name}"`);
               } else {
-                console.warn(`⚠️ No saved name for furniture ${restoreId}, will generate from ID`);
+                console.warn(`⚠️ No valid saved name for furniture ${restoreId}, attempting recovery...`);
+
+                // Attempt to recover the original name
+                const recoveredName = await recoverFurnitureName(originalStoreId, decoration.furniture_type);
+                if (recoveredName) {
+                  furnitureObj.object.userData.originalName = recoveredName;
+                  console.log(`✨ Recovered name: "${recoveredName}" for ${restoreId}`);
+
+                  // Save the recovered name back to the database
+                  setTimeout(() => {
+                    if (user?.id) {
+                      console.log(`💾 Saving recovered name back to database...`);
+                      saveFurnitureState(restoreId);
+                    }
+                  }, 1000);
+                } else {
+                  // Generate a friendly fallback name
+                  const friendlyName = generateFriendlyName(originalStoreId);
+                  furnitureObj.object.userData.originalName = friendlyName;
+                  console.log(`🎨 Generated friendly name: "${friendlyName}" for ${restoreId}`);
+                }
               }
 
               console.log(`🔑 Set metadata for ${restoreId}: originalStoreId=${originalStoreId}, databaseId=${decoration.furniture_id}, name=${decoration.furniture_name || 'N/A'}`);
@@ -1073,7 +1093,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   `🔧 Applying stored properties to ${item.id}:`,
                   item.properties,
                 );
-                console.log(`📊 Scale to apply:`, item.properties.scale);
+                console.log(`�� Scale to apply:`, item.properties.scale);
                 console.log(`🎨 Material to apply:`, item.properties.material);
 
                 // Apply scale if stored
