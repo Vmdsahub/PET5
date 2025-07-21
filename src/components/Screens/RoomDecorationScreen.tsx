@@ -178,6 +178,53 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     console.log(`✨ Manual cleanup completed, starting fresh`);
   };
 
+  // Emergency reset function for critical position problems
+  const handleEmergencyReset = () => {
+    if (!user?.id || !experienceRef.current) return;
+
+    console.log(`🆘 Emergency reset requested - fixing all problematic positions`);
+
+    const allFurniture = experienceRef.current.getAllFurniture?.() || [];
+    let fixedCount = 0;
+
+    allFurniture.forEach((furniture: any, index: number) => {
+      if (furniture?.object?.position) {
+        const pos = furniture.object.position;
+        if (isProblematicPosition(pos)) {
+          // Emergency repositioning in a guaranteed safe grid
+          const gridX = (index % 4) * 3 + 5; // Grid starting at x=5
+          const gridZ = Math.floor(index / 4) * 3 + 5; // Grid starting at z=5
+
+          furniture.object.position.set(gridX, 0.1, gridZ);
+          furniture.object.updateMatrix();
+          furniture.object.updateMatrixWorld(true);
+
+          console.log(`⚕️ Emergency reset: ${furniture.id} -> (${gridX}, 0.1, ${gridZ})`);
+          fixedCount++;
+
+          // Save immediately
+          setTimeout(() => {
+            saveFurnitureState(furniture.id);
+          }, index * 100); // Stagger saves
+        }
+      }
+    });
+
+    if (fixedCount > 0) {
+      addNotification({
+        type: "success",
+        title: "Reset de Emergência",
+        message: `${fixedCount} móveis foram reposicionados para posições seguras.`,
+      });
+    } else {
+      addNotification({
+        type: "info",
+        title: "Reset de Emergência",
+        message: "Nenhum móvel em posição problemática encontrado.",
+      });
+    }
+  };
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
@@ -370,7 +417,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       );
 
       if (result.success && result.decorations) {
-        console.log(`📋 Found ${result.decorations.length} saved decorations`);
+        console.log(`��� Found ${result.decorations.length} saved decorations`);
 
         // Validate and clean decorations data
         const validDecorations = result.decorations.filter((decoration, index) => {
@@ -847,7 +894,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
   // Handle furniture purchase from catalog
   const handleFurniturePurchase = async (item: any): Promise<boolean> => {
-    console.log(`📋 Purchasing furniture item:`, item);
+    console.log(`���� Purchasing furniture item:`, item);
 
     // Check if player has enough currency
     const currentAmount = item.currency === "xenocoins" ? xenocoins : cash;
