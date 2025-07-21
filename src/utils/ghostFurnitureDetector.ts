@@ -12,13 +12,16 @@ export interface GhostDetectionResult {
  * Check if a position is problematic (center or invalid)
  */
 export function isProblematicPosition(position: { x: number; y: number; z: number }): boolean {
-  // More comprehensive checks for problematic positions
+  // ULTRA STRICT checks for problematic positions to prevent ALL issues
   const checks = {
-    // Very close to center (most common problem)
-    nearCenter: Math.abs(position.x) < 0.5 && Math.abs(position.z) < 0.5,
+    // Any position close to center is problematic (expanded range)
+    nearCenter: Math.abs(position.x) < 1.0 && Math.abs(position.z) < 1.0,
 
-    // Exact center (critical problem)
+    // Exact center coordinates
     exactCenter: position.x === 0 && position.z === 0,
+
+    // Very small coordinates (likely errors)
+    tinyCoords: Math.abs(position.x) < 0.01 && Math.abs(position.z) < 0.01,
 
     // Invalid/NaN positions
     invalidX: isNaN(position.x) || !isFinite(position.x),
@@ -30,23 +33,28 @@ export function isProblematicPosition(position: { x: number; y: number; z: numbe
     tooFarZ: Math.abs(position.z) > 100,
 
     // Underground or too high
-    underground: position.y < -1,
+    underground: position.y < -0.5, // More strict
     tooHigh: position.y > 50,
 
     // Null/undefined checks
-    nullPosition: position.x == null || position.y == null || position.z == null
+    nullPosition: position.x == null || position.y == null || position.z == null,
+
+    // Zero positions (often problematic)
+    zeroPosition: position.x === 0 || position.z === 0
   };
 
   const isProblematic = Object.values(checks).some(check => check);
 
   if (isProblematic) {
-    console.log(`🔍 Position (${position.x}, ${position.y}, ${position.z}) is problematic:`, {
+    console.warn(`🔴 PROBLEMATIC POSITION (${position.x?.toFixed(3)}, ${position.y?.toFixed(3)}, ${position.z?.toFixed(3)}) detected:`, {
       nearCenter: checks.nearCenter,
       exactCenter: checks.exactCenter,
+      tinyCoords: checks.tinyCoords,
       invalidCoords: checks.invalidX || checks.invalidY || checks.invalidZ,
       tooExtreme: checks.tooFarX || checks.tooFarZ,
       wrongHeight: checks.underground || checks.tooHigh,
-      nullValues: checks.nullPosition
+      nullValues: checks.nullPosition,
+      zeroCoords: checks.zeroPosition
     });
   }
 
