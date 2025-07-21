@@ -618,7 +618,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         // Final integrity check for GLB furniture
         setTimeout(() => {
           const loadedFurniture = experienceRef.current?.getAllFurniture?.() || [];
-          const expectedCount = result.decorations.length;
+          const expectedCount = validDecorations.length; // Use validDecorations instead
           const actualCount = loadedFurniture.length;
 
           console.log(`🔍 Integrity Check:`);
@@ -630,11 +630,32 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
             // Log details of what's missing
             const loadedIds = new Set(loadedFurniture.map(f => f.id));
-            result.decorations.forEach(decoration => {
+            validDecorations.forEach(decoration => {
               if (!loadedIds.has(decoration.furniture_id)) {
                 console.warn(`⚠️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
               }
             });
+
+            // If there's a significant mismatch, clean up corrupted data
+            if (expectedCount > 10 && actualCount < expectedCount / 2) {
+              console.log(`🧹 Significant data corruption detected, cleaning up...`);
+              if (user?.id) {
+                const debugInfo = getStorageDebugInfo(user.id);
+                console.log(`🔍 Storage debug info:`, debugInfo);
+
+                const cleanupStats = cleanCorruptedEntries(user.id);
+                console.log(`🧹 Cleanup completed:`, cleanupStats);
+
+                if (cleanupStats.totalCleaned > 0) {
+                  console.log(`🔄 Reloading decorations after cleanup...`);
+                  setTimeout(() => {
+                    setDecorationsLoaded(false);
+                    loadSavedDecorations();
+                  }, 1000);
+                  return;
+                }
+              }
+            }
           } else {
             console.log(`✅ All furniture loaded successfully!`);
           }
