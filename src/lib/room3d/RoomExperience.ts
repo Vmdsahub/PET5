@@ -783,7 +783,15 @@ export class RoomExperience {
 
   // Clear all furniture from room
   public clearAllFurniture(): void {
+    console.log(`🧹 RoomExperience.clearAllFurniture called`);
     this.furnitureManager.clearAllFurniture();
+  }
+
+  // Get all furniture for debugging
+  public getAllFurniture() {
+    const furniture = this.furnitureManager.getAllFurniture();
+    console.log(`📋 RoomExperience.getAllFurniture: ${furniture.length} items`);
+    return furniture;
   }
 
   public destroy(): void {
