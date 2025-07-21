@@ -106,10 +106,6 @@ export class FurnitureFactory {
     return [...builtInTypes, ...customTypes];
   }
 
-  public async getCustomFurnitureList(): Promise<CustomFurniture[]> {
-    return await furnitureService.getAllCustomFurniture();
-  }
-
   public async create(type: string): Promise<THREE.Object3D | null> {
     try {
       console.log(`🎯 FurnitureFactory.create called with type: ${type}`);
