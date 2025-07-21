@@ -42,8 +42,9 @@ export class FurnitureManager {
     }
   > = new Map();
 
-  constructor(scene: THREE.Scene) {
+    constructor(scene: THREE.Scene, getRoomDimensions: () => any) {
     this.scene = scene;
+    this.getRoomDimensions = getRoomDimensions;
     this.furnitureGroup = new THREE.Group();
     this.scene.add(this.furnitureGroup);
     this.furniture = new Map();
