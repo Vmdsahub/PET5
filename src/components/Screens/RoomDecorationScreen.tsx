@@ -712,7 +712,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             const loadedIds = new Set(loadedFurniture.map(f => f.id));
             validDecorations.forEach(decoration => {
               if (!loadedIds.has(decoration.furniture_id)) {
-                console.warn(`⚠️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
+                console.warn(`��️ Missing furniture: ${decoration.furniture_id} (type: ${decoration.furniture_type})`);
               }
             });
 
@@ -766,7 +766,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               setTimeout(() => {
                 const ghostResult = detectGhostFurniture(experienceRef.current?.furnitureManager);
                 if (ghostResult.found > 0) {
-                  console.warn(`👻 Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+                  console.warn(`��� Found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
 
                   if (ghostResult.removed > 0) {
                     addNotification({
@@ -919,6 +919,24 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       active: isEditMode,
     },
   ];
+
+  // Periodic ghost furniture detection
+  useEffect(() => {
+    if (!experienceRef.current || !user?.id) return;
+
+    const ghostCheckInterval = setInterval(() => {
+      if (experienceRef.current && !isEditMode) {
+        const ghostResult = detectGhostFurniture(experienceRef.current.furnitureManager);
+        if (ghostResult.found > 0) {
+          console.warn(`👻 Periodic check: found ${ghostResult.found} ghost furniture, removed ${ghostResult.removed}`);
+        }
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => {
+      clearInterval(ghostCheckInterval);
+    };
+  }, [experienceRef.current, user?.id, isEditMode]);
 
   useEffect(() => {
     if (canvasRef.current && !experienceRef.current) {
@@ -1320,7 +1338,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   furnitureObj.object.userData.originalStoreId =
                     item.originalStoreId; // Preserve store ID
                   console.log(
-                    `��� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
+                    `���� Stored original data for ${item.id}: name="${item.name}", storeId="${item.originalStoreId}"`,
                   );
                 }
               }
