@@ -316,8 +316,9 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         }));
 
         for (const decoration of result.decorations) {
-          console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
+          console.log(`🪑 [${result.decorations.indexOf(decoration) + 1}/${result.decorations.length}] Restoring furniture: ${decoration.furniture_id}`);
           console.log(`🔍 Decoration type: ${decoration.furniture_type}`);
+          console.log(`🔍 Full decoration data:`, decoration);
 
                               // Extract original store ID from database ID using utility
           const originalStoreId = extractOriginalStoreId(decoration.furniture_id);
@@ -327,6 +328,12 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           // Validate that we can actually load this furniture type
           const isCustomType = decoration.furniture_type.startsWith('custom_');
           console.log(`🔍 Is custom furniture: ${isCustomType}`);
+
+          // Additional validation
+          if (!decoration.furniture_type || decoration.furniture_type.trim() === '') {
+            console.error(`❌ Invalid furniture_type for ${decoration.furniture_id}:`, decoration.furniture_type);
+            continue; // Skip this decoration
+          }
 
           // Generate unique ID for this restored furniture instance
                     const restoreId = decoration.furniture_id;
@@ -354,12 +361,21 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           });
 
           // Add furniture to scene with validated position (mark as restoration to skip templates)
+          console.log(`🛠️ About to call addFurnitureFromInventory with:`, {
+            restoreId,
+            validPosition,
+            furnitureType: decoration.furniture_type,
+            isRestoration: true
+          });
+
           const success = await experienceRef.current.addFurnitureFromInventory(
             restoreId,
             validPosition,
             decoration.furniture_type,
             true, // isRestoration = true to skip template application
           );
+
+          console.log(`🔄 addFurnitureFromInventory result for ${restoreId}: ${success ? 'SUCCESS' : 'FAILED'}`);
 
                     if (success) {
             console.log(
@@ -1093,7 +1109,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
                   `🔧 Applying stored properties to ${item.id}:`,
                   item.properties,
                 );
-                console.log(`�� Scale to apply:`, item.properties.scale);
+                console.log(`📊 Scale to apply:`, item.properties.scale);
                 console.log(`🎨 Material to apply:`, item.properties.material);
 
                 // Apply scale if stored
