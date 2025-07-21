@@ -685,7 +685,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                 // For GLB furniture, ensure it will be saved correctly in the future
                 if (isCustomType && !finalObj.object.userData.databaseId) {
-                  console.warn(`⚠️ GLB furniture ${restoreId} missing databaseId, adding it...`);
+                  console.warn(`��️ GLB furniture ${restoreId} missing databaseId, adding it...`);
                   finalObj.object.userData.databaseId = decoration.furniture_id;
                 }
               }
@@ -1412,18 +1412,19 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
-            // Use enhanced position validation and correction
-            let proposedPosition = {
+            // Basic position validation - avoid exact center only
+            const validPosition = {
               x: worldPosition.x,
               y: Math.max(0, worldPosition.y), // Ensure Y >= 0
               z: worldPosition.z,
             };
 
-            // Validate and correct the position using the robust validation system
-            const validPosition = validateAndCorrectPosition(proposedPosition, item.id, inventory.length);
-
-            if (validPosition.x !== proposedPosition.x || validPosition.z !== proposedPosition.z) {
-              console.log(`🔧 Position corrected for ${item.id}: (${proposedPosition.x.toFixed(2)}, ${proposedPosition.y.toFixed(2)}, ${proposedPosition.z.toFixed(2)}) -> (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
+            // Only adjust if at exact problematic position
+            if (isProblematicPosition(validPosition)) {
+              console.warn(`⚠️ Adjusting furniture placement away from problematic position`);
+              validPosition.x += validPosition.x >= 0 ? 0.5 : -0.5;
+              validPosition.z += validPosition.z >= 0 ? 0.5 : -0.5;
+              console.log(`🔧 Position adjusted for ${item.id}: (${worldPosition.x.toFixed(2)}, ${worldPosition.y.toFixed(2)}, ${worldPosition.z.toFixed(2)}) -> (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
             }
 
             console.log(
@@ -1595,7 +1596,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           <div className="flex items-center gap-3 mb-4">
             <Edit3 size={24} className="text-amber-600" />
             <span className="font-bold text-amber-800 text-lg">
-              ��� Modo Decoração
+              🏠 Modo Decoração
             </span>
           </div>
 
