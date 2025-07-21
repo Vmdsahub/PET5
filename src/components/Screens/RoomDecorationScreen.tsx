@@ -825,25 +825,40 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         break;
       case "store":
         // Add to inventory and remove from scene
-        // Try to get the original name from the 3D object userData
-        let furnitureName = objectId
-          .replace(/-/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase());
+        // Try to get the original name from the 3D object userData with improved fallback
+        let furnitureName: string;
 
-        // Check if the 3D object has the original name stored
         if (experienceRef.current) {
-          const furnitureObj =
-            experienceRef.current.getFurnitureById?.(objectId);
+          const furnitureObj = experienceRef.current.getFurnitureById?.(objectId);
+
           if (furnitureObj?.object?.userData?.originalName) {
+            // Use stored original name (best option)
             furnitureName = furnitureObj.object.userData.originalName;
-            console.log(
-              `📝 Using original name: "${furnitureName}" for ${objectId}`,
-            );
+            console.log(`📝 Using original name: "${furnitureName}" for ${objectId}`);
           } else {
-            console.log(
-              `⚠️ No original name found for ${objectId}, using generated name: "${furnitureName}"`,
-            );
+            // Fallback: try to get originalStoreId and look up in services
+            const originalStoreId = furnitureObj?.object?.userData?.originalStoreId;
+            if (originalStoreId) {
+              console.log(`🔍 Attempting to recover name from originalStoreId: ${originalStoreId}`);
+              // For now, generate a user-friendly name from the originalStoreId
+              furnitureName = originalStoreId
+                .replace(/[-_]/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              console.log(`📝 Generated name from originalStoreId: "${furnitureName}"`);
+            } else {
+              // Last resort: generate from objectId
+              furnitureName = objectId
+                .replace(/[-_]/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              console.warn(`⚠️ No original data found for ${objectId}, using fallback name: "${furnitureName}"`);
+            }
           }
+        } else {
+          // Experience not available, use basic fallback
+          furnitureName = objectId
+            .replace(/[-_]/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+          console.warn(`⚠️ Experience not available, using basic fallback name: "${furnitureName}"`);
         }
 
         // Get the correct furniture type and original store ID to preserve them
