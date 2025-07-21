@@ -976,10 +976,11 @@ export class FurnitureManager {
     }
   }
 
-  public async addFurnitureFromInventory(
+    public async addFurnitureFromInventory(
     id: string,
     position: THREE.Vector3,
     type?: string,
+    isRestoration: boolean = false,
   ): Promise<boolean> {
     console.log(
       `🏠 FurnitureManager.addFurnitureFromInventory called: ID=${id}, Type=${type}`,
