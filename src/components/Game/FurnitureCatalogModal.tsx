@@ -1096,18 +1096,18 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                       Adicionar Exemplo
                     </button>
                     <button
-                      onClick={() => {
+                                            onClick={() => {
                         furnitureService.clearAll();
                         setCustomFurniture([]);
                         onNotification?.({
                           type: "success",
-                          title: "Limpo",
-                          message: "Todos os itens foram removidos.",
+                          title: "Modelos Removidos",
+                          message: "Todos os modelos de teste foram removidos.",
                         });
                       }}
                       className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                     >
-                      Limpar Tudo
+                      Remover Modelos de Teste
                     </button>
                   </div>
                 </div>
