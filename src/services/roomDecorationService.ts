@@ -55,14 +55,38 @@ class RoomDecorationService {
 
         // Use localStorage as fallback in mock mode
         const storageKey = `furniture_${userId}_${furnitureState.furniture_id}`;
+
+        // Ensure all data is properly stored, especially the name
         const dataToStore = {
-          ...furnitureState,
-          updated_at: new Date().toISOString(),
+          id: Date.now(), // Generate a mock ID
+          user_id: userId,
+          furniture_id: furnitureState.furniture_id,
+          furniture_type: furnitureState.furniture_type,
+          furniture_name: furnitureState.furniture_name, // Preserve name!
+          position_x: furnitureState.position.x,
+          position_y: furnitureState.position.y,
+          position_z: furnitureState.position.z,
+          rotation_x: furnitureState.rotation.x,
+          rotation_y: furnitureState.rotation.y,
+          rotation_z: furnitureState.rotation.z,
+          scale_x: furnitureState.scale.x,
+          scale_y: furnitureState.scale.y,
+          scale_z: furnitureState.scale.z,
+          material_roughness: furnitureState.material?.roughness || null,
+          material_metalness: furnitureState.material?.metalness || null,
+          material_color: furnitureState.material?.color || null,
+          material_emissive: furnitureState.material?.emissive || null,
           is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         };
 
         localStorage.setItem(storageKey, JSON.stringify(dataToStore));
-        console.log("💾 Saved to localStorage:", storageKey, dataToStore);
+        console.log("💾 Saved to localStorage:", storageKey, {
+          furniture_id: dataToStore.furniture_id,
+          furniture_name: dataToStore.furniture_name,
+          position: { x: dataToStore.position_x, y: dataToStore.position_y, z: dataToStore.position_z }
+        });
 
         return { success: true };
       }
