@@ -278,18 +278,22 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         for (const decoration of result.decorations) {
           console.log(`🪑 Restoring furniture: ${decoration.furniture_id}`);
 
-                    // Extract original store ID from database ID
+                              // Extract original store ID from database ID
           let originalStoreId = decoration.furniture_id;
-          let restoreId = decoration.furniture_id;
 
           // Handle database IDs that have instance numbers (e.g., "sofa_2" -> "sofa")
           if (decoration.furniture_id.includes('_') && !decoration.furniture_id.startsWith('custom_')) {
             originalStoreId = decoration.furniture_id.split('_')[0];
           }
 
+          // Generate unique ID for this restored furniture instance
+          const uniqueRestoreId = `restored_${decoration.furniture_id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+          console.log(`🔄 Restoring with unique ID: ${uniqueRestoreId} (database ID: ${decoration.furniture_id})`);
+
           // Add furniture to scene with saved state
           const success = await experienceRef.current.addFurnitureFromInventory(
-            restoreId,
+            uniqueRestoreId,
             decoration.position,
             decoration.furniture_type,
           );
