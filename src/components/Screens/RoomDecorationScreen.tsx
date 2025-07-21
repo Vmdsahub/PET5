@@ -513,12 +513,13 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
                         // Add to inventory (use globally unique IDs)
         setInventory((prev) => {
-          // Generate globally unique ID that won't conflict
-          const uniqueId = `${item.id}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+          // Generate globally unique ID using UUID for guaranteed uniqueness
+          const uniqueId = generateFurnitureDatabaseId(item.id);
 
           console.log(
             `➕ Adding purchased item ${item.name} with unique ID: ${uniqueId}`,
           );
+          debugIdMapping(uniqueId, 'handleFurniturePurchase');
           return [
             ...prev,
             {
