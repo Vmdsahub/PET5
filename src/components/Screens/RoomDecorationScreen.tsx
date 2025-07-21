@@ -747,9 +747,20 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           experienceRef.current.removeFurniture(objectId);
         }
 
-        // Remove from database if user is logged in
+                // Remove from database if user is logged in
         if (user?.id) {
-          roomDecorationService.removeFurnitureFromRoom(user.id, objectId);
+          // Use the same database ID format as save operation
+          let databaseId = objectId;
+          if (experienceRef.current) {
+            const furnitureObj = experienceRef.current.getFurnitureById?.(objectId);
+            if (furnitureObj?.object?.userData?.originalStoreId) {
+              const originalId = furnitureObj.object.userData.originalStoreId;
+              const instanceNumber = objectId.includes('_') ? objectId.split('_').pop() : '1';
+              databaseId = instanceNumber !== '1' ? `${originalId}_${instanceNumber}` : originalId;
+              console.log(`🗑️ Removing from database with ID: ${databaseId}`);
+            }
+          }
+          roomDecorationService.removeFurnitureFromRoom(user.id, databaseId);
         }
 
         // Remove lamp state if it's a lamp
@@ -1267,7 +1278,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
               <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-600">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings size={16} className="text-green-400" />
-                  <span className="text-white font-medium">🟫 Piso</span>
+                  <span className="text-white font-medium">�� Piso</span>
                 </div>
 
                 <div className="space-y-3">
