@@ -5,6 +5,7 @@ import {
   isCustomFurnitureType,
   debugIdMapping,
 } from "../../utils/furnitureIdGenerator";
+import { simpleFurnitureService } from "../../services/simpleFurnitureService";
 
 interface FurnitureItem {
   id: string;
@@ -1018,7 +1019,7 @@ export class FurnitureManager {
       // First, check if this is a custom furniture GLB by checking if it exists in the custom furniture list
       try {
         const customFurniture =
-          await this.furnitureFactory.getCustomFurnitureList();
+          await simpleFurnitureService.getAllCustomFurniture();
         const matchingCustom = customFurniture.find((f) => f.id === id);
 
         if (matchingCustom) {
