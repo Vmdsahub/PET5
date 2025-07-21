@@ -231,9 +231,15 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
     console.log(`🎮 Experience ref: ${!!experienceRef.current}`);
     console.log(`📋 Decorations loaded: ${decorationsLoaded}`);
 
-    if (!user?.id || !experienceRef.current || decorationsLoaded) {
+        if (!user?.id || !experienceRef.current || decorationsLoaded) {
       console.log(`⏭️ SKIPPING decoration load - conditions not met`);
       return;
+    }
+
+    // Clear any existing furniture from the scene first to prevent conflicts
+    console.log("🧹 Clearing existing furniture from scene before loading saved decorations");
+    if (experienceRef.current.clearAllFurniture) {
+      experienceRef.current.clearAllFurniture();
     }
 
     try {
