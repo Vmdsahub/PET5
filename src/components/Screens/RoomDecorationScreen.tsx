@@ -265,7 +265,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
       });
 
       console.log(`🔍 User ID: ${user.id}`);
-      console.log(`���� Will call roomDecorationService.saveFurnitureState`);
+      console.log(`📋 Will call roomDecorationService.saveFurnitureState`);
 
       const result = await roomDecorationService.saveFurnitureState(
         user.id,
@@ -404,7 +404,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
 
         if (validDecorations.length !== result.decorations.length) {
-          console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
+          console.warn(`��️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
         }
 
         // Use validated decorations
@@ -467,19 +467,8 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             z: isNaN(decoration.position.z) ? 0 : decoration.position.z,
           };
 
-          // More comprehensive check for problematic positions
-          const isProblematicPosition = (
-            // Exact center or very close to center (within 0.5 units)
-            (Math.abs(validPosition.x) < 0.5 && Math.abs(validPosition.z) < 0.5) ||
-            // Positions that are too extreme
-            Math.abs(validPosition.x) > 50 || Math.abs(validPosition.z) > 50 ||
-            // Invalid Y positions
-            validPosition.y < 0 || validPosition.y > 20 ||
-            // NaN positions
-            isNaN(validPosition.x) || isNaN(validPosition.y) || isNaN(validPosition.z)
-          );
-
-          if (isProblematicPosition) {
+          // Use the robust problematic position checker from ghostFurnitureDetector
+          if (isProblematicPosition(validPosition)) {
             console.warn(`⚠️ Furniture ${restoreId} has problematic position (${validPosition.x}, ${validPosition.y}, ${validPosition.z}), adjusting...`);
 
             // Use a more predictable fallback position based on index
