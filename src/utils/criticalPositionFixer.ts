@@ -66,7 +66,8 @@ export function performEmergencyPositionFix(
               result.removed++;
             }
           } else {
-            console.log(`✅ SUCCESS: ${furniture.id} corrected to (${verifyPosition.x.toFixed(2)}, ${verifyPosition.y.toFixed(2)}, ${verifyPosition.z.toFixed(2)})`);\n            result.fixed++;
+            console.log(`✅ SUCCESS: ${furniture.id} corrected to (${verifyPosition.x.toFixed(2)}, ${verifyPosition.y.toFixed(2)}, ${verifyPosition.z.toFixed(2)})`);
+            result.fixed++;
             
             // Save the correction immediately if callback provided
             if (saveCallback) {
@@ -138,7 +139,8 @@ export function startPositionMonitoring(
           furniture.object.updateMatrix();
           furniture.object.updateMatrixWorld(true);
           
-          console.log(`⚕️ MONITORING FIX: Moved ${furniture.id} to (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);\n          
+          console.log(`⚕️ MONITORING FIX: Moved ${furniture.id} to (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
+          
           // Save the emergency fix
           if (saveCallback) {
             setTimeout(() => {
@@ -150,7 +152,8 @@ export function startPositionMonitoring(
     });
     
     if (!foundProblematic) {
-      console.log(`👁️ Position monitoring: All furniture positions are safe`);\n    }
+      console.log(`👁️ Position monitoring: All furniture positions are safe`);
+    }
   }, intervalMs);
   
   // Return cleanup function
