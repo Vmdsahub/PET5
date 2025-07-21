@@ -915,9 +915,8 @@ export class FurnitureManager {
 
     // Only dispose resources for built-in furniture, not custom GLB furniture
     // Custom GLB furniture uses cached models that should not be disposed
-    const isCustomFurniture =
-      item.type.startsWith("custom_") ||
-      (!item.type.startsWith("custom_") &&
+    const isCustomFurniture = isCustomFurnitureType(item.type) ||
+      (!isCustomFurnitureType(item.type) &&
         ![
           "sofa",
           "table",
@@ -934,6 +933,9 @@ export class FurnitureManager {
           "wallClock",
           "pendantLight",
         ].includes(item.type));
+
+    console.log(`🗑️ Furniture removal - Type: ${item.type}, IsCustom: ${isCustomFurniture}`);
+    debugIdMapping(item.type, 'removeFurniture-typeCheck');
 
     if (!isCustomFurniture) {
       // Dispose of geometry and materials only for built-in furniture
