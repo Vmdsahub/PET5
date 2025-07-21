@@ -1003,17 +1003,29 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
         if (worldPosition) {
           try {
+            // Validate position to avoid problematic center placement
+            const validPosition = {
+              x: worldPosition.x,
+              y: Math.max(0, worldPosition.y), // Ensure Y >= 0
+              z: worldPosition.z,
+            };
+
+            // Avoid exact center (0,0,0) placement which can cause visual bugs
+            if (Math.abs(validPosition.x) < 0.1 && Math.abs(validPosition.z) < 0.1) {
+              console.warn(`⚠️ Adjusting furniture placement away from center to avoid visual bugs`);
+              validPosition.x += validPosition.x >= 0 ? 0.5 : -0.5;
+              validPosition.z += validPosition.z >= 0 ? 0.5 : -0.5;
+            }
+
             console.log(
               `🎯 Placing furniture from inventory: ID=${item.id}, Type=${item.type}, Name=${item.name}`,
             );
+            console.log(`📍 Position: (${validPosition.x.toFixed(2)}, ${validPosition.y.toFixed(2)}, ${validPosition.z.toFixed(2)})`);
+
             const success =
               await experienceRef.current.addFurnitureFromInventory(
                 item.id,
-                {
-                  x: worldPosition.x,
-                  y: worldPosition.y,
-                  z: worldPosition.z,
-                },
+                validPosition,
                 item.type,
               );
 
