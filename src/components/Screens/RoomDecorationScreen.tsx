@@ -404,7 +404,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
         console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
 
         if (validDecorations.length !== result.decorations.length) {
-          console.warn(`��️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
+          console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
         }
 
         // Use validated decorations
@@ -602,15 +602,45 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
             setTimeout(() => {
               const finalObj = experienceRef.current.getFurnitureById?.(restoreId);
               if (finalObj?.object) {
+                const finalPosition = finalObj.object.position;
+                const isStillProblematic = isProblematicPosition(finalPosition);
+
                 console.log(`🔍 Final restored position for ${restoreId}:`, {
-                  position: finalObj.object.position,
+                  position: finalPosition,
                   expectedPosition: decoration.position,
+                  isProblematic: isStillProblematic,
                   rotation: finalObj.object.rotation,
                   scale: finalObj.object.scale,
                   hasCorrectUserData: !!finalObj.object.userData.databaseId,
                   databaseId: finalObj.object.userData.databaseId,
                   originalStoreId: finalObj.object.userData.originalStoreId,
                 });
+
+                // If furniture is still in a problematic position after restoration, force move it
+                if (isStillProblematic) {
+                  console.error(`❌️ CRITICAL: Furniture ${restoreId} is still in problematic position after restoration!`);
+                  console.log(`🔄 Force moving ${restoreId} to safe position...`);
+
+                  // Calculate a safe position
+                  const safeIndex = validDecorations.indexOf(decoration);
+                  const safeAngle = (safeIndex * 45) * (Math.PI / 180);
+                  const safeRadius = 3 + (safeIndex * 0.7);
+                  const safePosition = {
+                    x: Math.cos(safeAngle) * safeRadius,
+                    y: 0,
+                    z: Math.sin(safeAngle) * safeRadius
+                  };
+
+                  finalObj.object.position.set(safePosition.x, safePosition.y, safePosition.z);
+                  console.log(`✅ Moved ${restoreId} to safe position: (${safePosition.x.toFixed(2)}, ${safePosition.y}, ${safePosition.z.toFixed(2)})`);
+
+                  // Save the corrected position
+                  if (user?.id) {
+                    setTimeout(() => {
+                      saveFurnitureState(restoreId);
+                    }, 500);
+                  }
+                }
 
                 // For GLB furniture, ensure it will be saved correctly in the future
                 if (isCustomType && !finalObj.object.userData.databaseId) {
