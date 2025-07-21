@@ -213,7 +213,7 @@ export class FurnitureManager {
       const template = this.furnitureTemplates.get(type);
       if (template) {
         console.log(
-          `🎯 Applying existing template to new furniture ${id} of type ${type}:`,
+          `���� Applying existing template to new furniture ${id} of type ${type}:`,
           template,
         );
 
@@ -248,22 +248,29 @@ export class FurnitureManager {
     const item = this.furniture.get(id);
     if (!item || !item.canMove) return false;
 
-    // Prevent center positioning during movement
-    if (position.x === 0 && position.z === 0) {
-      console.error(`⚠️ CRITICAL: Attempted to move furniture ${id} to center during drag! Stack trace:`, new Error().stack);
-      position.x = 5 + Math.random() * 2;
-      position.z = 5 + Math.random() * 2;
-      console.log(`🔧 Corrected ${id} drag position to: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)})`);
+    // ABSOLUTE PROTECTION: Create safe position for movement
+    const safePosition = new THREE.Vector3(
+      (position.x === 0) ? 5 + Math.random() * 2 : position.x,
+      position.y,
+      (position.z === 0) ? 5 + Math.random() * 2 : position.z
+    );
+
+    if (safePosition.x !== position.x || safePosition.z !== position.z) {
+      console.error(`⚠️ BLOCKED CENTER MOVEMENT for ${id}: (${position.x}, ${position.y}, ${position.z}) -> (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
     }
 
-    // Constrain movement to room bounds
-    const constrainedPosition = this.constrainPosition(position);
+    // Constrain movement to room bounds with safe position
+    const constrainedPosition = this.constrainPosition(safePosition);
     item.object.position.copy(constrainedPosition);
 
-    // Verify final position
+    // FINAL VERIFICATION - if somehow still at center, emergency move
     const finalPos = item.object.position;
     if (finalPos.x === 0 && finalPos.z === 0) {
-      console.error(`❌ CRITICAL: Furniture ${id} at center after movement! Position:`, finalPos);
+      console.error(`❌ ULTIMATE CRITICAL: Furniture ${id} STILL at center after movement! EMERGENCY CORRECTION!`);
+      const emergencyX = 10 + Math.random() * 5;
+      const emergencyZ = 10 + Math.random() * 5;
+      item.object.position.set(emergencyX, finalPos.y, emergencyZ);
+      console.log(`🆘 EMERGENCY: Moved ${id} to (${emergencyX.toFixed(2)}, ${finalPos.y}, ${emergencyZ.toFixed(2)})`);
     }
 
     return true;
