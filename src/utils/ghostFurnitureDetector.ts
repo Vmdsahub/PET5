@@ -15,13 +15,13 @@ export function isProblematicPosition(position: { x: number; y: number; z: numbe
   // ULTRA STRICT checks for problematic positions to prevent ALL issues
   const checks = {
     // Any position close to center is problematic (expanded range)
-    nearCenter: Math.abs(position.x) < 1.0 && Math.abs(position.z) < 1.0,
+    nearCenter: Math.abs(position.x) < 1.5 && Math.abs(position.z) < 1.5,
 
     // Exact center coordinates
     exactCenter: position.x === 0 && position.z === 0,
 
     // Very small coordinates (likely errors)
-    tinyCoords: Math.abs(position.x) < 0.01 && Math.abs(position.z) < 0.01,
+    tinyCoords: Math.abs(position.x) < 0.1 && Math.abs(position.z) < 0.1,
 
     // Invalid/NaN positions
     invalidX: isNaN(position.x) || !isFinite(position.x),
@@ -33,7 +33,7 @@ export function isProblematicPosition(position: { x: number; y: number; z: numbe
     tooFarZ: Math.abs(position.z) > 100,
 
     // Underground or too high
-    underground: position.y < -0.5, // More strict
+    underground: position.y < -0.1, // Even more strict
     tooHigh: position.y > 50,
 
     // Null/undefined checks
@@ -59,6 +59,49 @@ export function isProblematicPosition(position: { x: number; y: number; z: numbe
   }
 
   return isProblematic;
+}
+
+/**
+ * Generate a guaranteed safe position for furniture
+ */
+export function generateSafePosition(index: number = 0, baseDistance: number = 8): { x: number; y: number; z: number } {
+  // Generate positions in a spiral pattern away from center
+  const angle = (index * 137.5) * (Math.PI / 180); // Golden angle spiral
+  const distance = baseDistance + (index * 0.5); // Increase distance with each item
+
+  const safePosition = {
+    x: Math.cos(angle) * distance,
+    y: 0.1, // Always slightly above ground
+    z: Math.sin(angle) * distance
+  };
+
+  // Double-check the generated position is actually safe
+  if (isProblematicPosition(safePosition)) {
+    // Fallback to grid pattern if spiral fails
+    const gridX = (index % 5) * 3 + 10; // Grid starting at x=10
+    const gridZ = Math.floor(index / 5) * 3 + 10; // Grid starting at z=10
+
+    return {
+      x: gridX,
+      y: 0.1,
+      z: gridZ
+    };
+  }
+
+  return safePosition;
+}
+
+/**
+ * Immediately correct a problematic position
+ */
+export function correctPositionImmediately(position: { x: number; y: number; z: number }, index: number = 0): { x: number; y: number; z: number } {
+  if (!isProblematicPosition(position)) {
+    return position; // Already safe
+  }
+
+  const safePosition = generateSafePosition(index);
+  console.log(`⚡ IMMEDIATE CORRECTION: (${position.x?.toFixed(2)}, ${position.y?.toFixed(2)}, ${position.z?.toFixed(2)}) -> (${safePosition.x.toFixed(2)}, ${safePosition.y.toFixed(2)}, ${safePosition.z.toFixed(2)})`);
+  return safePosition;
 }
 
 /**
