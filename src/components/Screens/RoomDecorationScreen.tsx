@@ -133,6 +133,37 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
   // Track recent saves to prevent duplicate saves
   const recentSaves = useRef<Set<string>>(new Set());
 
+  // Manual cleanup function for extreme cases
+  const handleManualCleanup = () => {
+    if (!user?.id) return;
+
+    console.log(`🧹 Manual cleanup requested by user`);
+
+    const debugInfo = getStorageDebugInfo(user.id);
+    console.log(`🔍 Pre-cleanup storage info:`, debugInfo);
+
+    const cleanupStats = cleanUserFurnitureData(user.id);
+    console.log(`🧹 Manual cleanup completed:`, cleanupStats);
+
+    // Clear the scene
+    if (experienceRef.current) {
+      experienceRef.current.clearAllFurniture();
+    }
+
+    // Reset state
+    setInventory([]);
+    setDecorationsLoaded(false);
+    setShowCleanupButton(false);
+
+    addNotification({
+      type: "success",
+      title: "Limpeza Completa",
+      message: `Removidos ${cleanupStats.totalCleaned} itens corrompidos. Quarto resetado.`,
+    });
+
+    console.log(`✨ Manual cleanup completed, starting fresh`);
+  };
+
   // Function to save furniture state to database
   const saveFurnitureState = async (furnitureId: string) => {
     if (!user?.id || !experienceRef.current) return;
@@ -344,7 +375,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
           return true;
         });
 
-        console.log(`���� After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
+        console.log(`📋 After validation: ${validDecorations.length}/${result.decorations.length} decorations are valid`);
 
         if (validDecorations.length !== result.decorations.length) {
           console.warn(`⚠️ Found ${result.decorations.length - validDecorations.length} invalid/duplicate decorations that will be skipped`);
@@ -718,7 +749,7 @@ export const RoomDecorationScreen: React.FC<RoomDecorationScreenProps> = ({
 
       if (success) {
         const furnitureType = item.type || "furniture";
-        console.log(`📦 Adding to inventory with type: ${furnitureType}`);
+        console.log(`���� Adding to inventory with type: ${furnitureType}`);
 
         // Generate thumbnail for purchased item by temporarily loading the model
         let thumbnail = "";
