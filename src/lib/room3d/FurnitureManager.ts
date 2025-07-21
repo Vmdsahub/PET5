@@ -87,9 +87,12 @@ export class FurnitureManager {
     skipTemplate: boolean = false,
   ): Promise<void> {
     console.log(
-      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=${position.x}, ${position.y}, ${position.z}`,
+      `🪑 Adding furniture: ID=${id}, Type=${type}, Position=(${position.x}, ${position.y}, ${position.z}), RotationY=${rotationY}, SkipTemplate=${skipTemplate}`,
     );
+
+    console.log(`🏭 Calling furnitureFactory.create(${type})...`);
     const furnitureObject = await this.furnitureFactory.create(type);
+    console.log(`🏭 furnitureFactory.create result:`, furnitureObject ? 'SUCCESS' : 'FAILED');
 
     if (!furnitureObject) {
       console.warn(`Failed to create furniture of type: ${type}`);
@@ -797,7 +800,7 @@ export class FurnitureManager {
 
     // Reset material properties for built-in furniture
     this.resetMaterialProperties(item.object, item.id);
-    console.log(`✅ Built-in furniture reset completed: ${item.id}`);
+    console.log(`��� Built-in furniture reset completed: ${item.id}`);
   }
 
   private resetCustomFurnitureMaterialsOnly(item: FurnitureItem): void {
