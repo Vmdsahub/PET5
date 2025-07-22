@@ -494,6 +494,96 @@ export const SimpleRoom3D: React.FC = () => {
         Voltar ao Mapa
       </motion.button>
 
+      {/* Vertical Navigation Menu */}
+      <motion.div
+        className="absolute left-6 top-1/2 transform -translate-y-1/2 z-10 bg-white/95 backdrop-blur-2xl rounded-2xl py-4 px-3 shadow-lg border border-gray-100/50"
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
+      >
+        <div className="flex flex-col space-y-3">
+          {/* Globo */}
+          <motion.button
+            onClick={() => {}}
+            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Globe className="w-6 h-6 text-blue-600 group-hover:text-blue-700 transition-colors" />
+            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+              Globo
+            </span>
+          </motion.button>
+
+          {/* Catálogo */}
+          <motion.button
+            onClick={() => {}}
+            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Bookmark className="w-6 h-6 text-green-600 group-hover:text-green-700 transition-colors" />
+            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+              Catálogo
+            </span>
+          </motion.button>
+
+          {/* Inventário da Casa */}
+          <motion.button
+            onClick={() => {}}
+            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Package className="w-6 h-6 text-orange-600 group-hover:text-orange-700 transition-colors" />
+            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+              Inv. Casa
+            </span>
+          </motion.button>
+
+          {/* Configurações */}
+          <motion.button
+            onClick={() => {}}
+            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Settings className="w-6 h-6 text-purple-600 group-hover:text-purple-700 transition-colors" />
+            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+              Config.
+            </span>
+          </motion.button>
+
+          {/* Voltar */}
+          <motion.button
+            onClick={() => setCurrentScreen('world')}
+            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group border-t border-gray-200/50 pt-4 mt-4"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-600 group-hover:text-gray-700 transition-colors" />
+            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+              Voltar
+            </span>
+          </motion.button>
+
+          {/* Admin Functions - Only show if user is admin */}
+          {user?.isAdmin && (
+            <motion.button
+              onClick={() => {}}
+              className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group border-t border-gray-200/50 pt-4 mt-4"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Shield className="w-6 h-6 text-red-600 group-hover:text-red-700 transition-colors" />
+              <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
+                Admin
+              </span>
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+
       {/* Enhanced instructions */}
       <motion.div
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-black/80 text-white rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl max-w-md"
