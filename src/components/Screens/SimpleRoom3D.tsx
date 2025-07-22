@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Globe, Bookmark, Package, Settings, Shield } from 'lucide-react';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
 
