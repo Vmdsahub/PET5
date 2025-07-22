@@ -208,6 +208,8 @@ function App() {
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
+      case "simple-room-3d":
+        return <SimpleRoom3D />;
 
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
