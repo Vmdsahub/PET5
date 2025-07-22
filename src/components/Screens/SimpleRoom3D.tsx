@@ -496,7 +496,7 @@ export const SimpleRoom3D: React.FC = () => {
 
       {/* Vertical Navigation Menu */}
       <motion.div
-        className="absolute left-6 top-32 z-10 bg-white/95 backdrop-blur-2xl rounded-full py-2 px-2 shadow-lg border border-gray-100/50"
+        className="absolute left-6 top-48 z-10 bg-white/95 backdrop-blur-2xl rounded-full py-2 px-2 shadow-lg border border-gray-100/50"
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
