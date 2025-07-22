@@ -253,7 +253,10 @@ export const SimpleRoom3D: React.FC = () => {
     let targetY = 0;
     let currentX = 0;
     let currentY = 0;
-    const radius = 10;
+    let targetRadius = 10;
+    let currentRadius = 10;
+    const minRadius = 3;
+    const maxRadius = 20;
 
     const onMouseDown = (event: MouseEvent) => {
       isMouseDown = true;
