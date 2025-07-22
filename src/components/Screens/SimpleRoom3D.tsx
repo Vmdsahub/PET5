@@ -168,9 +168,7 @@ export const SimpleRoom3D: React.FC = () => {
 
     // Enhanced walls with better materials and lighting
     const wallMaterial = new THREE.MeshLambertMaterial({
-      color: 0x3a3a3a,
-      transparent: true,
-      opacity: 0.8
+      color: 0x3a3a3a
     });
 
     // Back wall
