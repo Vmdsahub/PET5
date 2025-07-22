@@ -315,7 +315,12 @@ const SpaceMapComponent: React.FC = () => {
       };
       setCurrentPlanet(planetData);
 
-      setCurrentScreen("planet");
+      // Check if this is Terra Verdejante (planet-3) - redirect directly to room 3D
+      if (transition.planet.id === "planet-3") {
+        setCurrentScreen("simple-room-3d");
+      } else {
+        setCurrentScreen("planet");
+      }
 
       pendingScreenTransition.current = null;
     }
