@@ -348,7 +348,13 @@ export const SimpleRoom3D: React.FC = () => {
       }
     };
 
+    // Disable context menu on right click
+    const onContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+
     renderer.domElement.addEventListener('mousedown', onMouseDown);
+    renderer.domElement.addEventListener('contextmenu', onContextMenu);
     renderer.domElement.addEventListener('touchstart', onTouchStart);
     renderer.domElement.addEventListener('touchstart', onTouchStartZoom);
     renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
