@@ -507,10 +507,10 @@ export const SimpleRoom3D: React.FC = () => {
             Sala 3D Interativa
           </p>
           <p className="text-xs text-gray-300 mb-1">
-            🖱️ Clique e arraste para orbitar
+            🖱️ Esquerdo: Orbitar • Direito: Pan (H/V)
           </p>
           <p className="text-xs text-gray-300">
-            🔍 Scroll para zoom • 📱 Toque: arrastar/pinch
+            🔍 Scroll: Zoom • 📱 Toque: arrastar/pinch
           </p>
         </div>
       </motion.div>
