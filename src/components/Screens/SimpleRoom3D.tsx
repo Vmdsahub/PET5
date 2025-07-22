@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
 
 export const SimpleRoom3D: React.FC = () => {
-  const { setCurrentScreen } = useGameStore();
+  const { setCurrentScreen, user } = useGameStore();
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
