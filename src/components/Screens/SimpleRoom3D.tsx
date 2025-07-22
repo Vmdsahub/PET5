@@ -167,7 +167,7 @@ export const SimpleRoom3D: React.FC = () => {
     scene.add(floor);
 
     // Enhanced walls with better materials and lighting
-    const wallMaterial = new THREE.MeshLambertMaterial({ 
+    const wallMaterial = new THREE.MeshLambertMaterial({
       color: 0x3a3a3a,
       transparent: true,
       opacity: 0.8
@@ -195,6 +195,27 @@ export const SimpleRoom3D: React.FC = () => {
     rightWall.position.set(6, 1.5, 0);
     rightWall.receiveShadow = true;
     scene.add(rightWall);
+
+    // Front wall
+    const frontWallGeometry = new THREE.PlaneGeometry(12, 8);
+    const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+    frontWall.rotation.y = Math.PI;
+    frontWall.position.set(0, 1.5, 6);
+    frontWall.receiveShadow = true;
+    scene.add(frontWall);
+
+    // Ceiling
+    const ceilingGeometry = new THREE.PlaneGeometry(12, 12);
+    const ceilingMaterial = new THREE.MeshLambertMaterial({
+      color: 0x2a2a2a,
+      transparent: true,
+      opacity: 0.9
+    });
+    const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.y = 5.5;
+    ceiling.receiveShadow = true;
+    scene.add(ceiling);
 
     // Add some basic decorative elements
     const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
