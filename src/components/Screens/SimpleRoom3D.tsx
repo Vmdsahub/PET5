@@ -496,90 +496,78 @@ export const SimpleRoom3D: React.FC = () => {
 
       {/* Vertical Navigation Menu */}
       <motion.div
-        className="absolute left-6 top-1/2 transform -translate-y-1/2 z-10 bg-white/95 backdrop-blur-2xl rounded-2xl py-4 px-3 shadow-lg border border-gray-100/50"
+        className="absolute left-6 top-32 z-10 bg-white/95 backdrop-blur-2xl rounded-full py-2 px-2 shadow-lg border border-gray-100/50"
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.7, type: "spring", stiffness: 300 }}
       >
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-2">
           {/* Globo */}
           <motion.button
             onClick={() => {}}
-            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Globe className="w-6 h-6 text-blue-600 group-hover:text-blue-700 transition-colors" />
-            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-              Globo
-            </span>
+            <Globe className="w-5 h-5 text-blue-600 group-hover:text-blue-700 transition-colors" />
           </motion.button>
 
           {/* Catálogo */}
           <motion.button
             onClick={() => {}}
-            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Bookmark className="w-6 h-6 text-green-600 group-hover:text-green-700 transition-colors" />
-            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-              Catálogo
-            </span>
+            <Bookmark className="w-5 h-5 text-green-600 group-hover:text-green-700 transition-colors" />
           </motion.button>
 
           {/* Inventário da Casa */}
           <motion.button
             onClick={() => {}}
-            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Package className="w-6 h-6 text-orange-600 group-hover:text-orange-700 transition-colors" />
-            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-              Inv. Casa
-            </span>
+            <Package className="w-5 h-5 text-orange-600 group-hover:text-orange-700 transition-colors" />
           </motion.button>
 
           {/* Configurações */}
           <motion.button
             onClick={() => {}}
-            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Settings className="w-6 h-6 text-purple-600 group-hover:text-purple-700 transition-colors" />
-            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-              Config.
-            </span>
+            <Settings className="w-5 h-5 text-purple-600 group-hover:text-purple-700 transition-colors" />
           </motion.button>
+
+          {/* Separator */}
+          <div className="w-5 h-px bg-gray-200/50 mx-auto my-1" />
 
           {/* Voltar */}
           <motion.button
             onClick={() => setCurrentScreen('world')}
-            className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group border-t border-gray-200/50 pt-4 mt-4"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <ArrowLeft className="w-6 h-6 text-gray-600 group-hover:text-gray-700 transition-colors" />
-            <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-              Voltar
-            </span>
+            <ArrowLeft className="w-5 h-5 text-gray-600 group-hover:text-gray-700 transition-colors" />
           </motion.button>
 
           {/* Admin Functions - Only show if user is admin */}
           {user?.isAdmin && (
-            <motion.button
-              onClick={() => {}}
-              className="relative flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 hover:bg-gray-50/50 group border-t border-gray-200/50 pt-4 mt-4"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Shield className="w-6 h-6 text-red-600 group-hover:text-red-700 transition-colors" />
-              <span className="text-xs font-medium mt-1 text-gray-700 group-hover:text-gray-900 transition-colors">
-                Admin
-              </span>
-            </motion.button>
+            <>
+              <div className="w-5 h-px bg-gray-200/50 mx-auto my-1" />
+              <motion.button
+                onClick={() => {}}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Shield className="w-5 h-5 text-red-600 group-hover:text-red-700 transition-colors" />
+              </motion.button>
+            </>
           )}
         </div>
       </motion.div>
