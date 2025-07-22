@@ -317,7 +317,6 @@ function App() {
             />
             <div className="h-full w-full">
               {currentScreen === "world" && <SpaceMap />}
-              {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
               {currentScreen === "fishing" && <FishingScreen />}
               {currentScreen === "simple-room-3d" && <SimpleRoom3D />}
