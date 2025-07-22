@@ -303,6 +303,7 @@ function App() {
           "planet",
           "exploration",
           "fishing",
+          "simple-room-3d",
         ].includes(currentScreen) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
