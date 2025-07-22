@@ -264,13 +264,17 @@ export const SimpleRoom3D: React.FC = () => {
     const maxRadius = 20;
 
     const onMouseDown = (event: MouseEvent) => {
-      // Only allow left mouse button (button 0)
-      if (event.button !== 0) return;
-
       event.preventDefault();
-      isMouseDown = true;
       mouseX = event.clientX;
       mouseY = event.clientY;
+
+      if (event.button === 0) {
+        // Left mouse button - orbital rotation
+        isLeftMouseDown = true;
+      } else if (event.button === 2) {
+        // Right mouse button - pan movement
+        isRightMouseDown = true;
+      }
     };
 
     const onMouseUp = () => {
