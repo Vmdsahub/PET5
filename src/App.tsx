@@ -14,7 +14,7 @@ import { OtherUserInventoryScreen } from "./components/Screens/OtherUserInventor
 import { OtherUserAchievementsScreen } from "./components/Screens/OtherUserAchievementsScreen";
 import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserCollectiblesScreen";
 import { SpaceMap } from "./components/Game/SpaceMap";
-import { PlanetScreen } from "./components/Screens/PlanetScreen";
+
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { InventoryScreen } from "./components/Screens/InventoryScreen";
