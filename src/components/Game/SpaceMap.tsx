@@ -287,14 +287,8 @@ const SpaceMapComponent: React.FC = () => {
       console.log("🗺️ Dados do planeta para setCurrentPlanet:", planetData);
       setCurrentPlanet(planetData);
 
-      // Check if this is Terra Verdejante (planet-3) - redirect to room decoration
-      if (transition.planet.id === "planet-3") {
-        console.log("🏠 Redirecionando para tela de decoração de quarto");
-        setCurrentScreen("room-decoration");
-      } else {
-        console.log("📱 Chamando setCurrentScreen('planet')");
-        setCurrentScreen("planet");
-      }
+      console.log("📱 Chamando setCurrentScreen('planet')");
+      setCurrentScreen("planet");
 
       pendingScreenTransition.current = null;
       console.log("✅ Transição concluída - planeta definido e tela alterada");
