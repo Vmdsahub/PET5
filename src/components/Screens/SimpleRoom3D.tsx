@@ -368,11 +368,12 @@ export const SimpleRoom3D: React.FC = () => {
       // Smooth camera interpolation
       currentX += (targetX - currentX) * 0.05;
       currentY += (targetY - currentY) * 0.05;
+      currentRadius += (targetRadius - currentRadius) * 0.08;
 
       // Update camera position for orbit
-      camera.position.x = Math.sin(currentX) * Math.cos(currentY) * radius;
-      camera.position.y = Math.sin(currentY) * radius + 2;
-      camera.position.z = Math.cos(currentX) * Math.cos(currentY) * radius;
+      camera.position.x = Math.sin(currentX) * Math.cos(currentY) * currentRadius;
+      camera.position.y = Math.sin(currentY) * currentRadius + 2;
+      camera.position.z = Math.cos(currentX) * Math.cos(currentY) * currentRadius;
       
       camera.lookAt(0, 0, 0);
 
