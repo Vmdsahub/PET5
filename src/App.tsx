@@ -298,7 +298,6 @@ function App() {
 
         {[
           "world",
-          "planet",
           "exploration",
           "fishing",
           "simple-room-3d",
