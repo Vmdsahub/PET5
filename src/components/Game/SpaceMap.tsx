@@ -287,10 +287,10 @@ const SpaceMapComponent: React.FC = () => {
       console.log("🗺️ Dados do planeta para setCurrentPlanet:", planetData);
       setCurrentPlanet(planetData);
 
-      // Check if this is Terra Verdejante (planet-3) - redirect to room decoration
+      // Check if this is Terra Verdejante (planet-3) - redirect directly to room 3D
       if (transition.planet.id === "planet-3") {
-        console.log("🏠 Redirecionando para tela de decoração de quarto");
-        setCurrentScreen("room-decoration");
+        console.log("🏠 Redirecionando diretamente para sala 3D");
+        setCurrentScreen("simple-room-3d");
       } else {
         console.log("📱 Chamando setCurrentScreen('planet')");
         setCurrentScreen("planet");
@@ -315,9 +315,9 @@ const SpaceMapComponent: React.FC = () => {
       };
       setCurrentPlanet(planetData);
 
-      // Check if this is Terra Verdejante (planet-3) - redirect to room decoration
+      // Check if this is Terra Verdejante (planet-3) - redirect directly to room 3D
       if (transition.planet.id === "planet-3") {
-        setCurrentScreen("room-decoration");
+        setCurrentScreen("simple-room-3d");
       } else {
         setCurrentScreen("planet");
       }

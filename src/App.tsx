@@ -14,11 +14,12 @@ import { OtherUserInventoryScreen } from "./components/Screens/OtherUserInventor
 import { OtherUserAchievementsScreen } from "./components/Screens/OtherUserAchievementsScreen";
 import { OtherUserCollectiblesScreen } from "./components/Screens/OtherUserCollectiblesScreen";
 import { SpaceMap } from "./components/Game/SpaceMap";
-import { PlanetScreen } from "./components/Screens/PlanetScreen";
+
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { InventoryScreen } from "./components/Screens/InventoryScreen";
-import { RoomDecorationScreen } from "./components/Screens/RoomDecorationScreen";
+import { SimpleRoom3D } from "./components/Screens/SimpleRoom3D";
+
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
@@ -200,13 +201,13 @@ function App() {
         return <OtherUserAchievementsScreen />;
       case "otherUserCollectibles":
         return <OtherUserCollectiblesScreen />;
-      case "planet":
-        console.log("📱 App.tsx: Renderizando PlanetScreen");
-        return <PlanetScreen />;
+
       case "exploration":
         return <ExplorationScreen />;
       case "fishing":
         return <FishingScreen />;
+      case "simple-room-3d":
+        return <SimpleRoom3D />;
 
       // Modal screens are now handled by ModalManager when on world screen
       case "pet":
@@ -297,10 +298,9 @@ function App() {
 
         {[
           "world",
-          "planet",
           "exploration",
           "fishing",
-          "room-decoration",
+          "simple-room-3d",
         ].includes(currentScreen) ? (
           // Fullscreen layout for world-related screens with pill navigations
           <div className="fixed inset-0 overflow-hidden">
@@ -317,14 +317,9 @@ function App() {
             />
             <div className="h-full w-full">
               {currentScreen === "world" && <SpaceMap />}
-              {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
               {currentScreen === "fishing" && <FishingScreen />}
-              {currentScreen === "room-decoration" && (
-                <RoomDecorationScreen
-                  onNavigateBack={() => setCurrentScreen("world")}
-                />
-              )}
+              {currentScreen === "simple-room-3d" && <SimpleRoom3D />}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager
