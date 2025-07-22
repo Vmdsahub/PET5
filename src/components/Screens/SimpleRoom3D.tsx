@@ -317,15 +317,15 @@ export const SimpleRoom3D: React.FC = () => {
     // Touch controls for mobile
     const onTouchStart = (event: TouchEvent) => {
       if (event.touches.length === 1) {
-        isMouseDown = true;
+        isLeftMouseDown = true;
         mouseX = event.touches[0].clientX;
         mouseY = event.touches[0].clientY;
       }
     };
 
     const onTouchMove = (event: TouchEvent) => {
-      if (!isMouseDown || event.touches.length !== 1) return;
-      
+      if (!isLeftMouseDown || event.touches.length !== 1) return;
+
       event.preventDefault();
       const deltaX = event.touches[0].clientX - mouseX;
       const deltaY = event.touches[0].clientY - mouseY;
@@ -340,7 +340,7 @@ export const SimpleRoom3D: React.FC = () => {
     };
 
     const onTouchEnd = () => {
-      isMouseDown = false;
+      isLeftMouseDown = false;
     };
 
     // Zoom controls
