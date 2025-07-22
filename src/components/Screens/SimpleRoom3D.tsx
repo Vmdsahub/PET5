@@ -155,10 +155,8 @@ export const SimpleRoom3D: React.FC = () => {
 
     // Room setup - Floor with better material
     const floorGeometry = new THREE.PlaneGeometry(12, 12);
-    const floorMaterial = new THREE.MeshLambertMaterial({ 
-      color: 0x2a2a2a,
-      transparent: true,
-      opacity: 0.9
+    const floorMaterial = new THREE.MeshLambertMaterial({
+      color: 0x2a2a2a
     });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
