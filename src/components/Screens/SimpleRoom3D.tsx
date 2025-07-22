@@ -286,17 +286,29 @@ export const SimpleRoom3D: React.FC = () => {
     };
 
     const onMouseMove = (event: MouseEvent) => {
-      if (!isMouseDown) return;
+      if (!isLeftMouseDown && !isRightMouseDown) return;
 
       event.preventDefault();
       const deltaX = event.clientX - mouseX;
       const deltaY = event.clientY - mouseY;
 
-      targetX += deltaX * 0.008;
-      targetY += deltaY * 0.008;
+      if (isLeftMouseDown) {
+        // Left mouse button - orbital rotation
+        targetX += deltaX * 0.008;
+        targetY += deltaY * 0.008;
 
-      // Limit vertical rotation
-      targetY = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, targetY));
+        // Limit vertical rotation
+        targetY = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, targetY));
+      } else if (isRightMouseDown) {
+        // Right mouse button - pan movement
+        const panSpeed = 0.01;
+        targetPanX -= deltaX * panSpeed;
+        targetPanY += deltaY * panSpeed;
+
+        // Limit pan movement to keep camera within reasonable bounds
+        targetPanX = Math.max(-5, Math.min(5, targetPanX));
+        targetPanY = Math.max(-2, Math.min(4, targetPanY));
+      }
 
       mouseX = event.clientX;
       mouseY = event.clientY;
