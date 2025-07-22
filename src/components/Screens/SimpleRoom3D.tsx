@@ -203,9 +203,7 @@ export const SimpleRoom3D: React.FC = () => {
     // Ceiling
     const ceilingGeometry = new THREE.PlaneGeometry(12, 12);
     const ceilingMaterial = new THREE.MeshLambertMaterial({
-      color: 0x2a2a2a,
-      transparent: true,
-      opacity: 0.9
+      color: 0x2a2a2a
     });
     const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
     ceiling.rotation.x = Math.PI / 2;
