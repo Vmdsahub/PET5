@@ -603,6 +603,133 @@ export const SimpleRoom3D: React.FC = () => {
       >
         <p className="text-xs">Terra Verdejante • Sala Base</p>
       </motion.div>
+
+      {/* Catálogo de Móveis */}
+      {showCatalog && (
+        <motion.div
+          className="absolute inset-0 z-20 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Overlay transparente */}
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowCatalog(false)}
+          />
+
+          {/* Catálogo Principal */}
+          <motion.div
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-5xl w-full mx-4 h-[80vh] flex overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag
+            dragConstraints={{ left: -200, right: 200, top: -100, bottom: 100 }}
+            dragElastic={0.1}
+          >
+            {/* Header */}
+            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-100 to-purple-100 p-4 border-b border-gray-200/50 z-30">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-800">
+                  🛋️ Catálogo de Móveis
+                </h2>
+                <button
+                  onClick={() => setShowCatalog(false)}
+                  className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Conteúdo Principal */}
+            <div className="flex flex-1 pt-16">
+              {/* Seções de Móveis */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                {/* Móveis Básicos */}
+                <section>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    🏠 Móveis Básicos
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Itens de exemplo */}
+                    {[
+                      { name: "Mesa Simples", price: "100 moedas", emoji: "🪑" },
+                      { name: "Cadeira Básica", price: "50 moedas", emoji: "🪑" },
+                      { name: "Estante", price: "150 moedas", emoji: "📚" },
+                      { name: "Cama", price: "200 moedas", emoji: "🛏️" },
+                      { name: "Tapete", price: "80 moedas", emoji: "🟫" },
+                      { name: "Luminária", price: "120 moedas", emoji: "💡" },
+                    ].map((item, index) => (
+                      <motion.div
+                        key={index}
+                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="text-2xl mb-2 text-center">{item.emoji}</div>
+                        <div className="text-sm font-medium text-gray-700 text-center">
+                          {item.name}
+                        </div>
+                        <div className="text-xs text-gray-500 text-center mt-1">
+                          {item.price}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Móveis Limitados */}
+                <section>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    ⭐ Móveis Limitados
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Itens limitados de exemplo */}
+                    {[
+                      { name: "Trono Dourado", price: "500 moedas", emoji: "👑" },
+                      { name: "Piano", price: "800 moedas", emoji: "🎹" },
+                      { name: "Aquário", price: "300 moedas", emoji: "🐠" },
+                      { name: "Telescópio", price: "600 moedas", emoji: "🔭" },
+                      { name: "Poltrona Real", price: "400 moedas", emoji: "🪑" },
+                      { name: "Mesa de Jantar", price: "450 moedas", emoji: "🍽️" },
+                    ].map((item, index) => (
+                      <motion.div
+                        key={index}
+                        className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4 shadow-sm border-2 border-yellow-200 hover:shadow-md transition-shadow cursor-pointer"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="text-2xl mb-2 text-center">{item.emoji}</div>
+                        <div className="text-sm font-medium text-gray-700 text-center">
+                          {item.name}
+                        </div>
+                        <div className="text-xs text-orange-600 text-center mt-1 font-medium">
+                          {item.price}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+
+              {/* Campo em Branco - Área de Visualização */}
+              <div className="w-80 bg-gray-50/50 border-l border-gray-200/50 p-6">
+                <div className="h-full flex items-center justify-center bg-white rounded-lg border-2 border-dashed border-gray-300">
+                  <div className="text-center text-gray-500">
+                    <div className="text-4xl mb-4">🏠</div>
+                    <p className="text-sm">Área de Visualização</p>
+                    <p className="text-xs mt-2">Clique em um móvel para ver detalhes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
