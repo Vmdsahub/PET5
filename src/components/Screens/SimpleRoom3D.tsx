@@ -277,8 +277,12 @@ export const SimpleRoom3D: React.FC = () => {
       }
     };
 
-    const onMouseUp = () => {
-      isMouseDown = false;
+    const onMouseUp = (event: MouseEvent) => {
+      if (event.button === 0) {
+        isLeftMouseDown = false;
+      } else if (event.button === 2) {
+        isRightMouseDown = false;
+      }
     };
 
     const onMouseMove = (event: MouseEvent) => {
