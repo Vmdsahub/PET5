@@ -1,11 +1,12 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Globe, Bookmark, Package, Settings, Shield } from 'lucide-react';
+import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield } from 'lucide-react';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
 
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
+  const [showCatalog, setShowCatalog] = useState(false);
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
@@ -514,12 +515,12 @@ export const SimpleRoom3D: React.FC = () => {
 
           {/* Catálogo */}
           <motion.button
-            onClick={() => {}}
+            onClick={() => setShowCatalog(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Bookmark className="w-4 h-4 text-green-600 group-hover:text-green-700 transition-colors" />
+            <ShoppingCart className="w-4 h-4 text-green-600 group-hover:text-green-700 transition-colors" />
           </motion.button>
 
           {/* Inventário da Casa */}
