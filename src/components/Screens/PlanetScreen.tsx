@@ -121,6 +121,13 @@ export const PlanetScreen: React.FC = () => {
       setSelectedPoint(selectedPoint === point.id ? null : point.id);
       return;
     }
+
+    // Special case: Planet 3 redirects to SimpleRoom3D
+    if (currentPlanet.id === "planet-3") {
+      setCurrentScreen("simple-room-3d");
+      return;
+    }
+
     // In normal mode, navigate to exploration
     setCurrentExplorationPoint(point);
     setCurrentScreen("exploration");
