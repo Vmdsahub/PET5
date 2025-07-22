@@ -269,6 +269,7 @@ export const SimpleRoom3D: React.FC = () => {
     const onMouseMove = (event: MouseEvent) => {
       if (!isMouseDown) return;
 
+      event.preventDefault();
       const deltaX = event.clientX - mouseX;
       const deltaY = event.clientY - mouseY;
 
