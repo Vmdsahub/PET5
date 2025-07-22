@@ -239,14 +239,25 @@ export const SimpleRoom3D: React.FC = () => {
     camera.position.set(0, 2, 10);
     camera.lookAt(0, 0, 0);
 
-    // Enhanced orbit controls using mouse events
-    let isMouseDown = false;
+    // Enhanced orbit and pan controls using mouse events
+    let isLeftMouseDown = false;
+    let isRightMouseDown = false;
     let mouseX = 0;
     let mouseY = 0;
+
+    // Orbital rotation (left mouse button)
     let targetX = 0;
     let targetY = 0;
     let currentX = 0;
     let currentY = 0;
+
+    // Pan movement (right mouse button)
+    let targetPanX = 0;
+    let targetPanY = 1; // Start at room center
+    let currentPanX = 0;
+    let currentPanY = 1;
+
+    // Zoom
     let targetRadius = 10;
     let currentRadius = 10;
     const minRadius = 3;
