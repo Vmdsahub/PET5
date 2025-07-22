@@ -323,6 +323,7 @@ function App() {
               {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
               {currentScreen === "fishing" && <FishingScreen />}
+              {currentScreen === "simple-room-3d" && <SimpleRoom3D />}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager
