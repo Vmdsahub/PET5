@@ -18,6 +18,7 @@ import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { InventoryScreen } from "./components/Screens/InventoryScreen";
+import { SimpleRoom3D } from "./components/Screens/SimpleRoom3D";
 
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
