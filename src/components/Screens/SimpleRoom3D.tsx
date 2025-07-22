@@ -313,11 +313,50 @@ export const SimpleRoom3D: React.FC = () => {
       isMouseDown = false;
     };
 
+    // Zoom controls
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const delta = event.deltaY * 0.01;
+      targetRadius = Math.max(minRadius, Math.min(maxRadius, targetRadius + delta));
+    };
+
+    // Touch zoom (pinch gesture)
+    let lastTouchDistance = 0;
+    const onTouchStartZoom = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        lastTouchDistance = Math.sqrt(
+          Math.pow(touch2.clientX - touch1.clientX, 2) +
+          Math.pow(touch2.clientY - touch1.clientY, 2)
+        );
+      }
+    };
+
+    const onTouchMoveZoom = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        const currentDistance = Math.sqrt(
+          Math.pow(touch2.clientX - touch1.clientX, 2) +
+          Math.pow(touch2.clientY - touch1.clientY, 2)
+        );
+
+        const delta = (lastTouchDistance - currentDistance) * 0.02;
+        targetRadius = Math.max(minRadius, Math.min(maxRadius, targetRadius + delta));
+        lastTouchDistance = currentDistance;
+      }
+    };
+
     renderer.domElement.addEventListener('mousedown', onMouseDown);
     renderer.domElement.addEventListener('touchstart', onTouchStart);
+    renderer.domElement.addEventListener('touchstart', onTouchStartZoom);
+    renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchmove', onTouchMoveZoom, { passive: false });
     window.addEventListener('touchend', onTouchEnd);
 
     // Animation loop with smooth interpolation
