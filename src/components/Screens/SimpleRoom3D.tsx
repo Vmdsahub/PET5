@@ -416,6 +416,7 @@ export const SimpleRoom3D: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
+      renderer.domElement.removeEventListener('contextmenu', onContextMenu);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
       renderer.domElement.removeEventListener('wheel', onWheel);
       window.removeEventListener('mouseup', onMouseUp);
