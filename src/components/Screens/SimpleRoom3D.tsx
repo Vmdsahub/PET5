@@ -405,15 +405,16 @@ export const SimpleRoom3D: React.FC = () => {
       currentX += (targetX - currentX) * 0.05;
       currentY += (targetY - currentY) * 0.05;
       currentRadius += (targetRadius - currentRadius) * 0.08;
+      currentPanX += (targetPanX - currentPanX) * 0.05;
+      currentPanY += (targetPanY - currentPanY) * 0.05;
 
-      // Update camera position for orbit - always focus on room center
-      const roomCenterY = 1; // Fixed Y center of the room
-      camera.position.x = Math.sin(currentX) * Math.cos(currentY) * currentRadius;
-      camera.position.y = Math.sin(currentY) * currentRadius + roomCenterY;
+      // Update camera position for orbit with pan offset
+      camera.position.x = Math.sin(currentX) * Math.cos(currentY) * currentRadius + currentPanX;
+      camera.position.y = Math.sin(currentY) * currentRadius + currentPanY;
       camera.position.z = Math.cos(currentX) * Math.cos(currentY) * currentRadius;
 
-      // Always look at the center of the room
-      camera.lookAt(0, roomCenterY, 0);
+      // Look at pan target point
+      camera.lookAt(currentPanX, currentPanY, 0);
 
       // Update star twinkling
       if (stars.material instanceof THREE.ShaderMaterial) {
