@@ -919,7 +919,7 @@ export const SimpleRoom3D: React.FC = () => {
     camera.position.set(distance, distance * 0.5, distance);
     camera.lookAt(0, 0, 0);
 
-    // Iluminação
+    // Ilumina��ão
     const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
     scene.add(ambientLight);
 
@@ -1678,31 +1678,17 @@ export const SimpleRoom3D: React.FC = () => {
               </div>
 
               {/* Form Fields */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome
-                  </label>
-                  <input
-                    type="text"
-                    value={modelName}
-                    onChange={(e) => setModelName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="Ex: Porta"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Emoji
-                  </label>
-                  <input
-                    type="text"
-                    value={modelEmoji}
-                    onChange={(e) => setModelEmoji(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    placeholder="🚪"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome do Móvel
+                </label>
+                <input
+                  type="text"
+                  value={modelName}
+                  onChange={(e) => setModelName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Ex: Porta Moderna"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
