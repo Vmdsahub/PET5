@@ -863,10 +863,10 @@ export const SimpleRoom3D: React.FC = () => {
                 <section>
                   <button
                     onClick={() => setExpandedLimited(!expandedLimited)}
-                    className="w-full flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <h3 className="text-sm font-semibold text-gray-700 flex items-center">
-                      ⭐ Móveis Limitados
+                    <h3 className="text-sm font-medium text-gray-800 flex items-center">
+                      <span className="text-yellow-500 mr-2">⭐</span>Móveis Limitados
                     </h3>
                     {expandedLimited ? (
                       <ChevronUp className="w-4 h-4 text-gray-600" />
