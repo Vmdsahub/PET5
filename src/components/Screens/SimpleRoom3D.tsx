@@ -6,6 +6,73 @@ import { useGameStore } from '../../store/gameStore';
 
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
+
+  // Funções de upload de arquivo
+  const handleFileSelect = (file: File) => {
+    if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+      if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+        setSelectedFile(file);
+        // Auto-fill model name from filename
+        const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
+        setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
+      } else {
+        alert('Arquivo muito grande! Máximo de 10MB permitido.');
+      }
+    } else {
+      alert('Formato de arquivo não suportado! Use .glb ou .gltf');
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleAddToCartalog = () => {
+    if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
+      alert('Por favor, preencha todos os campos e selecione um arquivo.');
+      return;
+    }
+
+    // Aqui seria a integração com o backend
+    console.log('Adicionando modelo:', {
+      file: selectedFile,
+      name: modelName,
+      category: modelCategory,
+      price: modelPrice,
+      emoji: modelEmoji
+    });
+
+    alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+
+    // Reset form
+    setSelectedFile(null);
+    setModelName('');
+    setModelPrice('');
+    setModelEmoji('');
+  };
+
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
