@@ -216,38 +216,18 @@ export const SimpleRoom3D: React.FC = () => {
       return;
     }
 
+    if (uploadStatus !== 'success' || !uploadedModel) {
+      alert('Aguarde o modelo ser carregado antes de adicionar ao catálogo.');
+      return;
+    }
+
     const currentUser = mockPersistenceService.getCurrentUser();
     if (!currentUser || !currentUser.isAdmin) {
       alert('Apenas administradores podem adicionar itens ao catálogo.');
       return;
     }
 
-    setUploadStatus('loading');
-    console.log('🚀 Iniciando carregamento do modelo GLB:', selectedFile.name);
-
     try {
-      // Carregar o modelo GLB
-      const loader = new GLTFLoader();
-      const url = URL.createObjectURL(selectedFile);
-      console.log('📁 URL criada para o arquivo:', url);
-
-      const gltf = await new Promise<any>((resolve, reject) => {
-        loader.load(
-          url,
-          (gltf) => {
-            console.log('✅ Modelo GLB carregado com sucesso:', gltf);
-            resolve(gltf);
-          },
-          (progress) => {
-            console.log('�� Progresso do carregamento:', progress);
-          },
-          (error) => {
-            console.error('❌ Erro no carregamento:', error);
-            reject(error);
-          }
-        );
-      });
-
       // Adicionar ao catálogo
       const newItem = mockPersistenceService.addToCatalog({
         name: modelName,
@@ -260,36 +240,11 @@ export const SimpleRoom3D: React.FC = () => {
       // Update local state
       setCatalogItems(mockPersistenceService.getCatalog());
 
-      // Configurar o modelo para visualização
-      const model = gltf.scene;
-      model.scale.setScalar(1);
-      model.position.set(0, 0, 0);
-      console.log('🎯 Modelo configurado:', model);
-
-      // Adicionar sombras ao modelo
-      let meshCount = 0;
-      model.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          meshCount++;
-        }
-      });
-      console.log('🔧 Sombras configuradas em', meshCount, 'meshes');
-
-      setUploadedModel(model);
-      setUploadStatus('success');
-      console.log('🎉 Modelo pronto para preview!');
-
-      // Limpar URL temporária
-      URL.revokeObjectURL(url);
-
       alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
 
     } catch (error) {
-      console.error('Erro ao carregar modelo GLB:', error);
-      setUploadStatus('error');
-      alert('Erro ao carregar o modelo GLB. Verifique se o arquivo está correto.');
+      alert('Erro ao adicionar item ao catálogo.');
+      console.error(error);
     }
   };
 
@@ -788,7 +743,7 @@ export const SimpleRoom3D: React.FC = () => {
       const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
       const catalogItemId = event.dataTransfer.getData('catalogItemId');
 
-      console.log('���� Drop detectado:', { inventoryItemId, catalogItemId });
+      console.log('🎯 Drop detectado:', { inventoryItemId, catalogItemId });
 
       if (!inventoryItemId || !catalogItemId) {
         console.log('❌ Dados de drag incompletos');
