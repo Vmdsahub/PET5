@@ -495,13 +495,18 @@ export const SimpleRoom3D: React.FC = () => {
 
       if (event.button === 0) {
         // Left mouse button - check for furniture click first
-        const rect = renderer.domElement.getBoundingClientRect();
+        if (!sceneRef.current) {
+          isLeftMouseDown = true;
+          return;
+        }
+
+        const rect = sceneRef.current.renderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouse, camera);
+        raycaster.setFromCamera(mouse, sceneRef.current.camera);
 
         // Check for furniture intersections
         if (sceneRef.current) {
