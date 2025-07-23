@@ -322,7 +322,8 @@ export const SimpleRoom3D: React.FC = () => {
     const result = mockPersistenceService.removeFromCatalog(catalogItemId);
 
     if (result.success) {
-      setCatalogItems(mockPersistenceService.getCatalog());
+      // Recarregar todos os dados para garantir consistência
+      loadGameData();
       alert(result.message);
     } else {
       alert(result.message);
@@ -339,9 +340,14 @@ export const SimpleRoom3D: React.FC = () => {
     const result = mockPersistenceService.removeFromInventory(currentUser.id, inventoryItemId);
 
     if (result.success) {
-      setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
-      const room = mockPersistenceService.getUserRoom(currentUser.id);
-      setPlacedFurniture(room?.placedFurniture || []);
+      // Recarregar todos os dados para garantir consistência
+      loadGameData();
+
+      // Limpar seleção se o item deletado estava selecionado
+      if (selectedInventoryItem === inventoryItemId) {
+        setSelectedInventoryItem(null);
+      }
+
       alert(result.message);
     } else {
       alert(result.message);
@@ -1883,7 +1889,7 @@ export const SimpleRoom3D: React.FC = () => {
                     onChange={(e) => setModelCategory(e.target.value as 'Móveis Básicos' | 'Móveis Limitados')}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   >
-                    <option value="Móveis Básicos">Móveis Básicos</option>
+                    <option value="M��veis Básicos">Móveis Básicos</option>
                     <option value="Móveis Limitados">Móveis Limitados</option>
                   </select>
                 </div>
