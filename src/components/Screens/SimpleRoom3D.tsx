@@ -1610,7 +1610,7 @@ export const SimpleRoom3D: React.FC = () => {
                                     className="w-8 h-8 object-contain"
                                   />
                                 ) : (
-                                  <span>{item.emoji || '���'}</span>
+                                  <span>{item.emoji || '📦'}</span>
                                 )}
                               </div>
                               <div className="text-xs font-medium text-gray-700 text-center truncate">
@@ -1817,7 +1817,7 @@ export const SimpleRoom3D: React.FC = () => {
                       </div>
                     ) : uploadStatus === 'error' ? (
                       <div>
-                        <div className="text-red-500 text-2xl mb-2">⚠��</div>
+                        <div className="text-red-500 text-2xl mb-2">⚠️</div>
                         <p className="text-sm text-red-600">Erro ao carregar</p>
                       </div>
                     ) : (
@@ -1850,7 +1850,7 @@ export const SimpleRoom3D: React.FC = () => {
               {/* Form Fields */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome do M��vel
+                  Nome do Móvel
                 </label>
                 <input
                   type="text"
@@ -1921,6 +1921,30 @@ export const SimpleRoom3D: React.FC = () => {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Context Menu */}
+      <ContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        onClose={handleContextMenuClose}
+        items={
+          contextMenu.type === 'catalog' ? [
+            {
+              label: 'Excluir',
+              icon: '🗑️',
+              color: 'danger' as const,
+              onClick: () => contextMenu.itemId && handleDeleteCatalogItem(contextMenu.itemId)
+            }
+          ] : contextMenu.type === 'inventory' ? [
+            {
+              label: 'Excluir',
+              icon: '🗑️',
+              color: 'danger' as const,
+              onClick: () => contextMenu.itemId && handleDeleteInventoryItem(contextMenu.itemId)
+            }
+          ] : []
+        }
+      />
     </div>
   );
 };
