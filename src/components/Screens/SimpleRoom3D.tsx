@@ -8,6 +8,7 @@ export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
   const mountRef = useRef<HTMLDivElement>(null);
@@ -876,7 +877,7 @@ export const SimpleRoom3D: React.FC = () => {
                       {[
                         { name: "Trono", price: "500", emoji: "👑", color: "bg-gradient-to-br from-yellow-200 to-yellow-300" },
                         { name: "Piano", price: "800", emoji: "🎹", color: "bg-gradient-to-br from-purple-200 to-purple-300" },
-                        { name: "Aquário", price: "300", emoji: "����", color: "bg-gradient-to-br from-blue-200 to-blue-300" },
+                        { name: "Aquário", price: "300", emoji: "🐠", color: "bg-gradient-to-br from-blue-200 to-blue-300" },
                         { name: "Telescópio", price: "600", emoji: "🔭", color: "bg-gradient-to-br from-gray-200 to-gray-300" },
                         { name: "Poltrona", price: "400", emoji: "🪑", color: "bg-gradient-to-br from-red-200 to-red-300" },
                         { name: "Mesa Real", price: "450", emoji: "🍽️", color: "bg-gradient-to-br from-green-200 to-green-300" },
