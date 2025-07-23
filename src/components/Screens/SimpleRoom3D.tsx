@@ -1035,11 +1035,17 @@ export const SimpleRoom3D: React.FC = () => {
 
     // Criar nova cena para preview
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
+    // Sem background para transparência
+    scene.background = null;
 
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true, // Habilitar transparência
+      preserveDrawingBuffer: true
+    });
     renderer.setSize(200, 200);
+    renderer.setClearColor(0x000000, 0); // Fundo completamente transparente
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     previewRendererRef.current = renderer;
