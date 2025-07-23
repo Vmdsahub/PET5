@@ -1338,7 +1338,7 @@ export const SimpleRoom3D: React.FC = () => {
                     <motion.div
                       key={invItem.id}
                       className={`
-                        relative rounded-lg p-3 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
+                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
                         ${catalogItem.category === 'Móveis Limitados'
                           ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
                           : 'bg-white border-gray-200'
