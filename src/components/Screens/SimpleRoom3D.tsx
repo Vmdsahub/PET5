@@ -155,6 +155,7 @@ export const SimpleRoom3D: React.FC = () => {
   const [userCoins, setUserCoins] = useState(0);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<string | null>(null);
   const [isDraggingOverScene, setIsDraggingOverScene] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
