@@ -83,6 +83,68 @@ export const SimpleRoom3D: React.FC = () => {
 
 
 
+  // Função para capturar thumbnail do modelo GLB
+  const captureModelThumbnail = (model: THREE.Group): Promise<string> => {
+    return new Promise((resolve) => {
+      // Criar cena temporária para captura
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true, // Fundo transparente
+        preserveDrawingBuffer: true
+      });
+
+      renderer.setSize(128, 128);
+      renderer.setClearColor(0x000000, 0); // Fundo transparente
+
+      // Clonar modelo
+      const modelClone = model.clone();
+      scene.add(modelClone);
+
+      // Calcular bounding box
+      const box = new THREE.Box3().setFromObject(modelClone);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      // Centralizar modelo
+      modelClone.position.sub(center);
+
+      // Posicionar câmera para vista frontal
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const distance = maxDim * 1.5;
+      camera.position.set(0, 0, distance); // Vista frontal
+      camera.lookAt(0, 0, 0);
+
+      // Iluminação simples
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      directionalLight.position.set(0, 0, 1);
+      scene.add(directionalLight);
+
+      // Renderizar e capturar
+      renderer.render(scene, camera);
+      const thumbnail = renderer.domElement.toDataURL('image/png');
+
+      // Limpar recursos
+      renderer.dispose();
+      scene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach(material => material.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
+
+      resolve(thumbnail);
+    });
+  };
+
   // Funções de upload GLB
   const handleFileSelect = async (file: File) => {
     if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
