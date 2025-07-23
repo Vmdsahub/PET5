@@ -81,104 +81,7 @@ export const SimpleRoom3D: React.FC = () => {
     });
   };
 
-  // Funções de upload de arquivo
-  const handleFileSelect = async (file: File) => {
-    if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
-      if (file.size <= 10 * 1024 * 1024) { // 10MB limit
-        setSelectedFile(file);
-        // Auto-fill model name from filename
-        const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
-        setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
 
-        // Carregar o modelo GLB imediatamente
-        setUploadStatus('loading');
-        console.log('🚀 Iniciando carregamento do modelo GLB:', file.name);
-
-        try {
-          // Carregar o modelo GLB
-          const loader = new GLTFLoader();
-          const url = URL.createObjectURL(file);
-          console.log('📁 URL criada para o arquivo:', url);
-
-          const gltf = await new Promise<any>((resolve, reject) => {
-            loader.load(
-              url,
-              (gltf) => {
-                console.log('✅ Modelo GLB carregado com sucesso:', gltf);
-                resolve(gltf);
-              },
-              (progress) => {
-                console.log('📊 Progresso do carregamento:', progress);
-              },
-              (error) => {
-                console.error('❌ Erro no carregamento:', error);
-                reject(error);
-              }
-            );
-          });
-
-          // Configurar o modelo para visualização
-          const model = gltf.scene;
-          model.scale.setScalar(1);
-          model.position.set(0, 0, 0);
-          console.log('🎯 Modelo configurado:', model);
-
-          // Adicionar sombras ao modelo
-          let meshCount = 0;
-          model.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              meshCount++;
-            }
-          });
-          console.log('🔧 Sombras configuradas em', meshCount, 'meshes');
-
-          setUploadedModel(model);
-          setUploadStatus('success');
-          console.log('🎉 Modelo pronto para preview!');
-
-          // Limpar URL temporária
-          URL.revokeObjectURL(url);
-
-        } catch (error) {
-          console.error('Erro ao carregar modelo GLB:', error);
-          setUploadStatus('error');
-          alert('Erro ao carregar o modelo GLB. Verifique se o arquivo está correto.');
-        }
-      } else {
-        alert('Arquivo muito grande! Máximo de 10MB permitido.');
-      }
-    } else {
-      alert('Formato de arquivo não suportado! Use .glb ou .gltf');
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
 
   // Initialize game data
   const initializeGameData = () => {
@@ -770,7 +673,7 @@ export const SimpleRoom3D: React.FC = () => {
         child.rotation.x < 0 // Floor is rotated on X axis
       );
 
-      console.log('🏠 Floor encontrado:', !!floor);
+      console.log('�� Floor encontrado:', !!floor);
 
       let position = { x: 0, y: -1.5, z: 0 }; // Default position
 
@@ -802,7 +705,7 @@ export const SimpleRoom3D: React.FC = () => {
         scale: { x: 1, y: 1, z: 1 }
       });
 
-      console.log('🏠 M��vel adicionado ao quarto:', newFurniture);
+      console.log('🏠 Móvel adicionado ao quarto:', newFurniture);
 
       // Update local state
       const room = mockPersistenceService.getUserRoom(currentUser.id);
