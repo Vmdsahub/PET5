@@ -822,6 +822,61 @@ export const SimpleRoom3D: React.FC = () => {
     }
   }, [placedFurniture, catalogItems, inventoryItems]);
 
+  // Auto-save system
+  useEffect(() => {
+    const autoSave = () => {
+      const currentUser = mockPersistenceService.getCurrentUser();
+      if (!currentUser) return;
+
+      // Save current state
+      const room = mockPersistenceService.getUserRoom(currentUser.id);
+      if (room) {
+        room.lastModified = new Date().toISOString();
+        mockPersistenceService.saveUserRoom(room);
+      }
+
+      console.log('🔄 Auto-save executado');
+    };
+
+    // Auto-save every 30 seconds
+    const interval = setInterval(autoSave, 30000);
+
+    // Save on window unload
+    const handleBeforeUnload = () => {
+      autoSave();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  // Save on visibility change (tab switch, minimize, etc.)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const currentUser = mockPersistenceService.getCurrentUser();
+        if (currentUser) {
+          const room = mockPersistenceService.getUserRoom(currentUser.id);
+          if (room) {
+            room.lastModified = new Date().toISOString();
+            mockPersistenceService.saveUserRoom(room);
+            console.log('🔄 Auto-save ao trocar de aba');
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden">
       <div ref={mountRef} className="w-full h-full" />
