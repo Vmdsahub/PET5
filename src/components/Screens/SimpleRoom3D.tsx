@@ -7,6 +7,7 @@ import { useGameStore } from '../../store/gameStore';
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
   const [showCatalog, setShowCatalog] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
   const mountRef = useRef<HTMLDivElement>(null);
