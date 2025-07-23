@@ -420,7 +420,41 @@ export const SimpleRoom3D: React.FC = () => {
       mouseY = event.clientY;
 
       if (event.button === 0) {
-        // Left mouse button - orbital rotation
+        // Left mouse button - check for furniture click first
+        const rect = renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        // Check for furniture intersections
+        const furnitureObjects = scene.children.filter(child => child.userData && child.userData.furnitureId);
+        const intersects = raycaster.intersectObjects(furnitureObjects);
+
+        if (intersects.length > 0) {
+          const clickedFurniture = intersects[0].object;
+          const furnitureId = clickedFurniture.userData.furnitureId;
+
+          // Right click removes furniture
+          if (event.button === 2) {
+            const currentUser = mockPersistenceService.getCurrentUser();
+            if (currentUser) {
+              mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureId);
+              scene.remove(clickedFurniture);
+              const room = mockPersistenceService.getUserRoom(currentUser.id);
+              setPlacedFurniture(room?.placedFurniture || []);
+            }
+            return;
+          }
+
+          // Left click selects furniture (could add movement later)
+          console.log('Clicked furniture:', furnitureId);
+          return;
+        }
+
+        // No furniture clicked, continue with orbital rotation
         isLeftMouseDown = true;
       } else if (event.button === 2) {
         // Right mouse button - pan movement
