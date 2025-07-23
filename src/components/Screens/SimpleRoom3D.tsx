@@ -179,6 +179,11 @@ export const SimpleRoom3D: React.FC = () => {
           });
 
           setUploadedModel(model);
+
+          // Capturar thumbnail do modelo
+          const thumbnail = await captureModelThumbnail(model);
+          setModelThumbnail(thumbnail);
+
           setUploadStatus('success');
           URL.revokeObjectURL(url);
 
