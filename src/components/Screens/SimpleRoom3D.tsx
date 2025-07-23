@@ -292,6 +292,62 @@ export const SimpleRoom3D: React.FC = () => {
     }
   };
 
+  // Context menu handlers
+  const handleContextMenuOpen = (event: React.MouseEvent, type: 'catalog' | 'inventory', itemId: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setContextMenu({
+      isOpen: true,
+      position: { x: event.clientX, y: event.clientY },
+      type,
+      itemId
+    });
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleDeleteCatalogItem = async (catalogItemId: string) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem excluir itens do catálogo.');
+      return;
+    }
+
+    const confirmDelete = confirm('Tem certeza que deseja excluir este item do catálogo?');
+    if (!confirmDelete) return;
+
+    const result = mockPersistenceService.removeFromCatalog(catalogItemId);
+
+    if (result.success) {
+      setCatalogItems(mockPersistenceService.getCatalog());
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
+  const handleDeleteInventoryItem = async (inventoryItemId: string) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const confirmDelete = confirm('Tem certeza que deseja excluir este item do inventário?');
+    if (!confirmDelete) return;
+
+    const result = mockPersistenceService.removeFromInventory(currentUser.id, inventoryItemId);
+
+    if (result.success) {
+      setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
+      const room = mockPersistenceService.getUserRoom(currentUser.id);
+      setPlacedFurniture(room?.placedFurniture || []);
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
