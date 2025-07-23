@@ -623,7 +623,7 @@ export const SimpleRoom3D: React.FC = () => {
 
           {/* Catálogo Principal */}
           <motion.div
-            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-5xl w-full mx-4 h-[80vh] flex overflow-hidden"
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-4xl w-full mx-4 h-[80vh] flex overflow-hidden"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -697,7 +697,7 @@ export const SimpleRoom3D: React.FC = () => {
                       { name: "Aquário", price: "300 moedas", emoji: "🐠" },
                       { name: "Telescópio", price: "600 moedas", emoji: "🔭" },
                       { name: "Poltrona Real", price: "400 moedas", emoji: "🪑" },
-                      { name: "Mesa de Jantar", price: "450 moedas", emoji: "��️" },
+                      { name: "Mesa de Jantar", price: "450 moedas", emoji: "🍽️" },
                     ].map((item, index) => (
                       <motion.div
                         key={index}
