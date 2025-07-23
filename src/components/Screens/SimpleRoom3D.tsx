@@ -663,6 +663,8 @@ export const SimpleRoom3D: React.FC = () => {
     renderer.domElement.addEventListener('touchstart', onTouchStart);
     renderer.domElement.addEventListener('touchstart', onTouchStartZoom);
     renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+    renderer.domElement.addEventListener('dragover', onDragOver);
+    renderer.domElement.addEventListener('drop', onDrop);
     window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: false });
@@ -1235,7 +1237,7 @@ export const SimpleRoom3D: React.FC = () => {
                           ) : (
                             <div>
                               <div className="text-xs text-green-400 mb-1">
-                                ��️ Arrastar para sala
+                                🖱️ Arrastar para sala
                               </div>
                               <div className="text-xs text-blue-400">
                                 👁️ Click: Selecionar
