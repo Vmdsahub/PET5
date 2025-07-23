@@ -1040,72 +1040,90 @@ export const SimpleRoom3D: React.FC = () => {
             <div className="flex-1 p-6 overflow-y-auto">
               <div className="grid grid-cols-6 gap-4">
                 {/* Móveis no inventário */}
-                {[
-                  { name: "Mesa Simples", emoji: "🪑", rarity: "comum", status: "novo" },
-                  { name: "Cadeira Básica", emoji: "🪑", rarity: "comum", status: "equipado" },
-                  { name: "Estante", emoji: "📚", rarity: "comum", status: "novo" },
-                  { name: "Luminária", emoji: "💡", rarity: "comum", status: "novo" },
-                  { name: "Trono Dourado", emoji: "👑", rarity: "limitado", status: "novo" },
-                  { name: "Piano", emoji: "🎹", rarity: "limitado", status: "equipado" },
-                  { name: "Sofá", emoji: "🛋️", rarity: "comum", status: "novo" },
-                  { name: "TV", emoji: "📺", rarity: "comum", status: "novo" },
-                  { name: "Aquário", emoji: "🐠", rarity: "limitado", status: "novo" },
-                  { name: "Tapete", emoji: "🟫", rarity: "comum", status: "equipado" },
-                  { name: "Telescópio", emoji: "🔭", rarity: "limitado", status: "novo" },
-                  { name: "Cama", emoji: "🛏️", rarity: "comum", status: "novo" },
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className={`
-                      relative rounded-lg p-3 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
-                      ${item.rarity === 'limitado'
-                        ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
-                        : 'bg-white border-gray-200'
-                      }
-                      ${item.status === 'equipado' ? 'ring-2 ring-green-400' : ''}
-                    `}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {/* Status Badge */}
-                    {item.status === 'equipado' && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                    )}
-                    {item.status === 'novo' && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
-                    )}
+                {inventoryItems.map((invItem) => {
+                  const catalogItem = catalogItems.find(c => c.id === invItem.catalogItemId);
+                  if (!catalogItem) return null;
 
-                    <div className="text-2xl text-center mb-2">{item.emoji}</div>
-                    <div className="text-xs font-medium text-gray-700 text-center truncate">
-                      {item.name}
-                    </div>
+                  const isPlaced = placedFurniture.some(f => f.inventoryItemId === invItem.id);
 
-                    {/* Rarity indicator */}
-                    <div className={`text-xs text-center mt-1 ${
-                      item.rarity === 'limitado' ? 'text-orange-600 font-medium' : 'text-gray-500'
-                    }`}>
-                      {item.rarity === 'limitado' ? '⭐ Limitado' : '• Comum'}
-                    </div>
+                  return (
+                    <motion.div
+                      key={invItem.id}
+                      className={`
+                        relative rounded-lg p-3 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
+                        ${catalogItem.category === 'Móveis Limitados'
+                          ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
+                          : 'bg-white border-gray-200'
+                        }
+                        ${isPlaced ? 'ring-2 ring-green-400' : ''}
+                        ${selectedInventoryItem === invItem.id ? 'ring-2 ring-blue-400' : ''}
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedInventoryItem(selectedInventoryItem === invItem.id ? null : invItem.id)}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('inventoryItemId', invItem.id);
+                        e.dataTransfer.setData('catalogItemId', catalogItem.id);
+                      }}
+                    >
+                      {/* Status Badge */}
+                      {isPlaced && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                      )}
+                      {!isPlaced && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+                      )}
 
-                    {/* Hover overlay with actions */}
-                    <div className="absolute inset-0 bg-black/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="text-center">
-                        {item.status === 'equipado' ? (
-                          <button className="text-xs text-red-400 hover:text-red-300 mb-1 block">
-                            🗑️ Remover
-                          </button>
-                        ) : (
-                          <button className="text-xs text-green-400 hover:text-green-300 mb-1 block">
-                            🏠 Equipar
-                          </button>
-                        )}
-                        <button className="text-xs text-blue-400 hover:text-blue-300 block">
-                          👁️ Visualizar
-                        </button>
+                      <div className="text-2xl text-center mb-2">{catalogItem.emoji}</div>
+                      <div className="text-xs font-medium text-gray-700 text-center truncate">
+                        {catalogItem.name}
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+
+                      {/* Rarity indicator */}
+                      <div className={`text-xs text-center mt-1 ${
+                        catalogItem.category === 'Móveis Limitados' ? 'text-orange-600 font-medium' : 'text-gray-500'
+                      }`}>
+                        {catalogItem.category === 'Móveis Limitados' ? '⭐ Limitado' : '• Comum'}
+                      </div>
+
+                      {/* Hover overlay with actions */}
+                      <div className="absolute inset-0 bg-black/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="text-center">
+                          {isPlaced ? (
+                            <button
+                              className="text-xs text-red-400 hover:text-red-300 mb-1 block"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Remove from room
+                                const currentUser = mockPersistenceService.getCurrentUser();
+                                if (currentUser) {
+                                  const furnitureToRemove = placedFurniture.find(f => f.inventoryItemId === invItem.id);
+                                  if (furnitureToRemove) {
+                                    mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureToRemove.id);
+                                    const room = mockPersistenceService.getUserRoom(currentUser.id);
+                                    setPlacedFurniture(room?.placedFurniture || []);
+                                  }
+                                }
+                              }}
+                            >
+                              🗑️ Remover
+                            </button>
+                          ) : (
+                            <div>
+                              <div className="text-xs text-green-400 mb-1">
+                                🖱️ Arrastar para sala
+                              </div>
+                              <div className="text-xs text-blue-400">
+                                👁️ Click: Selecionar
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
 
                 {/* Slots vazios */}
                 {Array.from({ length: 6 }, (_, index) => (
