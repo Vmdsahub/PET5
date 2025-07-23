@@ -50,7 +50,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   return (
     <motion.div
       ref={menuRef}
-      className="fixed z-50 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 min-w-32"
+      className="fixed z-50 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 min-w-36"
       style={{
         left: position.x,
         top: position.y,
