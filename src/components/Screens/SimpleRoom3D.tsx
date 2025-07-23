@@ -1434,7 +1434,7 @@ export const SimpleRoom3D: React.FC = () => {
                             className="w-8 h-8 object-contain"
                           />
                         ) : (
-                          <span>{catalogItem.emoji || '📦'}</span>
+                          <span>{catalogItem.emoji || '���'}</span>
                         )}
                       </div>
                       <div className="text-xs font-medium text-gray-700 text-center truncate">
@@ -1804,7 +1804,7 @@ export const SimpleRoom3D: React.FC = () => {
 
                 {uploadStatus === 'success' && uploadedModel ? (
                   <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4 text-center">
-                    <div ref={previewMountRef} className="w-full h-48 bg-gray-900 rounded-lg mb-3 flex items-center justify-center" />
+                    <div ref={previewMountRef} className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center border border-gray-300" />
                     <p className="text-sm text-green-700 font-medium">
                       {selectedFile?.name}
                     </p>
