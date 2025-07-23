@@ -1245,7 +1245,7 @@ export const SimpleRoom3D: React.FC = () => {
                 </button>
               </div>
               <div className="text-sm text-gray-500 mt-1">
-                Ferramentas e configurações avançadas
+                Ferramentas e configuraç��es avançadas
               </div>
             </div>
 
@@ -1354,8 +1354,11 @@ export const SimpleRoom3D: React.FC = () => {
                             <p className="text-sm text-green-700 font-medium mb-1">
                               {selectedFile.name}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 mb-2">
                               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                            <p className="text-xs text-blue-600 font-medium">
+                              📝 Preencha os campos e clique em "Adicionar ao Catálogo" para ver o preview 3D
                             </p>
                             <button
                               className="mt-2 text-xs text-red-500 hover:text-red-700"
