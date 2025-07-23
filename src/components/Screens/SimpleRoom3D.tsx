@@ -144,7 +144,7 @@ export const SimpleRoom3D: React.FC = () => {
     }
 
     try {
-      // Adicionar ao catálogo
+      // Adicionar ao cat��logo
       const newItem = mockPersistenceService.addToCatalog({
         name: modelName,
         emoji: modelEmoji,
@@ -880,7 +880,77 @@ export const SimpleRoom3D: React.FC = () => {
     };
   }, []);
 
+  // Preview renderer para modelo GLB carregado
+  useEffect(() => {
+    if (!uploadedModel || !previewMountRef.current) return;
 
+    // Limpar renderizador anterior
+    if (previewRendererRef.current && previewMountRef.current.contains(previewRendererRef.current.domElement)) {
+      previewMountRef.current.removeChild(previewRendererRef.current.domElement);
+      previewRendererRef.current.dispose();
+    }
+
+    // Criar nova cena para preview
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(200, 200);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    previewRendererRef.current = renderer;
+
+    // Adicionar modelo à cena
+    const modelClone = uploadedModel.clone();
+    scene.add(modelClone);
+
+    // Calcular bounding box para centralizar o modelo
+    const box = new THREE.Box3().setFromObject(modelClone);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Centralizar modelo
+    modelClone.position.sub(center);
+
+    // Posicionar câmera
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const distance = maxDim * 2;
+    camera.position.set(distance, distance * 0.5, distance);
+    camera.lookAt(0, 0, 0);
+
+    // Iluminação
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    // Adicionar ao DOM
+    previewMountRef.current.appendChild(renderer.domElement);
+
+    // Animação de rotação
+    let animationId: number;
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+      modelClone.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Cleanup
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      if (previewRendererRef.current && previewMountRef.current?.contains(previewRendererRef.current.domElement)) {
+        previewMountRef.current.removeChild(previewRendererRef.current.domElement);
+        previewRendererRef.current.dispose();
+      }
+    };
+  }, [uploadedModel]);
 
   // Reload furniture when data changes
   useEffect(() => {
