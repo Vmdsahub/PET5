@@ -200,7 +200,7 @@ export const SimpleRoom3D: React.FC = () => {
   };
 
   const handleAddToSection = async () => {
-    if (!selectedFile || !modelName || !modelPrice || !modelEmoji || uploadStatus !== 'success') {
+    if (!selectedFile || !modelName || !modelPrice || !modelThumbnail || uploadStatus !== 'success') {
       return;
     }
 
@@ -214,7 +214,7 @@ export const SimpleRoom3D: React.FC = () => {
       // Adicionar ao catálogo
       const newItem = mockPersistenceService.addToCatalog({
         name: modelName,
-        emoji: modelEmoji,
+        emoji: modelThumbnail, // Usar thumbnail no lugar do emoji
         price: parseInt(modelPrice),
         category: modelCategory,
         createdBy: currentUser.id
