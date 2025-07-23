@@ -761,6 +761,7 @@ export const SimpleRoom3D: React.FC = () => {
     renderer.domElement.addEventListener('touchstart', onTouchStart);
     renderer.domElement.addEventListener('touchstart', onTouchStartZoom);
     renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+    renderer.domElement.addEventListener('dragenter', onDragEnter);
     renderer.domElement.addEventListener('dragover', onDragOver);
     renderer.domElement.addEventListener('dragleave', onDragLeave);
     renderer.domElement.addEventListener('drop', onDrop);
