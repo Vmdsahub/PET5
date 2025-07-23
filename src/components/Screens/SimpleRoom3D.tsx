@@ -746,7 +746,7 @@ export const SimpleRoom3D: React.FC = () => {
       console.log('🎯 Drop detectado:', { inventoryItemId, catalogItemId });
 
       if (!inventoryItemId || !catalogItemId) {
-        console.log('❌ Dados de drag incompletos');
+        console.log('��� Dados de drag incompletos');
         return;
       }
 
@@ -1390,7 +1390,7 @@ export const SimpleRoom3D: React.FC = () => {
                               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                             </p>
                             <p className="text-xs text-blue-600 font-medium">
-                              📝 Preencha os campos e clique em "Adicionar ao Catálogo" para ver o preview 3D
+                              ⏳ Carregando preview 3D do modelo...
                             </p>
                             <button
                               className="mt-2 text-xs text-red-500 hover:text-red-700"
