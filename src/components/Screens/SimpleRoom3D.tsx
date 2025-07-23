@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useGameStore } from '../../store/gameStore';
 import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } from '../../services/mockPersistenceService';
 
@@ -80,14 +81,116 @@ export const SimpleRoom3D: React.FC = () => {
     });
   };
 
-  // Funções de upload de arquivo
-  const handleFileSelect = (file: File) => {
+
+
+  // Função para capturar thumbnail do modelo GLB
+  const captureModelThumbnail = (model: THREE.Group): Promise<string> => {
+    return new Promise((resolve) => {
+      // Criar cena temporária para captura
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true, // Fundo transparente
+        preserveDrawingBuffer: true
+      });
+
+      renderer.setSize(128, 128);
+      renderer.setClearColor(0x000000, 0); // Fundo transparente
+
+      // Clonar modelo
+      const modelClone = model.clone();
+      scene.add(modelClone);
+
+      // Calcular bounding box
+      const box = new THREE.Box3().setFromObject(modelClone);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      // Centralizar modelo
+      modelClone.position.sub(center);
+
+      // Posicionar câmera para vista frontal
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const distance = maxDim * 1.5;
+      camera.position.set(0, 0, distance); // Vista frontal
+      camera.lookAt(0, 0, 0);
+
+      // Iluminação simples
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      directionalLight.position.set(0, 0, 1);
+      scene.add(directionalLight);
+
+      // Renderizar e capturar
+      renderer.render(scene, camera);
+      const thumbnail = renderer.domElement.toDataURL('image/png');
+
+      // Limpar recursos
+      renderer.dispose();
+      scene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.geometry.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach(material => material.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
+
+      resolve(thumbnail);
+    });
+  };
+
+  // Funções de upload GLB
+  const handleFileSelect = async (file: File) => {
     if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
       if (file.size <= 10 * 1024 * 1024) { // 10MB limit
         setSelectedFile(file);
         // Auto-fill model name from filename
         const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
         setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
+
+        // Carregar o modelo GLB imediatamente
+        setUploadStatus('loading');
+
+        try {
+          const loader = new GLTFLoader();
+          const url = URL.createObjectURL(file);
+
+          const gltf = await new Promise<any>((resolve, reject) => {
+            loader.load(url, resolve, undefined, reject);
+          });
+
+          // Configurar o modelo
+          const model = gltf.scene;
+          model.scale.setScalar(1);
+          model.position.set(0, 0, 0);
+
+          // Adicionar sombras
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          setUploadedModel(model);
+
+          // Capturar thumbnail do modelo
+          const thumbnail = await captureModelThumbnail(model);
+          setModelThumbnail(thumbnail);
+
+          setUploadStatus('success');
+          URL.revokeObjectURL(url);
+
+        } catch (error) {
+          console.error('Erro ao carregar modelo GLB:', error);
+          setUploadStatus('error');
+        }
       } else {
         alert('Arquivo muito grande! Máximo de 10MB permitido.');
       }
@@ -96,29 +199,44 @@ export const SimpleRoom3D: React.FC = () => {
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
+  const handleAddToSection = async () => {
+    if (!selectedFile || !modelName || !modelPrice || !modelThumbnail || uploadStatus !== 'success') {
+      return;
     }
-  };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem adicionar itens ao catálogo.');
+      return;
+    }
+
+    try {
+      // Adicionar ao catálogo
+      const newItem = mockPersistenceService.addToCatalog({
+        name: modelName,
+        emoji: modelThumbnail, // Usar thumbnail no lugar do emoji
+        price: parseInt(modelPrice),
+        category: modelCategory,
+        createdBy: currentUser.id
+      });
+
+      // Update local state
+      setCatalogItems(mockPersistenceService.getCatalog());
+
+      // Limpar estado e fechar modal
+      setSelectedFile(null);
+      setModelName('');
+      setModelPrice('');
+      setModelThumbnail(null);
+      setUploadedModel(null);
+      setUploadStatus('idle');
+      setShowUploadModal(false);
+
+      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+
+    } catch (error) {
+      alert('Erro ao adicionar item ao catálogo.');
+      console.error(error);
     }
   };
 
@@ -152,42 +270,7 @@ export const SimpleRoom3D: React.FC = () => {
     setUserCoins(currentUser.coins);
   };
 
-  const handleAddToCartalog = () => {
-    if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
-      alert('Por favor, preencha todos os campos e selecione um arquivo.');
-      return;
-    }
 
-    const currentUser = mockPersistenceService.getCurrentUser();
-    if (!currentUser || !currentUser.isAdmin) {
-      alert('Apenas administradores podem adicionar itens ao catálogo.');
-      return;
-    }
-
-    try {
-      const newItem = mockPersistenceService.addToCatalog({
-        name: modelName,
-        emoji: modelEmoji,
-        price: parseInt(modelPrice),
-        category: modelCategory,
-        createdBy: currentUser.id
-      });
-
-      // Update local state
-      setCatalogItems(mockPersistenceService.getCatalog());
-
-      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
-
-      // Reset form
-      setSelectedFile(null);
-      setModelName('');
-      setModelPrice('');
-      setModelEmoji('');
-    } catch (error) {
-      alert('Erro ao adicionar item ao catálogo.');
-      console.error(error);
-    }
-  };
 
   const handlePurchaseItem = (catalogItem: CatalogItem) => {
     const currentUser = mockPersistenceService.getCurrentUser();
@@ -210,15 +293,18 @@ export const SimpleRoom3D: React.FC = () => {
 
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadedModel, setUploadedModel] = useState<THREE.Group | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [modelName, setModelName] = useState('');
-  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
   const [modelPrice, setModelPrice] = useState('');
-  const [modelEmoji, setModelEmoji] = useState('');
+  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
+  const [modelThumbnail, setModelThumbnail] = useState<string | null>(null);
+  const previewMountRef = useRef<HTMLDivElement>(null);
+  const previewRendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   // Game data states
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
@@ -861,6 +947,78 @@ export const SimpleRoom3D: React.FC = () => {
     };
   }, []);
 
+  // Preview renderer para modelo GLB carregado
+  useEffect(() => {
+    if (!uploadedModel || !previewMountRef.current) return;
+
+    // Limpar renderizador anterior
+    if (previewRendererRef.current && previewMountRef.current.contains(previewRendererRef.current.domElement)) {
+      previewMountRef.current.removeChild(previewRendererRef.current.domElement);
+      previewRendererRef.current.dispose();
+    }
+
+    // Criar nova cena para preview
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(200, 200);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    previewRendererRef.current = renderer;
+
+    // Adicionar modelo à cena
+    const modelClone = uploadedModel.clone();
+    scene.add(modelClone);
+
+    // Calcular bounding box para centralizar o modelo
+    const box = new THREE.Box3().setFromObject(modelClone);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Centralizar modelo
+    modelClone.position.sub(center);
+
+    // Posicionar câmera
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const distance = maxDim * 2;
+    camera.position.set(distance, distance * 0.5, distance);
+    camera.lookAt(0, 0, 0);
+
+    // Iluminação
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 10, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    // Adicionar ao DOM
+    previewMountRef.current.appendChild(renderer.domElement);
+
+    // Animação de rotação
+    let animationId: number;
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+      modelClone.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Cleanup
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      if (previewRendererRef.current && previewMountRef.current?.contains(previewRendererRef.current.domElement)) {
+        previewMountRef.current.removeChild(previewRendererRef.current.domElement);
+        previewRendererRef.current.dispose();
+      }
+    };
+  }, [uploadedModel]);
+
   // Reload furniture when data changes
   useEffect(() => {
     if (sceneRef.current && catalogItems.length > 0 && inventoryItems.length > 0) {
@@ -954,7 +1112,7 @@ export const SimpleRoom3D: React.FC = () => {
             >
               🏠
             </motion.div>
-            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o móvel</p>
+            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o m��vel</p>
             <p className="text-xs text-gray-500 mt-1">O móvel será colocado no chão</p>
           </div>
         </motion.div>
@@ -1035,20 +1193,7 @@ export const SimpleRoom3D: React.FC = () => {
             <ArrowLeft className="w-4 h-4 text-gray-600 group-hover:text-gray-700 transition-colors" />
           </motion.button>
 
-          {/* Admin Functions - Only show if user is admin */}
-          {user?.isAdmin && (
-            <>
-              <div className="w-4 h-px bg-gray-200/50 mx-auto my-1" />
-              <motion.button
-                onClick={() => setShowAdminPanel(true)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Shield className="w-4 h-4 text-red-600 group-hover:text-red-700 transition-colors" />
-              </motion.button>
-            </>
-          )}
+
         </div>
       </motion.div>
 
@@ -1092,233 +1237,7 @@ export const SimpleRoom3D: React.FC = () => {
         )}
       </motion.div>
 
-      {/* Painel de Administrador */}
-      {showAdminPanel && user?.isAdmin && (
-        <motion.div
-          className="absolute inset-0 z-20 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Overlay transparente */}
-          <div
-            className="absolute inset-0 bg-black/20"
-            onClick={() => setShowAdminPanel(false)}
-          />
 
-          {/* Modal do Admin */}
-          <motion.div
-            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-3xl w-full mx-4 h-[70vh] flex flex-col overflow-hidden"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            drag
-            dragConstraints={{ left: -200, right: 200, top: -100, bottom: 100 }}
-            dragElastic={0.1}
-          >
-            {/* Header */}
-            <div className="bg-white p-4 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Shield className="w-5 h-5 text-red-500 mr-2" />
-                  Painel de Administrador
-                </h2>
-                <button
-                  onClick={() => setShowAdminPanel(false)}
-                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="text-sm text-gray-500 mt-1">
-                Ferramentas e configurações avançadas
-              </div>
-            </div>
-
-            {/* Conteúdo do Admin */}
-            <div className="flex-1 p-6 overflow-y-auto space-y-6">
-              {/* Upload de Modelos 3D */}
-              <section className="bg-white rounded-lg border border-gray-100 p-4">
-                <h3 className="text-md font-medium text-gray-900 mb-3">
-                  Upload de Modelos 3D
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Arquivo GLB/GLTF
-                    </label>
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                        isDragOver
-                          ? 'border-blue-400 bg-blue-50'
-                          : selectedFile
-                            ? 'border-green-400 bg-green-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onClick={() => document.getElementById('file-input')?.click()}
-                    >
-                      {selectedFile ? (
-                        <div>
-                          <div className="text-green-500 mb-2">
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <p className="text-sm text-green-700 font-medium mb-1">
-                            {selectedFile.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                          <button
-                            className="mt-2 text-xs text-red-500 hover:text-red-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedFile(null);
-                            }}
-                          >
-                            Remover arquivo
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className={`mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}>
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                          </div>
-                          <p className={`text-sm mb-1 ${isDragOver ? 'text-blue-600' : 'text-gray-600'}`}>
-                            {isDragOver ? 'Solte o arquivo aqui' : 'Arraste e solte ou clique para selecionar'}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            Suporte para .glb, .gltf (máx. 10MB)
-                          </p>
-                        </div>
-                      )}
-                      <input
-                        id="file-input"
-                        type="file"
-                        className="hidden"
-                        accept=".glb,.gltf"
-                        onChange={handleFileInputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Nome do Móvel
-                      </label>
-                      <input
-                        type="text"
-                        value={modelName}
-                        onChange={(e) => setModelName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ex: Sofá Moderno"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Categoria
-                      </label>
-                      <select
-                        value={modelCategory}
-                        onChange={(e) => setModelCategory(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option>Móveis Básicos</option>
-                        <option>Móveis Limitados</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Preço (moedas)
-                      </label>
-                      <input
-                        type="number"
-                        value={modelPrice}
-                        onChange={(e) => setModelPrice(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="100"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Emoji/Ícone
-                      </label>
-                      <input
-                        type="text"
-                        value={modelEmoji}
-                        onChange={(e) => setModelEmoji(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="🛋️"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleAddToCartalog}
-                    disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji}
-                    className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedFile && modelName && modelPrice && modelEmoji
-                        ? 'bg-gray-900 hover:bg-gray-800 text-white'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    Adicionar ao Catálogo
-                  </button>
-                </div>
-              </section>
-
-              {/* Outras Ferramentas */}
-              <section className="bg-white rounded-lg border border-gray-100 p-4">
-                <h3 className="text-md font-medium text-gray-900 mb-3">
-                  Ferramentas de Desenvolvimento
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
-                    <div className="font-medium">Gerenciar Usuários</div>
-                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
-                  </button>
-                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
-                    <div className="font-medium">Logs do Sistema</div>
-                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
-                  </button>
-                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
-                    <div className="font-medium">Estatísticas</div>
-                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
-                  </button>
-                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
-                    <div className="font-medium">Configurações</div>
-                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
-                  </button>
-                </div>
-              </section>
-            </div>
-
-            {/* Footer */}
-            <div className="bg-white border-t border-gray-100 p-4">
-              <div className="flex justify-between items-center text-sm text-gray-500">
-                <div>
-                  Versão: 2.0.0 • Modo: Desenvolvimento
-                </div>
-                <div>
-                  Último login: {new Date().toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
 
       {/* Inventário da Casa */}
       {showInventory && (
@@ -1423,7 +1342,17 @@ export const SimpleRoom3D: React.FC = () => {
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
                       )}
 
-                      <div className="text-lg text-center mb-1">{catalogItem.emoji}</div>
+                      <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
+                        {catalogItem.emoji && catalogItem.emoji.startsWith('data:image') ? (
+                          <img
+                            src={catalogItem.emoji}
+                            alt={catalogItem.name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        ) : (
+                          <span>{catalogItem.emoji || '📦'}</span>
+                        )}
+                      </div>
                       <div className="text-xs font-medium text-gray-700 text-center truncate">
                         {catalogItem.name}
                       </div>
@@ -1544,12 +1473,25 @@ export const SimpleRoom3D: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Catálogo de Móveis
                 </h2>
-                <button
-                  onClick={() => setShowCatalog(false)}
-                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center gap-2">
+                  {user?.isAdmin && (
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Upload GLB
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowCatalog(false)}
+                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1588,7 +1530,17 @@ export const SimpleRoom3D: React.FC = () => {
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
                             >
-                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
+                                {item.emoji && item.emoji.startsWith('data:image') ? (
+                                  <img
+                                    src={item.emoji}
+                                    alt={item.name}
+                                    className="w-8 h-8 object-contain"
+                                  />
+                                ) : (
+                                  <span>{item.emoji || '📦'}</span>
+                                )}
+                              </div>
                               <div className="text-xs font-medium text-gray-700 text-center truncate">
                                 {item.name}
                               </div>
@@ -1645,7 +1597,17 @@ export const SimpleRoom3D: React.FC = () => {
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
                             >
-                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
+                                {item.emoji && item.emoji.startsWith('data:image') ? (
+                                  <img
+                                    src={item.emoji}
+                                    alt={item.name}
+                                    className="w-8 h-8 object-contain"
+                                  />
+                                ) : (
+                                  <span>{item.emoji || '📦'}</span>
+                                )}
+                              </div>
                               <div className="text-xs font-medium text-gray-700 text-center truncate">
                                 {item.name}
                               </div>
@@ -1692,6 +1654,195 @@ export const SimpleRoom3D: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Modal de Upload GLB */}
+      {showUploadModal && user?.isAdmin && (
+        <motion.div
+          className="absolute inset-0 z-30 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => {
+              setShowUploadModal(false);
+              setSelectedFile(null);
+              setModelName('');
+              setModelPrice('');
+              setModelThumbnail(null);
+              setUploadedModel(null);
+              setUploadStatus('idle');
+            }}
+          />
+
+          <motion.div
+            className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-md mx-4 overflow-hidden"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Upload Modelo 3D</h3>
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setSelectedFile(null);
+                    setModelName('');
+                    setModelPrice('');
+                    setModelThumbnail(null);
+                    setUploadedModel(null);
+                    setUploadStatus('idle');
+                  }}
+                  className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              {/* Upload Area */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Arquivo GLB/GLTF
+                </label>
+
+                {uploadStatus === 'success' && uploadedModel ? (
+                  <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4 text-center">
+                    <div ref={previewMountRef} className="w-full h-48 bg-gray-900 rounded-lg mb-3 flex items-center justify-center" />
+                    <p className="text-sm text-green-700 font-medium">
+                      {selectedFile?.name}
+                    </p>
+                    <p className="text-xs text-gray-500">Modelo carregado!</p>
+                  </div>
+                ) : (
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const files = e.dataTransfer.files;
+                      if (files.length > 0) {
+                        handleFileSelect(files[0]);
+                      }
+                    }}
+                    onClick={() => document.getElementById('upload-input')?.click()}
+                  >
+                    {uploadStatus === 'loading' ? (
+                      <div>
+                        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-sm text-blue-600">Carregando...</p>
+                      </div>
+                    ) : uploadStatus === 'error' ? (
+                      <div>
+                        <div className="text-red-500 text-2xl mb-2">⚠️</div>
+                        <p className="text-sm text-red-600">Erro ao carregar</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-gray-400 text-3xl mb-2">📁</div>
+                        <p className="text-sm text-gray-600">
+                          Arraste ou clique para selecionar
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          .glb, .gltf (máx. 10MB)
+                        </p>
+                      </div>
+                    )}
+                    <input
+                      id="upload-input"
+                      type="file"
+                      className="hidden"
+                      accept=".glb,.gltf"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          handleFileSelect(files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Form Fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome do Móvel
+                </label>
+                <input
+                  type="text"
+                  value={modelName}
+                  onChange={(e) => setModelName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Ex: Porta Moderna"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Preço
+                  </label>
+                  <input
+                    type="number"
+                    value={modelPrice}
+                    onChange={(e) => setModelPrice(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Categoria
+                  </label>
+                  <select
+                    value={modelCategory}
+                    onChange={(e) => setModelCategory(e.target.value as 'Móveis Básicos' | 'Móveis Limitados')}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="Móveis Básicos">Móveis Básicos</option>
+                    <option value="Móveis Limitados">Móveis Limitados</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setSelectedFile(null);
+                    setModelName('');
+                    setModelPrice('');
+                    setModelThumbnail(null);
+                    setUploadedModel(null);
+                    setUploadStatus('idle');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAddToSection}
+                  disabled={!selectedFile || !modelName || !modelPrice || !modelThumbnail || uploadStatus !== 'success'}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFile && modelName && modelPrice && modelThumbnail && uploadStatus === 'success'
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  Adicionar à {modelCategory}
+                </button>
               </div>
             </div>
           </motion.div>
