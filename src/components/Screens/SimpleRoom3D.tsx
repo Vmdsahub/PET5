@@ -1377,7 +1377,7 @@ export const SimpleRoom3D: React.FC = () => {
                     <motion.div
                       key={invItem.id}
                       className={`
-                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
+                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group context-menu-item
                         ${catalogItem.category === 'Móveis Limitados'
                           ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
                           : 'bg-white border-gray-200'
@@ -1698,7 +1698,7 @@ export const SimpleRoom3D: React.FC = () => {
                 </section>
               </div>
 
-              {/* ��rea de Visualização Expandida */}
+              {/* Área de Visualização Expandida */}
               <div className="flex-1 bg-gray-50/50 border-l border-gray-200/50 p-6">
                 <div className="h-full flex flex-col">
                   <div className="flex-1 bg-white rounded-lg border-2 border-dashed border-gray-300 p-6">
