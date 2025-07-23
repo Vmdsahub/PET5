@@ -988,22 +988,23 @@ export const SimpleRoom3D: React.FC = () => {
 
       {/* Enhanced instructions */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-black/80 text-white rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl max-w-md"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-black/80 text-white rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl max-w-lg"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, type: "spring", stiffness: 300 }}
       >
         <div className="text-center">
-          <div className="text-2xl mb-2">🌌</div>
-          <p className="text-sm font-medium mb-1">
-            Sala 3D Interativa
+          <div className="text-2xl mb-2">🏠</div>
+          <p className="text-sm font-medium mb-2">
+            Jogo de Decoração 3D
           </p>
-          <p className="text-xs text-gray-300 mb-1">
-            🖱️ Esquerdo: Orbitar • Direito: Pan (H/V)
-          </p>
-          <p className="text-xs text-gray-300">
-            🔍 Scroll: Zoom • 📱 Toque: arrastar/pinch
-          </p>
+          <div className="text-xs text-gray-300 space-y-1">
+            <p>🖱️ Orbitar: Clique esquerdo • Pan: Clique direito</p>
+            <p>🔍 Zoom: Scroll • 📱 Mobile: toque/pinch</p>
+            <p>🛒 Comprar: Catálogo → Inventário</p>
+            <p>🏠 Decorar: Arrastar do inventário para sala</p>
+            <p>❌ Remover: Clique direito no móvel</p>
+          </div>
         </div>
       </motion.div>
 
