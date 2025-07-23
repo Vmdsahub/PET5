@@ -832,6 +832,7 @@ export const SimpleRoom3D: React.FC = () => {
       renderer.domElement.removeEventListener('contextmenu', onContextMenu);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      renderer.domElement.removeEventListener('dragenter', onDragEnter);
       renderer.domElement.removeEventListener('dragover', onDragOver);
       renderer.domElement.removeEventListener('dragleave', onDragLeave);
       renderer.domElement.removeEventListener('drop', onDrop);
