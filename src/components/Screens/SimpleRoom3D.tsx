@@ -1290,6 +1290,7 @@ export const SimpleRoom3D: React.FC = () => {
             <p>🔍 Zoom: Scroll • 📱 Mobile: toque/pinch</p>
             <p>🛒 Comprar: Catálogo → Inventário</p>
             <p>🏠 Decorar: Arrastar do inventário para sala</p>
+            <p>🗑️ Excluir: Botão direito nos itens</p>
             <p>❌ Remover: Clique direito no móvel</p>
           </div>
         </div>
@@ -1889,7 +1890,7 @@ export const SimpleRoom3D: React.FC = () => {
                     onChange={(e) => setModelCategory(e.target.value as 'Móveis Básicos' | 'Móveis Limitados')}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   >
-                    <option value="M��veis Básicos">Móveis Básicos</option>
+                    <option value="Móveis Básicos">Móveis Básicos</option>
                     <option value="Móveis Limitados">Móveis Limitados</option>
                   </select>
                 </div>
