@@ -1804,9 +1804,9 @@ export const SimpleRoom3D: React.FC = () => {
                 </button>
                 <button
                   onClick={handleAddToSection}
-                  disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji || uploadStatus !== 'success'}
+                  disabled={!selectedFile || !modelName || !modelPrice || !modelThumbnail || uploadStatus !== 'success'}
                   className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    selectedFile && modelName && modelPrice && modelEmoji && uploadStatus === 'success'
+                    selectedFile && modelName && modelPrice && modelThumbnail && uploadStatus === 'success'
                       ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
