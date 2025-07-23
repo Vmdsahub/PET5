@@ -653,13 +653,22 @@ export const SimpleRoom3D: React.FC = () => {
     // Drag & Drop para móveis
     const onDragOver = (event: DragEvent) => {
       event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
       setIsDraggingOverScene(true);
+      console.log('🔄 DragOver na cena 3D');
+    };
+
+    const onDragEnter = (event: DragEvent) => {
+      event.preventDefault();
+      setIsDraggingOverScene(true);
+      console.log('🎯 DragEnter na cena 3D');
     };
 
     const onDragLeave = (event: DragEvent) => {
       // Only hide if leaving the canvas area
-      if (event.target === renderer.domElement) {
+      if (event.target === sceneRef.current?.renderer.domElement) {
         setIsDraggingOverScene(false);
+        console.log('🚫 DragLeave da cena 3D');
       }
     };
 
