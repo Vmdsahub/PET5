@@ -696,14 +696,32 @@ export const SimpleRoom3D: React.FC = () => {
 
       // Find intersection with floor - get floor from scene
       const floor = sceneRef.current?.scene.children.find(child =>
-        child instanceof THREE.Mesh && child.geometry instanceof THREE.PlaneGeometry
+        child instanceof THREE.Mesh &&
+        child.geometry instanceof THREE.PlaneGeometry &&
+        child.rotation.x < 0 // Floor is rotated on X axis
       );
-      const floorIntersection = floor ? raycaster.intersectObject(floor) : [];
 
-      let position = { x: 0, y: -2, z: 0 }; // Default position
-      if (floorIntersection.length > 0) {
-        const point = floorIntersection[0].point;
-        position = { x: point.x, y: point.y + 0.5, z: point.z }; // Slightly above floor
+      console.log('🏠 Floor encontrado:', !!floor);
+
+      let position = { x: 0, y: -1.5, z: 0 }; // Default position
+
+      if (floor) {
+        const floorIntersection = raycaster.intersectObject(floor);
+        console.log('📍 Intersecções com o chão:', floorIntersection.length);
+
+        if (floorIntersection.length > 0) {
+          const point = floorIntersection[0].point;
+          position = { x: point.x, y: -1.5, z: point.z }; // Position on floor level
+          console.log('✅ Posição calculada:', position);
+        }
+      } else {
+        // Fallback: place at screen center projected to floor level
+        position = {
+          x: (Math.random() - 0.5) * 8, // Random position within room bounds
+          y: -1.5,
+          z: (Math.random() - 0.5) * 8
+        };
+        console.log('🎲 Posição aleatória:', position);
       }
 
       // Add furniture to room
