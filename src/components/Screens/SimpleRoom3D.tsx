@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useGameStore } from '../../store/gameStore';
 import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } from '../../services/mockPersistenceService';
 
