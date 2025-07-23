@@ -82,9 +82,16 @@ export const SimpleRoom3D: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [modelName, setModelName] = useState('');
-  const [modelCategory, setModelCategory] = useState('Móveis Básicos');
+  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
   const [modelPrice, setModelPrice] = useState('');
   const [modelEmoji, setModelEmoji] = useState('');
+
+  // Game data states
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [placedFurniture, setPlacedFurniture] = useState<PlacedFurniture[]>([]);
+  const [userCoins, setUserCoins] = useState(0);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState<string | null>(null);
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
