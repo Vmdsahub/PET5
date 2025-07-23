@@ -1562,6 +1562,209 @@ export const SimpleRoom3D: React.FC = () => {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Modal de Upload GLB */}
+      {showUploadModal && user?.isAdmin && (
+        <motion.div
+          className="absolute inset-0 z-30 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => {
+              setShowUploadModal(false);
+              setSelectedFile(null);
+              setModelName('');
+              setModelPrice('');
+              setModelEmoji('');
+              setUploadedModel(null);
+              setUploadStatus('idle');
+            }}
+          />
+
+          <motion.div
+            className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-md mx-4 overflow-hidden"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Upload Modelo 3D</h3>
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setSelectedFile(null);
+                    setModelName('');
+                    setModelPrice('');
+                    setModelEmoji('');
+                    setUploadedModel(null);
+                    setUploadStatus('idle');
+                  }}
+                  className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              {/* Upload Area */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Arquivo GLB/GLTF
+                </label>
+
+                {uploadStatus === 'success' && uploadedModel ? (
+                  <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4 text-center">
+                    <div ref={previewMountRef} className="w-full h-48 bg-gray-900 rounded-lg mb-3 flex items-center justify-center" />
+                    <p className="text-sm text-green-700 font-medium">
+                      {selectedFile?.name}
+                    </p>
+                    <p className="text-xs text-gray-500">Modelo carregado!</p>
+                  </div>
+                ) : (
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const files = e.dataTransfer.files;
+                      if (files.length > 0) {
+                        handleFileSelect(files[0]);
+                      }
+                    }}
+                    onClick={() => document.getElementById('upload-input')?.click()}
+                  >
+                    {uploadStatus === 'loading' ? (
+                      <div>
+                        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-sm text-blue-600">Carregando...</p>
+                      </div>
+                    ) : uploadStatus === 'error' ? (
+                      <div>
+                        <div className="text-red-500 text-2xl mb-2">⚠️</div>
+                        <p className="text-sm text-red-600">Erro ao carregar</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-gray-400 text-3xl mb-2">📁</div>
+                        <p className="text-sm text-gray-600">
+                          Arraste ou clique para selecionar
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          .glb, .gltf (máx. 10MB)
+                        </p>
+                      </div>
+                    )}
+                    <input
+                      id="upload-input"
+                      type="file"
+                      className="hidden"
+                      accept=".glb,.gltf"
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          handleFileSelect(files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Form Fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nome
+                  </label>
+                  <input
+                    type="text"
+                    value={modelName}
+                    onChange={(e) => setModelName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Ex: Porta"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Emoji
+                  </label>
+                  <input
+                    type="text"
+                    value={modelEmoji}
+                    onChange={(e) => setModelEmoji(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="🚪"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Preço
+                  </label>
+                  <input
+                    type="number"
+                    value={modelPrice}
+                    onChange={(e) => setModelPrice(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Categoria
+                  </label>
+                  <select
+                    value={modelCategory}
+                    onChange={(e) => setModelCategory(e.target.value as 'Móveis Básicos' | 'Móveis Limitados')}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="Móveis Básicos">Móveis Básicos</option>
+                    <option value="Móveis Limitados">Móveis Limitados</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setSelectedFile(null);
+                    setModelName('');
+                    setModelPrice('');
+                    setModelEmoji('');
+                    setUploadedModel(null);
+                    setUploadStatus('idle');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleAddToSection}
+                  disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji || uploadStatus !== 'success'}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFile && modelName && modelPrice && modelEmoji && uploadStatus === 'success'
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  Adicionar à {modelCategory}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
