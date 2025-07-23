@@ -50,28 +50,90 @@ export const SimpleRoom3D: React.FC = () => {
     }
   };
 
+  // Initialize game data
+  const initializeGameData = () => {
+    mockPersistenceService.init();
+
+    // Set current user (simulate login)
+    if (!mockPersistenceService.getCurrentUser()) {
+      mockPersistenceService.setCurrentUser(user?.isAdmin ? 'admin-1' : 'player-1');
+    }
+
+    loadGameData();
+  };
+
+  const loadGameData = () => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    // Load catalog
+    setCatalogItems(mockPersistenceService.getCatalog());
+
+    // Load user inventory
+    setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
+
+    // Load user room
+    const room = mockPersistenceService.getUserRoom(currentUser.id);
+    setPlacedFurniture(room?.placedFurniture || []);
+
+    // Load user coins
+    setUserCoins(currentUser.coins);
+  };
+
   const handleAddToCartalog = () => {
     if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
       alert('Por favor, preencha todos os campos e selecione um arquivo.');
       return;
     }
 
-    // Aqui seria a integração com o backend
-    console.log('Adicionando modelo:', {
-      file: selectedFile,
-      name: modelName,
-      category: modelCategory,
-      price: modelPrice,
-      emoji: modelEmoji
-    });
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem adicionar itens ao catálogo.');
+      return;
+    }
 
-    alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+    try {
+      const newItem = mockPersistenceService.addToCatalog({
+        name: modelName,
+        emoji: modelEmoji,
+        price: parseInt(modelPrice),
+        category: modelCategory,
+        createdBy: currentUser.id
+      });
 
-    // Reset form
-    setSelectedFile(null);
-    setModelName('');
-    setModelPrice('');
-    setModelEmoji('');
+      // Update local state
+      setCatalogItems(mockPersistenceService.getCatalog());
+
+      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+
+      // Reset form
+      setSelectedFile(null);
+      setModelName('');
+      setModelPrice('');
+      setModelEmoji('');
+    } catch (error) {
+      alert('Erro ao adicionar item ao catálogo.');
+      console.error(error);
+    }
+  };
+
+  const handlePurchaseItem = (catalogItem: CatalogItem) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const result = mockPersistenceService.purchaseItem(currentUser.id, catalogItem.id);
+
+    if (result.success) {
+      // Update local states
+      setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
+      const updatedUser = mockPersistenceService.getUserById(currentUser.id);
+      if (updatedUser) {
+        setUserCoins(updatedUser.coins);
+      }
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
   };
 
   const [showCatalog, setShowCatalog] = useState(false);
