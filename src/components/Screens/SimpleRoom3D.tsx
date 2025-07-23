@@ -1387,10 +1387,20 @@ export const SimpleRoom3D: React.FC = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedInventoryItem(selectedInventoryItem === invItem.id ? null : invItem.id)}
-                      draggable
+                      draggable={!isPlaced}
                       onDragStart={(e) => {
+                        if (isPlaced) {
+                          e.preventDefault();
+                          return;
+                        }
+                        console.log('🎬 Iniciando drag do item:', catalogItem.name);
+                        e.dataTransfer.effectAllowed = 'move';
                         e.dataTransfer.setData('inventoryItemId', invItem.id);
                         e.dataTransfer.setData('catalogItemId', catalogItem.id);
+                        e.dataTransfer.setData('text/plain', catalogItem.name); // Fallback
+                      }}
+                      onDragEnd={(e) => {
+                        console.log('🏁 Finalizando drag');
                       }}
                     >
                       {/* Status Badge */}
