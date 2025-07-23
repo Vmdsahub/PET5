@@ -153,7 +153,7 @@ export const SimpleRoom3D: React.FC = () => {
     setUserCoins(currentUser.coins);
   };
 
-  const handleAddToCartalog = () => {
+  const handleAddToCartalog = async () => {
     if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
       alert('Por favor, preencha todos os campos e selecione um arquivo.');
       return;
@@ -165,7 +165,23 @@ export const SimpleRoom3D: React.FC = () => {
       return;
     }
 
+    setUploadStatus('loading');
+
     try {
+      // Carregar o modelo GLB
+      const loader = new GLTFLoader();
+      const url = URL.createObjectURL(selectedFile);
+
+      const gltf = await new Promise<any>((resolve, reject) => {
+        loader.load(
+          url,
+          (gltf) => resolve(gltf),
+          undefined,
+          (error) => reject(error)
+        );
+      });
+
+      // Adicionar ao catálogo
       const newItem = mockPersistenceService.addToCatalog({
         name: modelName,
         emoji: modelEmoji,
@@ -177,16 +193,31 @@ export const SimpleRoom3D: React.FC = () => {
       // Update local state
       setCatalogItems(mockPersistenceService.getCatalog());
 
+      // Configurar o modelo para visualização
+      const model = gltf.scene;
+      model.scale.setScalar(1);
+      model.position.set(0, 0, 0);
+
+      // Adicionar sombras ao modelo
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+
+      setUploadedModel(model);
+      setUploadStatus('success');
+
+      // Limpar URL temporária
+      URL.revokeObjectURL(url);
+
       alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
 
-      // Reset form
-      setSelectedFile(null);
-      setModelName('');
-      setModelPrice('');
-      setModelEmoji('');
     } catch (error) {
-      alert('Erro ao adicionar item ao catálogo.');
-      console.error(error);
+      console.error('Erro ao carregar modelo GLB:', error);
+      setUploadStatus('error');
+      alert('Erro ao carregar o modelo GLB. Verifique se o arquivo está correto.');
     }
   };
 
@@ -757,7 +788,7 @@ export const SimpleRoom3D: React.FC = () => {
       // Add 3D object to scene
       addFurnitureToScene(newFurniture, catalogItemId);
 
-      console.log('✅ Móvel posicionado na cena 3D');
+      console.log('��� Móvel posicionado na cena 3D');
     };
 
 
