@@ -1251,32 +1251,42 @@ export const SimpleRoom3D: React.FC = () => {
                   </button>
                   {expandedLimited && (
                     <div className="grid grid-cols-4 gap-2 mt-2">
-                      {[
-                        { name: "Trono", price: "500", emoji: "👑", color: "bg-gradient-to-br from-yellow-200 to-yellow-300" },
-                        { name: "Piano", price: "800", emoji: "🎹", color: "bg-gradient-to-br from-purple-200 to-purple-300" },
-                        { name: "Aquário", price: "300", emoji: "🐠", color: "bg-gradient-to-br from-blue-200 to-blue-300" },
-                        { name: "Telescópio", price: "600", emoji: "🔭", color: "bg-gradient-to-br from-gray-200 to-gray-300" },
-                        { name: "Poltrona", price: "400", emoji: "🪑", color: "bg-gradient-to-br from-red-200 to-red-300" },
-                        { name: "Mesa Real", price: "450", emoji: "🍽️", color: "bg-gradient-to-br from-green-200 to-green-300" },
-                        { name: "Cofre", price: "700", emoji: "🏦", color: "bg-gradient-to-br from-orange-200 to-orange-300" },
-                        { name: "Lareira", price: "900", emoji: "🔥", color: "bg-gradient-to-br from-pink-200 to-pink-300" },
-                      ].map((item, index) => (
-                        <motion.div
-                          key={index}
-                          className={`${item.color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <div className="text-lg text-center mb-1">{item.emoji}</div>
-                          <div className="text-xs font-medium text-gray-700 text-center truncate">
-                            {item.name}
-                          </div>
-                          <div className="text-xs text-orange-600 text-center font-medium">
-                            {item.price}
-                          </div>
-                          <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </motion.div>
-                      ))}
+                      {catalogItems
+                        .filter(item => item.category === 'Móveis Limitados')
+                        .map((item, index) => {
+                          const colors = [
+                            'bg-gradient-to-br from-yellow-200 to-yellow-300',
+                            'bg-gradient-to-br from-purple-200 to-purple-300',
+                            'bg-gradient-to-br from-blue-200 to-blue-300',
+                            'bg-gradient-to-br from-gray-200 to-gray-300',
+                            'bg-gradient-to-br from-red-200 to-red-300',
+                            'bg-gradient-to-br from-green-200 to-green-300',
+                            'bg-gradient-to-br from-orange-200 to-orange-300',
+                            'bg-gradient-to-br from-pink-200 to-pink-300'
+                          ];
+                          const color = colors[index % colors.length];
+
+                          return (
+                            <motion.div
+                              key={item.id}
+                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePurchaseItem(item)}
+                            >
+                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-xs font-medium text-gray-700 text-center truncate">
+                                {item.name}
+                              </div>
+                              <div className="text-xs text-orange-600 text-center font-medium">
+                                {item.price}
+                              </div>
+                              <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-xs text-white font-medium">Comprar</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                     </div>
                   )}
                 </section>
