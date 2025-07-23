@@ -834,9 +834,10 @@ export const SimpleRoom3D: React.FC = () => {
       if (room) {
         room.lastModified = new Date().toISOString();
         mockPersistenceService.saveUserRoom(room);
+        setLastSaved(new Date());
       }
 
-      console.log('🔄 Auto-save executado');
+      console.log('���� Auto-save executado');
     };
 
     // Auto-save every 30 seconds
