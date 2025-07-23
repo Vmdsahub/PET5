@@ -528,7 +528,7 @@ export const SimpleRoom3D: React.FC = () => {
 
           {/* Inventário da Casa */}
           <motion.button
-            onClick={() => {}}
+            onClick={() => setShowInventory(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
