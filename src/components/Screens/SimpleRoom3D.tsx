@@ -1414,13 +1414,13 @@ export const SimpleRoom3D: React.FC = () => {
                 })}
 
                 {/* Slots vazios */}
-                {Array.from({ length: 6 }, (_, index) => (
+                {Array.from({ length: 8 }, (_, index) => (
                   <div
                     key={`empty-${index}`}
-                    className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-3 flex items-center justify-center"
+                    className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-2 flex items-center justify-center"
                   >
                     <div className="text-center text-gray-400">
-                      <div className="text-2xl mb-1">📭</div>
+                      <div className="text-lg mb-1">📭</div>
                       <div className="text-xs">Vazio</div>
                     </div>
                   </div>
