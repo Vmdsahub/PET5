@@ -806,6 +806,8 @@ export const SimpleRoom3D: React.FC = () => {
                       </label>
                       <input
                         type="text"
+                        value={modelName}
+                        onChange={(e) => setModelName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="ex: Sofá Moderno"
                       />
@@ -814,7 +816,11 @@ export const SimpleRoom3D: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Categoria
                       </label>
-                      <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <select
+                        value={modelCategory}
+                        onChange={(e) => setModelCategory(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
                         <option>Móveis Básicos</option>
                         <option>Móveis Limitados</option>
                       </select>
@@ -828,6 +834,8 @@ export const SimpleRoom3D: React.FC = () => {
                       </label>
                       <input
                         type="number"
+                        value={modelPrice}
+                        onChange={(e) => setModelPrice(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="100"
                       />
@@ -838,13 +846,23 @@ export const SimpleRoom3D: React.FC = () => {
                       </label>
                       <input
                         type="text"
+                        value={modelEmoji}
+                        onChange={(e) => setModelEmoji(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="🛋️"
                       />
                     </div>
                   </div>
 
-                  <button className="w-full bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  <button
+                    onClick={handleAddToCartalog}
+                    disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji}
+                    className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedFile && modelName && modelPrice && modelEmoji
+                        ? 'bg-gray-900 hover:bg-gray-800 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
                     Adicionar ao Catálogo
                   </button>
                 </div>
