@@ -635,24 +635,24 @@ export const SimpleRoom3D: React.FC = () => {
             dragElastic={0.1}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 p-4 border-b border-gray-200/50">
+            <div className="bg-white p-4 border-b border-gray-100">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800">
-                  📦 Inventário da Casa
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Inventário da Casa
                 </h2>
                 <button
                   onClick={() => setShowInventory(false)}
-                  className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
                 >
                   ✕
                 </button>
               </div>
-              <div className="flex items-center gap-4 mt-2">
-                <div className="text-sm text-gray-600">
-                  📊 Itens: <span className="font-bold">12/50</span>
+              <div className="flex items-center gap-6 mt-3 text-sm text-gray-500">
+                <div>
+                  Itens: <span className="font-medium text-gray-700">12/50</span>
                 </div>
-                <div className="text-sm text-gray-600">
-                  💰 Valor total: <span className="font-bold">2,850 moedas</span>
+                <div>
+                  Valor total: <span className="font-medium text-gray-700">2,850 moedas</span>
                 </div>
               </div>
             </div>
