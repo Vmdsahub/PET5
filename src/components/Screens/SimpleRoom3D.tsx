@@ -825,6 +825,16 @@ export const SimpleRoom3D: React.FC = () => {
   return (
     <div className="fixed inset-0 overflow-hidden">
       <div ref={mountRef} className="w-full h-full" />
+
+      {/* Drag & Drop Overlay */}
+      {isDraggingOverScene && (
+        <div className="absolute inset-0 bg-blue-500/20 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none z-10">
+          <div className="bg-white/90 rounded-lg p-4 text-center">
+            <div className="text-2xl mb-2">🏠</div>
+            <p className="text-sm font-medium text-gray-700">Solte aqui para colocar o móvel</p>
+          </div>
+        </div>
+      )}
       
       {/* Back button */}
       <motion.button
