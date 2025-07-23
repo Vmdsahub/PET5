@@ -138,6 +138,16 @@ export const SimpleRoom3D: React.FC = () => {
   const [showInventory, setShowInventory] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedModel, setUploadedModel] = useState<THREE.Group | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [modelName, setModelName] = useState('');
+  const [modelPrice, setModelPrice] = useState('');
+  const [modelEmoji, setModelEmoji] = useState('');
+  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
+  const previewMountRef = useRef<HTMLDivElement>(null);
+  const previewRendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   // Game data states
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
