@@ -1023,10 +1023,15 @@ export const SimpleRoom3D: React.FC = () => {
               </div>
               <div className="flex items-center gap-6 mt-3 text-sm text-gray-500">
                 <div>
-                  Itens: <span className="font-medium text-gray-700">12/50</span>
+                  Itens: <span className="font-medium text-gray-700">{inventoryItems.length}/50</span>
                 </div>
                 <div>
-                  Valor total: <span className="font-medium text-gray-700">2,850 moedas</span>
+                  Valor total: <span className="font-medium text-gray-700">
+                    {inventoryItems.reduce((total, invItem) => {
+                      const catalogItem = catalogItems.find(c => c.id === invItem.catalogItemId);
+                      return total + (catalogItem?.price || 0);
+                    }, 0)} moedas
+                  </span>
                 </div>
               </div>
             </div>
