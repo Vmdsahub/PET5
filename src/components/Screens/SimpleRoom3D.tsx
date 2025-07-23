@@ -207,17 +207,22 @@ export const SimpleRoom3D: React.FC = () => {
       const model = gltf.scene;
       model.scale.setScalar(1);
       model.position.set(0, 0, 0);
+      console.log('🎯 Modelo configurado:', model);
 
       // Adicionar sombras ao modelo
+      let meshCount = 0;
       model.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.castShadow = true;
           child.receiveShadow = true;
+          meshCount++;
         }
       });
+      console.log('🔧 Sombras configuradas em', meshCount, 'meshes');
 
       setUploadedModel(model);
       setUploadStatus('success');
+      console.log('🎉 Modelo pronto para preview!');
 
       // Limpar URL temporária
       URL.revokeObjectURL(url);
