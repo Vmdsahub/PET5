@@ -113,51 +113,7 @@ export const SimpleRoom3D: React.FC = () => {
     setUserCoins(currentUser.coins);
   };
 
-  const handleAddToCartalog = async () => {
-    if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
-      alert('Por favor, preencha todos os campos e selecione um arquivo.');
-      return;
-    }
 
-    if (uploadStatus !== 'success' || !uploadedModel) {
-      alert('Aguarde o modelo ser carregado antes de adicionar ao catálogo.');
-      return;
-    }
-
-    const currentUser = mockPersistenceService.getCurrentUser();
-    if (!currentUser || !currentUser.isAdmin) {
-      alert('Apenas administradores podem adicionar itens ao catálogo.');
-      return;
-    }
-
-    try {
-      // Adicionar ao catálogo
-      const newItem = mockPersistenceService.addToCatalog({
-        name: modelName,
-        emoji: modelEmoji,
-        price: parseInt(modelPrice),
-        category: modelCategory,
-        createdBy: currentUser.id
-      });
-
-      // Update local state
-      setCatalogItems(mockPersistenceService.getCatalog());
-
-      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
-
-      // Limpar o estado após sucesso - voltar ao estado inicial
-      setSelectedFile(null);
-      setModelName('');
-      setModelPrice('');
-      setModelEmoji('');
-      setUploadedModel(null);
-      setUploadStatus('idle');
-
-    } catch (error) {
-      alert('Erro ao adicionar item ao catálogo.');
-      console.error(error);
-    }
-  };
 
   const handlePurchaseItem = (catalogItem: CatalogItem) => {
     const currentUser = mockPersistenceService.getCurrentUser();
@@ -673,7 +629,7 @@ export const SimpleRoom3D: React.FC = () => {
         child.rotation.x < 0 // Floor is rotated on X axis
       );
 
-      console.log('�� Floor encontrado:', !!floor);
+      console.log('🏠 Floor encontrado:', !!floor);
 
       let position = { x: 0, y: -1.5, z: 0 }; // Default position
 
