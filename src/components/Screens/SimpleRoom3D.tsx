@@ -220,6 +220,11 @@ export const SimpleRoom3D: React.FC = () => {
   const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
   const [modelPrice, setModelPrice] = useState('');
   const [modelEmoji, setModelEmoji] = useState('');
+  const [uploadedModel, setUploadedModel] = useState<THREE.Group | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [previewScene, setPreviewScene] = useState<THREE.Scene | null>(null);
+  const previewMountRef = useRef<HTMLDivElement>(null);
+  const previewRendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   // Game data states
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
