@@ -144,7 +144,7 @@ export const SimpleRoom3D: React.FC = () => {
     }
 
     try {
-      // Adicionar ao cat��logo
+      // Adicionar ao catálogo
       const newItem = mockPersistenceService.addToCatalog({
         name: modelName,
         emoji: modelEmoji,
@@ -1396,12 +1396,25 @@ export const SimpleRoom3D: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Catálogo de Móveis
                 </h2>
-                <button
-                  onClick={() => setShowCatalog(false)}
-                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center gap-2">
+                  {user?.isAdmin && (
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Upload GLB
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowCatalog(false)}
+                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
 
