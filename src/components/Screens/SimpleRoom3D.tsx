@@ -83,6 +83,96 @@ export const SimpleRoom3D: React.FC = () => {
 
 
 
+  // Funções de upload GLB
+  const handleFileSelect = async (file: File) => {
+    if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+      if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+        setSelectedFile(file);
+        // Auto-fill model name from filename
+        const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
+        setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
+
+        // Carregar o modelo GLB imediatamente
+        setUploadStatus('loading');
+
+        try {
+          const loader = new GLTFLoader();
+          const url = URL.createObjectURL(file);
+
+          const gltf = await new Promise<any>((resolve, reject) => {
+            loader.load(url, resolve, undefined, reject);
+          });
+
+          // Configurar o modelo
+          const model = gltf.scene;
+          model.scale.setScalar(1);
+          model.position.set(0, 0, 0);
+
+          // Adicionar sombras
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          setUploadedModel(model);
+          setUploadStatus('success');
+          URL.revokeObjectURL(url);
+
+        } catch (error) {
+          console.error('Erro ao carregar modelo GLB:', error);
+          setUploadStatus('error');
+        }
+      } else {
+        alert('Arquivo muito grande! Máximo de 10MB permitido.');
+      }
+    } else {
+      alert('Formato de arquivo não suportado! Use .glb ou .gltf');
+    }
+  };
+
+  const handleAddToSection = async () => {
+    if (!selectedFile || !modelName || !modelPrice || !modelEmoji || uploadStatus !== 'success') {
+      return;
+    }
+
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem adicionar itens ao catálogo.');
+      return;
+    }
+
+    try {
+      // Adicionar ao catálogo
+      const newItem = mockPersistenceService.addToCatalog({
+        name: modelName,
+        emoji: modelEmoji,
+        price: parseInt(modelPrice),
+        category: modelCategory,
+        createdBy: currentUser.id
+      });
+
+      // Update local state
+      setCatalogItems(mockPersistenceService.getCatalog());
+
+      // Limpar estado e fechar modal
+      setSelectedFile(null);
+      setModelName('');
+      setModelPrice('');
+      setModelEmoji('');
+      setUploadedModel(null);
+      setUploadStatus('idle');
+      setShowUploadModal(false);
+
+      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+
+    } catch (error) {
+      alert('Erro ao adicionar item ao catálogo.');
+      console.error(error);
+    }
+  };
+
   // Initialize game data
   const initializeGameData = () => {
     mockPersistenceService.init();
@@ -885,7 +975,7 @@ export const SimpleRoom3D: React.FC = () => {
             >
               🏠
             </motion.div>
-            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o móvel</p>
+            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o m��vel</p>
             <p className="text-xs text-gray-500 mt-1">O móvel será colocado no chão</p>
           </div>
         </motion.div>
