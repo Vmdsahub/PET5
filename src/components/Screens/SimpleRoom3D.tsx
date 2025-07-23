@@ -585,6 +585,7 @@ export const SimpleRoom3D: React.FC = () => {
 
     const onDrop = (event: DragEvent) => {
       event.preventDefault();
+      setIsDraggingOverScene(false);
 
       const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
       const catalogItemId = event.dataTransfer.getData('catalogItemId');
