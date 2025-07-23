@@ -565,7 +565,7 @@ export const SimpleRoom3D: React.FC = () => {
             <>
               <div className="w-4 h-px bg-gray-200/50 mx-auto my-1" />
               <motion.button
-                onClick={() => {}}
+                onClick={() => setShowAdminPanel(true)}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
