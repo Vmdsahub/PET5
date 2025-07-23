@@ -163,6 +163,9 @@ export const SimpleRoom3D: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
+    // Initialize game data
+    initializeGameData();
+
     if (!mountRef.current) return;
 
     // Scene setup
