@@ -227,7 +227,7 @@ export const SimpleRoom3D: React.FC = () => {
       setSelectedFile(null);
       setModelName('');
       setModelPrice('');
-      setModelEmoji('');
+      setModelThumbnail(null);
       setUploadedModel(null);
       setUploadStatus('idle');
       setShowUploadModal(false);
