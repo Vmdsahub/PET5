@@ -794,14 +794,14 @@ export const SimpleRoom3D: React.FC = () => {
             dragElastic={0.1}
           >
             {/* Header */}
-            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-blue-100 to-purple-100 p-4 border-b border-gray-200/50 z-30">
+            <div className="absolute top-0 left-0 right-0 bg-white p-4 border-b border-gray-100 z-30">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800">
-                  🛋️ Catálogo de Móveis
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Catálogo de Móveis
                 </h2>
                 <button
                   onClick={() => setShowCatalog(false)}
-                  className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
                 >
                   ✕
                 </button>
