@@ -646,12 +646,13 @@ export const SimpleRoom3D: React.FC = () => {
       if (!currentUser) return;
 
       const room = mockPersistenceService.getUserRoom(currentUser.id);
-      if (!room) return;
+      if (!room || !room.placedFurniture) return;
 
       room.placedFurniture.forEach(furniture => {
-        const catalogItem = catalogItems.find(c => c.id ===
-          inventoryItems.find(inv => inv.id === furniture.inventoryItemId)?.catalogItemId
-        );
+        const inventoryItem = inventoryItems.find(inv => inv.id === furniture.inventoryItemId);
+        if (!inventoryItem) return;
+
+        const catalogItem = catalogItems.find(c => c.id === inventoryItem.catalogItemId);
         if (catalogItem) {
           addFurnitureToScene(furniture, catalogItem.id);
         }
