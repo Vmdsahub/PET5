@@ -82,13 +82,70 @@ export const SimpleRoom3D: React.FC = () => {
   };
 
   // Funções de upload de arquivo
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = async (file: File) => {
     if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
       if (file.size <= 10 * 1024 * 1024) { // 10MB limit
         setSelectedFile(file);
         // Auto-fill model name from filename
         const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
         setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
+
+        // Carregar o modelo GLB imediatamente
+        setUploadStatus('loading');
+        console.log('🚀 Iniciando carregamento do modelo GLB:', file.name);
+
+        try {
+          // Carregar o modelo GLB
+          const loader = new GLTFLoader();
+          const url = URL.createObjectURL(file);
+          console.log('📁 URL criada para o arquivo:', url);
+
+          const gltf = await new Promise<any>((resolve, reject) => {
+            loader.load(
+              url,
+              (gltf) => {
+                console.log('✅ Modelo GLB carregado com sucesso:', gltf);
+                resolve(gltf);
+              },
+              (progress) => {
+                console.log('📊 Progresso do carregamento:', progress);
+              },
+              (error) => {
+                console.error('❌ Erro no carregamento:', error);
+                reject(error);
+              }
+            );
+          });
+
+          // Configurar o modelo para visualização
+          const model = gltf.scene;
+          model.scale.setScalar(1);
+          model.position.set(0, 0, 0);
+          console.log('🎯 Modelo configurado:', model);
+
+          // Adicionar sombras ao modelo
+          let meshCount = 0;
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              meshCount++;
+            }
+          });
+          console.log('🔧 Sombras configuradas em', meshCount, 'meshes');
+
+          setUploadedModel(model);
+          setUploadStatus('success');
+          console.log('🎉 Modelo pronto para preview!');
+
+          // Limpar URL temporária
+          URL.revokeObjectURL(url);
+
+        } catch (error) {
+          console.error('Erro ao carregar modelo GLB:', error);
+          setUploadStatus('error');
+          alert('Erro ao carregar o modelo GLB. Verifique se o arquivo está correto.');
+        }
       } else {
         alert('Arquivo muito grande! Máximo de 10MB permitido.');
       }
@@ -182,7 +239,7 @@ export const SimpleRoom3D: React.FC = () => {
             resolve(gltf);
           },
           (progress) => {
-            console.log('📊 Progresso do carregamento:', progress);
+            console.log('�� Progresso do carregamento:', progress);
           },
           (error) => {
             console.error('❌ Erro no carregamento:', error);
@@ -731,7 +788,7 @@ export const SimpleRoom3D: React.FC = () => {
       const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
       const catalogItemId = event.dataTransfer.getData('catalogItemId');
 
-      console.log('🎯 Drop detectado:', { inventoryItemId, catalogItemId });
+      console.log('���� Drop detectado:', { inventoryItemId, catalogItemId });
 
       if (!inventoryItemId || !catalogItemId) {
         console.log('❌ Dados de drag incompletos');
