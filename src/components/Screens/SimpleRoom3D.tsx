@@ -940,12 +940,24 @@ export const SimpleRoom3D: React.FC = () => {
 
       {/* Drag & Drop Overlay */}
       {isDraggingOverScene && (
-        <div className="absolute inset-0 bg-blue-500/20 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none z-10">
-          <div className="bg-white/90 rounded-lg p-4 text-center">
-            <div className="text-2xl mb-2">🏠</div>
-            <p className="text-sm font-medium text-gray-700">Solte aqui para colocar o móvel</p>
+        <motion.div
+          className="absolute inset-0 bg-blue-500/20 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="bg-white/95 rounded-xl p-6 text-center shadow-lg">
+            <motion.div
+              className="text-3xl mb-3"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              🏠
+            </motion.div>
+            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o móvel</p>
+            <p className="text-xs text-gray-500 mt-1">O móvel será colocado no chão</p>
           </div>
-        </div>
+        </motion.div>
       )}
       
       {/* Back button */}
