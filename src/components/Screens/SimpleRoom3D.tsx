@@ -504,28 +504,30 @@ export const SimpleRoom3D: React.FC = () => {
         raycaster.setFromCamera(mouse, camera);
 
         // Check for furniture intersections
-        const furnitureObjects = scene.children.filter(child => child.userData && child.userData.furnitureId);
-        const intersects = raycaster.intersectObjects(furnitureObjects);
+        if (sceneRef.current) {
+          const furnitureObjects = sceneRef.current.scene.children.filter(child => child.userData && child.userData.furnitureId);
+          const intersects = raycaster.intersectObjects(furnitureObjects);
 
-        if (intersects.length > 0) {
-          const clickedFurniture = intersects[0].object;
-          const furnitureId = clickedFurniture.userData.furnitureId;
+          if (intersects.length > 0) {
+            const clickedFurniture = intersects[0].object;
+            const furnitureId = clickedFurniture.userData.furnitureId;
 
-          // Right click removes furniture
-          if (event.button === 2) {
-            const currentUser = mockPersistenceService.getCurrentUser();
-            if (currentUser) {
-              mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureId);
-              scene.remove(clickedFurniture);
-              const room = mockPersistenceService.getUserRoom(currentUser.id);
-              setPlacedFurniture(room?.placedFurniture || []);
+            // Right click removes furniture
+            if (event.button === 2) {
+              const currentUser = mockPersistenceService.getCurrentUser();
+              if (currentUser) {
+                mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureId);
+                sceneRef.current.scene.remove(clickedFurniture);
+                const room = mockPersistenceService.getUserRoom(currentUser.id);
+                setPlacedFurniture(room?.placedFurniture || []);
+              }
+              return;
             }
+
+            // Left click selects furniture (could add movement later)
+            console.log('Clicked furniture:', furnitureId);
             return;
           }
-
-          // Left click selects furniture (could add movement later)
-          console.log('Clicked furniture:', furnitureId);
-          return;
         }
 
         // No furniture clicked, continue with orbital rotation
