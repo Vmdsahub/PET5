@@ -670,7 +670,12 @@ export const SimpleRoom3D: React.FC = () => {
       const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
       const catalogItemId = event.dataTransfer.getData('catalogItemId');
 
-      if (!inventoryItemId || !catalogItemId) return;
+      console.log('🎯 Drop detectado:', { inventoryItemId, catalogItemId });
+
+      if (!inventoryItemId || !catalogItemId) {
+        console.log('❌ Dados de drag incompletos');
+        return;
+      }
 
       const currentUser = mockPersistenceService.getCurrentUser();
       if (!currentUser || !sceneRef.current) return;
