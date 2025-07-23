@@ -1,11 +1,233 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Globe, Bookmark, Package, Settings, Shield } from 'lucide-react';
+import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
+import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } from '../../services/mockPersistenceService';
 
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
+
+  // Function to create 3D furniture representation
+  const addFurnitureToScene = (furniture: PlacedFurniture, catalogItemId: string) => {
+    if (!sceneRef.current) return;
+
+    const catalogItem = catalogItems.find(c => c.id === catalogItemId);
+    if (!catalogItem) return;
+
+    // Create a simple geometric representation based on furniture type
+    let geometry: THREE.BufferGeometry;
+    let material: THREE.Material;
+
+    // Different shapes for different furniture types
+    if (catalogItem.name.toLowerCase().includes('mesa')) {
+      // Table - box + thin top
+      geometry = new THREE.BoxGeometry(1.5, 0.1, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0x8B4513 }); // Brown
+    } else if (catalogItem.name.toLowerCase().includes('cadeira')) {
+      // Chair - simple box
+      geometry = new THREE.BoxGeometry(0.6, 1, 0.6);
+      material = new THREE.MeshPhongMaterial({ color: 0x654321 }); // Dark brown
+    } else if (catalogItem.name.toLowerCase().includes('sofá')) {
+      // Sofa - wider box
+      geometry = new THREE.BoxGeometry(2, 0.8, 0.8);
+      material = new THREE.MeshPhongMaterial({ color: 0x4169E1 }); // Blue
+    } else if (catalogItem.name.toLowerCase().includes('cama')) {
+      // Bed - long box
+      geometry = new THREE.BoxGeometry(2, 0.5, 1.5);
+      material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF }); // White
+    } else if (catalogItem.name.toLowerCase().includes('trono')) {
+      // Throne - tall decorated chair
+      geometry = new THREE.BoxGeometry(1, 1.5, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0xFFD700 }); // Gold
+    } else {
+      // Default furniture - simple box
+      geometry = new THREE.BoxGeometry(1, 1, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0x888888 }); // Gray
+    }
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(furniture.position.x, furniture.position.y, furniture.position.z);
+    mesh.rotation.set(furniture.rotation.x, furniture.rotation.y, furniture.rotation.z);
+    mesh.scale.set(furniture.scale.x, furniture.scale.y, furniture.scale.z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    // Store furniture ID for later reference
+    mesh.userData = { furnitureId: furniture.id, inventoryItemId: furniture.inventoryItemId };
+
+    sceneRef.current.scene.add(mesh);
+  };
+
+  // Function to load existing furniture from room data
+  const loadExistingFurniture = () => {
+    if (!sceneRef.current) return;
+
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const room = mockPersistenceService.getUserRoom(currentUser.id);
+    if (!room || !room.placedFurniture) return;
+
+    room.placedFurniture.forEach(furniture => {
+      const inventoryItem = inventoryItems.find(inv => inv.id === furniture.inventoryItemId);
+      if (!inventoryItem) return;
+
+      const catalogItem = catalogItems.find(c => c.id === inventoryItem.catalogItemId);
+      if (catalogItem) {
+        addFurnitureToScene(furniture, catalogItem.id);
+      }
+    });
+  };
+
+  // Funções de upload de arquivo
+  const handleFileSelect = (file: File) => {
+    if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+      if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+        setSelectedFile(file);
+        // Auto-fill model name from filename
+        const nameWithoutExt = file.name.replace(/\.(glb|gltf)$/, '');
+        setModelName(nameWithoutExt.charAt(0).toUpperCase() + nameWithoutExt.slice(1));
+      } else {
+        alert('Arquivo muito grande! Máximo de 10MB permitido.');
+      }
+    } else {
+      alert('Formato de arquivo não suportado! Use .glb ou .gltf');
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  // Initialize game data
+  const initializeGameData = () => {
+    mockPersistenceService.init();
+
+    // Set current user (simulate login)
+    if (!mockPersistenceService.getCurrentUser()) {
+      mockPersistenceService.setCurrentUser(user?.isAdmin ? 'admin-1' : 'player-1');
+    }
+
+    loadGameData();
+  };
+
+  const loadGameData = () => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    // Load catalog
+    setCatalogItems(mockPersistenceService.getCatalog());
+
+    // Load user inventory
+    setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
+
+    // Load user room
+    const room = mockPersistenceService.getUserRoom(currentUser.id);
+    setPlacedFurniture(room?.placedFurniture || []);
+
+    // Load user coins
+    setUserCoins(currentUser.coins);
+  };
+
+  const handleAddToCartalog = () => {
+    if (!selectedFile || !modelName || !modelPrice || !modelEmoji) {
+      alert('Por favor, preencha todos os campos e selecione um arquivo.');
+      return;
+    }
+
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem adicionar itens ao catálogo.');
+      return;
+    }
+
+    try {
+      const newItem = mockPersistenceService.addToCatalog({
+        name: modelName,
+        emoji: modelEmoji,
+        price: parseInt(modelPrice),
+        category: modelCategory,
+        createdBy: currentUser.id
+      });
+
+      // Update local state
+      setCatalogItems(mockPersistenceService.getCatalog());
+
+      alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
+
+      // Reset form
+      setSelectedFile(null);
+      setModelName('');
+      setModelPrice('');
+      setModelEmoji('');
+    } catch (error) {
+      alert('Erro ao adicionar item ao catálogo.');
+      console.error(error);
+    }
+  };
+
+  const handlePurchaseItem = (catalogItem: CatalogItem) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const result = mockPersistenceService.purchaseItem(currentUser.id, catalogItem.id);
+
+    if (result.success) {
+      // Update local states
+      setInventoryItems(mockPersistenceService.getInventory(currentUser.id));
+      const updatedUser = mockPersistenceService.getUserById(currentUser.id);
+      if (updatedUser) {
+        setUserCoins(updatedUser.coins);
+      }
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [expandedBasic, setExpandedBasic] = useState(true);
+  const [expandedLimited, setExpandedLimited] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [modelName, setModelName] = useState('');
+  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
+  const [modelPrice, setModelPrice] = useState('');
+  const [modelEmoji, setModelEmoji] = useState('');
+
+  // Game data states
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [placedFurniture, setPlacedFurniture] = useState<PlacedFurniture[]>([]);
+  const [userCoins, setUserCoins] = useState(0);
+  const [selectedInventoryItem, setSelectedInventoryItem] = useState<string | null>(null);
+  const [isDraggingOverScene, setIsDraggingOverScene] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
@@ -15,6 +237,9 @@ export const SimpleRoom3D: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
+    // Initialize game data
+    initializeGameData();
+
     if (!mountRef.current) return;
 
     // Scene setup
@@ -269,7 +494,48 @@ export const SimpleRoom3D: React.FC = () => {
       mouseY = event.clientY;
 
       if (event.button === 0) {
-        // Left mouse button - orbital rotation
+        // Left mouse button - check for furniture click first
+        if (!sceneRef.current) {
+          isLeftMouseDown = true;
+          return;
+        }
+
+        const rect = sceneRef.current.renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, sceneRef.current.camera);
+
+        // Check for furniture intersections
+        if (sceneRef.current) {
+          const furnitureObjects = sceneRef.current.scene.children.filter(child => child.userData && child.userData.furnitureId);
+          const intersects = raycaster.intersectObjects(furnitureObjects);
+
+          if (intersects.length > 0) {
+            const clickedFurniture = intersects[0].object;
+            const furnitureId = clickedFurniture.userData.furnitureId;
+
+            // Right click removes furniture
+            if (event.button === 2) {
+              const currentUser = mockPersistenceService.getCurrentUser();
+              if (currentUser) {
+                mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureId);
+                sceneRef.current.scene.remove(clickedFurniture);
+                const room = mockPersistenceService.getUserRoom(currentUser.id);
+                setPlacedFurniture(room?.placedFurniture || []);
+              }
+              return;
+            }
+
+            // Left click selects furniture (could add movement later)
+            console.log('Clicked furniture:', furnitureId);
+            return;
+          }
+        }
+
+        // No furniture clicked, continue with orbital rotation
         isLeftMouseDown = true;
       } else if (event.button === 2) {
         // Right mouse button - pan movement
@@ -384,11 +650,121 @@ export const SimpleRoom3D: React.FC = () => {
       event.preventDefault();
     };
 
+    // Drag & Drop para móveis
+    const onDragOver = (event: DragEvent) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      setIsDraggingOverScene(true);
+      console.log('🔄 DragOver na cena 3D');
+    };
+
+    const onDragEnter = (event: DragEvent) => {
+      event.preventDefault();
+      setIsDraggingOverScene(true);
+      console.log('🎯 DragEnter na cena 3D');
+    };
+
+    const onDragLeave = (event: DragEvent) => {
+      // Only hide if leaving the canvas area
+      if (event.target === sceneRef.current?.renderer.domElement) {
+        setIsDraggingOverScene(false);
+        console.log('🚫 DragLeave da cena 3D');
+      }
+    };
+
+    const onDrop = (event: DragEvent) => {
+      event.preventDefault();
+      setIsDraggingOverScene(false);
+
+      const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
+      const catalogItemId = event.dataTransfer.getData('catalogItemId');
+
+      console.log('🎯 Drop detectado:', { inventoryItemId, catalogItemId });
+
+      if (!inventoryItemId || !catalogItemId) {
+        console.log('❌ Dados de drag incompletos');
+        return;
+      }
+
+      const currentUser = mockPersistenceService.getCurrentUser();
+      if (!currentUser || !sceneRef.current) return;
+
+      // Check if item is already placed
+      const isAlreadyPlaced = placedFurniture.some(f => f.inventoryItemId === inventoryItemId);
+      if (isAlreadyPlaced) return;
+
+      // Calculate 3D position from screen coordinates
+      const rect = sceneRef.current.renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Create raycaster to find position on floor
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, sceneRef.current.camera);
+
+      // Find intersection with floor - get floor from scene
+      const floor = sceneRef.current?.scene.children.find(child =>
+        child instanceof THREE.Mesh &&
+        child.geometry instanceof THREE.PlaneGeometry &&
+        child.rotation.x < 0 // Floor is rotated on X axis
+      );
+
+      console.log('🏠 Floor encontrado:', !!floor);
+
+      let position = { x: 0, y: -1.5, z: 0 }; // Default position
+
+      if (floor) {
+        const floorIntersection = raycaster.intersectObject(floor);
+        console.log('📍 Intersecções com o chão:', floorIntersection.length);
+
+        if (floorIntersection.length > 0) {
+          const point = floorIntersection[0].point;
+          position = { x: point.x, y: -1.5, z: point.z }; // Position on floor level
+          console.log('✅ Posição calculada:', position);
+        }
+      } else {
+        // Fallback: place at screen center projected to floor level
+        position = {
+          x: (Math.random() - 0.5) * 8, // Random position within room bounds
+          y: -1.5,
+          z: (Math.random() - 0.5) * 8
+        };
+        console.log('🎲 Posição aleatória:', position);
+      }
+
+      // Add furniture to room
+      const newFurniture = mockPersistenceService.addFurnitureToRoom(currentUser.id, {
+        inventoryItemId,
+        userId: currentUser.id,
+        position,
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 }
+      });
+
+      console.log('🏠 Móvel adicionado ao quarto:', newFurniture);
+
+      // Update local state
+      const room = mockPersistenceService.getUserRoom(currentUser.id);
+      setPlacedFurniture(room?.placedFurniture || []);
+
+      // Add 3D object to scene
+      addFurnitureToScene(newFurniture, catalogItemId);
+
+      console.log('✅ Móvel posicionado na cena 3D');
+    };
+
+
+
     renderer.domElement.addEventListener('mousedown', onMouseDown);
     renderer.domElement.addEventListener('contextmenu', onContextMenu);
     renderer.domElement.addEventListener('touchstart', onTouchStart);
     renderer.domElement.addEventListener('touchstart', onTouchStartZoom);
     renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+    renderer.domElement.addEventListener('dragenter', onDragEnter);
+    renderer.domElement.addEventListener('dragover', onDragOver);
+    renderer.domElement.addEventListener('dragleave', onDragLeave);
+    renderer.domElement.addEventListener('drop', onDrop);
     window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('touchmove', onTouchMove, { passive: false });
@@ -430,6 +806,11 @@ export const SimpleRoom3D: React.FC = () => {
 
     animate();
 
+    // Load existing furniture after scene is ready
+    setTimeout(() => {
+      loadExistingFurniture();
+    }, 100);
+
     // Handle window resize
     const handleResize = () => {
       if (!mountRef.current) return;
@@ -451,6 +832,10 @@ export const SimpleRoom3D: React.FC = () => {
       renderer.domElement.removeEventListener('contextmenu', onContextMenu);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      renderer.domElement.removeEventListener('dragenter', onDragEnter);
+      renderer.domElement.removeEventListener('dragover', onDragOver);
+      renderer.domElement.removeEventListener('dragleave', onDragLeave);
+      renderer.domElement.removeEventListener('drop', onDrop);
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('touchmove', onTouchMove);
@@ -476,9 +861,104 @@ export const SimpleRoom3D: React.FC = () => {
     };
   }, []);
 
+  // Reload furniture when data changes
+  useEffect(() => {
+    if (sceneRef.current && catalogItems.length > 0 && inventoryItems.length > 0) {
+      // Clear existing furniture from scene
+      const furnitureObjects = sceneRef.current.scene.children.filter(
+        child => child.userData && child.userData.furnitureId
+      );
+      furnitureObjects.forEach(obj => sceneRef.current?.scene.remove(obj));
+
+      // Reload furniture
+      setTimeout(() => {
+        loadExistingFurniture();
+      }, 50);
+    }
+  }, [placedFurniture, catalogItems, inventoryItems]);
+
+  // Auto-save system
+  useEffect(() => {
+    const autoSave = () => {
+      const currentUser = mockPersistenceService.getCurrentUser();
+      if (!currentUser) return;
+
+      // Save current state
+      const room = mockPersistenceService.getUserRoom(currentUser.id);
+      if (room) {
+        room.lastModified = new Date().toISOString();
+        mockPersistenceService.saveUserRoom(room);
+        setLastSaved(new Date());
+      }
+
+      console.log('🔄 Auto-save executado');
+    };
+
+    // Auto-save every 30 seconds
+    const interval = setInterval(autoSave, 30000);
+
+    // Save on window unload
+    const handleBeforeUnload = () => {
+      autoSave();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  // Save on visibility change (tab switch, minimize, etc.)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        const currentUser = mockPersistenceService.getCurrentUser();
+        if (currentUser) {
+          const room = mockPersistenceService.getUserRoom(currentUser.id);
+          if (room) {
+            room.lastModified = new Date().toISOString();
+            mockPersistenceService.saveUserRoom(room);
+            setLastSaved(new Date());
+            console.log('🔄 Auto-save ao trocar de aba');
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden">
       <div ref={mountRef} className="w-full h-full" />
+
+      {/* Drag & Drop Overlay */}
+      {isDraggingOverScene && (
+        <motion.div
+          className="absolute inset-0 bg-blue-500/20 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="bg-white/95 rounded-xl p-6 text-center shadow-lg">
+            <motion.div
+              className="text-3xl mb-3"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              🏠
+            </motion.div>
+            <p className="text-sm font-medium text-gray-700">Solte aqui para posicionar o móvel</p>
+            <p className="text-xs text-gray-500 mt-1">O móvel será colocado no chão</p>
+          </div>
+        </motion.div>
+      )}
       
       {/* Back button */}
       <motion.button
@@ -514,17 +994,17 @@ export const SimpleRoom3D: React.FC = () => {
 
           {/* Catálogo */}
           <motion.button
-            onClick={() => {}}
+            onClick={() => setShowCatalog(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Bookmark className="w-4 h-4 text-green-600 group-hover:text-green-700 transition-colors" />
+            <ShoppingCart className="w-4 h-4 text-green-600 group-hover:text-green-700 transition-colors" />
           </motion.button>
 
           {/* Inventário da Casa */}
           <motion.button
-            onClick={() => {}}
+            onClick={() => setShowInventory(true)}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
@@ -560,7 +1040,7 @@ export const SimpleRoom3D: React.FC = () => {
             <>
               <div className="w-4 h-px bg-gray-200/50 mx-auto my-1" />
               <motion.button
-                onClick={() => {}}
+                onClick={() => setShowAdminPanel(true)}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-gray-50 group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
@@ -574,22 +1054,23 @@ export const SimpleRoom3D: React.FC = () => {
 
       {/* Enhanced instructions */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-black/80 text-white rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl max-w-md"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-black/80 text-white rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl max-w-lg"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, type: "spring", stiffness: 300 }}
       >
         <div className="text-center">
-          <div className="text-2xl mb-2">🌌</div>
-          <p className="text-sm font-medium mb-1">
-            Sala 3D Interativa
+          <div className="text-2xl mb-2">🏠</div>
+          <p className="text-sm font-medium mb-2">
+            Jogo de Decoração 3D
           </p>
-          <p className="text-xs text-gray-300 mb-1">
-            🖱️ Esquerdo: Orbitar • Direito: Pan (H/V)
-          </p>
-          <p className="text-xs text-gray-300">
-            🔍 Scroll: Zoom • 📱 Toque: arrastar/pinch
-          </p>
+          <div className="text-xs text-gray-300 space-y-1">
+            <p>🖱️ Orbitar: Clique esquerdo • Pan: Clique direito</p>
+            <p>🔍 Zoom: Scroll • 📱 Mobile: toque/pinch</p>
+            <p>🛒 Comprar: Catálogo → Inventário</p>
+            <p>🏠 Decorar: Arrastar do inventário para sala</p>
+            <p>❌ Remover: Clique direito no móvel</p>
+          </div>
         </div>
       </motion.div>
 
@@ -601,7 +1082,621 @@ export const SimpleRoom3D: React.FC = () => {
         transition={{ delay: 0.8 }}
       >
         <p className="text-xs">Terra Verdejante • Sala Base</p>
+        {lastSaved && (
+          <div className="flex items-center gap-1 mt-1">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <p className="text-xs text-gray-300">
+              Salvo {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        )}
       </motion.div>
+
+      {/* Painel de Administrador */}
+      {showAdminPanel && user?.isAdmin && (
+        <motion.div
+          className="absolute inset-0 z-20 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Overlay transparente */}
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowAdminPanel(false)}
+          />
+
+          {/* Modal do Admin */}
+          <motion.div
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-3xl w-full mx-4 h-[70vh] flex flex-col overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag
+            dragConstraints={{ left: -200, right: 200, top: -100, bottom: 100 }}
+            dragElastic={0.1}
+          >
+            {/* Header */}
+            <div className="bg-white p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <Shield className="w-5 h-5 text-red-500 mr-2" />
+                  Painel de Administrador
+                </h2>
+                <button
+                  onClick={() => setShowAdminPanel(false)}
+                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="text-sm text-gray-500 mt-1">
+                Ferramentas e configurações avançadas
+              </div>
+            </div>
+
+            {/* Conteúdo do Admin */}
+            <div className="flex-1 p-6 overflow-y-auto space-y-6">
+              {/* Upload de Modelos 3D */}
+              <section className="bg-white rounded-lg border border-gray-100 p-4">
+                <h3 className="text-md font-medium text-gray-900 mb-3">
+                  Upload de Modelos 3D
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Arquivo GLB/GLTF
+                    </label>
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                        isDragOver
+                          ? 'border-blue-400 bg-blue-50'
+                          : selectedFile
+                            ? 'border-green-400 bg-green-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('file-input')?.click()}
+                    >
+                      {selectedFile ? (
+                        <div>
+                          <div className="text-green-500 mb-2">
+                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <p className="text-sm text-green-700 font-medium mb-1">
+                            {selectedFile.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                          <button
+                            className="mt-2 text-xs text-red-500 hover:text-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedFile(null);
+                            }}
+                          >
+                            Remover arquivo
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className={`mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}>
+                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <p className={`text-sm mb-1 ${isDragOver ? 'text-blue-600' : 'text-gray-600'}`}>
+                            {isDragOver ? 'Solte o arquivo aqui' : 'Arraste e solte ou clique para selecionar'}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Suporte para .glb, .gltf (máx. 10MB)
+                          </p>
+                        </div>
+                      )}
+                      <input
+                        id="file-input"
+                        type="file"
+                        className="hidden"
+                        accept=".glb,.gltf"
+                        onChange={handleFileInputChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Nome do Móvel
+                      </label>
+                      <input
+                        type="text"
+                        value={modelName}
+                        onChange={(e) => setModelName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="ex: Sofá Moderno"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Categoria
+                      </label>
+                      <select
+                        value={modelCategory}
+                        onChange={(e) => setModelCategory(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option>Móveis Básicos</option>
+                        <option>Móveis Limitados</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Preço (moedas)
+                      </label>
+                      <input
+                        type="number"
+                        value={modelPrice}
+                        onChange={(e) => setModelPrice(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="100"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Emoji/Ícone
+                      </label>
+                      <input
+                        type="text"
+                        value={modelEmoji}
+                        onChange={(e) => setModelEmoji(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="🛋️"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleAddToCartalog}
+                    disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji}
+                    className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedFile && modelName && modelPrice && modelEmoji
+                        ? 'bg-gray-900 hover:bg-gray-800 text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Adicionar ao Catálogo
+                  </button>
+                </div>
+              </section>
+
+              {/* Outras Ferramentas */}
+              <section className="bg-white rounded-lg border border-gray-100 p-4">
+                <h3 className="text-md font-medium text-gray-900 mb-3">
+                  Ferramentas de Desenvolvimento
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
+                    <div className="font-medium">Gerenciar Usuários</div>
+                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
+                  </button>
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
+                    <div className="font-medium">Logs do Sistema</div>
+                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
+                  </button>
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
+                    <div className="font-medium">Estatísticas</div>
+                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
+                  </button>
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left">
+                    <div className="font-medium">Configurações</div>
+                    <div className="text-xs text-gray-500 mt-1">Em desenvolvimento</div>
+                  </button>
+                </div>
+              </section>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-white border-t border-gray-100 p-4">
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <div>
+                  Versão: 2.0.0 • Modo: Desenvolvimento
+                </div>
+                <div>
+                  Último login: {new Date().toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Inventário da Casa */}
+      {showInventory && (
+        <motion.div
+          className="absolute inset-0 z-20 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Overlay transparente */}
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowInventory(false)}
+          />
+
+          {/* Modal do Inventário */}
+          <motion.div
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-3xl w-full mx-4 h-[70vh] flex flex-col overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag
+            dragConstraints={{ left: -200, right: 200, top: -100, bottom: 100 }}
+            dragElastic={0.1}
+          >
+            {/* Header */}
+            <div className="bg-white p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Inventário da Casa
+                </h2>
+                <button
+                  onClick={() => setShowInventory(false)}
+                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="flex items-center gap-6 mt-3 text-sm text-gray-500">
+                <div>
+                  Itens: <span className="font-medium text-gray-700">{inventoryItems.length}/50</span>
+                </div>
+                <div>
+                  Valor total: <span className="font-medium text-gray-700">
+                    {inventoryItems.reduce((total, invItem) => {
+                      const catalogItem = catalogItems.find(c => c.id === invItem.catalogItemId);
+                      return total + (catalogItem?.price || 0);
+                    }, 0)} moedas
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Conteúdo do Inventário */}
+            <div className="flex-1 p-4 overflow-y-auto">
+              <div className="grid grid-cols-8 gap-3">
+                {/* Móveis no inventário */}
+                {inventoryItems.map((invItem) => {
+                  const catalogItem = catalogItems.find(c => c.id === invItem.catalogItemId);
+                  if (!catalogItem) return null;
+
+                  const isPlaced = placedFurniture.some(f => f.inventoryItemId === invItem.id);
+
+                  return (
+                    <motion.div
+                      key={invItem.id}
+                      className={`
+                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
+                        ${catalogItem.category === 'Móveis Limitados'
+                          ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
+                          : 'bg-white border-gray-200'
+                        }
+                        ${isPlaced ? 'ring-2 ring-green-400' : ''}
+                        ${selectedInventoryItem === invItem.id ? 'ring-2 ring-blue-400' : ''}
+                      `}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedInventoryItem(selectedInventoryItem === invItem.id ? null : invItem.id)}
+                      draggable={!isPlaced}
+                      onDragStart={(e) => {
+                        if (isPlaced) {
+                          e.preventDefault();
+                          return;
+                        }
+                        console.log('🎬 Iniciando drag do item:', catalogItem.name);
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('inventoryItemId', invItem.id);
+                        e.dataTransfer.setData('catalogItemId', catalogItem.id);
+                        e.dataTransfer.setData('text/plain', catalogItem.name); // Fallback
+                      }}
+                      onDragEnd={(e) => {
+                        console.log('🏁 Finalizando drag');
+                      }}
+                    >
+                      {/* Status Badge */}
+                      {isPlaced && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                      )}
+                      {!isPlaced && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+                      )}
+
+                      <div className="text-lg text-center mb-1">{catalogItem.emoji}</div>
+                      <div className="text-xs font-medium text-gray-700 text-center truncate">
+                        {catalogItem.name}
+                      </div>
+
+                      {/* Rarity indicator */}
+                      <div className={`text-xs text-center mt-1 ${
+                        catalogItem.category === 'Móveis Limitados' ? 'text-orange-600 font-medium' : 'text-gray-500'
+                      }`}>
+                        {catalogItem.category === 'Móveis Limitados' ? '⭐' : '•'}
+                      </div>
+
+                      {/* Hover overlay with actions */}
+                      <div className="absolute inset-0 bg-black/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="text-center">
+                          {isPlaced ? (
+                            <button
+                              className="text-xs text-red-400 hover:text-red-300 mb-1 block"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Remove from room
+                                const currentUser = mockPersistenceService.getCurrentUser();
+                                if (currentUser) {
+                                  const furnitureToRemove = placedFurniture.find(f => f.inventoryItemId === invItem.id);
+                                  if (furnitureToRemove) {
+                                    mockPersistenceService.removeFurnitureFromRoom(currentUser.id, furnitureToRemove.id);
+                                    const room = mockPersistenceService.getUserRoom(currentUser.id);
+                                    setPlacedFurniture(room?.placedFurniture || []);
+                                  }
+                                }
+                              }}
+                            >
+                              🗑️ Remover
+                            </button>
+                          ) : (
+                            <div>
+                              <div className="text-xs text-green-400 mb-1">
+                                🖱️ Arrastar para sala
+                              </div>
+                              <div className="text-xs text-blue-400">
+                                👁️ Click: Selecionar
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Slots vazios */}
+                {Array.from({ length: 8 }, (_, index) => (
+                  <div
+                    key={`empty-${index}`}
+                    className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-2 flex items-center justify-center"
+                  >
+                    <div className="text-center text-gray-400">
+                      <div className="text-lg mb-1">📭</div>
+                      <div className="text-xs">Vazio</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer com ações */}
+            <div className="bg-white border-t border-gray-100 p-4">
+              <div className="flex justify-between items-center">
+                <div className="flex gap-3">
+                  <button className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Equipar Selecionados
+                  </button>
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Vender Selecionados
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-xs text-gray-500">
+                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>Equipado
+                    <span className="w-2 h-2 bg-blue-500 rounded-full inline-block ml-3 mr-1"></span>Novo
+                    <span className="text-yellow-600 ml-3">⭐</span>Limitado
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Catálogo de Móveis */}
+      {showCatalog && (
+        <motion.div
+          className="absolute inset-0 z-20 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Overlay transparente */}
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowCatalog(false)}
+          />
+
+          {/* Catálogo Principal */}
+          <motion.div
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-4xl w-full mx-4 h-[80vh] flex overflow-hidden"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag
+            dragConstraints={{ left: -200, right: 200, top: -100, bottom: 100 }}
+            dragElastic={0.1}
+          >
+            {/* Header */}
+            <div className="absolute top-0 left-0 right-0 bg-white p-4 border-b border-gray-100 z-30">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Catálogo de Móveis
+                </h2>
+                <button
+                  onClick={() => setShowCatalog(false)}
+                  className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-500 text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Conteúdo Principal */}
+            <div className="flex flex-1 pt-16">
+              {/* Seções de Móveis */}
+              <div className="w-80 overflow-y-auto p-4 space-y-4">
+                {/* Móveis Básicos */}
+                <section>
+                  <button
+                    onClick={() => setExpandedBasic(!expandedBasic)}
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <h3 className="text-sm font-medium text-gray-800 flex items-center">
+                      Móveis Básicos
+                    </h3>
+                    {expandedBasic ? (
+                      <ChevronUp className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
+                  {expandedBasic && (
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {catalogItems
+                        .filter(item => item.category === 'Móveis Básicos')
+                        .map((item, index) => {
+                          const colors = ['bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-orange-100', 'bg-pink-100', 'bg-indigo-100', 'bg-gray-100'];
+                          const color = colors[index % colors.length];
+
+                          return (
+                            <motion.div
+                              key={item.id}
+                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePurchaseItem(item)}
+                            >
+                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-xs font-medium text-gray-700 text-center truncate">
+                                {item.name}
+                              </div>
+                              <div className="text-xs text-gray-500 text-center">
+                                {item.price}
+                              </div>
+                              <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-xs text-white font-medium">Comprar</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </section>
+
+                {/* Móveis Limitados */}
+                <section>
+                  <button
+                    onClick={() => setExpandedLimited(!expandedLimited)}
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <h3 className="text-sm font-medium text-gray-800 flex items-center">
+                      <span className="text-yellow-500 mr-2">⭐</span>Móveis Limitados
+                    </h3>
+                    {expandedLimited ? (
+                      <ChevronUp className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
+                  {expandedLimited && (
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {catalogItems
+                        .filter(item => item.category === 'Móveis Limitados')
+                        .map((item, index) => {
+                          const colors = [
+                            'bg-gradient-to-br from-yellow-200 to-yellow-300',
+                            'bg-gradient-to-br from-purple-200 to-purple-300',
+                            'bg-gradient-to-br from-blue-200 to-blue-300',
+                            'bg-gradient-to-br from-gray-200 to-gray-300',
+                            'bg-gradient-to-br from-red-200 to-red-300',
+                            'bg-gradient-to-br from-green-200 to-green-300',
+                            'bg-gradient-to-br from-orange-200 to-orange-300',
+                            'bg-gradient-to-br from-pink-200 to-pink-300'
+                          ];
+                          const color = colors[index % colors.length];
+
+                          return (
+                            <motion.div
+                              key={item.id}
+                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePurchaseItem(item)}
+                            >
+                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-xs font-medium text-gray-700 text-center truncate">
+                                {item.name}
+                              </div>
+                              <div className="text-xs text-orange-600 text-center font-medium">
+                                {item.price}
+                              </div>
+                              <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-xs text-white font-medium">Comprar</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </section>
+              </div>
+
+              {/* Área de Visualização Expandida */}
+              <div className="flex-1 bg-gray-50/50 border-l border-gray-200/50 p-6">
+                <div className="h-full flex flex-col">
+                  <div className="flex-1 bg-white rounded-lg border-2 border-dashed border-gray-300 p-6">
+                    <div className="h-full flex items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <div className="text-6xl mb-6">🏠</div>
+                        <p className="text-lg font-medium mb-2">Área de Visualização</p>
+                        <p className="text-sm text-gray-400 mb-4">Clique em um móvel para ver detalhes e preview 3D</p>
+                        <div className="bg-gray-100 rounded-lg p-4 max-w-md mx-auto">
+                          <p className="text-xs text-gray-600 mb-2">Controles:</p>
+                          <div className="text-xs text-gray-500 space-y-1">
+                            <div>🖱️ Rotacionar preview</div>
+                            <div>🔍 Zoom in/out</div>
+                            <div>📏 Ver dimensões</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                      Saldo: <span className="font-medium text-gray-700">{userCoins} moedas</span>
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      Clique nos itens para comprar
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
