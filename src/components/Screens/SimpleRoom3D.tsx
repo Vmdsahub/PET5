@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield } from 'lucide-react';
+import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
 
@@ -586,7 +586,7 @@ export const SimpleRoom3D: React.FC = () => {
             Sala 3D Interativa
           </p>
           <p className="text-xs text-gray-300 mb-1">
-            🖱️ Esquerdo: Orbitar • Direito: Pan (H/V)
+            🖱️ Esquerdo: Orbitar �� Direito: Pan (H/V)
           </p>
           <p className="text-xs text-gray-300">
             🔍 Scroll: Zoom • 📱 Toque: arrastar/pinch
