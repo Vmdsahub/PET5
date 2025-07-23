@@ -235,15 +235,19 @@ button {
 }
 
 .context-menu-item::after {
-  content: '⋮';
+  content: '⋯';
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(100, 100, 100, 0.5);
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  padding: 1px 2px;
+  font-weight: bold;
 }
 
 .context-menu-item:hover::after {
@@ -252,8 +256,15 @@ button {
 
 /* Admin-only context menu indicator */
 .admin-context-menu-item::after {
-  content: '👑⋮';
-  top: 1px;
-  right: 1px;
+  content: '⚙️';
+  top: 2px;
+  right: 2px;
   font-size: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
