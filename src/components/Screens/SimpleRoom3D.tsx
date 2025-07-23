@@ -315,6 +315,19 @@ export const SimpleRoom3D: React.FC = () => {
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<string | null>(null);
   const [isDraggingOverScene, setIsDraggingOverScene] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Context menu states
+  const [contextMenu, setContextMenu] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+    type: 'catalog' | 'inventory' | null;
+    itemId: string | null;
+  }>({
+    isOpen: false,
+    position: { x: 0, y: 0 },
+    type: null,
+    itemId: null
+  });
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
