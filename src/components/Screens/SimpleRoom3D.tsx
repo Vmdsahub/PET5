@@ -1309,7 +1309,7 @@ export const SimpleRoom3D: React.FC = () => {
 
 
 
-      {/* Invent��rio da Casa */}
+      {/* Inventário da Casa */}
       {showInventory && (
         <motion.div
           className="absolute inset-0 z-20 flex items-center justify-center"
@@ -1664,7 +1664,7 @@ export const SimpleRoom3D: React.FC = () => {
                           return (
                             <motion.div
                               key={item.id}
-                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
+                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group ${user?.isAdmin ? 'admin-context-menu-item' : ''}`}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
@@ -1698,7 +1698,7 @@ export const SimpleRoom3D: React.FC = () => {
                 </section>
               </div>
 
-              {/* Área de Visualização Expandida */}
+              {/* ��rea de Visualização Expandida */}
               <div className="flex-1 bg-gray-50/50 border-l border-gray-200/50 p-6">
                 <div className="h-full flex flex-col">
                   <div className="flex-1 bg-white rounded-lg border-2 border-dashed border-gray-300 p-6">
