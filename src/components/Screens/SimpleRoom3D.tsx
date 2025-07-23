@@ -915,7 +915,12 @@ export const SimpleRoom3D: React.FC = () => {
 
   // Preview renderer para modelo GLB carregado
   useEffect(() => {
-    if (!uploadedModel || !previewMountRef.current) return;
+    console.log('🖼️ useEffect preview chamado:', { uploadedModel: !!uploadedModel, previewMount: !!previewMountRef.current });
+    if (!uploadedModel || !previewMountRef.current) {
+      console.log('❌ Preview não pode ser criado - faltam dependências');
+      return;
+    }
+    console.log('🎬 Criando preview 3D...');
 
     // Limpar renderizador anterior
     if (previewRendererRef.current && previewMountRef.current.contains(previewRendererRef.current.domElement)) {
