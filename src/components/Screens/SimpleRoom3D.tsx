@@ -1261,65 +1261,137 @@ export const SimpleRoom3D: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Arquivo GLB/GLTF
                     </label>
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                        isDragOver
-                          ? 'border-blue-400 bg-blue-50'
-                          : selectedFile
-                            ? 'border-green-400 bg-green-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onClick={() => document.getElementById('file-input')?.click()}
-                    >
-                      {selectedFile ? (
-                        <div>
-                          <div className="text-green-500 mb-2">
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
+                    {uploadStatus === 'success' && uploadedModel ? (
+                      <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4">
+                        <div className="h-64 bg-gray-900 rounded-lg mb-4 relative overflow-hidden">
+                          <div ref={previewMountRef} className="w-full h-full" />
+                          <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                            ✓ Carregado
                           </div>
+                        </div>
+                        <div className="text-center">
                           <p className="text-sm text-green-700 font-medium mb-1">
-                            {selectedFile.name}
+                            {selectedFile?.name}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          <p className="text-xs text-gray-500 mb-2">
+                            Modelo carregado com sucesso!
                           </p>
-                          <button
-                            className="mt-2 text-xs text-red-500 hover:text-red-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedFile(null);
-                            }}
-                          >
-                            Remover arquivo
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className={`mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}>
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              className="text-xs text-blue-500 hover:text-blue-700 px-3 py-1 border border-blue-200 rounded"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                setModelName('');
+                                setModelPrice('');
+                                setModelEmoji('');
+                                setUploadedModel(null);
+                                setUploadStatus('idle');
+                              }}
+                            >
+                              Novo Upload
+                            </button>
+                            <button
+                              className="text-xs text-red-500 hover:text-red-700 px-3 py-1 border border-red-200 rounded"
+                              onClick={() => {
+                                setUploadedModel(null);
+                                setUploadStatus('idle');
+                              }}
+                            >
+                              Remover
+                            </button>
                           </div>
-                          <p className={`text-sm mb-1 ${isDragOver ? 'text-blue-600' : 'text-gray-600'}`}>
-                            {isDragOver ? 'Solte o arquivo aqui' : 'Arraste e solte ou clique para selecionar'}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            Suporte para .glb, .gltf (máx. 10MB)
-                          </p>
                         </div>
-                      )}
-                      <input
-                        id="file-input"
-                        type="file"
-                        className="hidden"
-                        accept=".glb,.gltf"
-                        onChange={handleFileInputChange}
-                      />
-                    </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                          isDragOver
+                            ? 'border-blue-400 bg-blue-50'
+                            : selectedFile
+                              ? 'border-green-400 bg-green-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById('file-input')?.click()}
+                      >
+                        {uploadStatus === 'loading' ? (
+                          <div>
+                            <div className="text-blue-500 mb-2">
+                              <svg className="w-8 h-8 mx-auto animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                            </div>
+                            <p className="text-sm text-blue-600 font-medium">
+                              Carregando modelo...
+                            </p>
+                          </div>
+                        ) : uploadStatus === 'error' ? (
+                          <div>
+                            <div className="text-red-500 mb-2">
+                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                            <p className="text-sm text-red-600 font-medium mb-1">
+                              Erro ao carregar modelo
+                            </p>
+                            <button
+                              className="text-xs text-gray-500 hover:text-gray-700"
+                              onClick={() => setUploadStatus('idle')}
+                            >
+                              Tentar novamente
+                            </button>
+                          </div>
+                        ) : selectedFile ? (
+                          <div>
+                            <div className="text-green-500 mb-2">
+                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <p className="text-sm text-green-700 font-medium mb-1">
+                              {selectedFile.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                            <button
+                              className="mt-2 text-xs text-red-500 hover:text-red-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedFile(null);
+                                setUploadStatus('idle');
+                              }}
+                            >
+                              Remover arquivo
+                            </button>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className={`mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}>
+                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                            </div>
+                            <p className={`text-sm mb-1 ${isDragOver ? 'text-blue-600' : 'text-gray-600'}`}>
+                              {isDragOver ? 'Solte o arquivo aqui' : 'Arraste e solte ou clique para selecionar'}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              Suporte para .glb, .gltf (máx. 10MB)
+                            </p>
+                          </div>
+                        )}
+                        <input
+                          id="file-input"
+                          type="file"
+                          className="hidden"
+                          accept=".glb,.gltf"
+                          onChange={handleFileInputChange}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
