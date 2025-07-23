@@ -277,20 +277,8 @@ export const SimpleRoom3D: React.FC = () => {
 
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [modelName, setModelName] = useState('');
-  const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
-  const [modelPrice, setModelPrice] = useState('');
-  const [modelEmoji, setModelEmoji] = useState('');
-  const [uploadedModel, setUploadedModel] = useState<THREE.Group | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [previewScene, setPreviewScene] = useState<THREE.Scene | null>(null);
-  const previewMountRef = useRef<HTMLDivElement>(null);
-  const previewRendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   // Game data states
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
@@ -802,7 +790,7 @@ export const SimpleRoom3D: React.FC = () => {
           y: -1.5,
           z: (Math.random() - 0.5) * 8
         };
-        console.log('🎲 Posiç��o aleatória:', position);
+        console.log('🎲 Posição aleatória:', position);
       }
 
       // Add furniture to room
@@ -814,7 +802,7 @@ export const SimpleRoom3D: React.FC = () => {
         scale: { x: 1, y: 1, z: 1 }
       });
 
-      console.log('🏠 Móvel adicionado ao quarto:', newFurniture);
+      console.log('🏠 M��vel adicionado ao quarto:', newFurniture);
 
       // Update local state
       const room = mockPersistenceService.getUserRoom(currentUser.id);
