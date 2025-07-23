@@ -242,6 +242,14 @@ export const SimpleRoom3D: React.FC = () => {
 
       alert(`Modelo "${modelName}" adicionado com sucesso ao catálogo!`);
 
+      // Limpar o estado após sucesso - voltar ao estado inicial
+      setSelectedFile(null);
+      setModelName('');
+      setModelPrice('');
+      setModelEmoji('');
+      setUploadedModel(null);
+      setUploadStatus('idle');
+
     } catch (error) {
       alert('Erro ao adicionar item ao catálogo.');
       console.error(error);
@@ -794,7 +802,7 @@ export const SimpleRoom3D: React.FC = () => {
           y: -1.5,
           z: (Math.random() - 0.5) * 8
         };
-        console.log('🎲 Posição aleatória:', position);
+        console.log('🎲 Posiç��o aleatória:', position);
       }
 
       // Add furniture to room
@@ -1593,7 +1601,7 @@ export const SimpleRoom3D: React.FC = () => {
               </div>
             </div>
 
-            {/* Conteúdo do Invent��rio */}
+            {/* Conteúdo do Inventário */}
             <div className="flex-1 p-4 overflow-y-auto">
               <div className="grid grid-cols-8 gap-3">
                 {/* Móveis no inventário */}
