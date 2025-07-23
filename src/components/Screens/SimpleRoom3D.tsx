@@ -1325,8 +1325,8 @@ export const SimpleRoom3D: React.FC = () => {
             </div>
 
             {/* Conteúdo do Inventário */}
-            <div className="flex-1 p-6 overflow-y-auto">
-              <div className="grid grid-cols-6 gap-4">
+            <div className="flex-1 p-4 overflow-y-auto">
+              <div className="grid grid-cols-8 gap-3">
                 {/* Móveis no inventário */}
                 {inventoryItems.map((invItem) => {
                   const catalogItem = catalogItems.find(c => c.id === invItem.catalogItemId);
