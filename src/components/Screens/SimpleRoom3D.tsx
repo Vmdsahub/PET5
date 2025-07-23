@@ -166,18 +166,28 @@ export const SimpleRoom3D: React.FC = () => {
     }
 
     setUploadStatus('loading');
+    console.log('🚀 Iniciando carregamento do modelo GLB:', selectedFile.name);
 
     try {
       // Carregar o modelo GLB
       const loader = new GLTFLoader();
       const url = URL.createObjectURL(selectedFile);
+      console.log('📁 URL criada para o arquivo:', url);
 
       const gltf = await new Promise<any>((resolve, reject) => {
         loader.load(
           url,
-          (gltf) => resolve(gltf),
-          undefined,
-          (error) => reject(error)
+          (gltf) => {
+            console.log('✅ Modelo GLB carregado com sucesso:', gltf);
+            resolve(gltf);
+          },
+          (progress) => {
+            console.log('📊 Progresso do carregamento:', progress);
+          },
+          (error) => {
+            console.error('❌ Erro no carregamento:', error);
+            reject(error);
+          }
         );
       });
 
@@ -1245,7 +1255,7 @@ export const SimpleRoom3D: React.FC = () => {
                 </button>
               </div>
               <div className="text-sm text-gray-500 mt-1">
-                Ferramentas e configuraç��es avançadas
+                Ferramentas e configurações avançadas
               </div>
             </div>
 
