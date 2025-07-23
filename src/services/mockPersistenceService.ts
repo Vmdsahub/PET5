@@ -143,6 +143,31 @@ class MockPersistenceService {
     return newItem;
   }
 
+  removeFromCatalog(catalogItemId: string): { success: boolean; message: string } {
+    const catalog = this.getCatalog();
+    const itemIndex = catalog.findIndex(item => item.id === catalogItemId);
+
+    if (itemIndex === -1) {
+      return { success: false, message: 'Item não encontrado no catálogo' };
+    }
+
+    const item = catalog[itemIndex];
+
+    // Check if item can be deleted (only admins can delete, and check for dependencies)
+    const allInventory = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.INVENTORY) || '[]');
+    const itemInUse = allInventory.some((invItem: InventoryItem) => invItem.catalogItemId === catalogItemId);
+
+    if (itemInUse) {
+      return { success: false, message: 'Não é possível excluir: item está em uso por usuários' };
+    }
+
+    // Remove from catalog
+    catalog.splice(itemIndex, 1);
+    this.saveCatalog(catalog);
+
+    return { success: true, message: `${item.name} foi removido do catálogo` };
+  }
+
   // Inventory Management
   getInventory(userId: string): InventoryItem[] {
     const inventory = localStorage.getItem(this.STORAGE_KEYS.INVENTORY);
