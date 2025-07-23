@@ -11,6 +11,12 @@ export const SimpleRoom3D: React.FC = () => {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
   const [expandedLimited, setExpandedLimited] = useState(true);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [modelName, setModelName] = useState('');
+  const [modelCategory, setModelCategory] = useState('Móveis Básicos');
+  const [modelPrice, setModelPrice] = useState('');
+  const [modelEmoji, setModelEmoji] = useState('');
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
