@@ -1203,32 +1203,33 @@ export const SimpleRoom3D: React.FC = () => {
                   </button>
                   {expandedBasic && (
                     <div className="grid grid-cols-4 gap-2 mt-2">
-                      {[
-                        { name: "Mesa", price: "100", emoji: "🪑", color: "bg-blue-100" },
-                        { name: "Cadeira", price: "50", emoji: "🪑", color: "bg-green-100" },
-                        { name: "Estante", price: "150", emoji: "📚", color: "bg-yellow-100" },
-                        { name: "Cama", price: "200", emoji: "🛏️", color: "bg-purple-100" },
-                        { name: "Tapete", price: "80", emoji: "🟫", color: "bg-orange-100" },
-                        { name: "Luminária", price: "120", emoji: "💡", color: "bg-pink-100" },
-                        { name: "Sofá", price: "180", emoji: "🛋️", color: "bg-indigo-100" },
-                        { name: "TV", price: "300", emoji: "📺", color: "bg-gray-100" },
-                      ].map((item, index) => (
-                        <motion.div
-                          key={index}
-                          className={`${item.color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <div className="text-lg text-center mb-1">{item.emoji}</div>
-                          <div className="text-xs font-medium text-gray-700 text-center truncate">
-                            {item.name}
-                          </div>
-                          <div className="text-xs text-gray-500 text-center">
-                            {item.price}
-                          </div>
-                          <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </motion.div>
-                      ))}
+                      {catalogItems
+                        .filter(item => item.category === 'Móveis Básicos')
+                        .map((item, index) => {
+                          const colors = ['bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-orange-100', 'bg-pink-100', 'bg-indigo-100', 'bg-gray-100'];
+                          const color = colors[index % colors.length];
+
+                          return (
+                            <motion.div
+                              key={item.id}
+                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePurchaseItem(item)}
+                            >
+                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-xs font-medium text-gray-700 text-center truncate">
+                                {item.name}
+                              </div>
+                              <div className="text-xs text-gray-500 text-center">
+                                {item.price}
+                              </div>
+                              <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-xs text-white font-medium">Comprar</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                     </div>
                   )}
                 </section>
