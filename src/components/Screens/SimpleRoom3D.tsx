@@ -744,19 +744,21 @@ export const SimpleRoom3D: React.FC = () => {
             </div>
 
             {/* Footer com ações */}
-            <div className="bg-gray-50/50 border-t border-gray-200/50 p-4">
+            <div className="bg-white border-t border-gray-100 p-4">
               <div className="flex justify-between items-center">
-                <div className="flex gap-2">
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    🏠 Equipar Selecionados
+                <div className="flex gap-3">
+                  <button className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Equipar Selecionados
                   </button>
-                  <button className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    💰 Vender Selecionados
+                  <button className="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Vender Selecionados
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-xs text-gray-600">
-                    🟢 Equipado • 🔵 Novo • ⭐ Limitado
+                  <div className="text-xs text-gray-500">
+                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span>Equipado
+                    <span className="w-2 h-2 bg-blue-500 rounded-full inline-block ml-3 mr-1"></span>Novo
+                    <span className="text-yellow-600 ml-3">⭐</span>Limitado
                   </div>
                 </div>
               </div>
