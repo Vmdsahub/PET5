@@ -1342,7 +1342,17 @@ export const SimpleRoom3D: React.FC = () => {
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
                       )}
 
-                      <div className="text-lg text-center mb-1">{catalogItem.emoji}</div>
+                      <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
+                        {catalogItem.emoji && catalogItem.emoji.startsWith('data:image') ? (
+                          <img
+                            src={catalogItem.emoji}
+                            alt={catalogItem.name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        ) : (
+                          <span>{catalogItem.emoji || '📦'}</span>
+                        )}
+                      </div>
                       <div className="text-xs font-medium text-gray-700 text-center truncate">
                         {catalogItem.name}
                       </div>
