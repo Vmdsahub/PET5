@@ -1520,7 +1520,17 @@ export const SimpleRoom3D: React.FC = () => {
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
                             >
-                              <div className="text-lg text-center mb-1">{item.emoji}</div>
+                              <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
+                                {item.emoji && item.emoji.startsWith('data:image') ? (
+                                  <img
+                                    src={item.emoji}
+                                    alt={item.name}
+                                    className="w-8 h-8 object-contain"
+                                  />
+                                ) : (
+                                  <span>{item.emoji || '📦'}</span>
+                                )}
+                              </div>
                               <div className="text-xs font-medium text-gray-700 text-center truncate">
                                 {item.name}
                               </div>
@@ -1719,7 +1729,7 @@ export const SimpleRoom3D: React.FC = () => {
                       </div>
                     ) : (
                       <div>
-                        <div className="text-gray-400 text-3xl mb-2">📁</div>
+                        <div className="text-gray-400 text-3xl mb-2">��</div>
                         <p className="text-sm text-gray-600">
                           Arraste ou clique para selecionar
                         </p>
