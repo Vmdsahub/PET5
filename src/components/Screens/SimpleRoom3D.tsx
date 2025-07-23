@@ -650,81 +650,129 @@ export const SimpleRoom3D: React.FC = () => {
             {/* Conteúdo Principal */}
             <div className="flex flex-1 pt-16">
               {/* Seções de Móveis */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className="w-80 overflow-y-auto p-4 space-y-4">
                 {/* Móveis Básicos */}
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                    🏠 Móveis Básicos
-                  </h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Itens de exemplo */}
-                    {[
-                      { name: "Mesa Simples", price: "100 moedas", emoji: "🪑" },
-                      { name: "Cadeira Básica", price: "50 moedas", emoji: "🪑" },
-                      { name: "Estante", price: "150 moedas", emoji: "📚" },
-                      { name: "Cama", price: "200 moedas", emoji: "🛏️" },
-                      { name: "Tapete", price: "80 moedas", emoji: "🟫" },
-                      { name: "Luminária", price: "120 moedas", emoji: "💡" },
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="text-2xl mb-2 text-center">{item.emoji}</div>
-                        <div className="text-sm font-medium text-gray-700 text-center">
-                          {item.name}
-                        </div>
-                        <div className="text-xs text-gray-500 text-center mt-1">
-                          {item.price}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                  <button
+                    onClick={() => setExpandedBasic(!expandedBasic)}
+                    className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                  >
+                    <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                      🏠 Móveis Básicos
+                    </h3>
+                    {expandedBasic ? (
+                      <ChevronUp className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
+                  {expandedBasic && (
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {[
+                        { name: "Mesa", price: "100", emoji: "🪑", color: "bg-blue-100" },
+                        { name: "Cadeira", price: "50", emoji: "🪑", color: "bg-green-100" },
+                        { name: "Estante", price: "150", emoji: "📚", color: "bg-yellow-100" },
+                        { name: "Cama", price: "200", emoji: "🛏️", color: "bg-purple-100" },
+                        { name: "Tapete", price: "80", emoji: "🟫", color: "bg-orange-100" },
+                        { name: "Luminária", price: "120", emoji: "💡", color: "bg-pink-100" },
+                        { name: "Sofá", price: "180", emoji: "🛋️", color: "bg-indigo-100" },
+                        { name: "TV", price: "300", emoji: "📺", color: "bg-gray-100" },
+                      ].map((item, index) => (
+                        <motion.div
+                          key={index}
+                          className={`${item.color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <div className="text-lg text-center mb-1">{item.emoji}</div>
+                          <div className="text-xs font-medium text-gray-700 text-center truncate">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-gray-500 text-center">
+                            {item.price}
+                          </div>
+                          <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </section>
 
                 {/* Móveis Limitados */}
                 <section>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                    ⭐ Móveis Limitados
-                  </h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Itens limitados de exemplo */}
-                    {[
-                      { name: "Trono Dourado", price: "500 moedas", emoji: "👑" },
-                      { name: "Piano", price: "800 moedas", emoji: "🎹" },
-                      { name: "Aquário", price: "300 moedas", emoji: "🐠" },
-                      { name: "Telescópio", price: "600 moedas", emoji: "🔭" },
-                      { name: "Poltrona Real", price: "400 moedas", emoji: "🪑" },
-                      { name: "Mesa de Jantar", price: "450 moedas", emoji: "🍽️" },
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4 shadow-sm border-2 border-yellow-200 hover:shadow-md transition-shadow cursor-pointer"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="text-2xl mb-2 text-center">{item.emoji}</div>
-                        <div className="text-sm font-medium text-gray-700 text-center">
-                          {item.name}
-                        </div>
-                        <div className="text-xs text-orange-600 text-center mt-1 font-medium">
-                          {item.price}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                  <button
+                    onClick={() => setExpandedLimited(!expandedLimited)}
+                    className="w-full flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+                  >
+                    <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                      ⭐ Móveis Limitados
+                    </h3>
+                    {expandedLimited ? (
+                      <ChevronUp className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
+                  {expandedLimited && (
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {[
+                        { name: "Trono", price: "500", emoji: "👑", color: "bg-gradient-to-br from-yellow-200 to-yellow-300" },
+                        { name: "Piano", price: "800", emoji: "🎹", color: "bg-gradient-to-br from-purple-200 to-purple-300" },
+                        { name: "Aquário", price: "300", emoji: "🐠", color: "bg-gradient-to-br from-blue-200 to-blue-300" },
+                        { name: "Telescópio", price: "600", emoji: "🔭", color: "bg-gradient-to-br from-gray-200 to-gray-300" },
+                        { name: "Poltrona", price: "400", emoji: "🪑", color: "bg-gradient-to-br from-red-200 to-red-300" },
+                        { name: "Mesa Real", price: "450", emoji: "🍽️", color: "bg-gradient-to-br from-green-200 to-green-300" },
+                        { name: "Cofre", price: "700", emoji: "🏦", color: "bg-gradient-to-br from-orange-200 to-orange-300" },
+                        { name: "Lareira", price: "900", emoji: "🔥", color: "bg-gradient-to-br from-pink-200 to-pink-300" },
+                      ].map((item, index) => (
+                        <motion.div
+                          key={index}
+                          className={`${item.color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <div className="text-lg text-center mb-1">{item.emoji}</div>
+                          <div className="text-xs font-medium text-gray-700 text-center truncate">
+                            {item.name}
+                          </div>
+                          <div className="text-xs text-orange-600 text-center font-medium">
+                            {item.price}
+                          </div>
+                          <div className="absolute inset-0 bg-black/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </div>
 
-              {/* Campo em Branco - Área de Visualização */}
-              <div className="w-80 bg-gray-50/50 border-l border-gray-200/50 p-6">
-                <div className="h-full flex items-center justify-center bg-white rounded-lg border-2 border-dashed border-gray-300">
-                  <div className="text-center text-gray-500">
-                    <div className="text-4xl mb-4">🏠</div>
-                    <p className="text-sm">Área de Visualização</p>
-                    <p className="text-xs mt-2">Clique em um móvel para ver detalhes</p>
+              {/* Área de Visualização Expandida */}
+              <div className="flex-1 bg-gray-50/50 border-l border-gray-200/50 p-6">
+                <div className="h-full flex flex-col">
+                  <div className="flex-1 bg-white rounded-lg border-2 border-dashed border-gray-300 p-6">
+                    <div className="h-full flex items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <div className="text-6xl mb-6">🏠</div>
+                        <p className="text-lg font-medium mb-2">Área de Visualização</p>
+                        <p className="text-sm text-gray-400 mb-4">Clique em um móvel para ver detalhes e preview 3D</p>
+                        <div className="bg-gray-100 rounded-lg p-4 max-w-md mx-auto">
+                          <p className="text-xs text-gray-600 mb-2">Controles:</p>
+                          <div className="text-xs text-gray-500 space-y-1">
+                            <div>🖱️ Rotacionar preview</div>
+                            <div>🔍 Zoom in/out</div>
+                            <div>📏 Ver dimensões</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      💰 Saldo: <span className="font-bold">1,250 moedas</span>
+                    </div>
+                    <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                      🛒 Adicionar ao Quarto
+                    </button>
                   </div>
                 </div>
               </div>
