@@ -928,11 +928,11 @@ export const SimpleRoom3D: React.FC = () => {
                     </div>
                   </div>
                   <div className="mt-4 flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
-                      💰 Saldo: <span className="font-bold">1,250 moedas</span>
+                    <div className="text-sm text-gray-500">
+                      Saldo: <span className="font-medium text-gray-700">1,250 moedas</span>
                     </div>
-                    <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                      🛒 Adicionar ao Quarto
+                    <button className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                      Adicionar ao Quarto
                     </button>
                   </div>
                 </div>
