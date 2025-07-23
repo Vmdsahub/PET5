@@ -8,6 +8,78 @@ import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } f
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
 
+  // Function to create 3D furniture representation
+  const addFurnitureToScene = (furniture: PlacedFurniture, catalogItemId: string) => {
+    if (!sceneRef.current) return;
+
+    const catalogItem = catalogItems.find(c => c.id === catalogItemId);
+    if (!catalogItem) return;
+
+    // Create a simple geometric representation based on furniture type
+    let geometry: THREE.BufferGeometry;
+    let material: THREE.Material;
+
+    // Different shapes for different furniture types
+    if (catalogItem.name.toLowerCase().includes('mesa')) {
+      // Table - box + thin top
+      geometry = new THREE.BoxGeometry(1.5, 0.1, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0x8B4513 }); // Brown
+    } else if (catalogItem.name.toLowerCase().includes('cadeira')) {
+      // Chair - simple box
+      geometry = new THREE.BoxGeometry(0.6, 1, 0.6);
+      material = new THREE.MeshPhongMaterial({ color: 0x654321 }); // Dark brown
+    } else if (catalogItem.name.toLowerCase().includes('sofá')) {
+      // Sofa - wider box
+      geometry = new THREE.BoxGeometry(2, 0.8, 0.8);
+      material = new THREE.MeshPhongMaterial({ color: 0x4169E1 }); // Blue
+    } else if (catalogItem.name.toLowerCase().includes('cama')) {
+      // Bed - long box
+      geometry = new THREE.BoxGeometry(2, 0.5, 1.5);
+      material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF }); // White
+    } else if (catalogItem.name.toLowerCase().includes('trono')) {
+      // Throne - tall decorated chair
+      geometry = new THREE.BoxGeometry(1, 1.5, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0xFFD700 }); // Gold
+    } else {
+      // Default furniture - simple box
+      geometry = new THREE.BoxGeometry(1, 1, 1);
+      material = new THREE.MeshPhongMaterial({ color: 0x888888 }); // Gray
+    }
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(furniture.position.x, furniture.position.y, furniture.position.z);
+    mesh.rotation.set(furniture.rotation.x, furniture.rotation.y, furniture.rotation.z);
+    mesh.scale.set(furniture.scale.x, furniture.scale.y, furniture.scale.z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    // Store furniture ID for later reference
+    mesh.userData = { furnitureId: furniture.id, inventoryItemId: furniture.inventoryItemId };
+
+    sceneRef.current.scene.add(mesh);
+  };
+
+  // Function to load existing furniture from room data
+  const loadExistingFurniture = () => {
+    if (!sceneRef.current) return;
+
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const room = mockPersistenceService.getUserRoom(currentUser.id);
+    if (!room || !room.placedFurniture) return;
+
+    room.placedFurniture.forEach(furniture => {
+      const inventoryItem = inventoryItems.find(inv => inv.id === furniture.inventoryItemId);
+      if (!inventoryItem) return;
+
+      const catalogItem = catalogItems.find(c => c.id === inventoryItem.catalogItemId);
+      if (catalogItem) {
+        addFurnitureToScene(furniture, catalogItem.id);
+      }
+    });
+  };
+
   // Funções de upload de arquivo
   const handleFileSelect = (file: File) => {
     if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
