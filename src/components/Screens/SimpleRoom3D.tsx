@@ -1363,7 +1363,7 @@ export const SimpleRoom3D: React.FC = () => {
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
                       )}
 
-                      <div className="text-2xl text-center mb-2">{catalogItem.emoji}</div>
+                      <div className="text-lg text-center mb-1">{catalogItem.emoji}</div>
                       <div className="text-xs font-medium text-gray-700 text-center truncate">
                         {catalogItem.name}
                       </div>
@@ -1372,7 +1372,7 @@ export const SimpleRoom3D: React.FC = () => {
                       <div className={`text-xs text-center mt-1 ${
                         catalogItem.category === 'Móveis Limitados' ? 'text-orange-600 font-medium' : 'text-gray-500'
                       }`}>
-                        {catalogItem.category === 'Móveis Limitados' ? '⭐ Limitado' : '• Comum'}
+                        {catalogItem.category === 'Móveis Limitados' ? '⭐' : '•'}
                       </div>
 
                       {/* Hover overlay with actions */}
