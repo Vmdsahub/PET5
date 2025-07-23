@@ -668,21 +668,21 @@ export const SimpleRoom3D: React.FC = () => {
       if (!inventoryItemId || !catalogItemId) return;
 
       const currentUser = mockPersistenceService.getCurrentUser();
-      if (!currentUser) return;
+      if (!currentUser || !sceneRef.current) return;
 
       // Check if item is already placed
       const isAlreadyPlaced = placedFurniture.some(f => f.inventoryItemId === inventoryItemId);
       if (isAlreadyPlaced) return;
 
       // Calculate 3D position from screen coordinates
-      const rect = renderer.domElement.getBoundingClientRect();
+      const rect = sceneRef.current.renderer.domElement.getBoundingClientRect();
       const mouse = new THREE.Vector2();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
       // Create raycaster to find position on floor
       const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
+      raycaster.setFromCamera(mouse, sceneRef.current.camera);
 
       // Find intersection with floor - get floor from scene
       const floor = sceneRef.current?.scene.children.find(child =>
