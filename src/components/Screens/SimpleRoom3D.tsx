@@ -733,12 +733,16 @@ export const SimpleRoom3D: React.FC = () => {
         scale: { x: 1, y: 1, z: 1 }
       });
 
+      console.log('🏠 Móvel adicionado ao quarto:', newFurniture);
+
       // Update local state
       const room = mockPersistenceService.getUserRoom(currentUser.id);
       setPlacedFurniture(room?.placedFurniture || []);
 
       // Add 3D object to scene
       addFurnitureToScene(newFurniture, catalogItemId);
+
+      console.log('✅ Móvel posicionado na cena 3D');
     };
 
 
