@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { useGameStore } from '../../store/gameStore';
 import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } from '../../services/mockPersistenceService';
+import { ContextMenu } from '../Common/ContextMenu';
 
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
@@ -291,6 +292,68 @@ export const SimpleRoom3D: React.FC = () => {
     }
   };
 
+  // Context menu handlers
+  const handleContextMenuOpen = (event: React.MouseEvent, type: 'catalog' | 'inventory', itemId: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setContextMenu({
+      isOpen: true,
+      position: { x: event.clientX, y: event.clientY },
+      type,
+      itemId
+    });
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const handleDeleteCatalogItem = async (catalogItemId: string) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser || !currentUser.isAdmin) {
+      alert('Apenas administradores podem excluir itens do catálogo.');
+      return;
+    }
+
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este item do catálogo?');
+    if (!confirmDelete) return;
+
+    const result = mockPersistenceService.removeFromCatalog(catalogItemId);
+
+    if (result.success) {
+      // Recarregar todos os dados para garantir consistência
+      loadGameData();
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
+  const handleDeleteInventoryItem = async (inventoryItemId: string) => {
+    const currentUser = mockPersistenceService.getCurrentUser();
+    if (!currentUser) return;
+
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este item do inventário?');
+    if (!confirmDelete) return;
+
+    const result = mockPersistenceService.removeFromInventory(currentUser.id, inventoryItemId);
+
+    if (result.success) {
+      // Recarregar todos os dados para garantir consistência
+      loadGameData();
+
+      // Limpar seleção se o item deletado estava selecionado
+      if (selectedInventoryItem === inventoryItemId) {
+        setSelectedInventoryItem(null);
+      }
+
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [expandedBasic, setExpandedBasic] = useState(true);
@@ -314,6 +377,19 @@ export const SimpleRoom3D: React.FC = () => {
   const [selectedInventoryItem, setSelectedInventoryItem] = useState<string | null>(null);
   const [isDraggingOverScene, setIsDraggingOverScene] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Context menu states
+  const [contextMenu, setContextMenu] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+    type: 'catalog' | 'inventory' | null;
+    itemId: string | null;
+  }>({
+    isOpen: false,
+    position: { x: 0, y: 0 },
+    type: null,
+    itemId: null
+  });
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
     scene: THREE.Scene;
@@ -959,11 +1035,17 @@ export const SimpleRoom3D: React.FC = () => {
 
     // Criar nova cena para preview
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
+    // Sem background para transparência
+    scene.background = null;
 
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true, // Habilitar transparência
+      preserveDrawingBuffer: true
+    });
     renderer.setSize(200, 200);
+    renderer.setClearColor(0x000000, 0); // Fundo completamente transparente
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     previewRendererRef.current = renderer;
@@ -1214,6 +1296,7 @@ export const SimpleRoom3D: React.FC = () => {
             <p>🔍 Zoom: Scroll • 📱 Mobile: toque/pinch</p>
             <p>🛒 Comprar: Catálogo → Inventário</p>
             <p>🏠 Decorar: Arrastar do inventário para sala</p>
+            <p>🗑️ Excluir: Botão direito nos itens</p>
             <p>❌ Remover: Clique direito no móvel</p>
           </div>
         </div>
@@ -1307,7 +1390,7 @@ export const SimpleRoom3D: React.FC = () => {
                     <motion.div
                       key={invItem.id}
                       className={`
-                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group
+                        relative rounded-lg p-2 shadow-sm border-2 hover:shadow-md transition-all cursor-pointer group context-menu-item
                         ${catalogItem.category === 'Móveis Limitados'
                           ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-yellow-300'
                           : 'bg-white border-gray-200'
@@ -1318,6 +1401,7 @@ export const SimpleRoom3D: React.FC = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedInventoryItem(selectedInventoryItem === invItem.id ? null : invItem.id)}
+                      onContextMenu={(e) => handleContextMenuOpen(e, 'inventory', invItem.id)}
                       draggable={!isPlaced}
                       onDragStart={(e) => {
                         if (isPlaced) {
@@ -1350,7 +1434,7 @@ export const SimpleRoom3D: React.FC = () => {
                             className="w-8 h-8 object-contain"
                           />
                         ) : (
-                          <span>{catalogItem.emoji || '📦'}</span>
+                          <span>{catalogItem.emoji || '���'}</span>
                         )}
                       </div>
                       <div className="text-xs font-medium text-gray-700 text-center truncate">
@@ -1525,10 +1609,11 @@ export const SimpleRoom3D: React.FC = () => {
                           return (
                             <motion.div
                               key={item.id}
-                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
+                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group ${user?.isAdmin ? 'admin-context-menu-item' : ''}`}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
+                              onContextMenu={(e) => user?.isAdmin && handleContextMenuOpen(e, 'catalog', item.id)}
                             >
                               <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
                                 {item.emoji && item.emoji.startsWith('data:image') ? (
@@ -1592,10 +1677,11 @@ export const SimpleRoom3D: React.FC = () => {
                           return (
                             <motion.div
                               key={item.id}
-                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group`}
+                              className={`${color} rounded-lg p-2 shadow-sm border-2 border-yellow-300 hover:shadow-md transition-all cursor-pointer relative group ${user?.isAdmin ? 'admin-context-menu-item' : ''}`}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
+                              onContextMenu={(e) => user?.isAdmin && handleContextMenuOpen(e, 'catalog', item.id)}
                             >
                               <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
                                 {item.emoji && item.emoji.startsWith('data:image') ? (
@@ -1718,7 +1804,7 @@ export const SimpleRoom3D: React.FC = () => {
 
                 {uploadStatus === 'success' && uploadedModel ? (
                   <div className="border-2 border-green-400 bg-green-50 rounded-lg p-4 text-center">
-                    <div ref={previewMountRef} className="w-full h-48 bg-gray-900 rounded-lg mb-3 flex items-center justify-center" />
+                    <div ref={previewMountRef} className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center border border-gray-300" />
                     <p className="text-sm text-green-700 font-medium">
                       {selectedFile?.name}
                     </p>
@@ -1848,6 +1934,30 @@ export const SimpleRoom3D: React.FC = () => {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Context Menu */}
+      <ContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        onClose={handleContextMenuClose}
+        items={
+          contextMenu.type === 'catalog' ? [
+            {
+              label: 'Excluir',
+              icon: '🗑️',
+              color: 'danger' as const,
+              onClick: () => contextMenu.itemId && handleDeleteCatalogItem(contextMenu.itemId)
+            }
+          ] : contextMenu.type === 'inventory' ? [
+            {
+              label: 'Excluir',
+              icon: '🗑️',
+              color: 'danger' as const,
+              onClick: () => contextMenu.itemId && handleDeleteInventoryItem(contextMenu.itemId)
+            }
+          ] : []
+        }
+      />
     </div>
   );
 };

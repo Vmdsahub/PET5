@@ -143,6 +143,31 @@ class MockPersistenceService {
     return newItem;
   }
 
+  removeFromCatalog(catalogItemId: string): { success: boolean; message: string } {
+    const catalog = this.getCatalog();
+    const itemIndex = catalog.findIndex(item => item.id === catalogItemId);
+
+    if (itemIndex === -1) {
+      return { success: false, message: 'Item não encontrado no catálogo' };
+    }
+
+    const item = catalog[itemIndex];
+
+    // Check if item can be deleted (only admins can delete, and check for dependencies)
+    const allInventory = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.INVENTORY) || '[]');
+    const itemInUse = allInventory.some((invItem: InventoryItem) => invItem.catalogItemId === catalogItemId);
+
+    if (itemInUse) {
+      return { success: false, message: 'Não é possível excluir: item está em uso por usuários' };
+    }
+
+    // Remove from catalog
+    catalog.splice(itemIndex, 1);
+    this.saveCatalog(catalog);
+
+    return { success: true, message: `${item.name} foi removido do catálogo` };
+  }
+
   // Inventory Management
   getInventory(userId: string): InventoryItem[] {
     const inventory = localStorage.getItem(this.STORAGE_KEYS.INVENTORY);
@@ -175,6 +200,34 @@ class MockPersistenceService {
       allInventory[itemIndex].status = status;
       this.saveInventory(allInventory);
     }
+  }
+
+  removeFromInventory(userId: string, inventoryItemId: string): { success: boolean; message: string } {
+    const allInventory = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.INVENTORY) || '[]');
+    const itemIndex = allInventory.findIndex((item: InventoryItem) =>
+      item.id === inventoryItemId && item.userId === userId
+    );
+
+    if (itemIndex === -1) {
+      return { success: false, message: 'Item não encontrado no inventário' };
+    }
+
+    const inventoryItem = allInventory[itemIndex];
+
+    // Check if item is currently placed in the room
+    const room = this.getUserRoom(userId);
+    const isPlaced = room?.placedFurniture.some(f => f.inventoryItemId === inventoryItemId);
+
+    if (isPlaced) {
+      // Remove from room first
+      this.removeFurnitureFromRoom(userId, room!.placedFurniture.find(f => f.inventoryItemId === inventoryItemId)!.id);
+    }
+
+    // Remove from inventory
+    allInventory.splice(itemIndex, 1);
+    this.saveInventory(allInventory);
+
+    return { success: true, message: 'Item removido do inventário' };
   }
 
   // Room Management
