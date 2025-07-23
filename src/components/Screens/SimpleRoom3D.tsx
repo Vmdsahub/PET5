@@ -682,8 +682,11 @@ export const SimpleRoom3D: React.FC = () => {
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
 
-      // Find intersection with floor
-      const floorIntersection = raycaster.intersectObject(floor);
+      // Find intersection with floor - get floor from scene
+      const floor = sceneRef.current?.scene.children.find(child =>
+        child instanceof THREE.Mesh && child.geometry instanceof THREE.PlaneGeometry
+      );
+      const floorIntersection = floor ? raycaster.intersectObject(floor) : [];
 
       let position = { x: 0, y: -2, z: 0 }; // Default position
       if (floorIntersection.length > 0) {
