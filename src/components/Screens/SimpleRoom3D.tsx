@@ -1451,14 +1451,16 @@ export const SimpleRoom3D: React.FC = () => {
 
                   <button
                     onClick={handleAddToCartalog}
-                    disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji}
+                    disabled={!selectedFile || !modelName || !modelPrice || !modelEmoji || uploadStatus === 'loading'}
                     className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedFile && modelName && modelPrice && modelEmoji
-                        ? 'bg-gray-900 hover:bg-gray-800 text-white'
+                      selectedFile && modelName && modelPrice && modelEmoji && uploadStatus !== 'loading'
+                        ? uploadStatus === 'success'
+                          ? 'bg-green-600 hover:bg-green-700 text-white'
+                          : 'bg-gray-900 hover:bg-gray-800 text-white'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
-                    Adicionar ao Catálogo
+                    {uploadStatus === 'loading' ? 'Carregando...' : uploadStatus === 'success' ? 'Adicionado!' : 'Adicionar ao Catálogo'}
                   </button>
                 </div>
               </section>
