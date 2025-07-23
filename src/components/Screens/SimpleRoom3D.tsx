@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Globe, ShoppingCart, Package, Settings, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import * as THREE from 'three';
 import { useGameStore } from '../../store/gameStore';
+import { mockPersistenceService, CatalogItem, InventoryItem, PlacedFurniture } from '../../services/mockPersistenceService';
 
 export const SimpleRoom3D: React.FC = () => {
   const { setCurrentScreen, user } = useGameStore();
