@@ -1287,7 +1287,7 @@ export const SimpleRoom3D: React.FC = () => {
 
           {/* Modal do Inventário */}
           <motion.div
-            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-4xl w-full mx-4 h-[80vh] flex flex-col overflow-hidden"
+            className="relative bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-3xl w-full mx-4 h-[70vh] flex flex-col overflow-hidden"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
