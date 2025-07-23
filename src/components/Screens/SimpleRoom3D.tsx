@@ -1309,7 +1309,7 @@ export const SimpleRoom3D: React.FC = () => {
 
 
 
-      {/* Inventário da Casa */}
+      {/* Invent��rio da Casa */}
       {showInventory && (
         <motion.div
           className="absolute inset-0 z-20 flex items-center justify-center"
@@ -1596,7 +1596,7 @@ export const SimpleRoom3D: React.FC = () => {
                           return (
                             <motion.div
                               key={item.id}
-                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group`}
+                              className={`${color} rounded-lg p-2 shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-pointer relative group ${user?.isAdmin ? 'admin-context-menu-item' : ''}`}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
