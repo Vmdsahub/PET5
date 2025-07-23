@@ -234,8 +234,8 @@ export const SimpleRoom3D: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [modelName, setModelName] = useState('');
   const [modelPrice, setModelPrice] = useState('');
-  const [modelEmoji, setModelEmoji] = useState('');
   const [modelCategory, setModelCategory] = useState<'Móveis Básicos' | 'Móveis Limitados'>('Móveis Básicos');
+  const [modelThumbnail, setModelThumbnail] = useState<string | null>(null);
   const previewMountRef = useRef<HTMLDivElement>(null);
   const previewRendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
@@ -919,7 +919,7 @@ export const SimpleRoom3D: React.FC = () => {
     camera.position.set(distance, distance * 0.5, distance);
     camera.lookAt(0, 0, 0);
 
-    // Ilumina��ão
+    // Iluminação
     const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
     scene.add(ambientLight);
 
