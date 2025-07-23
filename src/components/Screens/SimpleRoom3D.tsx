@@ -535,6 +535,62 @@ export const SimpleRoom3D: React.FC = () => {
       event.preventDefault();
     };
 
+    // Drag & Drop para móveis
+    const onDragOver = (event: DragEvent) => {
+      event.preventDefault();
+    };
+
+    const onDrop = (event: DragEvent) => {
+      event.preventDefault();
+
+      const inventoryItemId = event.dataTransfer.getData('inventoryItemId');
+      const catalogItemId = event.dataTransfer.getData('catalogItemId');
+
+      if (!inventoryItemId || !catalogItemId) return;
+
+      const currentUser = mockPersistenceService.getCurrentUser();
+      if (!currentUser) return;
+
+      // Check if item is already placed
+      const isAlreadyPlaced = placedFurniture.some(f => f.inventoryItemId === inventoryItemId);
+      if (isAlreadyPlaced) return;
+
+      // Calculate 3D position from screen coordinates
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Create raycaster to find position on floor
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      // Find intersection with floor
+      const floorIntersection = raycaster.intersectObject(floor);
+
+      let position = { x: 0, y: -2, z: 0 }; // Default position
+      if (floorIntersection.length > 0) {
+        const point = floorIntersection[0].point;
+        position = { x: point.x, y: point.y + 0.5, z: point.z }; // Slightly above floor
+      }
+
+      // Add furniture to room
+      const newFurniture = mockPersistenceService.addFurnitureToRoom(currentUser.id, {
+        inventoryItemId,
+        userId: currentUser.id,
+        position,
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 }
+      });
+
+      // Update local state
+      const room = mockPersistenceService.getUserRoom(currentUser.id);
+      setPlacedFurniture(room?.placedFurniture || []);
+
+      // Add 3D object to scene
+      addFurnitureToScene(newFurniture, catalogItemId);
+    };
+
     renderer.domElement.addEventListener('mousedown', onMouseDown);
     renderer.domElement.addEventListener('contextmenu', onContextMenu);
     renderer.domElement.addEventListener('touchstart', onTouchStart);
