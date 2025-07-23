@@ -759,6 +759,22 @@ export const SimpleRoom3D: React.FC = () => {
     };
   }, []);
 
+  // Reload furniture when data changes
+  useEffect(() => {
+    if (sceneRef.current && catalogItems.length > 0 && inventoryItems.length > 0) {
+      // Clear existing furniture from scene
+      const furnitureObjects = sceneRef.current.scene.children.filter(
+        child => child.userData && child.userData.furnitureId
+      );
+      furnitureObjects.forEach(obj => sceneRef.current?.scene.remove(obj));
+
+      // Reload furniture
+      setTimeout(() => {
+        loadExistingFurniture();
+      }, 50);
+    }
+  }, [placedFurniture, catalogItems, inventoryItems]);
+
   return (
     <div className="fixed inset-0 overflow-hidden">
       <div ref={mountRef} className="w-full h-full" />
