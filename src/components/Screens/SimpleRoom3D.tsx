@@ -706,6 +706,11 @@ export const SimpleRoom3D: React.FC = () => {
 
     animate();
 
+    // Load existing furniture after scene is ready
+    setTimeout(() => {
+      loadExistingFurniture();
+    }, 100);
+
     // Handle window resize
     const handleResize = () => {
       if (!mountRef.current) return;
@@ -1007,7 +1012,7 @@ export const SimpleRoom3D: React.FC = () => {
                         value={modelName}
                         onChange={(e) => setModelName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ex: Sofá Moderno"
+                        placeholder="ex: Sof�� Moderno"
                       />
                     </div>
                     <div>
