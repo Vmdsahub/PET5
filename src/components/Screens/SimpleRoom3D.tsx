@@ -1281,7 +1281,7 @@ export const SimpleRoom3D: React.FC = () => {
           </p>
           <div className="text-xs text-gray-300 space-y-1">
             <p>🖱️ Orbitar: Clique esquerdo • Pan: Clique direito</p>
-            <p>🔍 Zoom: Scroll • 📱 Mobile: toque/pinch</p>
+            <p>🔍 Zoom: Scroll • ��� Mobile: toque/pinch</p>
             <p>🛒 Comprar: Catálogo → Inventário</p>
             <p>🏠 Decorar: Arrastar do inventário para sala</p>
             <p>❌ Remover: Clique direito no móvel</p>
@@ -1599,6 +1599,7 @@ export const SimpleRoom3D: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePurchaseItem(item)}
+                              onContextMenu={(e) => user?.isAdmin && handleContextMenuOpen(e, 'catalog', item.id)}
                             >
                               <div className="text-lg text-center mb-1 h-8 flex items-center justify-center">
                                 {item.emoji && item.emoji.startsWith('data:image') ? (
