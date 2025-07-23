@@ -1015,6 +1015,14 @@ export const SimpleRoom3D: React.FC = () => {
         transition={{ delay: 0.8 }}
       >
         <p className="text-xs">Terra Verdejante • Sala Base</p>
+        {lastSaved && (
+          <div className="flex items-center gap-1 mt-1">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <p className="text-xs text-gray-300">
+              Salvo {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* Painel de Administrador */}
