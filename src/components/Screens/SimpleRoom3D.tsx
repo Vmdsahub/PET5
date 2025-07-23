@@ -316,7 +316,7 @@ export const SimpleRoom3D: React.FC = () => {
       return;
     }
 
-    const confirmDelete = confirm('Tem certeza que deseja excluir este item do catálogo?');
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este item do catálogo?');
     if (!confirmDelete) return;
 
     const result = mockPersistenceService.removeFromCatalog(catalogItemId);
@@ -333,7 +333,7 @@ export const SimpleRoom3D: React.FC = () => {
     const currentUser = mockPersistenceService.getCurrentUser();
     if (!currentUser) return;
 
-    const confirmDelete = confirm('Tem certeza que deseja excluir este item do inventário?');
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este item do inventário?');
     if (!confirmDelete) return;
 
     const result = mockPersistenceService.removeFromInventory(currentUser.id, inventoryItemId);
