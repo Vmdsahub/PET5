@@ -732,6 +732,8 @@ export const SimpleRoom3D: React.FC = () => {
       renderer.domElement.removeEventListener('contextmenu', onContextMenu);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      renderer.domElement.removeEventListener('dragover', onDragOver);
+      renderer.domElement.removeEventListener('drop', onDrop);
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('touchmove', onTouchMove);
@@ -1012,7 +1014,7 @@ export const SimpleRoom3D: React.FC = () => {
                         value={modelName}
                         onChange={(e) => setModelName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ex: Sof�� Moderno"
+                        placeholder="ex: Sofá Moderno"
                       />
                     </div>
                     <div>
