@@ -202,6 +202,34 @@ class MockPersistenceService {
     }
   }
 
+  removeFromInventory(userId: string, inventoryItemId: string): { success: boolean; message: string } {
+    const allInventory = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.INVENTORY) || '[]');
+    const itemIndex = allInventory.findIndex((item: InventoryItem) =>
+      item.id === inventoryItemId && item.userId === userId
+    );
+
+    if (itemIndex === -1) {
+      return { success: false, message: 'Item não encontrado no inventário' };
+    }
+
+    const inventoryItem = allInventory[itemIndex];
+
+    // Check if item is currently placed in the room
+    const room = this.getUserRoom(userId);
+    const isPlaced = room?.placedFurniture.some(f => f.inventoryItemId === inventoryItemId);
+
+    if (isPlaced) {
+      // Remove from room first
+      this.removeFurnitureFromRoom(userId, room!.placedFurniture.find(f => f.inventoryItemId === inventoryItemId)!.id);
+    }
+
+    // Remove from inventory
+    allInventory.splice(itemIndex, 1);
+    this.saveInventory(allInventory);
+
+    return { success: true, message: 'Item removido do inventário' };
+  }
+
   // Room Management
   getUserRoom(userId: string): UserRoom | null {
     const rooms = localStorage.getItem(this.STORAGE_KEYS.ROOMS);
