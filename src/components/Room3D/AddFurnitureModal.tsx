@@ -124,10 +124,10 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       title="Adicionar Novo Móvel"
       onClose={onClose}
       initialPosition={{ x: 150, y: 50 }}
-      width="600px"
-      height="700px"
+      width="650px"
+      height="750px"
     >
-      <div className="p-6 space-y-6 overflow-y-auto max-h-full">
+      <div className="p-4 space-y-4 overflow-y-auto max-h-[650px]">
         {/* Upload do arquivo GLB */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -202,7 +202,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
         </div>
 
         {/* Preço e Moeda */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Preço
