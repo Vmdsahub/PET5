@@ -153,7 +153,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
   }
 
   return (
-    <div className="w-full h-screen relative bg-gray-100">
+    <div className="w-full h-screen relative" style={{
+      background: `
+        radial-gradient(ellipse at 20% 30%, rgba(50, 80, 150, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(70, 120, 180, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 80%, rgba(60, 100, 160, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(40, 90, 140, 0.2) 0%, transparent 50%),
+        linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
+      `
+    }}>
       {/* Botão para alternar para modo 2D */}
       <div className="absolute top-4 right-4 z-20">
         <button
