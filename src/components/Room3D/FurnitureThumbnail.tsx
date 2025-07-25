@@ -45,7 +45,7 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
         className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border border-gray-300"
         style={{ width, height }}
       >
-        {fallbackIcon || <Package size={width * 0.4} className="text-gray-400" />}
+        {fallbackIcon || <Package size={typeof width === 'number' ? width * 0.4 : 24} className="text-gray-400" />}
       </div>
     );
   }
