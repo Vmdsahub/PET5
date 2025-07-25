@@ -17,79 +17,8 @@ export interface UserRoom {
   inventory: FurnitureItem[];
 }
 
-// Mock data para catálogo de móveis
-const FURNITURE_CATALOG: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [
-  {
-    name: 'Sofá Moderno',
-    model: '/models/sofa.glb',
-    category: 'sala',
-    price: 500,
-    description: 'Sofá confortável para sua sala'
-  },
-  {
-    name: 'Mesa de Centro',
-    model: '/models/coffee-table.glb',
-    category: 'sala',
-    price: 200,
-    description: 'Mesa de centro elegante'
-  },
-  {
-    name: 'Poltrona',
-    model: '/models/armchair.glb',
-    category: 'sala',
-    price: 300,
-    description: 'Poltrona confortável'
-  },
-  {
-    name: 'Estante',
-    model: '/models/bookshelf.glb',
-    category: 'sala',
-    price: 400,
-    description: 'Estante para livros e decorações'
-  },
-  {
-    name: 'Cama',
-    model: '/models/bed.glb',
-    category: 'quarto',
-    price: 800,
-    description: 'Cama confortável'
-  },
-  {
-    name: 'Guarda-roupa',
-    model: '/models/wardrobe.glb',
-    category: 'quarto',
-    price: 600,
-    description: 'Guarda-roupa espaçoso'
-  },
-  {
-    name: 'Mesa de Jantar',
-    model: '/models/dining-table.glb',
-    category: 'cozinha',
-    price: 700,
-    description: 'Mesa para refeições'
-  },
-  {
-    name: 'Cadeira',
-    model: '/models/chair.glb',
-    category: 'geral',
-    price: 150,
-    description: 'Cadeira confortável'
-  },
-  {
-    name: 'Planta',
-    model: '/models/plant.glb',
-    category: 'decoração',
-    price: 100,
-    description: 'Planta decorativa'
-  },
-  {
-    name: 'Luminária',
-    model: '/models/lamp.glb',
-    category: 'iluminação',
-    price: 250,
-    description: 'Luminária moderna'
-  }
-];
+// Mock data para catálogo de móveis (vazio - apenas móveis customizados)
+const FURNITURE_CATALOG: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
 
 class MockStorageService {
   private userRooms: Map<string, UserRoom> = new Map();
