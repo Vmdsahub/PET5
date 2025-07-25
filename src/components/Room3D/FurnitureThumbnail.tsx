@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Package } from 'lucide-react';
@@ -16,8 +16,22 @@ interface ModelProps {
 }
 
 const Model: React.FC<ModelProps> = ({ modelPath }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return <FallbackGeometry />;
+  }
+
   try {
-    const { scene } = useGLTF(modelPath);
+    const { scene } = useGLTF(modelPath, undefined, undefined, (error) => {
+      console.warn('Erro ao carregar modelo:', modelPath, error);
+      setHasError(true);
+    });
+
+    if (!scene) {
+      return <FallbackGeometry />;
+    }
+
     const clonedScene = scene.clone();
 
     // Calcular bounding box para centralizar e escalar adequadamente
@@ -30,12 +44,15 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
 
     // Escalar para caber na thumbnail
     const maxDimension = Math.max(size.x, size.y, size.z);
-    const scale = 1.5 / maxDimension;
-    clonedScene.scale.setScalar(scale);
+    if (maxDimension > 0) {
+      const scale = 1.5 / maxDimension;
+      clonedScene.scale.setScalar(scale);
+    }
 
     return <primitive object={clonedScene} />;
   } catch (error) {
     console.warn('Erro ao carregar modelo:', modelPath, error);
+    setHasError(true);
     return <FallbackGeometry />;
   }
 };
