@@ -1,0 +1,160 @@
+import React, { Suspense, useState, useRef } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
+import { Room } from './Room';
+import { FurnitureObject } from './FurnitureObject';
+import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
+import { RoomUI } from './RoomUI';
+
+interface Room3DProps {
+  userId: string;
+}
+
+export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
+  const [placedFurniture, setPlacedFurniture] = useState<FurnitureItem[]>(
+    mockStorageService.getPlacedFurniture(userId)
+  );
+  const [inventory, setInventory] = useState<FurnitureItem[]>(
+    mockStorageService.getInventory(userId)
+  );
+  const [catalog] = useState(mockStorageService.getFurnitureCatalog());
+  const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const controlsRef = useRef<any>();
+
+  const handlePlaceFurniture = (furnitureId: string, position: [number, number, number]) => {
+    if (mockStorageService.placeFurniture(userId, furnitureId, position)) {
+      setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      setInventory(mockStorageService.getInventory(userId));
+    }
+  };
+
+  const handleMoveFurniture = (furnitureId: string, position: [number, number, number], rotation?: [number, number, number]) => {
+    if (mockStorageService.updateFurniturePosition(userId, furnitureId, position, rotation)) {
+      setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+    }
+  };
+
+  const handleRemoveFurniture = (furnitureId: string) => {
+    if (mockStorageService.removeFurniture(userId, furnitureId)) {
+      setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      setInventory(mockStorageService.getInventory(userId));
+      setSelectedFurniture(null);
+    }
+  };
+
+  const handleBuyFurniture = (catalogItem: any) => {
+    const newItem = mockStorageService.buyFurniture(userId, catalogItem);
+    setInventory(mockStorageService.getInventory(userId));
+    return newItem;
+  };
+
+  const handleFurnitureSelect = (furnitureId: string | null) => {
+    setSelectedFurniture(furnitureId);
+  };
+
+  const handleDragStart = () => {
+    setIsDragging(true);
+    if (controlsRef.current) {
+      controlsRef.current.enabled = false;
+    }
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    if (controlsRef.current) {
+      controlsRef.current.enabled = true;
+    }
+  };
+
+  return (
+    <div className="w-full h-screen relative bg-gray-100">
+      {/* Canvas 3D */}
+      <Canvas
+        camera={{ 
+          position: [8, 8, 8], 
+          fov: 50,
+          near: 0.1,
+          far: 1000
+        }}
+        shadows
+        className="w-full h-full"
+      >
+        <Suspense fallback={
+          <Html center>
+            <div className="text-white text-xl">Carregando quarto...</div>
+          </Html>
+        }>
+          {/* Iluminação */}
+          <ambientLight intensity={0.4} />
+          <directionalLight
+            position={[10, 10, 5]}
+            intensity={1}
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-far={50}
+            shadow-camera-left={-10}
+            shadow-camera-right={10}
+            shadow-camera-top={10}
+            shadow-camera-bottom={-10}
+          />
+          <pointLight position={[5, 8, 5]} intensity={0.5} />
+          
+          {/* Controles de câmera */}
+          <OrbitControls
+            ref={controlsRef}
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={5}
+            maxDistance={20}
+            maxPolarAngle={Math.PI / 2}
+            target={[0, 0, 0]}
+          />
+          
+          {/* Ambiente */}
+          <Environment preset="apartment" />
+          
+          {/* Quarto */}
+          <Room />
+          
+          {/* Móveis colocados */}
+          {placedFurniture.map((furniture) => (
+            <FurnitureObject
+              key={furniture.id}
+              furniture={furniture}
+              selected={selectedFurniture === furniture.id}
+              onSelect={handleFurnitureSelect}
+              onMove={handleMoveFurniture}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            />
+          ))}
+          
+          {/* Sombras de contato */}
+          <ContactShadows
+            position={[0, 0, 0]}
+            opacity={0.4}
+            scale={20}
+            blur={1}
+            far={10}
+            resolution={256}
+            color="#000000"
+          />
+        </Suspense>
+      </Canvas>
+
+      {/* Interface do usuário */}
+      <RoomUI
+        inventory={inventory}
+        catalog={catalog}
+        selectedFurniture={selectedFurniture}
+        onPlaceFurniture={handlePlaceFurniture}
+        onRemoveFurniture={handleRemoveFurniture}
+        onBuyFurniture={handleBuyFurniture}
+        onSelectFurniture={handleFurnitureSelect}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+};
