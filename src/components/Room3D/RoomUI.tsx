@@ -150,21 +150,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu.visible]);
 
-  // Escutar evento customizado do context menu dos móveis
+  // Cleanup quando contexto muda
   React.useEffect(() => {
-    const handleFurnitureContextMenu = (event: any) => {
-      const { furnitureId, x, y } = event.detail;
-      setContextMenu({
-        visible: true,
-        x: x || window.innerWidth / 2,
-        y: y || window.innerHeight / 2,
-        furnitureId
-      });
-    };
-
-    document.addEventListener('furnitureContextMenu', handleFurnitureContextMenu);
-    return () => document.removeEventListener('furnitureContextMenu', handleFurnitureContextMenu);
-  }, []);
+    if (!contextMenu.visible && contextMenuState?.visible === false) {
+      // Sincronizar estados se necessário
+    }
+  }, [contextMenu.visible, contextMenuState]);
 
   const handleBuy = (catalogItem: any) => {
     onBuyFurniture(catalogItem);
@@ -189,7 +180,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-2xl border border-purple-400">
           <div className="text-center">
             <h3 className="font-bold text-lg mb-3 flex items-center justify-center">
-              <span className="mr-2">🎮</span>
+              <span className="mr-2">��</span>
               Modo Edição Ativo
             </h3>
             <div className="text-sm space-y-2">
