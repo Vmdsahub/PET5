@@ -34,73 +34,58 @@ export const Room: React.FC = () => {
       {/* Parede da frente (Sul) - deixar aberta para entrada */}
       <group>
         {/* Parte esquerda da parede da frente */}
-        <mesh 
+        <mesh
           position={[-roomSize / 4, wallHeight / 2, roomSize / 2]}
           rotation={[0, Math.PI, 0]}
-          receiveShadow
         >
           <planeGeometry args={[roomSize / 2, wallHeight]} />
-          <meshStandardMaterial 
-            color="#f5f5f5" 
-            roughness={0.9}
-            metalness={0.0}
+          <meshLambertMaterial
+            color="#f5f5f5"
           />
         </mesh>
         
         {/* Parte direita da parede da frente */}
-        <mesh 
+        <mesh
           position={[roomSize / 4, wallHeight / 2, roomSize / 2]}
           rotation={[0, Math.PI, 0]}
-          receiveShadow
         >
           <planeGeometry args={[roomSize / 2, wallHeight]} />
-          <meshStandardMaterial 
-            color="#f5f5f5" 
-            roughness={0.9}
-            metalness={0.0}
+          <meshLambertMaterial
+            color="#f5f5f5"
           />
         </mesh>
       </group>
 
       {/* Parede esquerda (Oeste) */}
-      <mesh 
+      <mesh
         position={[-roomSize / 2, wallHeight / 2, 0]}
         rotation={[0, Math.PI / 2, 0]}
-        receiveShadow
       >
         <planeGeometry args={[roomSize, wallHeight]} />
-        <meshStandardMaterial 
-          color="#f5f5f5" 
-          roughness={0.9}
-          metalness={0.0}
+        <meshLambertMaterial
+          color="#f5f5f5"
         />
       </mesh>
 
       {/* Parede direita (Leste) */}
-      <mesh 
+      <mesh
         position={[roomSize / 2, wallHeight / 2, 0]}
         rotation={[0, -Math.PI / 2, 0]}
-        receiveShadow
       >
         <planeGeometry args={[roomSize, wallHeight]} />
-        <meshStandardMaterial 
-          color="#f5f5f5" 
-          roughness={0.9}
-          metalness={0.0}
+        <meshLambertMaterial
+          color="#f5f5f5"
         />
       </mesh>
 
       {/* Teto */}
-      <mesh 
-        rotation={[Math.PI / 2, 0, 0]} 
+      <mesh
+        rotation={[Math.PI / 2, 0, 0]}
         position={[0, wallHeight, 0]}
-        receiveShadow
       >
         <planeGeometry args={[roomSize, roomSize]} />
-        <meshStandardMaterial 
-          color="#ffffff" 
-          roughness={0.8}
-          metalness={0.0}
+        <meshLambertMaterial
+          color="#ffffff"
         />
       </mesh>
 
