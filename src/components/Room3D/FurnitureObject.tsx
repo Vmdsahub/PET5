@@ -71,16 +71,25 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
   const { camera, gl, scene } = useThree();
-  
+
   // Estado para controlar se deve tentar carregar o modelo GLB
   const [hasError, setHasError] = useState(false);
   const [shouldLoadModel, setShouldLoadModel] = useState(true);
 
   let gltfScene = null;
   try {
-    if (shouldLoadModel && !hasError) {
+    if (shouldLoadModel && !hasError && furniture.model) {
       const gltf = useGLTF(furniture.model);
-      gltfScene = gltf.scene;
+      gltfScene = gltf.scene.clone();
+
+      // Calcular bounding box para escalar adequadamente
+      const box = new THREE.Box3().setFromObject(gltfScene);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDimension = Math.max(size.x, size.y, size.z);
+      if (maxDimension > 0) {
+        const scale = 1.5 / maxDimension;
+        gltfScene.scale.setScalar(scale);
+      }
     }
   } catch (error) {
     console.warn(`Falha ao carregar modelo ${furniture.model}:`, error);
@@ -187,9 +196,13 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       )}
       
       {/* Modelo 3D ou geometria fallback */}
-      <mesh>
-        <FallbackGeometry furniture={furniture} />
-      </mesh>
+      {gltfScene && !hasError ? (
+        <primitive object={gltfScene} />
+      ) : (
+        <mesh>
+          <FallbackGeometry furniture={furniture} />
+        </mesh>
+      )}
       
       {/* Indicador de nome */}
       {selected && (
