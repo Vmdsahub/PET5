@@ -155,65 +155,144 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       {showCatalog && (
         <SimpleModal
           title="Catálogo de Móveis"
-          onClose={() => setShowCatalog(false)}
+          onClose={() => {
+            setShowCatalog(false);
+            setSelectedCatalogItem(null);
+            setExpandedSection(null);
+          }}
           initialPosition={{ x: 100, y: 100 }}
-          width="600px"
+          width="800px"
+          height="600px"
         >
-          <div className="max-h-96 overflow-y-auto">
-            {/* Abas */}
-            <div className="flex border-b border-gray-200 bg-gray-50">
-              <button
-                onClick={() => setActiveTab('basicos')}
-                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                  activeTab === 'basicos'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Móveis Básicos
-              </button>
-              <button
-                onClick={() => setActiveTab('limitados')}
-                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                  activeTab === 'limitados'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Móveis Limitados
-              </button>
+          <div className="flex h-full">
+            {/* Lado esquerdo - Seções */}
+            <div className="w-1/2 overflow-y-auto border-r border-gray-200">
+              <div className="p-4 space-y-2">
+                {/* Seção Móveis Básicos */}
+                <div className="border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setExpandedSection(expandedSection === 'basicos' ? null : 'basicos')}
+                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="font-medium text-gray-800">Móveis Básicos</span>
+                    <span className="text-gray-500">
+                      {expandedSection === 'basicos' ? '−' : '+'}
+                    </span>
+                  </button>
+
+                  {expandedSection === 'basicos' && (
+                    <div className="border-t border-gray-200 p-4 space-y-3">
+                      {basicFurniture.map((item, index) => (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedCatalogItem(item)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedCatalogItem?.name === item.name
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Package size={20} className="text-gray-400" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-sm">{item.name}</h4>
+                              <p className="text-xs text-gray-500">${item.price}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Seção Móveis Limitados */}
+                <div className="border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setExpandedSection(expandedSection === 'limitados' ? null : 'limitados')}
+                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="font-medium text-gray-800">Móveis Limitados</span>
+                    <span className="text-gray-500">
+                      {expandedSection === 'limitados' ? '−' : '+'}
+                    </span>
+                  </button>
+
+                  {expandedSection === 'limitados' && (
+                    <div className="border-t border-gray-200 p-4 space-y-3">
+                      {limitedFurniture.map((item, index) => (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedCatalogItem(item)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedCatalogItem?.name === item.name
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Package size={20} className="text-gray-400" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-sm">{item.name}</h4>
+                              <p className="text-xs text-gray-500">${item.price}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Conteúdo das abas */}
-            <div className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {(activeTab === 'basicos' ? basicFurniture : limitedFurniture).map((item, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                      <Package size={32} className="text-gray-400" />
-                    </div>
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-gray-600 text-sm mb-2">{item.description}</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-green-600">
-                        ${item.price}
-                      </span>
-                      <button
-                        onClick={() => handleBuy(item)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm transition-colors"
-                      >
-                        Comprar
-                      </button>
+            {/* Lado direito - Detalhes do item */}
+            <div className="w-1/2 p-6 flex flex-col">
+              {selectedCatalogItem ? (
+                <>
+                  {/* Imagem grande */}
+                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center shadow-inner">
+                    <Package size={64} className="text-gray-400" />
+                  </div>
+
+                  {/* Detalhes */}
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                      {selectedCatalogItem.name}
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                      {selectedCatalogItem.description}
+                    </p>
+                    <div className="space-y-2 mb-6">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Categoria:</span>
+                        <span className="capitalize font-medium">{selectedCatalogItem.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Preço:</span>
+                        <span className="text-2xl font-bold text-green-600">
+                          ${selectedCatalogItem.price}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Mensagem quando aba está vazia */}
-              {(activeTab === 'basicos' ? basicFurniture : limitedFurniture).length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <Package size={48} className="mx-auto mb-4 text-gray-300" />
-                  <p>Nenhum móvel nesta categoria</p>
+                  {/* Botão de compra */}
+                  <button
+                    onClick={() => handleBuy(selectedCatalogItem)}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                  >
+                    Comprar Móvel
+                  </button>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <Package size={48} className="mx-auto mb-4 text-gray-300" />
+                    <p>Selecione um móvel para ver os detalhes</p>
+                  </div>
                 </div>
               )}
             </div>
