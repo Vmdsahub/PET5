@@ -46,6 +46,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  }>({ visible: false, x: 0, y: 0, furnitureId: null });
 
   const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
     setDraggedItem(item);
@@ -153,6 +159,22 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 {inventory.length}
               </span>
             )}
+          </button>
+
+          {/* Botão Modo Edição */}
+          <button
+            onClick={() => {
+              onToggleEditMode?.();
+              setShowCatalog(false);
+              setShowInventory(false);
+              onSelectFurniture(null);
+            }}
+            className={`p-3 rounded-full transition-colors ${
+              editMode ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100 text-gray-700'
+            }`}
+            title="Modo Edição"
+          >
+            <Edit3 size={24} />
           </button>
 
           {/* Botão Home */}
