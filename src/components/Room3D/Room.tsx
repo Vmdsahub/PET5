@@ -22,15 +22,12 @@ export const Room: React.FC = () => {
       </mesh>
 
       {/* Parede traseira (Norte) */}
-      <mesh 
+      <mesh
         position={[0, wallHeight / 2, -roomSize / 2]}
-        receiveShadow
       >
         <planeGeometry args={[roomSize, wallHeight]} />
-        <meshStandardMaterial 
-          color="#f5f5f5" 
-          roughness={0.9}
-          metalness={0.0}
+        <meshLambertMaterial
+          color="#f5f5f5"
         />
       </mesh>
 
