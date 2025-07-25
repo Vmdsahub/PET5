@@ -258,8 +258,8 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       scale={furniture.scale}
       onPointerDown={handlePointerDown}
 onContextMenu={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
+        e?.stopPropagation?.();
+        e?.preventDefault?.();
         if (onContextMenu) {
           onContextMenu(e, furniture.id);
         }
