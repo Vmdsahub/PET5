@@ -35,13 +35,14 @@ const Model: React.FC<ModelProps> = ({ url }) => {
   }
 };
 
-export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({ 
-  file, 
-  width = 200, 
-  height = 200 
+export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
+  file,
+  width = 200,
+  height = 200
 }) => {
   const [modelUrl, setModelUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (file) {
