@@ -187,12 +187,12 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
           position: [8, 8, 8],
           fov: 50,
           near: 0.1,
-          far: 1000
+          far: 100
         }}
-        shadows
         className="w-full h-full"
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
+          state.gl.setClearColor('#1a2845', 1);
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
