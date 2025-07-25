@@ -133,7 +133,7 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
           <pointLight position={[-3, 3, -3]} intensity={0.8} />
           <pointLight position={[3, -2, 3]} intensity={0.6} />
 
-          {modelUrl && <Model url={modelUrl} />}
+          {modelUrl && <ModelWrapper url={modelUrl} />}
 
           <OrbitControls
             enablePan={false}
