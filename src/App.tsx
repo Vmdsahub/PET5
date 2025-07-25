@@ -320,11 +320,7 @@ function App() {
               {currentScreen === "planet" && <PlanetScreen />}
               {currentScreen === "exploration" && <ExplorationScreen />}
               {currentScreen === "fishing" && <FishingScreen />}
-              {currentScreen === "room-decoration" && (
-                <RoomDecorationScreen
-                  onNavigateBack={() => setCurrentScreen("world")}
-                />
-              )}
+              {currentScreen === "room-decoration" && <Room3DScreen />}
             </div>
             {/* Modals persist outside AnimatePresence */}
             <ModalManager
