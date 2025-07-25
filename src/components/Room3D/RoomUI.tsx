@@ -164,9 +164,9 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           width="800px"
           height="600px"
         >
-          <div className="flex h-full">
+          <div className="flex h-full max-h-[500px]">
             {/* Lado esquerdo - Seções */}
-            <div className="w-1/2 overflow-y-auto border-r border-gray-200">
+            <div className="w-1/2 overflow-y-auto border-r border-gray-200 max-h-full">
               <div className="p-4 space-y-2">
                 {/* Seção Móveis Básicos */}
                 <div className="border border-gray-200 rounded-lg">
@@ -300,7 +300,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         </SimpleModal>
       )}
 
-      {/* Modal do Inventário */}
+      {/* Modal do Invent��rio */}
       {showInventory && (
         <SimpleModal
           title="Inventário da Casa"
