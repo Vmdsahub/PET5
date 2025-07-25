@@ -139,12 +139,6 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const handlePointerDown = (event: any) => {
     event.stopPropagation();
 
-    // Botão direito - menu de contexto
-    if (event.nativeEvent?.button === 2) {
-      onContextMenu?.(event, furniture.id);
-      return;
-    }
-
     // Apenas selecionar se não estiver em modo edição
     if (!editMode) {
       onSelect(furniture.id);
@@ -263,8 +257,9 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       rotation={furniture.rotation}
       scale={furniture.scale}
       onPointerDown={handlePointerDown}
-      onContextMenu={(e) => {
+onContextMenu={(e) => {
         e.stopPropagation();
+        e.preventDefault();
         if (onContextMenu) {
           onContextMenu(e, furniture.id);
         }
