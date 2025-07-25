@@ -13,6 +13,7 @@ interface Room3DProps {
 }
 
 export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
+  const [webglSupport, setWebglSupport] = useState<ReturnType<typeof detectWebGLSupport> | null>(null);
   const [placedFurniture, setPlacedFurniture] = useState<FurnitureItem[]>(
     mockStorageService.getPlacedFurniture(userId)
   );
@@ -23,6 +24,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const controlsRef = useRef<any>();
+
+  // Detectar suporte WebGL na montagem do componente
+  useEffect(() => {
+    const capabilities = detectWebGLSupport();
+    setWebglSupport(capabilities);
+
+    if (!capabilities.hasSupport) {
+      console.error('WebGL not supported:', capabilities.failureReason);
+    }
+  }, []);
 
   const handlePlaceFurniture = (furnitureId: string, position: [number, number, number]) => {
     if (mockStorageService.placeFurniture(userId, furnitureId, position)) {
