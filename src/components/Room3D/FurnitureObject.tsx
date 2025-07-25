@@ -78,7 +78,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const meshRef = useRef<THREE.Group>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
-  const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | null>(null);
+  const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | null>('move');
   const [initialMousePos, setInitialMousePos] = useState({ x: 0, y: 0 });
   const [initialTransform, setInitialTransform] = useState({
     position: new Vector3(),
@@ -148,7 +148,8 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     // Modo edição ativo - permitir interação
     onSelect(furniture.id);
 
-    if (selected && meshRef.current && editMode) {
+    // Em modo edição, apenas movimento direto do móvel (não nos controles)
+    if (selected && meshRef.current && editMode && editTool === 'move') {
       setInitialMousePos({ x: event.clientX, y: event.clientY });
       setInitialTransform({
         position: meshRef.current.position.clone(),
@@ -156,8 +157,6 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
         scale: meshRef.current.scale.clone()
       });
 
-      // Modo padrão é mover
-      setEditTool('move');
       setIsDragging(true);
       onDragStart();
 
