@@ -190,11 +190,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       
       {/* Modelo 3D ou geometria fallback */}
       <mesh castShadow receiveShadow>
-        {!hasError && gltfScene ? (
-          <primitive object={gltfScene.clone()} />
-        ) : (
-          <FallbackGeometry furniture={furniture} />
-        )}
+        <FallbackGeometry furniture={furniture} />
       </mesh>
       
       {/* Indicador de nome */}
