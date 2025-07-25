@@ -12,6 +12,9 @@ interface FurnitureObjectProps {
   onMove: (id: string, position: [number, number, number], rotation?: [number, number, number]) => void;
   onDragStart: () => void;
   onDragEnd: () => void;
+  editMode?: boolean;
+  onContextMenu?: (event: React.MouseEvent, furnitureId: string) => void;
+  onUpdateTransform?: (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => void;
 }
 
 // Componente fallback para quando o modelo GLB não estiver disponível
@@ -66,11 +69,18 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   onSelect,
   onMove,
   onDragStart,
-  onDragEnd
+  onDragEnd,
+  editMode = false,
+  onContextMenu,
+  onUpdateTransform
 }) => {
   const meshRef = useRef<THREE.Group>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
+  const [isRotating, setIsRotating] = useState(false);
+  const [isScaling, setIsScaling] = useState(false);
+  const [initialRotation, setInitialRotation] = useState(new Vector3());
+  const [initialScale, setInitialScale] = useState(new Vector3());
   const { camera, gl, scene } = useThree();
 
   // Estado para controlar se deve tentar carregar o modelo GLB
