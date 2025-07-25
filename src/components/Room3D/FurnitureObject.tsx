@@ -263,22 +263,16 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       rotation={furniture.rotation}
       scale={furniture.scale}
       onPointerDown={handlePointerDown}
-onContextMenu={(e) => e?.preventDefault?.()}
+      onContextMenu={(e) => {
+        e.stopPropagation();
+        if (onContextMenu) {
+          onContextMenu(e, furniture.id);
+        }
+      }}
       castShadow
       receiveShadow
     >
-      {/* Contorno de seleção */}
-      {selected && (
-        <mesh>
-          <boxGeometry args={[2.2, 1.2, 1.2]} />
-          <meshBasicMaterial
-            color={editMode ? "#9333ea" : "#00ff00"}
-            wireframe
-            transparent
-            opacity={0.5}
-          />
-        </mesh>
-      )}
+      {/* Contorno de seleção removido conforme solicitado */}
 
       {/* Gizmos de edição interativos */}
       {selected && editMode && (
