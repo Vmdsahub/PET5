@@ -353,8 +353,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     onDragEnd={handleDragEnd}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-move"
                   >
-                    <div className="w-full h-24 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                      <Package size={24} className="text-gray-400" />
+                    <div className="w-full h-24 rounded-lg mb-3">
+                      <FurnitureThumbnail
+                        modelPath={item.model}
+                        width="100%"
+                        height={96}
+                      />
                     </div>
                     <h3 className="font-semibold mb-1">{item.name}</h3>
                     <p className="text-gray-600 text-xs mb-2">{item.description}</p>
