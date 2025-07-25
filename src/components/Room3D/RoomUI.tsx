@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Package, Home, X, Trash2 } from 'lucide-react';
 import { FurnitureItem } from '../../services/mockStorage';
-import { DraggableModal } from '../Layout/DraggableModal';
+import { SimpleModal } from './SimpleModal';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
