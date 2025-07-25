@@ -85,6 +85,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }
   };
 
+  const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
+    mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
+    setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+  };
+
+  const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
+    // This will be handled by RoomUI
+  };
+
   const handleFurnitureSelect = (furnitureId: string | null) => {
     setSelectedFurniture(furnitureId);
   };
