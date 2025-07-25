@@ -89,20 +89,33 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    // Criar URL de blob para o arquivo GLB
-    const modelUrl = URL.createObjectURL(glbFile!);
+    try {
+      // Verificar se o arquivo ainda é válido
+      if (!glbFile || glbFile.size === 0) {
+        setErrors(prev => ({ ...prev, file: 'Arquivo GLB inválido' }));
+        return;
+      }
 
-    const furnitureData = {
-      name: formData.name,
-      description: formData.description,
-      category: formData.category === 'basicos' ? 'sala' : 'decoração',
-      price: Number(formData.price),
-      currency: formData.currency,
-      model: modelUrl,
-      isCustom: true
-    };
+      // Criar URL de blob para o arquivo GLB
+      const modelUrl = URL.createObjectURL(glbFile);
 
-    onAddFurniture(furnitureData);
+      const furnitureData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category === 'basicos' ? 'sala' : 'decoração',
+        price: Number(formData.price),
+        currency: formData.currency,
+        model: modelUrl,
+        isCustom: true,
+        file: glbFile // Manter referência ao arquivo
+      };
+
+      onAddFurniture(furnitureData);
+    } catch (error) {
+      console.error('Erro ao processar arquivo GLB:', error);
+      setErrors(prev => ({ ...prev, file: 'Erro ao processar arquivo GLB' }));
+      return;
+    }
     
     // Reset form
     setFormData({
