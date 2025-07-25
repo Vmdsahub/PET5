@@ -142,16 +142,6 @@ class MockStorageService {
     this.customCatalog.push(furnitureData);
     this.saveToLocalStorage();
   }
-
-  clearCustomCatalog(): void {
-    this.customCatalog = [];
-    this.saveToLocalStorage();
-  }
-
-  clearAllCatalog(): void {
-    this.customCatalog = [];
-    this.saveToLocalStorage();
-  }
 }
 
 export const mockStorageService = new MockStorageService();
