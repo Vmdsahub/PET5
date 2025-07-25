@@ -90,7 +90,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
         const z = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
 
-        onPlaceFurniture(draggedItem.id, [x, 0.5, z]);
+        onPlaceFurniture(draggedItem.id, [x, 0, z]);
       }
       setDraggedItem(null);
       setDragPosition(null);
