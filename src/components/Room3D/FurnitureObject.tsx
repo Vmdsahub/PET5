@@ -268,6 +268,12 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const handleScaleMode = () => {
     setEditTool('scale');
   };
+  const handleScaleXMode = () => {
+    setEditTool('scaleX');
+  };
+  const handleScaleYMode = () => {
+    setEditTool('scaleY');
+  };
 
   return (
     <group
