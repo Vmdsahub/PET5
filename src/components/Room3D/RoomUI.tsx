@@ -4,6 +4,7 @@ import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
+import { useAuthStore } from '../../store/authStore';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
@@ -30,6 +31,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   isAdmin = false,
   onAddFurniture
 }) => {
+  const { user } = useAuthStore();
+  const isUserAdmin = user?.isAdmin || isAdmin;
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
@@ -164,15 +167,14 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           title={
             <div className="flex justify-between items-center w-full">
               <span>Catálogo de Móveis</span>
-              {isAdmin && (
-                <button
-                  onClick={() => setShowAddFurniture(true)}
-                  className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
-                  title="Adicionar Móvel"
-                >
-                  <Plus size={16} />
-                </button>
-              )}
+              <button
+                onClick={() => setShowAddFurniture(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
+                title="Adicionar Móvel"
+                style={{ display: isUserAdmin ? 'flex' : 'none' }}
+              >
+                +
+              </button>
             </div>
           }
           onClose={() => {
@@ -386,7 +388,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Modal Adicionar Móvel (Admin) */}
-      {isAdmin && (
+      {isUserAdmin && (
         <AddFurnitureModal
           isOpen={showAddFurniture}
           onClose={() => setShowAddFurniture(false)}
