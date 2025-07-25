@@ -99,13 +99,56 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
     );
   }
 
-  // Mostrar fallback se WebGL não for suportado
-  if (!webglSupport.hasSupport) {
+  // Mostrar fallback se WebGL não for suportado ou modo 2D ativado
+  if (!webglSupport.hasSupport || use2DMode) {
     return (
-      <WebGLFallback
-        errorMessage={getWebGLErrorMessage(webglSupport)}
-        onRetry={handleRetryWebGL}
-      />
+      <div className="w-full h-screen relative bg-gray-100">
+        {/* Botão para alternar entre 2D e tentar 3D */}
+        <div className="absolute top-4 right-4 z-20 space-x-2">
+          {webglSupport.hasSupport && (
+            <button
+              onClick={() => setUse2DMode(!use2DMode)}
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+            >
+              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
+            </button>
+          )}
+          {!webglSupport.hasSupport && (
+            <button
+              onClick={handleRetryWebGL}
+              className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+            >
+              🔄 Tentar 3D
+            </button>
+          )}
+        </div>
+
+        {webglSupport.hasSupport && use2DMode ? (
+          <Room2DFallback
+            placedFurniture={placedFurniture}
+            selectedFurniture={selectedFurniture}
+            onSelectFurniture={handleFurnitureSelect}
+            onMoveFurniture={handleMoveFurniture}
+          />
+        ) : (
+          <WebGLFallback
+            errorMessage={getWebGLErrorMessage(webglSupport)}
+            onRetry={handleRetryWebGL}
+          />
+        )}
+
+        {/* Interface do usuário (funciona em ambos os modos) */}
+        <RoomUI
+          inventory={inventory}
+          catalog={catalog}
+          selectedFurniture={selectedFurniture}
+          onPlaceFurniture={handlePlaceFurniture}
+          onRemoveFurniture={handleRemoveFurniture}
+          onBuyFurniture={handleBuyFurniture}
+          onSelectFurniture={handleFurnitureSelect}
+          isDragging={isDragging}
+        />
+      </div>
     );
   }
 
