@@ -10,16 +10,14 @@ export const Room: React.FC = () => {
   return (
     <group>
       {/* Chão */}
-      <mesh 
-        rotation={[-Math.PI / 2, 0, 0]} 
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
         receiveShadow
       >
         <planeGeometry args={[roomSize, roomSize]} />
-        <meshStandardMaterial 
-          color="#d4c4a8" 
-          roughness={0.8}
-          metalness={0.1}
+        <meshLambertMaterial
+          color="#8B7355"
         />
       </mesh>
 
