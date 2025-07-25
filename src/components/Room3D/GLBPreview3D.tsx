@@ -101,7 +101,12 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
           gl.setClearColor(0x000000, 0); // Fundo transparente
         }}
       >
-        <Suspense fallback={null}>
+        <Suspense fallback={
+          <mesh>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color="gray" />
+          </mesh>
+        }>
           {/* Iluminação melhorada */}
           <ambientLight intensity={1.2} />
           <directionalLight
