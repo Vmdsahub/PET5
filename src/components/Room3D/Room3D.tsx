@@ -15,6 +15,7 @@ interface Room3DProps {
 
 export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
   const [webglSupport, setWebglSupport] = useState<ReturnType<typeof detectWebGLSupport> | null>(null);
+  const [use2DMode, setUse2DMode] = useState(false);
   const [placedFurniture, setPlacedFurniture] = useState<FurnitureItem[]>(
     mockStorageService.getPlacedFurniture(userId)
   );
