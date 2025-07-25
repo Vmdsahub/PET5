@@ -26,6 +26,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [catalog, setCatalog] = useState(mockStorageService.getFurnitureCatalog());
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const controlsRef = useRef<any>();
 
   // Detectar suporte WebGL na montagem do componente
@@ -69,6 +70,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     mockStorageService.addCustomFurniture(furnitureData);
     // Recarregar catálogo para mostrar o novo móvel
     setCatalog(mockStorageService.getFurnitureCatalog());
+  };
+
+  const handleToggleEditMode = () => {
+    setEditMode(!editMode);
+    setSelectedFurniture(null);
+  };
+
+  const handleStoreFurniture = (furnitureId: string) => {
+    if (mockStorageService.removeFurniture(userId, furnitureId)) {
+      setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      setInventory(mockStorageService.getInventory(userId));
+      setSelectedFurniture(null);
+    }
   };
 
   const handleFurnitureSelect = (furnitureId: string | null) => {
