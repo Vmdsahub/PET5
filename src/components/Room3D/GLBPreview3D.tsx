@@ -17,9 +17,20 @@ interface ModelProps {
 const Model: React.FC<ModelProps> = ({ url }) => {
   try {
     const gltf = useLoader(GLTFLoader, url);
-    return <primitive object={gltf.scene} scale={1} />;
+    console.log('Modelo carregado:', gltf);
+
+    // Centralizar e escalar o modelo
+    const scene = gltf.scene.clone();
+    scene.traverse((child) => {
+      if ((child as any).isMesh) {
+        (child as any).castShadow = true;
+        (child as any).receiveShadow = true;
+      }
+    });
+
+    return <primitive object={scene} scale={0.5} position={[0, -0.5, 0]} />;
   } catch (error) {
-    console.warn('Erro ao carregar modelo:', error);
+    console.error('Erro ao carregar modelo:', error);
     return null;
   }
 };
