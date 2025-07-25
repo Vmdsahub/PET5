@@ -11,6 +11,7 @@ import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetec
 
 interface Room3DProps {
   userId: string;
+  isAdmin?: boolean;
 }
 
 export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
