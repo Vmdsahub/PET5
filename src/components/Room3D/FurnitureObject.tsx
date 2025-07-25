@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Vector3, Raycaster, Plane } from 'three';
+import * as THREE from 'three';
 import { FurnitureItem } from '../../services/mockStorage';
 
 interface FurnitureObjectProps {
