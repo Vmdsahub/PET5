@@ -195,7 +195,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       // Limitar posição dentro do quarto (10x10)
       newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
       newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
-      newPosition.y = furniture.position[1]; // Manter Y original
+      newPosition.y = 0; // Manter móveis no chão
 
       meshRef.current.position.copy(newPosition);
     } else if (editTool === 'rotate') {
