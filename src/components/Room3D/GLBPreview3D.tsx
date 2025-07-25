@@ -77,25 +77,37 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
       style={{ width, height, background: 'transparent' }}
     >
       <Canvas
-        camera={{ position: [2, 2, 2], fov: 50 }}
+        camera={{ position: [3, 2, 3], fov: 45, near: 0.1, far: 100 }}
         style={{ background: 'transparent' }}
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0); // Fundo transparente
+        }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[5, 5, 5]} intensity={0.8} />
-          <pointLight position={[-5, 5, 5]} intensity={0.4} />
-          
+          {/* Iluminação melhorada */}
+          <ambientLight intensity={1.2} />
+          <directionalLight
+            position={[5, 5, 5]}
+            intensity={1.5}
+            castShadow
+            shadow-mapSize-width={1024}
+            shadow-mapSize-height={1024}
+          />
+          <pointLight position={[-3, 3, -3]} intensity={0.8} />
+          <pointLight position={[3, -2, 3]} intensity={0.6} />
+
           {modelUrl && <Model url={modelUrl} />}
-          
+
           <OrbitControls
             enablePan={false}
             enableZoom={true}
             enableRotate={true}
             autoRotate={true}
-            autoRotateSpeed={2}
-            minDistance={1}
-            maxDistance={10}
+            autoRotateSpeed={1}
+            minDistance={0.5}
+            maxDistance={8}
+            target={[0, 0, 0]}
           />
         </Suspense>
       </Canvas>
