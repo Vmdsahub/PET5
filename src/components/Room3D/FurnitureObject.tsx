@@ -260,23 +260,97 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
         </mesh>
       )}
 
-      {/* Indicadores de modo de edição */}
+      {/* Gizmos de edição interativos */}
       {selected && editMode && (
         <>
-          {/* Indicador de rotação */}
-          <mesh position={[0, 1.5, 0]}>
-            <torusGeometry args={[0.3, 0.05, 8, 16]} />
-            <meshBasicMaterial color="#3b82f6" transparent opacity={0.6} />
+          {/* Botão de movimento - centro */}
+          <mesh
+            position={[0, 1.5, 0]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMoveMode();
+            }}
+          >
+            <sphereGeometry args={[0.15]} />
+            <meshBasicMaterial
+              color={editTool === 'move' ? '#10b981' : '#22c55e'}
+              transparent
+              opacity={0.9}
+            />
           </mesh>
 
-          {/* Indicador de escala */}
-          <mesh position={[1.2, 1, 0]}>
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshBasicMaterial color="#f59e0b" transparent opacity={0.8} />
+          {/* Botão de rotação - anel */}
+          <mesh
+            position={[0, 1.5, 0]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRotateMode();
+            }}
+          >
+            <torusGeometry args={[0.4, 0.08, 8, 16]} />
+            <meshBasicMaterial
+              color={editTool === 'rotate' ? '#2563eb' : '#3b82f6'}
+              transparent
+              opacity={0.8}
+            />
           </mesh>
-          <mesh position={[-1.2, 1, 0]}>
+
+          {/* Botões de escala - cantos */}
+          <mesh
+            position={[0.8, 1.5, 0.8]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleScaleMode();
+            }}
+          >
             <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshBasicMaterial color="#f59e0b" transparent opacity={0.8} />
+            <meshBasicMaterial
+              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+          <mesh
+            position={[-0.8, 1.5, 0.8]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleScaleMode();
+            }}
+          >
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshBasicMaterial
+              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+          <mesh
+            position={[0.8, 1.5, -0.8]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleScaleMode();
+            }}
+          >
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshBasicMaterial
+              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+          <mesh
+            position={[-0.8, 1.5, -0.8]}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleScaleMode();
+            }}
+          >
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshBasicMaterial
+              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
+              transparent
+              opacity={0.9}
+            />
           </mesh>
         </>
       )}
