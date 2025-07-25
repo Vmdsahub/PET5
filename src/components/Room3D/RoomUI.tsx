@@ -96,6 +96,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   return (
     <>
+      {/* Área de drop invisível sobre todo o canvas */}
+      {draggedItem && (
+        <div
+          className="fixed inset-0 z-40 pointer-events-auto"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onDragEnd={handleDragEnd}
+        />
+      )}
       {/* Navegação vertical esquerda */}
       <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-10">
         <div className="bg-white/90 backdrop-blur rounded-full shadow-lg p-2 space-y-3 border border-white/20 flex flex-col">
@@ -373,7 +382,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   <div
                     key={item.id}
                     draggable
-                    onDragStart={() => handleDragStart(item)}
+                    onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-move"
                   >
