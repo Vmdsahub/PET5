@@ -154,6 +154,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
 
   return (
     <div className="w-full h-screen relative bg-gray-100">
+      {/* Botão para alternar para modo 2D */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => setUse2DMode(true)}
+          className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+          title="Alternar para modo 2D"
+        >
+          📱 Modo 2D
+        </button>
+      </div>
+
       {/* Canvas 3D */}
       <Canvas
         camera={{
