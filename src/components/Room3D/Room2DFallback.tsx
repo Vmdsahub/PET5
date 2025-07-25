@@ -136,10 +136,10 @@ export const Room2DFallback: React.FC<Room2DFallbackProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg p-3 shadow-lg max-w-xs">
-        <div className="text-sm text-gray-700">
-          <div className="font-semibold mb-1">💡 Modo 2D Ativo</div>
-          <div className="text-xs space-y-1">
+      <div className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-lg p-3 shadow-lg max-w-xs border border-white/20">
+        <div className="text-sm text-gray-800">
+          <div className="font-semibold mb-1 text-blue-600">💡 Modo 2D Ativo</div>
+          <div className="text-xs space-y-1 text-gray-600">
             <div>• Clique nos móveis para selecioná-los</div>
             <div>• Arraste para mover pela sala</div>
             <div>• Use o menu lateral para adicionar móveis</div>
