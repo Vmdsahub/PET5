@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Upload, Package, X } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { GLBPreview3D } from './GLBPreview3D';
+import { blobCache } from '../../utils/blobCache';
 
 interface AddFurnitureModalProps {
   isOpen: boolean;
@@ -96,8 +97,11 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
         return;
       }
 
-      // Criar URL de blob para o arquivo GLB
-      const modelUrl = URL.createObjectURL(glbFile);
+      // Criar chave única para o arquivo
+      const fileKey = `${glbFile.name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Criar URL de blob usando o cache
+      const modelUrl = blobCache.createBlobUrl(glbFile, fileKey);
 
       const furnitureData = {
         name: formData.name,
@@ -107,7 +111,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
         currency: formData.currency,
         model: modelUrl,
         isCustom: true,
-        file: glbFile // Manter referência ao arquivo
+        fileKey: fileKey // Chave para recuperar do cache
       };
 
       onAddFurniture(furnitureData);
