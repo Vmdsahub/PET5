@@ -133,6 +133,22 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu.visible]);
 
+  // Escutar evento customizado do context menu dos móveis
+  React.useEffect(() => {
+    const handleFurnitureContextMenu = (event: any) => {
+      const { furnitureId, x, y } = event.detail;
+      setContextMenu({
+        visible: true,
+        x: x || window.innerWidth / 2,
+        y: y || window.innerHeight / 2,
+        furnitureId
+      });
+    };
+
+    document.addEventListener('furnitureContextMenu', handleFurnitureContextMenu);
+    return () => document.removeEventListener('furnitureContextMenu', handleFurnitureContextMenu);
+  }, []);
+
   const handleBuy = (catalogItem: any) => {
     onBuyFurniture(catalogItem);
   };
