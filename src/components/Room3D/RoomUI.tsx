@@ -3,6 +3,7 @@ import { ShoppingCart, Package, Home, X, Trash2, Plus } from 'lucide-react';
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
+import { FurnitureThumbnail } from './FurnitureThumbnail';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
