@@ -162,6 +162,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onBuyFurniture={handleBuyFurniture}
           onSelectFurniture={handleFurnitureSelect}
           isDragging={isDragging}
+          isAdmin={isAdmin}
+          onAddFurniture={handleAddFurniture}
         />
       </div>
     );
