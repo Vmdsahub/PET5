@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Package } from 'lucide-react';
+import * as THREE from 'three';
 
 interface FurnitureThumbnailProps {
   modelPath: string;
