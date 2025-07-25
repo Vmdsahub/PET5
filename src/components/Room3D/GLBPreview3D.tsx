@@ -36,6 +36,20 @@ const Model: React.FC<ModelProps> = ({ url }) => {
   return <primitive object={scene} scale={0.5} position={[0, -0.5, 0]} />;
 };
 
+const ModelWrapper: React.FC<ModelProps> = ({ url }) => {
+  try {
+    return <Model url={url} />;
+  } catch (error) {
+    console.error('Erro ao renderizar modelo:', error);
+    return (
+      <mesh>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+    );
+  }
+};
+
 export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
   file,
   width = 200,
