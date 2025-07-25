@@ -144,30 +144,65 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           title="Catálogo de Móveis"
           onClose={() => setShowCatalog(false)}
           initialPosition={{ x: 100, y: 100 }}
-          width="500px"
+          width="600px"
         >
           <div className="max-h-96 overflow-y-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-              {catalog.map((item, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                    <Package size={32} className="text-gray-400" />
+            {/* Abas */}
+            <div className="flex border-b border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setActiveTab('basicos')}
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  activeTab === 'basicos'
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Móveis Básicos
+              </button>
+              <button
+                onClick={() => setActiveTab('limitados')}
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  activeTab === 'limitados'
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Móveis Limitados
+              </button>
+            </div>
+
+            {/* Conteúdo das abas */}
+            <div className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(activeTab === 'basicos' ? basicFurniture : limitedFurniture).map((item, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                      <Package size={32} className="text-gray-400" />
+                    </div>
+                    <h3 className="font-semibold mb-1">{item.name}</h3>
+                    <p className="text-gray-600 text-sm mb-2">{item.description}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold text-green-600">
+                        ${item.price}
+                      </span>
+                      <button
+                        onClick={() => handleBuy(item)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm transition-colors"
+                      >
+                        Comprar
+                      </button>
+                    </div>
                   </div>
-                  <h3 className="font-semibold mb-1">{item.name}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{item.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-green-600">
-                      ${item.price}
-                    </span>
-                    <button
-                      onClick={() => handleBuy(item)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm transition-colors"
-                    >
-                      Comprar
-                    </button>
-                  </div>
+                ))}
+              </div>
+
+              {/* Mensagem quando aba está vazia */}
+              {(activeTab === 'basicos' ? basicFurniture : limitedFurniture).length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <Package size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>Nenhum móvel nesta categoria</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </SimpleModal>
