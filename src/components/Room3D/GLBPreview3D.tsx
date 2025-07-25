@@ -130,9 +130,15 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
       
       {/* Overlay de loading/erro */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {isLoading && (
+          <div className="bg-blue-500/80 text-white text-xs px-3 py-2 rounded-lg flex items-center space-x-2">
+            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Carregando...</span>
+          </div>
+        )}
         {error && (
-          <div className="bg-red-500/80 text-white text-xs px-2 py-1 rounded">
-            Erro ao carregar
+          <div className="bg-red-500/80 text-white text-xs px-3 py-2 rounded-lg">
+            {error}
           </div>
         )}
       </div>
