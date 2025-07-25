@@ -148,8 +148,8 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     // Modo edição ativo - permitir interação
     onSelect(furniture.id);
 
-    // Em modo edição, apenas movimento direto do móvel (não nos controles)
-    if (selected && meshRef.current && editMode && editTool === 'move') {
+    // Em modo edição, sempre permitir movimento do móvel
+    if (selected && meshRef.current && editMode) {
       setInitialMousePos({ x: event.clientX, y: event.clientY });
       setInitialTransform({
         position: meshRef.current.position.clone(),
@@ -323,81 +323,128 @@ onContextMenu={(e) => {
             />
           </mesh>
 
-          {/* Barra de escala X (horizontal) - posição fixa */}
-          <mesh
-            position={[2, 1, 0]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              setEditTool('scaleX');
-              setInitialMousePos({ x: e.clientX, y: e.clientY });
-              setInitialTransform({
-                position: meshRef.current!.position.clone(),
-                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
-                scale: meshRef.current!.scale.clone()
-              });
-              setIsDragging(true);
-              onDragStart();
-            }}
-          >
-            <boxGeometry args={[0.08, 0.08, 1.2]} />
-            <meshBasicMaterial
-              color="#ffffff"
-              transparent
-              opacity={0.9}
-            />
-          </mesh>
+          {/* Barra de Volume para Escala X (Horizontal) */}
+          <group position={[2.5, 1.5, 0]}>
+            {/* Trilha da barra */}
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry args={[1.8, 0.05, 0.05]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+            </mesh>
 
-          {/* Barra de escala Y (vertical) - posição fixa */}
-          <mesh
-            position={[2.8, 1, 0]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              setEditTool('scaleY');
-              setInitialMousePos({ x: e.clientX, y: e.clientY });
-              setInitialTransform({
-                position: meshRef.current!.position.clone(),
-                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
-                scale: meshRef.current!.scale.clone()
-              });
-              setIsDragging(true);
-              onDragStart();
-            }}
-          >
-            <boxGeometry args={[0.08, 1.2, 0.08]} />
-            <meshBasicMaterial
-              color="#ffffff"
-              transparent
-              opacity={0.9}
-            />
-          </mesh>
+            {/* Preenchimento da barra baseado na escala atual */}
+            <mesh position={[-(0.9 - (meshRef.current?.scale.x || 1) * 0.45), 0, 0]}>
+              <boxGeometry args={[(meshRef.current?.scale.x || 1) * 0.9, 0.08, 0.08]} />
+              <meshBasicMaterial color="#3b82f6" transparent opacity={0.8} />
+            </mesh>
 
-          {/* Indicadores das barras - posição fixa */}
-          <mesh position={[1.4, 1, 0]}>
-            <sphereGeometry args={[0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-          </mesh>
-          <mesh position={[2.6, 1, 0]}>
-            <sphereGeometry args={[0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-          </mesh>
-          <mesh position={[2.8, 0.4, 0]}>
-            <sphereGeometry args={[0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-          </mesh>
-          <mesh position={[2.8, 1.6, 0]}>
-            <sphereGeometry args={[0.06]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-          </mesh>
+            {/* Botão deslizante */}
+            <mesh
+              position={[(-0.9 + (meshRef.current?.scale.x || 1) * 0.9), 0, 0]}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setEditTool('scaleX');
+                setInitialMousePos({ x: e.clientX, y: e.clientY });
+                setInitialTransform({
+                  position: meshRef.current!.position.clone(),
+                  rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                  scale: meshRef.current!.scale.clone()
+                });
+                setIsDragging(true);
+                onDragStart();
+              }}
+            >
+              <sphereGeometry args={[0.08]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.95} />
+            </mesh>
 
-          {/* Labels para as barras */}
-          <mesh position={[2, 0.6, 0]}>
-            <sphereGeometry args={[0.04]} />
-            <meshBasicMaterial color="#3b82f6" transparent opacity={0.8} />
-          </mesh>
-          <mesh position={[2.8, 0.6, 0]}>
-            <sphereGeometry args={[0.04]} />
-            <meshBasicMaterial color="#ef4444" transparent opacity={0.8} />
-          </mesh>
+            {/* Label X */}
+            <mesh position={[-1.2, 0, 0]}>
+              <sphereGeometry args={[0.05]} />
+              <meshBasicMaterial color="#3b82f6" />
+            </mesh>
+          </group>
+
+          {/* Barra de Volume para Escala Y (Vertical) */}
+          <group position={[3.5, 1.5, 0]}>
+            {/* Trilha da barra */}
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry args={[0.05, 1.8, 0.05]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+            </mesh>
+
+            {/* Preenchimento da barra baseado na escala atual */}
+            <mesh position={[0, -(0.9 - (meshRef.current?.scale.y || 1) * 0.45), 0]}>
+              <boxGeometry args={[0.08, (meshRef.current?.scale.y || 1) * 0.9, 0.08]} />
+              <meshBasicMaterial color="#ef4444" transparent opacity={0.8} />
+            </mesh>
+
+            {/* Botão deslizante */}
+            <mesh
+              position={[0, (-0.9 + (meshRef.current?.scale.y || 1) * 0.9), 0]}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setEditTool('scaleY');
+                setInitialMousePos({ x: e.clientX, y: e.clientY });
+                setInitialTransform({
+                  position: meshRef.current!.position.clone(),
+                  rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                  scale: meshRef.current!.scale.clone()
+                });
+                setIsDragging(true);
+                onDragStart();
+              }}
+            >
+              <sphereGeometry args={[0.08]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.95} />
+            </mesh>
+
+            {/* Label Y */}
+            <mesh position={[0, -1.2, 0]}>
+              <sphereGeometry args={[0.05]} />
+              <meshBasicMaterial color="#ef4444" />
+            </mesh>
+          </group>
+
+          {/* Barra de Volume para Escala Z (Profundidade) */}
+          <group position={[2.5, 0.8, 0]}>
+            {/* Trilha da barra */}
+            <mesh position={[0, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+              <boxGeometry args={[1.8, 0.05, 0.05]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+            </mesh>
+
+            {/* Preenchimento da barra baseado na escala atual */}
+            <mesh position={[0, 0, -(0.9 - (meshRef.current?.scale.z || 1) * 0.45)]} rotation={[0, Math.PI/2, 0]}>
+              <boxGeometry args={[(meshRef.current?.scale.z || 1) * 0.9, 0.08, 0.08]} />
+              <meshBasicMaterial color="#10b981" transparent opacity={0.8} />
+            </mesh>
+
+            {/* Botão deslizante */}
+            <mesh
+              position={[0, 0, (-0.9 + (meshRef.current?.scale.z || 1) * 0.9)]}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                setEditTool('scaleZ');
+                setInitialMousePos({ x: e.clientX, y: e.clientY });
+                setInitialTransform({
+                  position: meshRef.current!.position.clone(),
+                  rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                  scale: meshRef.current!.scale.clone()
+                });
+                setIsDragging(true);
+                onDragStart();
+              }}
+            >
+              <sphereGeometry args={[0.08]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.95} />
+            </mesh>
+
+            {/* Label Z */}
+            <mesh position={[0, 0, -1.2]}>
+              <sphereGeometry args={[0.05]} />
+              <meshBasicMaterial color="#10b981" />
+            </mesh>
+          </group>
         </>
       )}
       
