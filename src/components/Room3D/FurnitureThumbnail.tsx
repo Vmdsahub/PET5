@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Package } from 'lucide-react';
 import * as THREE from 'three';
+import { blobCache } from '../../utils/blobCache';
 
 interface FurnitureThumbnailProps {
   modelPath: string;
@@ -19,6 +20,13 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
   const [hasError, setHasError] = useState(false);
 
   if (hasError) {
+    return <FallbackGeometry />;
+  }
+
+  // Verificar se é uma URL de blob válida
+  if (modelPath.startsWith('blob:') && !blobCache.isValidUrl(modelPath)) {
+    console.warn(`URL de blob inválida no thumbnail: ${modelPath}`);
+    setHasError(true);
     return <FallbackGeometry />;
   }
 
