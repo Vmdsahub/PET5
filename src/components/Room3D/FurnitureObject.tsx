@@ -115,30 +115,66 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
 
   const handlePointerDown = (event: any) => {
     event.stopPropagation();
+
+    // Botão direito - menu de contexto
+    if (event.nativeEvent.button === 2) {
+      onContextMenu?.(event.nativeEvent, furniture.id);
+      return;
+    }
+
     onSelect(furniture.id);
-    
-    if (selected && meshRef.current) {
+
+    if (selected && meshRef.current && editMode) {
+      // Diferentes modos baseados nas teclas pressionadas
+      if (event.nativeEvent.shiftKey) {
+        // Modo rotação
+        setIsRotating(true);
+        setInitialRotation(meshRef.current.rotation.toVector3());
+      } else if (event.nativeEvent.ctrlKey || event.nativeEvent.metaKey) {
+        // Modo escala
+        setIsScaling(true);
+        setInitialScale(meshRef.current.scale.toVector3());
+      } else {
+        // Modo posição (padrão)
+        setIsDragging(true);
+        onDragStart();
+
+        // Calcular offset do mouse para a posição do objeto
+        const mousePosition = new Vector3(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0
+        );
+
+        raycaster.setFromCamera(mousePosition, camera);
+        const intersectPoint = new Vector3();
+        raycaster.ray.intersectPlane(plane, intersectPoint);
+
+        const objectPosition = meshRef.current.position;
+        setDragOffset(objectPosition.clone().sub(intersectPoint));
+      }
+    } else if (selected && meshRef.current && !editMode) {
+      // Modo normal - apenas mover
       setIsDragging(true);
       onDragStart();
-      
-      // Calcular offset do mouse para a posição do objeto
+
       const mousePosition = new Vector3(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1,
         0
       );
-      
+
       raycaster.setFromCamera(mousePosition, camera);
       const intersectPoint = new Vector3();
       raycaster.ray.intersectPlane(plane, intersectPoint);
-      
+
       const objectPosition = meshRef.current.position;
       setDragOffset(objectPosition.clone().sub(intersectPoint));
     }
   };
 
   const handlePointerMove = (event: any) => {
-    if (!isDragging || !meshRef.current) return;
+    if (!meshRef.current) return;
 
     const mousePosition = new Vector3(
       (event.clientX / window.innerWidth) * 2 - 1,
@@ -146,42 +182,88 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       0
     );
 
-    raycaster.setFromCamera(mousePosition, camera);
-    const intersectPoint = new Vector3();
-    raycaster.ray.intersectPlane(plane, intersectPoint);
-    
-    const newPosition = intersectPoint.add(dragOffset);
-    
-    // Limitar posição dentro do quarto (10x10)
-    newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
-    newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
-    newPosition.y = furniture.position[1]; // Manter Y original
-    
-    meshRef.current.position.copy(newPosition);
+    if (isDragging) {
+      // Modo posição
+      raycaster.setFromCamera(mousePosition, camera);
+      const intersectPoint = new Vector3();
+      raycaster.ray.intersectPlane(plane, intersectPoint);
+
+      const newPosition = intersectPoint.add(dragOffset);
+
+      // Limitar posição dentro do quarto (10x10)
+      newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
+      newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
+      newPosition.y = furniture.position[1]; // Manter Y original
+
+      meshRef.current.position.copy(newPosition);
+    } else if (isRotating && editMode) {
+      // Modo rotação - usar movimento horizontal do mouse
+      const rotationSpeed = 0.01;
+      const deltaX = (event.clientX - window.innerWidth / 2) * rotationSpeed;
+      meshRef.current.rotation.y = initialRotation.y + deltaX;
+    } else if (isScaling && editMode) {
+      // Modo escala - usar movimento vertical do mouse
+      const scaleSpeed = 0.001;
+      const deltaY = (window.innerHeight / 2 - event.clientY) * scaleSpeed;
+      const newScale = Math.max(0.1, Math.min(3, initialScale.x + deltaY));
+      meshRef.current.scale.setScalar(newScale);
+    }
   };
 
   const handlePointerUp = () => {
-    if (isDragging && meshRef.current) {
-      setIsDragging(false);
-      onDragEnd();
-      
-      const position = meshRef.current.position;
-      onMove(furniture.id, [position.x, position.y, position.z]);
+    if (meshRef.current) {
+      if (isDragging) {
+        setIsDragging(false);
+        onDragEnd();
+
+        const position = meshRef.current.position;
+        if (editMode && onUpdateTransform) {
+          const rotation = meshRef.current.rotation;
+          const scale = meshRef.current.scale;
+          onUpdateTransform(furniture.id,
+            [position.x, position.y, position.z],
+            [rotation.x, rotation.y, rotation.z],
+            [scale.x, scale.y, scale.z]
+          );
+        } else {
+          onMove(furniture.id, [position.x, position.y, position.z]);
+        }
+      } else if (isRotating && editMode && onUpdateTransform) {
+        setIsRotating(false);
+        const position = meshRef.current.position;
+        const rotation = meshRef.current.rotation;
+        const scale = meshRef.current.scale;
+        onUpdateTransform(furniture.id,
+          [position.x, position.y, position.z],
+          [rotation.x, rotation.y, rotation.z],
+          [scale.x, scale.y, scale.z]
+        );
+      } else if (isScaling && editMode && onUpdateTransform) {
+        setIsScaling(false);
+        const position = meshRef.current.position;
+        const rotation = meshRef.current.rotation;
+        const scale = meshRef.current.scale;
+        onUpdateTransform(furniture.id,
+          [position.x, position.y, position.z],
+          [rotation.x, rotation.y, rotation.z],
+          [scale.x, scale.y, scale.z]
+        );
+      }
     }
   };
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isRotating || isScaling) {
       const canvas = gl.domElement;
       canvas.addEventListener('pointermove', handlePointerMove);
       canvas.addEventListener('pointerup', handlePointerUp);
-      
+
       return () => {
         canvas.removeEventListener('pointermove', handlePointerMove);
         canvas.removeEventListener('pointerup', handlePointerUp);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, isRotating, isScaling]);
 
   return (
     <group
