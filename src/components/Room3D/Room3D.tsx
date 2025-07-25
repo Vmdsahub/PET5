@@ -71,12 +71,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     setCatalog(mockStorageService.getFurnitureCatalog());
   };
 
-  const handleClearCatalog = () => {
-    mockStorageService.clearCustomCatalog();
-    // Recarregar catálogo para mostrar apenas os móveis padrão
-    setCatalog(mockStorageService.getFurnitureCatalog());
-  };
-
   const handleFurnitureSelect = (furnitureId: string | null) => {
     setSelectedFurniture(furnitureId);
   };
@@ -170,7 +164,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           isDragging={isDragging}
           isAdmin={isAdmin}
           onAddFurniture={handleAddFurniture}
-          onClearCatalog={handleClearCatalog}
         />
       </div>
     );
@@ -278,7 +271,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         isDragging={isDragging}
         isAdmin={isAdmin}
         onAddFurniture={handleAddFurniture}
-        onClearCatalog={handleClearCatalog}
       />
     </div>
   );
