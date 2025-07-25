@@ -14,7 +14,7 @@ interface Room3DProps {
   isAdmin?: boolean;
 }
 
-export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
+export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [webglSupport, setWebglSupport] = useState<ReturnType<typeof detectWebGLSupport> | null>(null);
   const [use2DMode, setUse2DMode] = useState(false);
   const [placedFurniture, setPlacedFurniture] = useState<FurnitureItem[]>(
