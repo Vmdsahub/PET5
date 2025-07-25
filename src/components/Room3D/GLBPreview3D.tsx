@@ -71,17 +71,32 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
         return;
       }
 
-      const url = URL.createObjectURL(file);
-      setModelUrl(url);
-
-      // Simular tempo de carregamento para feedback visual
-      setTimeout(() => {
+      // Verificar extensão do arquivo
+      const fileName = file.name.toLowerCase();
+      if (!fileName.endsWith('.glb') && file.type !== 'model/gltf-binary') {
+        setError('Arquivo deve ser .glb');
         setIsLoading(false);
-      }, 500);
+        return;
+      }
 
-      return () => {
-        URL.revokeObjectURL(url);
-      };
+      try {
+        const url = URL.createObjectURL(file);
+        console.log('URL criada para arquivo:', fileName, url);
+        setModelUrl(url);
+
+        // Timeout para dar tempo do modelo carregar
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
+
+        return () => {
+          URL.revokeObjectURL(url);
+        };
+      } catch (err) {
+        console.error('Erro ao criar URL do arquivo:', err);
+        setError('Erro ao processar arquivo');
+        setIsLoading(false);
+      }
     } else {
       setModelUrl(null);
       setIsLoading(false);
