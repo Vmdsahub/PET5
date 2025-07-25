@@ -111,14 +111,21 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
     <div className="w-full h-screen relative bg-gray-100">
       {/* Canvas 3D */}
       <Canvas
-        camera={{ 
-          position: [8, 8, 8], 
+        camera={{
+          position: [8, 8, 8],
           fov: 50,
           near: 0.1,
           far: 1000
         }}
         shadows
         className="w-full h-full"
+        onCreated={(state) => {
+          console.log('Canvas 3D criado com sucesso');
+        }}
+        onError={(error) => {
+          console.error('Erro no Canvas 3D:', error);
+          setWebglSupport({ hasSupport: false, webgl: false, webgl2: false, failureReason: error.message });
+        }}
       >
         <Suspense fallback={
           <Html center>
