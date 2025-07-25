@@ -36,24 +36,46 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number, y: number } | null>(null);
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
 
-  const handleDragStart = (item: FurnitureItem) => {
+  const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
     setDraggedItem(item);
+    // Criar uma imagem ghost transparente
+    const dragImage = new Image();
+    dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+    event.dataTransfer.setDragImage(dragImage, 0, 0);
   };
 
-  const handleDragEnd = (event: React.DragEvent) => {
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
     if (draggedItem) {
-      // Calcular posição 3D baseada na posição do mouse
-      const rect = (event.target as HTMLElement).getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
-      const z = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
-      
-      onPlaceFurniture(draggedItem.id, [x, 0.5, z]);
-      setDraggedItem(null);
+      setDragPosition({ x: event.clientX, y: event.clientY });
     }
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    if (draggedItem) {
+      // Calcular posição 3D baseada na posição exata do canvas
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+        const z = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
+
+        onPlaceFurniture(draggedItem.id, [x, 0.5, z]);
+      }
+      setDraggedItem(null);
+      setDragPosition(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDragPosition(null);
   };
 
   const handleBuy = (catalogItem: any) => {
