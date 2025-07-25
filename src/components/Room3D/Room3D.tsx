@@ -316,7 +316,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         editMode={editMode}
         onToggleEditMode={handleToggleEditMode}
         onStoreFurniture={handleStoreFurniture}
-        onFurnitureContextMenu={handleContextMenu}
+        contextMenuState={contextMenuState}
+        onCloseContextMenu={() => setContextMenuState({ visible: false, x: 0, y: 0, furnitureId: null })}
       />
     </div>
   );
