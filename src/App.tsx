@@ -18,7 +18,7 @@ import { PlanetScreen } from "./components/Screens/PlanetScreen";
 import { ExplorationScreen } from "./components/Screens/ExplorationScreen";
 import { FishingScreenModular as FishingScreen } from "./components/Screens/FishingScreenModular";
 import { InventoryScreen } from "./components/Screens/InventoryScreen";
-import { RoomDecorationScreen } from "./components/Screens/RoomDecorationScreen";
+import { Room3DScreen } from "./components/Screens/Room3DScreen";
 import { useAuthStore } from "./store/authStore";
 import { useGameStore } from "./store/gameStore";
 import { preloadAllSounds } from "./utils/soundManager";
