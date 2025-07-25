@@ -77,10 +77,13 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const meshRef = useRef<THREE.Group>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
-  const [isRotating, setIsRotating] = useState(false);
-  const [isScaling, setIsScaling] = useState(false);
-  const [initialRotation, setInitialRotation] = useState(new Vector3());
-  const [initialScale, setInitialScale] = useState(new Vector3());
+  const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | null>(null);
+  const [initialMousePos, setInitialMousePos] = useState({ x: 0, y: 0 });
+  const [initialTransform, setInitialTransform] = useState({
+    position: new Vector3(),
+    rotation: new Vector3(),
+    scale: new Vector3()
+  });
   const { camera, gl, scene } = useThree();
 
   // Estado para controlar se deve tentar carregar o modelo GLB
@@ -122,42 +125,29 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       return;
     }
 
+    // Apenas selecionar se não estiver em modo edição
+    if (!editMode) {
+      onSelect(furniture.id);
+      return;
+    }
+
+    // Modo edição ativo - permitir interação
     onSelect(furniture.id);
 
     if (selected && meshRef.current && editMode) {
-      // Diferentes modos baseados nas teclas pressionadas
-      if (event.nativeEvent.shiftKey) {
-        // Modo rotação
-        setIsRotating(true);
-        setInitialRotation(meshRef.current.rotation.toVector3());
-      } else if (event.nativeEvent.ctrlKey || event.nativeEvent.metaKey) {
-        // Modo escala
-        setIsScaling(true);
-        setInitialScale(meshRef.current.scale.toVector3());
-      } else {
-        // Modo posição (padrão)
-        setIsDragging(true);
-        onDragStart();
+      setInitialMousePos({ x: event.clientX, y: event.clientY });
+      setInitialTransform({
+        position: meshRef.current.position.clone(),
+        rotation: meshRef.current.rotation.toVector3(),
+        scale: meshRef.current.scale.clone()
+      });
 
-        // Calcular offset do mouse para a posição do objeto
-        const mousePosition = new Vector3(
-          (event.clientX / window.innerWidth) * 2 - 1,
-          -(event.clientY / window.innerHeight) * 2 + 1,
-          0
-        );
-
-        raycaster.setFromCamera(mousePosition, camera);
-        const intersectPoint = new Vector3();
-        raycaster.ray.intersectPlane(plane, intersectPoint);
-
-        const objectPosition = meshRef.current.position;
-        setDragOffset(objectPosition.clone().sub(intersectPoint));
-      }
-    } else if (selected && meshRef.current && !editMode) {
-      // Modo normal - apenas mover
+      // Modo padrão é mover
+      setEditTool('move');
       setIsDragging(true);
       onDragStart();
 
+      // Calcular offset para movimento
       const mousePosition = new Vector3(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1,
@@ -174,16 +164,15 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   };
 
   const handlePointerMove = (event: any) => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !editMode || !isDragging) return;
 
-    const mousePosition = new Vector3(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1,
-      0
-    );
+    if (editTool === 'move') {
+      const mousePosition = new Vector3(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+        0
+      );
 
-    if (isDragging) {
-      // Modo posição
       raycaster.setFromCamera(mousePosition, camera);
       const intersectPoint = new Vector3();
       raycaster.ray.intersectPlane(plane, intersectPoint);
@@ -196,53 +185,30 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       newPosition.y = furniture.position[1]; // Manter Y original
 
       meshRef.current.position.copy(newPosition);
-    } else if (isRotating && editMode) {
-      // Modo rotação - usar movimento horizontal do mouse
+    } else if (editTool === 'rotate') {
+      const deltaX = event.clientX - initialMousePos.x;
       const rotationSpeed = 0.01;
-      const deltaX = (event.clientX - window.innerWidth / 2) * rotationSpeed;
-      meshRef.current.rotation.y = initialRotation.y + deltaX;
-    } else if (isScaling && editMode) {
-      // Modo escala - usar movimento vertical do mouse
-      const scaleSpeed = 0.001;
-      const deltaY = (window.innerHeight / 2 - event.clientY) * scaleSpeed;
-      const newScale = Math.max(0.1, Math.min(3, initialScale.x + deltaY));
+      const newRotationY = initialTransform.rotation.y + (deltaX * rotationSpeed);
+      meshRef.current.rotation.y = newRotationY;
+    } else if (editTool === 'scale') {
+      const deltaY = initialMousePos.y - event.clientY;
+      const scaleSpeed = 0.003;
+      const newScale = Math.max(0.1, Math.min(3, initialTransform.scale.x + (deltaY * scaleSpeed)));
       meshRef.current.scale.setScalar(newScale);
     }
   };
 
   const handlePointerUp = () => {
-    if (meshRef.current) {
-      if (isDragging) {
-        setIsDragging(false);
-        onDragEnd();
+    if (meshRef.current && isDragging && editMode) {
+      setIsDragging(false);
+      setEditTool(null);
+      onDragEnd();
 
-        const position = meshRef.current.position;
-        if (editMode && onUpdateTransform) {
-          const rotation = meshRef.current.rotation;
-          const scale = meshRef.current.scale;
-          onUpdateTransform(furniture.id,
-            [position.x, position.y, position.z],
-            [rotation.x, rotation.y, rotation.z],
-            [scale.x, scale.y, scale.z]
-          );
-        } else {
-          onMove(furniture.id, [position.x, position.y, position.z]);
-        }
-      } else if (isRotating && editMode && onUpdateTransform) {
-        setIsRotating(false);
-        const position = meshRef.current.position;
-        const rotation = meshRef.current.rotation;
-        const scale = meshRef.current.scale;
-        onUpdateTransform(furniture.id,
-          [position.x, position.y, position.z],
-          [rotation.x, rotation.y, rotation.z],
-          [scale.x, scale.y, scale.z]
-        );
-      } else if (isScaling && editMode && onUpdateTransform) {
-        setIsScaling(false);
-        const position = meshRef.current.position;
-        const rotation = meshRef.current.rotation;
-        const scale = meshRef.current.scale;
+      const position = meshRef.current.position;
+      const rotation = meshRef.current.rotation;
+      const scale = meshRef.current.scale;
+
+      if (onUpdateTransform) {
         onUpdateTransform(furniture.id,
           [position.x, position.y, position.z],
           [rotation.x, rotation.y, rotation.z],
@@ -253,7 +219,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   };
 
   useEffect(() => {
-    if (isDragging || isRotating || isScaling) {
+    if (isDragging && editMode) {
       const canvas = gl.domElement;
       canvas.addEventListener('pointermove', handlePointerMove);
       canvas.addEventListener('pointerup', handlePointerUp);
@@ -263,7 +229,12 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
         canvas.removeEventListener('pointerup', handlePointerUp);
       };
     }
-  }, [isDragging, isRotating, isScaling]);
+  }, [isDragging, editMode, editTool]);
+
+  // Funções para botões de modo de edição
+  const handleMoveMode = () => setEditTool('move');
+  const handleRotateMode = () => setEditTool('rotate');
+  const handleScaleMode = () => setEditTool('scale');
 
   return (
     <group
