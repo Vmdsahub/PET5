@@ -280,6 +280,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onMove={handleMoveFurniture}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
+              editMode={editMode}
+              onUpdateTransform={handleUpdateTransform}
             />
           ))}
         </Suspense>
