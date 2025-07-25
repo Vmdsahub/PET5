@@ -20,7 +20,13 @@ interface RoomUIProps {
   editMode?: boolean;
   onToggleEditMode?: () => void;
   onStoreFurniture?: (furnitureId: string) => void;
-  onFurnitureContextMenu?: (event: React.MouseEvent, furnitureId: string) => void;
+  contextMenuState?: {
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  };
+  onCloseContextMenu?: () => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
@@ -37,7 +43,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   editMode = false,
   onToggleEditMode,
   onStoreFurniture,
-  onFurnitureContextMenu
+  contextMenuState,
+  onCloseContextMenu
 }) => {
   const { user } = useAuthStore();
   const isUserAdmin = user?.isAdmin || isAdmin;
@@ -48,12 +55,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{
+  // Usar contexto externo ou estado local como fallback
+  const [localContextMenu, setLocalContextMenu] = useState<{
     visible: boolean;
     x: number;
     y: number;
     furnitureId: string | null;
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
+
+  const contextMenu = contextMenuState || localContextMenu;
 
   const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
     setDraggedItem(item);
@@ -94,17 +104,24 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
     event.preventDefault();
-    setContextMenu({
-      visible: true,
-      x: event.clientX,
-      y: event.clientY,
-      furnitureId
-    });
-    onFurnitureContextMenu?.(event, furnitureId);
+    if (onCloseContextMenu) {
+      // Usar estado externo (não deveria chegar aqui com nova implementação)
+    } else {
+      setLocalContextMenu({
+        visible: true,
+        x: event.clientX,
+        y: event.clientY,
+        furnitureId
+      });
+    }
   };
 
   const handleCloseContextMenu = () => {
-    setContextMenu({ visible: false, x: 0, y: 0, furnitureId: null });
+    if (onCloseContextMenu) {
+      onCloseContextMenu();
+    } else {
+      setLocalContextMenu({ visible: false, x: 0, y: 0, furnitureId: null });
+    }
   };
 
   const handleInspectFurniture = () => {
