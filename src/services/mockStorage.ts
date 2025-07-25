@@ -208,6 +208,11 @@ class MockStorageService {
     const userRoom = this.getUserRoom(userId);
     return [...userRoom.inventory];
   }
+
+  addCustomFurniture(furnitureData: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): void {
+    this.customCatalog.push(furnitureData);
+    this.saveToLocalStorage();
+  }
 }
 
 export const mockStorageService = new MockStorageService();
