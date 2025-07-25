@@ -319,12 +319,20 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
         </mesh>
       )}
       
-      {/* Indicador de nome */}
+      {/* Indicador de nome e instruções */}
       {selected && (
-        <mesh position={[0, 2, 0]}>
-          <planeGeometry args={[2, 0.5]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.8} />
-        </mesh>
+        <>
+          <mesh position={[0, 2.5, 0]}>
+            <planeGeometry args={[3, 0.8]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+          </mesh>
+          {editMode && (
+            <mesh position={[0, 1.8, 0]}>
+              <planeGeometry args={[4, 1.2]} />
+              <meshBasicMaterial color="#1f2937" transparent opacity={0.8} />
+            </mesh>
+          )}
+        </>
       )}
     </group>
   );
