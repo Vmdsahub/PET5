@@ -164,7 +164,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           title={
             <div className="flex justify-between items-center w-full">
               <span>Catálogo de Móveis</span>
-              {isAdmin && (
+              {console.log("Modal render - isAdmin:", isAdmin) || isAdmin && (
                 <button
                   onClick={() => setShowAddFurniture(true)}
                   className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
