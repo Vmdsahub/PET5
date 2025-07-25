@@ -84,17 +84,31 @@ export const SimpleModal: React.FC<SimpleModalProps> = ({
         }}
       >
         {/* Header */}
-        <div 
+        <div
           className="modal-header bg-gray-50 border-b border-gray-200 px-4 py-3 rounded-t-lg cursor-move select-none flex justify-between items-center"
           onMouseDown={handleMouseDown}
         >
-          <h3 className="font-semibold text-gray-800">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-200 rounded transition-colors"
-          >
-            <X size={16} />
-          </button>
+          {typeof title === 'string' ? (
+            <>
+              <h3 className="font-semibold text-gray-800">{title}</h3>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-200 rounded transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </>
+          ) : (
+            <div className="w-full flex justify-between items-center">
+              {title}
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 p-1 hover:bg-gray-200 rounded transition-colors ml-2"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Content */}
