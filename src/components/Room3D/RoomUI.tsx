@@ -172,7 +172,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
                   title="Adicionar Móvel"
                 >
-                  <Plus size={16} />
+                  +
                 </button>
               )}
             </div>
