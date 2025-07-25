@@ -283,6 +283,18 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onDragEnd={handleDragEnd}
               editMode={editMode}
               onUpdateTransform={handleUpdateTransform}
+              onContextMenu={(event, furnitureId) => {
+                // Propagar para o RoomUI através de uma função personalizada
+                const customEvent = {
+                  clientX: event.clientX || 0,
+                  clientY: event.clientY || 0,
+                  preventDefault: () => {}
+                };
+                // Simular clique do RoomUI para ativar contexto menu
+                document.dispatchEvent(new CustomEvent('furnitureContextMenu', {
+                  detail: { furnitureId, x: customEvent.clientX, y: customEvent.clientY }
+                }));
+              }}
             />
           ))}
         </Suspense>
