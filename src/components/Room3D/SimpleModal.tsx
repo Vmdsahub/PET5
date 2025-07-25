@@ -98,7 +98,7 @@ export const SimpleModal: React.FC<SimpleModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-auto max-h-96">
+        <div className="flex-1 overflow-hidden">
           {children}
         </div>
 
