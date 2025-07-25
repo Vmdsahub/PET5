@@ -245,9 +245,16 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   }, [isDragging, editMode, editTool]);
 
   // Funções para botões de modo de edição
-  const handleMoveMode = () => setEditTool('move');
-  const handleRotateMode = () => setEditTool('rotate');
-  const handleScaleMode = () => setEditTool('scale');
+  const handleMoveMode = () => {
+    setEditTool('move');
+    setIsDragging(false);
+  };
+  const handleRotateMode = () => {
+    setEditTool('rotate');
+  };
+  const handleScaleMode = () => {
+    setEditTool('scale');
+  };
 
   return (
     <group
