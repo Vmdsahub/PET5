@@ -171,7 +171,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 onClick={() => setShowAddFurniture(true)}
                 className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
                 title="Adicionar Móvel"
-                style={{ display: isAdmin ? 'block' : 'none' }}
+                style={{ display: isUserAdmin ? 'block' : 'none' }}
               >
                 +
               </button>
