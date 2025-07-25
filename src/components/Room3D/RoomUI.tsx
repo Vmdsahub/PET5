@@ -20,6 +20,7 @@ interface RoomUIProps {
   editMode?: boolean;
   onToggleEditMode?: () => void;
   onStoreFurniture?: (furnitureId: string) => void;
+  onFurnitureContextMenu?: (event: React.MouseEvent, furnitureId: string) => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
@@ -35,7 +36,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onAddFurniture,
   editMode = false,
   onToggleEditMode,
-  onStoreFurniture
+  onStoreFurniture,
+  onFurnitureContextMenu
 }) => {
   const { user } = useAuthStore();
   const isUserAdmin = user?.isAdmin || isAdmin;
@@ -98,6 +100,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       y: event.clientY,
       furnitureId
     });
+    onFurnitureContextMenu?.(event, furnitureId);
   };
 
   const handleCloseContextMenu = () => {
