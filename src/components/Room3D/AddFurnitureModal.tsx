@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Package, X } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
+import { GLBPreview3D } from './GLBPreview3D';
 
 interface AddFurnitureModalProps {
   isOpen: boolean;
@@ -14,19 +15,29 @@ interface GLBPreviewProps {
 
 // Componente para preview 3D do modelo GLB
 const GLBPreview: React.FC<GLBPreviewProps> = ({ file }) => {
-  // Por enquanto, mostrar placeholder - depois pode integrar com React Three Fiber
   return (
-    <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+    <div className="w-full h-48 rounded-lg border-2 border-dashed border-gray-300 relative">
       {file ? (
-        <div className="text-center">
-          <Package size={48} className="mx-auto mb-2 text-gray-500" />
-          <p className="text-sm text-gray-600">{file.name}</p>
-          <p className="text-xs text-gray-500">Preview 3D (Em desenvolvimento)</p>
+        <div className="w-full h-full flex">
+          {/* Preview 3D */}
+          <div className="flex-1">
+            <GLBPreview3D file={file} width="100%" height="100%" />
+          </div>
+
+          {/* Info do arquivo */}
+          <div className="w-32 p-3 bg-gray-50 border-l border-gray-200 flex flex-col justify-center">
+            <Package size={24} className="mx-auto mb-2 text-gray-500" />
+            <p className="text-xs text-gray-600 text-center break-words">{file.name}</p>
+            <p className="text-xs text-green-600 text-center mt-1">✓ Válido</p>
+          </div>
         </div>
       ) : (
-        <div className="text-center">
-          <Upload size={48} className="mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-500">Faça upload de um arquivo .glb</p>
+        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+          <div className="text-center">
+            <Upload size={48} className="mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-500">Faça upload de um arquivo .glb</p>
+            <p className="text-xs text-gray-400 mt-1">Preview 3D será exibido aqui</p>
+          </div>
         </div>
       )}
     </div>
