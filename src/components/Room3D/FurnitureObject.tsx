@@ -52,10 +52,8 @@ const FallbackGeometry: React.FC<{ furniture: FurnitureItem }> = ({ furniture })
   return (
     <>
       {getGeometry()}
-      <meshStandardMaterial 
-        color={getColor()} 
-        roughness={0.7}
-        metalness={0.1}
+      <meshLambertMaterial
+        color={getColor()}
       />
     </>
   );
