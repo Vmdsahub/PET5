@@ -69,25 +69,37 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           {/* Botão Catálogo */}
           <button
             onClick={() => {
-              setShowInventory(false);
-              setShowCatalog(true);
+              if (showCatalog) {
+                setShowCatalog(false);
+              } else {
+                setShowInventory(false);
+                setShowCatalog(true);
+              }
             }}
-            className="p-3 rounded-full hover:bg-gray-100 transition-colors"
+            className={`p-3 rounded-full transition-colors ${
+              showCatalog ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
+            }`}
             title="Catálogo de Móveis"
           >
-            <ShoppingCart size={24} className="text-gray-700" />
+            <ShoppingCart size={24} />
           </button>
 
           {/* Botão Inventário */}
           <button
             onClick={() => {
-              setShowCatalog(false);
-              setShowInventory(true);
+              if (showInventory) {
+                setShowInventory(false);
+              } else {
+                setShowCatalog(false);
+                setShowInventory(true);
+              }
             }}
-            className="p-3 rounded-full hover:bg-gray-100 transition-colors relative"
+            className={`p-3 rounded-full transition-colors relative ${
+              showInventory ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
+            }`}
             title="Inventário da Casa"
           >
-            <Package size={24} className="text-gray-700" />
+            <Package size={24} />
             {inventory.length > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {inventory.length}
