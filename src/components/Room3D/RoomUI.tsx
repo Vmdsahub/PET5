@@ -388,7 +388,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Modal Adicionar Móvel (Admin) */}
-      {isAdmin && (
+      {isUserAdmin && (
         <AddFurnitureModal
           isOpen={showAddFurniture}
           onClose={() => setShowAddFurniture(false)}
