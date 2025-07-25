@@ -89,9 +89,9 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    // Simular URL do modelo (em produção seria upload real)
-    const modelUrl = `/models/custom/${glbFile!.name}`;
-    
+    // Criar URL de blob para o arquivo GLB
+    const modelUrl = URL.createObjectURL(glbFile!);
+
     const furnitureData = {
       name: formData.name,
       description: formData.description,
