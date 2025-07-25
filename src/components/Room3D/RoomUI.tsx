@@ -30,6 +30,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   isAdmin = false,
   onAddFurniture
 }) => {
+  // Debug: Log admin status
+  console.log("RoomUI - isAdmin:", isAdmin);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
