@@ -23,7 +23,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [inventory, setInventory] = useState<FurnitureItem[]>(
     mockStorageService.getInventory(userId)
   );
-  const [catalog] = useState(mockStorageService.getFurnitureCatalog());
+  const [catalog, setCatalog] = useState(mockStorageService.getFurnitureCatalog());
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const controlsRef = useRef<any>();
@@ -68,7 +68,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleAddFurniture = (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
     // Recarregar catálogo para mostrar o novo móvel
-    window.location.reload(); // Simples refresh - em produção poderia ser mais elegante
+    setCatalog(mockStorageService.getFurnitureCatalog());
   };
 
   const handleFurnitureSelect = (furnitureId: string | null) => {
