@@ -160,7 +160,20 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       {/* Modal do Catálogo */}
       {showCatalog && (
         <SimpleModal
-          title="Catálogo de Móveis"
+          title={
+            <div className="flex justify-between items-center w-full">
+              <span>Catálogo de Móveis</span>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowAddFurniture(true)}
+                  className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
+                  title="Adicionar Móvel"
+                >
+                  <Plus size={16} />
+                </button>
+              )}
+            </div>
+          }
           onClose={() => {
             setShowCatalog(false);
             setSelectedCatalogItem(null);
