@@ -194,14 +194,18 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   <span>Círculo: Rotacionar</span>
                 </div>
               </div>
-              <div className="flex items-center justify-center space-x-4">
+              <div className="flex items-center justify-center space-x-3 text-xs">
                 <div className="flex items-center space-x-1">
-                  <div className="w-4 h-2 bg-blue-400"></div>
-                  <span>Barra Azul: Escala X</span>
+                  <div className="w-4 h-2 bg-blue-400 rounded"></div>
+                  <span>X (Largura)</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-4 bg-red-400"></div>
-                  <span>Barra Vermelha: Escala Y</span>
+                  <div className="w-2 h-4 bg-red-400 rounded"></div>
+                  <span>Y (Altura)</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-4 h-2 bg-green-400 rounded"></div>
+                  <span>Z (Profundidade)</span>
                 </div>
               </div>
             </div>
