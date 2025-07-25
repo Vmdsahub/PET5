@@ -55,7 +55,15 @@ export const Room2DFallback: React.FC<Room2DFallbackProps> = ({
   };
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-amber-50 to-amber-100 relative">
+    <div className="w-full h-full relative" style={{
+      background: `
+        radial-gradient(ellipse at 20% 30%, rgba(50, 80, 150, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(70, 120, 180, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 80%, rgba(60, 100, 160, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(40, 90, 140, 0.2) 0%, transparent 50%),
+        linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
+      `
+    }}>
       {/* Room representation */}
       <div 
         className="w-full h-full relative overflow-hidden cursor-move"
