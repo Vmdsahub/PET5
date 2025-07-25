@@ -220,7 +220,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   </button>
 
                   {expandedSection === 'limitados' && (
-                    <div className="border-t border-gray-200 p-4 space-y-3">
+                    <div className="border-t border-gray-200 p-4 space-y-3 max-h-60 overflow-y-auto">
                       {limitedFurniture.map((item, index) => (
                         <div
                           key={index}
