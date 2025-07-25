@@ -74,15 +74,23 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const [dragOffset, setDragOffset] = useState(new Vector3());
   const { camera, gl, scene } = useThree();
   
-  // Tentar carregar o modelo GLB
-  const { scene: gltfScene, error } = useGLTF(furniture.model, true) as any;
+  // Estado para controlar se deve tentar carregar o modelo GLB
   const [hasError, setHasError] = useState(false);
+  const [shouldLoadModel, setShouldLoadModel] = useState(true);
 
-  useEffect(() => {
-    if (error) {
-      setHasError(true);
+  let gltfScene = null;
+  try {
+    if (shouldLoadModel && !hasError) {
+      const gltf = useGLTF(furniture.model);
+      gltfScene = gltf.scene;
     }
-  }, [error]);
+  } catch (error) {
+    console.warn(`Falha ao carregar modelo ${furniture.model}:`, error);
+    if (shouldLoadModel) {
+      setHasError(true);
+      setShouldLoadModel(false);
+    }
+  }
 
   const plane = new Plane(new Vector3(0, 1, 0), 0);
   const raycaster = new Raycaster();
