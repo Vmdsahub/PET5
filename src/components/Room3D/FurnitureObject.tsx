@@ -78,7 +78,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const meshRef = useRef<THREE.Group>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
-  const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | null>('move');
+  const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | 'scaleX' | 'scaleY' | null>('move');
   const [initialMousePos, setInitialMousePos] = useState({ x: 0, y: 0 });
   const [initialTransform, setInitialTransform] = useState({
     position: new Vector3(),
@@ -203,7 +203,20 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       const rotationSpeed = 0.01;
       const newRotationY = initialTransform.rotation.y + (deltaX * rotationSpeed);
       meshRef.current.rotation.y = newRotationY;
+    } else if (editTool === 'scaleX') {
+      // Escala X - movimento horizontal
+      const deltaX = event.clientX - initialMousePos.x;
+      const scaleSpeed = 0.005;
+      const newScaleX = Math.max(0.1, Math.min(3, initialTransform.scale.x + (deltaX * scaleSpeed)));
+      meshRef.current.scale.x = newScaleX;
+    } else if (editTool === 'scaleY') {
+      // Escala Y - movimento vertical
+      const deltaY = initialMousePos.y - event.clientY;
+      const scaleSpeed = 0.005;
+      const newScaleY = Math.max(0.1, Math.min(3, initialTransform.scale.y + (deltaY * scaleSpeed)));
+      meshRef.current.scale.y = newScaleY;
     } else if (editTool === 'scale') {
+      // Escala uniforme (mantido para compatibilidade)
       const deltaY = initialMousePos.y - event.clientY;
       const scaleSpeed = 0.003;
       const newScale = Math.max(0.1, Math.min(3, initialTransform.scale.x + (deltaY * scaleSpeed)));
