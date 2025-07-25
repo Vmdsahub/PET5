@@ -187,17 +187,21 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <div className="w-3 h-3 bg-white rounded-full"></div>
-                  <span>Clique no móvel: Mover</span>
+                  <span>Móvel: Mover</span>
                 </div>
-              </div>
-              <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <div className="w-3 h-3 bg-white rounded-full border border-gray-400"></div>
                   <span>Círculo: Rotacionar</span>
                 </div>
+              </div>
+              <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-4 bg-white"></div>
-                  <span>Barras: Escalar</span>
+                  <div className="w-4 h-2 bg-blue-400"></div>
+                  <span>Barra Azul: Escala X</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-4 bg-red-400"></div>
+                  <span>Barra Vermelha: Escala Y</span>
                 </div>
               </div>
             </div>
