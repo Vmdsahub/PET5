@@ -27,6 +27,12 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [contextMenuState, setContextMenuState] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  }>({ visible: false, x: 0, y: 0, furnitureId: null });
   const controlsRef = useRef<any>();
 
   // Detectar suporte WebGL na montagem do componente
@@ -90,8 +96,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
   };
 
-  const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
-    // This will be handled by RoomUI
+  const handleContextMenu = (event: any, furnitureId: string) => {
+    setContextMenuState({
+      visible: true,
+      x: event.clientX || window.innerWidth / 2,
+      y: event.clientY || window.innerHeight / 2,
+      furnitureId
+    });
   };
 
   const handleFurnitureSelect = (furnitureId: string | null) => {
