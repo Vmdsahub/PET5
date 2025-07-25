@@ -65,6 +65,12 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     return newItem;
   };
 
+  const handleAddFurniture = (furnitureData: any) => {
+    mockStorageService.addCustomFurniture(furnitureData);
+    // Recarregar catálogo para mostrar o novo móvel
+    window.location.reload(); // Simples refresh - em produção poderia ser mais elegante
+  };
+
   const handleFurnitureSelect = (furnitureId: string | null) => {
     setSelectedFurniture(furnitureId);
   };
