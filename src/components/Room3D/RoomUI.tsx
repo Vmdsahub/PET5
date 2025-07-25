@@ -181,7 +181,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   </button>
 
                   {expandedSection === 'basicos' && (
-                    <div className="border-t border-gray-200 p-4 space-y-3">
+                    <div className="border-t border-gray-200 p-4 space-y-3 max-h-60 overflow-y-auto">
                       {basicFurniture.map((item, index) => (
                         <div
                           key={index}
@@ -300,7 +300,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         </SimpleModal>
       )}
 
-      {/* Modal do Invent��rio */}
+      {/* Modal do Inventário */}
       {showInventory && (
         <SimpleModal
           title="Inventário da Casa"
