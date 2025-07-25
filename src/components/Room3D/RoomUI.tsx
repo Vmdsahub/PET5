@@ -49,8 +49,17 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     onBuyFurniture(catalogItem);
   };
 
-  const selectedItem = inventory.find(item => item.id === selectedFurniture) || 
+  const selectedItem = inventory.find(item => item.id === selectedFurniture) ||
                       null;
+
+  // Dividir catálogo em básicos e limitados
+  const basicFurniture = catalog.filter(item =>
+    ['sala', 'quarto', 'geral'].includes(item.category)
+  );
+
+  const limitedFurniture = catalog.filter(item =>
+    ['decoração', 'iluminação', 'cozinha'].includes(item.category)
+  );
 
   return (
     <>
