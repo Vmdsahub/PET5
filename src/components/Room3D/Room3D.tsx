@@ -190,6 +190,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           editMode={editMode}
           onToggleEditMode={handleToggleEditMode}
           onStoreFurniture={handleStoreFurniture}
+          onFurnitureContextMenu={handleContextMenu}
         />
       </div>
     );
@@ -302,6 +303,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         editMode={editMode}
         onToggleEditMode={handleToggleEditMode}
         onStoreFurniture={handleStoreFurniture}
+        onFurnitureContextMenu={handleContextMenu}
       />
     </div>
   );
