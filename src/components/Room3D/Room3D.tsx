@@ -1,10 +1,12 @@
-import React, { Suspense, useState, useRef } from 'react';
+import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
+import { WebGLFallback } from './WebGLFallback';
+import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
   userId: string;
