@@ -232,12 +232,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
             target={[0, 0, 0]}
           />
           
-          {/* Ambiente */}
-          <Environment preset="apartment" />
-          
           {/* Quarto */}
           <Room />
-          
+
           {/* Móveis colocados */}
           {placedFurniture.map((furniture) => (
             <FurnitureObject
@@ -250,17 +247,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
               onDragEnd={handleDragEnd}
             />
           ))}
-          
-          {/* Sombras de contato */}
-          <ContactShadows
-            position={[0, 0, 0]}
-            opacity={0.4}
-            scale={20}
-            blur={1}
-            far={10}
-            resolution={256}
-            color="#000000"
-          />
         </Suspense>
       </Canvas>
 
