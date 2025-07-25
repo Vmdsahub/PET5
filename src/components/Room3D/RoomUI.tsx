@@ -277,8 +277,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               {selectedCatalogItem ? (
                 <>
                   {/* Imagem grande */}
-                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center shadow-inner">
-                    <Package size={64} className="text-gray-400" />
+                  <div className="w-full h-48 rounded-lg mb-4 shadow-inner">
+                    <FurnitureThumbnail
+                      modelPath={selectedCatalogItem.model}
+                      width="100%"
+                      height={192}
+                    />
                   </div>
 
                   {/* Detalhes */}
