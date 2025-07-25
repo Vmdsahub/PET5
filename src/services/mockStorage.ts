@@ -108,6 +108,7 @@ class MockStorageService {
         const data = JSON.parse(stored);
         this.userRooms = new Map(data.userRooms || []);
         this.nextId = data.nextId || 1;
+        this.customCatalog = data.customCatalog || [];
       } catch (error) {
         console.warn('Erro ao carregar dados do localStorage:', error);
       }
@@ -117,7 +118,8 @@ class MockStorageService {
   private saveToLocalStorage() {
     const data = {
       userRooms: Array.from(this.userRooms.entries()),
-      nextId: this.nextId
+      nextId: this.nextId,
+      customCatalog: this.customCatalog
     };
     localStorage.setItem('xenopets_room_data', JSON.stringify(data));
   }
