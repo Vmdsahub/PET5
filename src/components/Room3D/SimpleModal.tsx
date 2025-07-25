@@ -79,7 +79,7 @@ export const SimpleModal: React.FC<SimpleModalProps> = ({
           left: position.x,
           top: position.y,
           width,
-          height,
+          height: height !== 'auto' ? height : 'auto',
           maxHeight: '80vh'
         }}
       >
