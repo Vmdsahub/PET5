@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import { Vector3, Raycaster, Plane } from 'three';
 import * as THREE from 'three';
 import { FurnitureItem } from '../../services/mockStorage';
+import { blobCache } from '../../utils/blobCache';
 
 interface FurnitureObjectProps {
   furniture: FurnitureItem;
@@ -93,6 +94,13 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   // Componente para modelo GLB com error boundary
   const ModelComponent = () => {
     if (!furniture.model || hasError) {
+      return <FallbackGeometry furniture={furniture} />;
+    }
+
+    // Verificar se é uma URL de blob válida
+    if (furniture.model.startsWith('blob:') && !blobCache.isValidUrl(furniture.model)) {
+      console.warn(`URL de blob inválida: ${furniture.model}`);
+      setHasError(true);
       return <FallbackGeometry furniture={furniture} />;
     }
 
