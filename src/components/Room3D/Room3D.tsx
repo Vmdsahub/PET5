@@ -204,20 +204,21 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação */}
-          <ambientLight intensity={0.4} />
+          {/* Iluminação Simples e Estável */}
+          <ambientLight intensity={0.6} color="#ffffff" />
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
+            position={[0, 10, 0]}
+            intensity={0.8}
+            color="#ffffff"
+            castShadow={false}
           />
-          <pointLight position={[5, 8, 5]} intensity={0.5} />
+          <pointLight
+            position={[0, 4, 0]}
+            intensity={0.3}
+            color="#fff8dc"
+            distance={15}
+            decay={2}
+          />
           
           {/* Controles de câmera */}
           <OrbitControls
