@@ -90,6 +90,46 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     setDragPosition(null);
   };
 
+  const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
+    event.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      furnitureId
+    });
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, furnitureId: null });
+  };
+
+  const handleInspectFurniture = () => {
+    if (contextMenu.furnitureId) {
+      onSelectFurniture(contextMenu.furnitureId);
+    }
+    handleCloseContextMenu();
+  };
+
+  const handleStoreFurniture = () => {
+    if (contextMenu.furnitureId) {
+      onStoreFurniture?.(contextMenu.furnitureId);
+    }
+    handleCloseContextMenu();
+  };
+
+  // Fechar menu de contexto ao clicar fora
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu.visible) {
+        handleCloseContextMenu();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu.visible]);
+
   const handleBuy = (catalogItem: any) => {
     onBuyFurniture(catalogItem);
   };
@@ -443,6 +483,34 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
             Colocando {draggedItem.name}...
           </div>
+        </div>
+      )}
+
+      {/* Menu de Contexto */}
+      {contextMenu.visible && (
+        <div
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+            transform: 'translate(-50%, -10px)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleInspectFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <X size={16} className="text-blue-500" />
+            <span>Inspecionar</span>
+          </button>
+          <button
+            onClick={handleStoreFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <Package size={16} className="text-green-500" />
+            <span>Guardar</span>
+          </button>
         </div>
       )}
 
