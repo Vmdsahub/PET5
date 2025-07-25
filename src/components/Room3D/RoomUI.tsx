@@ -33,6 +33,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
+  const [showAddFurniture, setShowAddFurniture] = useState(false);
 
   const handleDragStart = (item: FurnitureItem) => {
     setDraggedItem(item);
