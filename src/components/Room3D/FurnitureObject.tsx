@@ -304,72 +304,80 @@ onContextMenu={(e) => {
             />
           </mesh>
 
-          {/* Barra de escala vertical (direita) */}
+          {/* Barra de escala X (horizontal) - posição fixa */}
           <mesh
-            position={[1.5, 0.8, 0]}
+            position={[2, 1, 0]}
             onPointerDown={(e) => {
               e.stopPropagation();
-              handleScaleMode();
+              setEditTool('scaleX');
               setInitialMousePos({ x: e.clientX, y: e.clientY });
               setInitialTransform({
                 position: meshRef.current!.position.clone(),
                 rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
                 scale: meshRef.current!.scale.clone()
               });
-              setEditTool('scale');
               setIsDragging(true);
               onDragStart();
             }}
           >
-            <boxGeometry args={[0.1, 1.6, 0.1]} />
+            <boxGeometry args={[0.08, 0.08, 1.2]} />
             <meshBasicMaterial
               color="#ffffff"
               transparent
-              opacity={0.8}
+              opacity={0.9}
             />
           </mesh>
 
-          {/* Barra de escala horizontal (esquerda) */}
+          {/* Barra de escala Y (vertical) - posição fixa */}
           <mesh
-            position={[-1.5, 0.8, 0]}
+            position={[2.8, 1, 0]}
             onPointerDown={(e) => {
               e.stopPropagation();
-              handleScaleMode();
+              setEditTool('scaleY');
               setInitialMousePos({ x: e.clientX, y: e.clientY });
               setInitialTransform({
                 position: meshRef.current!.position.clone(),
                 rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
                 scale: meshRef.current!.scale.clone()
               });
-              setEditTool('scale');
               setIsDragging(true);
               onDragStart();
             }}
           >
-            <boxGeometry args={[0.1, 1.6, 0.1]} />
+            <boxGeometry args={[0.08, 1.2, 0.08]} />
             <meshBasicMaterial
               color="#ffffff"
               transparent
-              opacity={0.8}
+              opacity={0.9}
             />
           </mesh>
 
-          {/* Pequenos indicadores nas barras */}
-          <mesh position={[1.5, 1.6, 0]}>
-            <sphereGeometry args={[0.08]} />
+          {/* Indicadores das barras - posição fixa */}
+          <mesh position={[1.4, 1, 0]}>
+            <sphereGeometry args={[0.06]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
-          <mesh position={[1.5, 0, 0]}>
-            <sphereGeometry args={[0.08]} />
+          <mesh position={[2.6, 1, 0]}>
+            <sphereGeometry args={[0.06]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
-          <mesh position={[-1.5, 1.6, 0]}>
-            <sphereGeometry args={[0.08]} />
+          <mesh position={[2.8, 0.4, 0]}>
+            <sphereGeometry args={[0.06]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
-          <mesh position={[-1.5, 0, 0]}>
-            <sphereGeometry args={[0.08]} />
+          <mesh position={[2.8, 1.6, 0]}>
+            <sphereGeometry args={[0.06]} />
             <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+          </mesh>
+
+          {/* Labels para as barras */}
+          <mesh position={[2, 0.6, 0]}>
+            <sphereGeometry args={[0.04]} />
+            <meshBasicMaterial color="#3b82f6" transparent opacity={0.8} />
+          </mesh>
+          <mesh position={[2.8, 0.6, 0]}>
+            <sphereGeometry args={[0.04]} />
+            <meshBasicMaterial color="#ef4444" transparent opacity={0.8} />
           </mesh>
         </>
       )}
