@@ -204,14 +204,14 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   );
 };
 
-// Preload dos modelos GLB
-useGLTF.preload('/models/sofa.glb');
-useGLTF.preload('/models/coffee-table.glb');
-useGLTF.preload('/models/armchair.glb');
-useGLTF.preload('/models/bookshelf.glb');
-useGLTF.preload('/models/bed.glb');
-useGLTF.preload('/models/wardrobe.glb');
-useGLTF.preload('/models/dining-table.glb');
-useGLTF.preload('/models/chair.glb');
-useGLTF.preload('/models/plant.glb');
-useGLTF.preload('/models/lamp.glb');
+// Para usar modelos GLB reais, descomente as linhas abaixo:
+// useGLTF.preload('/models/sofa.glb');
+// useGLTF.preload('/models/coffee-table.glb');
+// useGLTF.preload('/models/armchair.glb');
+// useGLTF.preload('/models/bookshelf.glb');
+// useGLTF.preload('/models/bed.glb');
+// useGLTF.preload('/models/wardrobe.glb');
+// useGLTF.preload('/models/dining-table.glb');
+// useGLTF.preload('/models/chair.glb');
+// useGLTF.preload('/models/plant.glb');
+// useGLTF.preload('/models/lamp.glb');
