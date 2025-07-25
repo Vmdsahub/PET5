@@ -104,11 +104,24 @@ class MockStorageService {
   updateFurniturePosition(userId: string, furnitureId: string, position: [number, number, number], rotation?: [number, number, number]): boolean {
     const userRoom = this.getUserRoom(userId);
     const furniture = userRoom.placedFurniture.find(item => item.id === furnitureId);
-    
+
     if (!furniture) return false;
 
     furniture.position = position;
     if (rotation) furniture.rotation = rotation;
+    this.saveToLocalStorage();
+    return true;
+  }
+
+  updateFurnitureTransform(userId: string, furnitureId: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]): boolean {
+    const userRoom = this.getUserRoom(userId);
+    const furniture = userRoom.placedFurniture.find(item => item.id === furnitureId);
+
+    if (!furniture) return false;
+
+    furniture.position = position;
+    furniture.rotation = rotation;
+    furniture.scale = scale;
     this.saveToLocalStorage();
     return true;
   }
