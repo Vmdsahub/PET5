@@ -24,7 +24,9 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onRemoveFurniture,
   onBuyFurniture,
   onSelectFurniture,
-  isDragging
+  isDragging,
+  isAdmin = false,
+  onAddFurniture
 }) => {
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
