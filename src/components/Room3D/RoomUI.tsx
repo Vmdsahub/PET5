@@ -4,6 +4,7 @@ import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
+import { useAuthStore } from '../../store/authStore';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
