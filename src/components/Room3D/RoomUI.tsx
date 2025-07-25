@@ -17,7 +17,6 @@ interface RoomUIProps {
   isDragging: boolean;
   isAdmin?: boolean;
   onAddFurniture?: (furnitureData: any) => void;
-  onClearCatalog?: () => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
@@ -30,8 +29,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onSelectFurniture,
   isDragging,
   isAdmin = false,
-  onAddFurniture,
-  onClearCatalog
+  onAddFurniture
 }) => {
   const { user } = useAuthStore();
   const isUserAdmin = user?.isAdmin || isAdmin;
@@ -169,28 +167,14 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           title={
             <div className="flex justify-between items-center w-full">
               <span>Catálogo de Móveis</span>
-              {isUserAdmin && (
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => {
-                      if (window.confirm('Tem certeza que deseja remover todos os móveis customizados do catálogo?')) {
-                        onClearCatalog?.();
-                      }
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors shadow-sm"
-                    title="Limpar Catálogo"
-                  >
-                    🗑️
-                  </button>
-                  <button
-                    onClick={() => setShowAddFurniture(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
-                    title="Adicionar Móvel"
-                  >
-                    +
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => setShowAddFurniture(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
+                title="Adicionar Móvel"
+                style={{ display: isUserAdmin ? 'flex' : 'none' }}
+              >
+                +
+              </button>
             </div>
           }
           onClose={() => {
