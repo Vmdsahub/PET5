@@ -94,6 +94,7 @@ const FURNITURE_CATALOG: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 's
 class MockStorageService {
   private userRooms: Map<string, UserRoom> = new Map();
   private nextId = 1;
+  private customCatalog: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
 
   constructor() {
     // Carregar dados do localStorage se existirem
