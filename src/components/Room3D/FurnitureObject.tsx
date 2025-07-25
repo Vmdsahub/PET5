@@ -86,32 +86,44 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   });
   const { camera, gl, scene } = useThree();
 
-  // Estado para controlar se deve tentar carregar o modelo GLB
+  // Estado para controlar carregamento do modelo GLB
   const [hasError, setHasError] = useState(false);
-  const [shouldLoadModel, setShouldLoadModel] = useState(true);
+  const [modelLoaded, setModelLoaded] = useState(false);
 
-  let gltfScene = null;
-  try {
-    if (shouldLoadModel && !hasError && furniture.model) {
-      const gltf = useGLTF(furniture.model);
-      gltfScene = gltf.scene.clone();
+  // Componente para modelo GLB com error boundary
+  const ModelComponent = () => {
+    if (!furniture.model || hasError) {
+      return <FallbackGeometry furniture={furniture} />;
+    }
 
-      // Calcular bounding box para escalar adequadamente
-      const box = new THREE.Box3().setFromObject(gltfScene);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDimension = Math.max(size.x, size.y, size.z);
-      if (maxDimension > 0) {
-        const scale = 1.5 / maxDimension;
-        gltfScene.scale.setScalar(scale);
+    try {
+      const { scene } = useGLTF(furniture.model, undefined, undefined, (error) => {
+        console.warn(`Erro ao carregar modelo ${furniture.model}:`, error);
+        setHasError(true);
+      });
+
+      if (scene) {
+        const clonedScene = scene.clone();
+
+        // Calcular bounding box para escalar adequadamente
+        const box = new THREE.Box3().setFromObject(clonedScene);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDimension = Math.max(size.x, size.y, size.z);
+        if (maxDimension > 0) {
+          const scale = 1.5 / maxDimension;
+          clonedScene.scale.setScalar(scale);
+        }
+
+        setModelLoaded(true);
+        return <primitive object={clonedScene} />;
       }
-    }
-  } catch (error) {
-    console.warn(`Falha ao carregar modelo ${furniture.model}:`, error);
-    if (shouldLoadModel) {
+    } catch (error) {
+      console.warn(`Falha ao renderizar modelo ${furniture.model}:`, error);
       setHasError(true);
-      setShouldLoadModel(false);
     }
-  }
+
+    return <FallbackGeometry furniture={furniture} />;
+  };
 
   const plane = new Plane(new Vector3(0, 1, 0), 0);
   const raycaster = new Raycaster();
@@ -356,13 +368,13 @@ onContextMenu={(e) => e?.preventDefault?.()}
       )}
       
       {/* Modelo 3D ou geometria fallback */}
-      {gltfScene && !hasError ? (
-        <primitive object={gltfScene} />
-      ) : (
+      <Suspense fallback={
         <mesh>
           <FallbackGeometry furniture={furniture} />
         </mesh>
-      )}
+      }>
+        <ModelComponent />
+      </Suspense>
       
       {/* Indicador de nome e instruções */}
       {selected && (
