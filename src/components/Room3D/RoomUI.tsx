@@ -55,19 +55,25 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     <>
       {/* Navegação vertical esquerda */}
       <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-10">
-        <div className="bg-white rounded-full shadow-lg p-2 space-y-3 border border-gray-200">
+        <div className="bg-white/90 backdrop-blur rounded-full shadow-lg p-2 space-y-3 border border-white/20 flex flex-col">
           {/* Botão Catálogo */}
           <button
-            onClick={() => setShowCatalog(true)}
+            onClick={() => {
+              setShowInventory(false);
+              setShowCatalog(true);
+            }}
             className="p-3 rounded-full hover:bg-gray-100 transition-colors"
             title="Catálogo de Móveis"
           >
             <ShoppingCart size={24} className="text-gray-700" />
           </button>
-          
+
           {/* Botão Inventário */}
           <button
-            onClick={() => setShowInventory(true)}
+            onClick={() => {
+              setShowCatalog(false);
+              setShowInventory(true);
+            }}
             className="p-3 rounded-full hover:bg-gray-100 transition-colors relative"
             title="Inventário da Casa"
           >
@@ -78,12 +84,16 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               </span>
             )}
           </button>
-          
+
           {/* Botão Home */}
           <button
-            onClick={() => onSelectFurniture(null)}
+            onClick={() => {
+              setShowCatalog(false);
+              setShowInventory(false);
+              onSelectFurniture(null);
+            }}
             className="p-3 rounded-full hover:bg-gray-100 transition-colors"
-            title="Início"
+            title="Fechar Modais"
           >
             <Home size={24} className="text-gray-700" />
           </button>
