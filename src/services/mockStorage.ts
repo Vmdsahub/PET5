@@ -141,7 +141,7 @@ class MockStorageService {
   }
 
   getFurnitureCatalog(): Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] {
-    return [...FURNITURE_CATALOG];
+    return [...FURNITURE_CATALOG, ...this.customCatalog];
   }
 
   buyFurniture(userId: string, catalogItem: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): FurnitureItem {
