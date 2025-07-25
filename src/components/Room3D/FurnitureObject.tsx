@@ -272,6 +272,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       rotation={furniture.rotation}
       scale={furniture.scale}
       onPointerDown={handlePointerDown}
+      onContextMenu={(e) => e.preventDefault()}
       castShadow
       receiveShadow
     >
@@ -279,13 +280,34 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       {selected && (
         <mesh>
           <boxGeometry args={[2.2, 1.2, 1.2]} />
-          <meshBasicMaterial 
-            color="#00ff00" 
-            wireframe 
-            transparent 
+          <meshBasicMaterial
+            color={editMode ? "#9333ea" : "#00ff00"}
+            wireframe
+            transparent
             opacity={0.5}
           />
         </mesh>
+      )}
+
+      {/* Indicadores de modo de edição */}
+      {selected && editMode && (
+        <>
+          {/* Indicador de rotação */}
+          <mesh position={[0, 1.5, 0]}>
+            <torusGeometry args={[0.3, 0.05, 8, 16]} />
+            <meshBasicMaterial color="#3b82f6" transparent opacity={0.6} />
+          </mesh>
+
+          {/* Indicador de escala */}
+          <mesh position={[1.2, 1, 0]}>
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshBasicMaterial color="#f59e0b" transparent opacity={0.8} />
+          </mesh>
+          <mesh position={[-1.2, 1, 0]}>
+            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <meshBasicMaterial color="#f59e0b" transparent opacity={0.8} />
+          </mesh>
+        </>
       )}
       
       {/* Modelo 3D ou geometria fallback */}
