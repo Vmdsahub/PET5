@@ -169,9 +169,9 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <span>Catálogo de Móveis</span>
               <button
                 onClick={() => setShowAddFurniture(true)}
-                className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
                 title="Adicionar Móvel"
-                style={{ display: isUserAdmin ? 'block' : 'none' }}
+                style={{ display: isUserAdmin ? 'flex' : 'none' }}
               >
                 +
               </button>
