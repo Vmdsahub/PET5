@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, Home, X, Trash2, Plus } from 'lucide-react';
+import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3 } from 'lucide-react';
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
@@ -17,6 +17,9 @@ interface RoomUIProps {
   isDragging: boolean;
   isAdmin?: boolean;
   onAddFurniture?: (furnitureData: any) => void;
+  editMode?: boolean;
+  onToggleEditMode?: () => void;
+  onStoreFurniture?: (furnitureId: string) => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
@@ -29,7 +32,10 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onSelectFurniture,
   isDragging,
   isAdmin = false,
-  onAddFurniture
+  onAddFurniture,
+  editMode = false,
+  onToggleEditMode,
+  onStoreFurniture
 }) => {
   const { user } = useAuthStore();
   const isUserAdmin = user?.isAdmin || isAdmin;
