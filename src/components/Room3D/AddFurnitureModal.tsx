@@ -16,11 +16,11 @@ interface GLBPreviewProps {
 // Componente para preview 3D do modelo GLB
 const GLBPreview: React.FC<GLBPreviewProps> = ({ file }) => {
   return (
-    <div className="w-full h-48 rounded-lg border-2 border-dashed border-gray-300 relative">
+    <div className="w-full h-48 rounded-lg border-2 border-dashed border-gray-300 relative bg-transparent">
       {file ? (
         <div className="w-full h-full flex">
           {/* Preview 3D */}
-          <div className="flex-1">
+          <div className="flex-1 bg-transparent">
             <GLBPreview3D file={file} width="100%" height="100%" />
           </div>
 
