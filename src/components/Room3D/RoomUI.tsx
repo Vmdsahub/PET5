@@ -180,25 +180,26 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-2xl border border-purple-400">
           <div className="text-center">
             <h3 className="font-bold text-lg mb-3 flex items-center justify-center">
-              <span className="mr-2">��</span>
+              <span className="mr-2">🎮</span>
               Modo Edição Ativo
             </h3>
             <div className="text-sm space-y-2">
               <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  <span>Mover</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                  <span>Rotacionar</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                  <span>Escalar</span>
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                  <span>Clique no móvel: Mover</span>
                 </div>
               </div>
-              <p className="text-xs opacity-90">Clique nos gizmos coloridos para trocar de ferramenta</p>
+              <div className="flex items-center justify-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-white rounded-full border border-gray-400"></div>
+                  <span>Círculo: Rotacionar</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-4 bg-white"></div>
+                  <span>Barras: Escalar</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -498,7 +499,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div className="p-8 text-center text-gray-500">
                 <Package size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>Seu inventário está vazio</p>
-                <p className="text-sm">Compre móveis no catálogo!</p>
+                <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
