@@ -189,7 +189,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       )}
       
       {/* Modelo 3D ou geometria fallback */}
-      <mesh castShadow receiveShadow>
+      <mesh>
         <FallbackGeometry furniture={furniture} />
       </mesh>
       
