@@ -178,6 +178,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           isDragging={isDragging}
           isAdmin={isAdmin}
           onAddFurniture={handleAddFurniture}
+          editMode={editMode}
+          onToggleEditMode={handleToggleEditMode}
+          onStoreFurniture={handleStoreFurniture}
         />
       </div>
     );
@@ -285,6 +288,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         isDragging={isDragging}
         isAdmin={isAdmin}
         onAddFurniture={handleAddFurniture}
+        editMode={editMode}
+        onToggleEditMode={handleToggleEditMode}
+        onStoreFurniture={handleStoreFurniture}
       />
     </div>
   );
