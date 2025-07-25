@@ -6,6 +6,7 @@ import { FurnitureObject } from './FurnitureObject';
 import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
+import { Room2DFallback } from './Room2DFallback';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
