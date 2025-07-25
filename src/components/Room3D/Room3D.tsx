@@ -80,6 +80,33 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
     }
   };
 
+  const handleRetryWebGL = () => {
+    const capabilities = detectWebGLSupport();
+    setWebglSupport(capabilities);
+  };
+
+  // Mostrar loading enquanto detecta WebGL
+  if (webglSupport === null) {
+    return (
+      <div className="w-full h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando compatibilidade 3D...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar fallback se WebGL não for suportado
+  if (!webglSupport.hasSupport) {
+    return (
+      <WebGLFallback
+        errorMessage={getWebGLErrorMessage(webglSupport)}
+        onRetry={handleRetryWebGL}
+      />
+    );
+  }
+
   return (
     <div className="w-full h-screen relative bg-gray-100">
       {/* Canvas 3D */}
