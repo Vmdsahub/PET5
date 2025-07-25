@@ -61,13 +61,14 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
   }
 
   return (
-    <div 
-      className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg overflow-hidden border border-gray-300"
-      style={{ width, height }}
+    <div
+      className="rounded-lg overflow-hidden border border-gray-300"
+      style={{ width, height, background: 'transparent' }}
     >
       <Canvas
         camera={{ position: [2, 2, 2], fov: 50 }}
         style={{ background: 'transparent' }}
+        gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.6} />
