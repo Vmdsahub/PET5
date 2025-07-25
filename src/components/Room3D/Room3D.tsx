@@ -102,7 +102,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId }) => {
   // Mostrar fallback se WebGL não for suportado ou modo 2D ativado
   if (!webglSupport.hasSupport || use2DMode) {
     return (
-      <div className="w-full h-screen relative bg-gray-100">
+      <div className="w-full h-screen relative" style={{
+        background: `
+          radial-gradient(ellipse at 20% 30%, rgba(50, 80, 150, 0.4) 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 20%, rgba(70, 120, 180, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 40% 80%, rgba(60, 100, 160, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 70%, rgba(40, 90, 140, 0.2) 0%, transparent 50%),
+          linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
+        `
+      }}>
         {/* Botão para alternar entre 2D e tentar 3D */}
         <div className="absolute top-4 right-4 z-20 space-x-2">
           {webglSupport.hasSupport && (
