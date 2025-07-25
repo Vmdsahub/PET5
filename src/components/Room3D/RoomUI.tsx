@@ -73,7 +73,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     if (draggedItem) {
-      // Calcular posição 3D baseada na posição exata do canvas
+      // Calcular posição 3D baseada na posiç��o exata do canvas
       const canvas = document.querySelector('canvas');
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -151,6 +151,21 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   return (
     <>
+      {/* Indicador de Modo Edição */}
+      {editMode && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <div className="text-center">
+            <h3 className="font-bold mb-2">📝 Modo Edição Ativo</h3>
+            <div className="text-sm space-y-1">
+              <p><strong>Clique:</strong> Mover móvel</p>
+              <p><strong>Shift + Clique:</strong> Rotacionar</p>
+              <p><strong>Ctrl/Cmd + Clique:</strong> Escalar</p>
+              <p><strong>Botão direito:</strong> Menu de opções</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Área de drop invisível sobre todo o canvas */}
       {draggedItem && (
         <div
