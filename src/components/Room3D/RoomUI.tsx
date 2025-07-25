@@ -213,9 +213,11 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           }`}
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <Package size={20} className="text-gray-400" />
-                            </div>
+                            <FurnitureThumbnail
+                              modelPath={item.model}
+                              width={48}
+                              height={48}
+                            />
                             <div className="flex-1">
                               <h4 className="font-medium text-sm">{item.name}</h4>
                               <p className="text-xs text-gray-500">${item.price}</p>
@@ -252,9 +254,11 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           }`}
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <Package size={20} className="text-gray-400" />
-                            </div>
+                            <FurnitureThumbnail
+                              modelPath={item.model}
+                              width={48}
+                              height={48}
+                            />
                             <div className="flex-1">
                               <h4 className="font-medium text-sm">{item.name}</h4>
                               <p className="text-xs text-gray-500">${item.price}</p>
