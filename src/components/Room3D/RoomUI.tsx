@@ -120,10 +120,11 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
       {/* Modal do Catálogo */}
       {showCatalog && (
-        <DraggableModal
+        <SimpleModal
           title="Catálogo de Móveis"
           onClose={() => setShowCatalog(false)}
           initialPosition={{ x: 100, y: 100 }}
+          width="500px"
         >
           <div className="max-h-96 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
@@ -149,15 +150,16 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               ))}
             </div>
           </div>
-        </DraggableModal>
+        </SimpleModal>
       )}
 
       {/* Modal do Inventário */}
       {showInventory && (
-        <DraggableModal
+        <SimpleModal
           title="Inventário da Casa"
           onClose={() => setShowInventory(false)}
           initialPosition={{ x: 200, y: 100 }}
+          width="500px"
         >
           <div className="max-h-96 overflow-y-auto">
             {inventory.length === 0 ? (
@@ -192,7 +194,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               </div>
             )}
           </div>
-        </DraggableModal>
+        </SimpleModal>
       )}
 
       {/* Overlay de drag and drop */}
