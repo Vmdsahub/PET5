@@ -72,9 +72,9 @@ export const Room2DFallback: React.FC<Room2DFallbackProps> = ({
         onMouseLeave={handleMouseUp}
       >
         {/* Room borders */}
-        <div className="absolute inset-4 border-4 border-amber-800 bg-amber-50 rounded-lg shadow-inner">
+        <div className="absolute inset-4 border-4 border-gray-300 bg-gray-100 rounded-lg shadow-inner">
           {/* Floor pattern */}
-          <div className="w-full h-full bg-gradient-to-br from-amber-100 to-amber-200 relative">
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 relative">
             {/* Grid pattern */}
             <div 
               className="absolute inset-0 opacity-20"
