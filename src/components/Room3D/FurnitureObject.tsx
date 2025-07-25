@@ -120,8 +120,8 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     event.stopPropagation();
 
     // Botão direito - menu de contexto
-    if (event.nativeEvent.button === 2) {
-      onContextMenu?.(event.nativeEvent, furniture.id);
+    if (event.nativeEvent?.button === 2) {
+      onContextMenu?.(event, furniture.id);
       return;
     }
 
@@ -138,7 +138,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       setInitialMousePos({ x: event.clientX, y: event.clientY });
       setInitialTransform({
         position: meshRef.current.position.clone(),
-        rotation: meshRef.current.rotation.toVector3(),
+        rotation: new Vector3(meshRef.current.rotation.x, meshRef.current.rotation.y, meshRef.current.rotation.z),
         scale: meshRef.current.scale.clone()
       });
 
@@ -243,7 +243,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       rotation={furniture.rotation}
       scale={furniture.scale}
       onPointerDown={handlePointerDown}
-      onContextMenu={(e) => e.preventDefault()}
+onContextMenu={(e) => e?.preventDefault?.()}
       castShadow
       receiveShadow
     >
