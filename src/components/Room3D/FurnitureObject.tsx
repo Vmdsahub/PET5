@@ -269,97 +269,101 @@ onContextMenu={(e) => {
     >
       {/* Contorno de seleção removido conforme solicitado */}
 
-      {/* Gizmos de edição interativos */}
+      {/* Controles de edição intuitivos */}
       {selected && editMode && (
         <>
-          {/* Botão de movimento - centro */}
+          {/* Círculo branco opaco para rotação */}
           <mesh
-            position={[0, 1.5, 0]}
-            onClick={(e) => {
+            position={[0, 0.1, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            onPointerDown={(e) => {
               e.stopPropagation();
-              handleMoveMode();
+              handleRotateMode();
+              setInitialMousePos({ x: e.clientX, y: e.clientY });
+              setInitialTransform({
+                position: meshRef.current!.position.clone(),
+                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                scale: meshRef.current!.scale.clone()
+              });
+              setEditTool('rotate');
+              setIsDragging(true);
+              onDragStart();
             }}
           >
-            <sphereGeometry args={[0.15]} />
+            <torusGeometry args={[1.2, 0.05, 8, 32]} />
             <meshBasicMaterial
-              color={editTool === 'move' ? '#10b981' : '#22c55e'}
+              color="#ffffff"
               transparent
-              opacity={0.9}
+              opacity={0.7}
             />
           </mesh>
 
-          {/* Botão de rotação - anel */}
+          {/* Barra de escala vertical (direita) */}
           <mesh
-            position={[0, 1.5, 0]}
-            onClick={(e) => {
+            position={[1.5, 0.8, 0]}
+            onPointerDown={(e) => {
               e.stopPropagation();
-              handleRotateMode();
+              handleScaleMode();
+              setInitialMousePos({ x: e.clientX, y: e.clientY });
+              setInitialTransform({
+                position: meshRef.current!.position.clone(),
+                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                scale: meshRef.current!.scale.clone()
+              });
+              setEditTool('scale');
+              setIsDragging(true);
+              onDragStart();
             }}
           >
-            <torusGeometry args={[0.4, 0.08, 8, 16]} />
+            <boxGeometry args={[0.1, 1.6, 0.1]} />
             <meshBasicMaterial
-              color={editTool === 'rotate' ? '#2563eb' : '#3b82f6'}
+              color="#ffffff"
               transparent
               opacity={0.8}
             />
           </mesh>
 
-          {/* Botões de escala - cantos */}
+          {/* Barra de escala horizontal (esquerda) */}
           <mesh
-            position={[0.8, 1.5, 0.8]}
-            onClick={(e) => {
+            position={[-1.5, 0.8, 0]}
+            onPointerDown={(e) => {
               e.stopPropagation();
               handleScaleMode();
+              setInitialMousePos({ x: e.clientX, y: e.clientY });
+              setInitialTransform({
+                position: meshRef.current!.position.clone(),
+                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                scale: meshRef.current!.scale.clone()
+              });
+              setEditTool('scale');
+              setIsDragging(true);
+              onDragStart();
             }}
           >
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
+            <boxGeometry args={[0.1, 1.6, 0.1]} />
             <meshBasicMaterial
-              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
+              color="#ffffff"
               transparent
-              opacity={0.9}
+              opacity={0.8}
             />
           </mesh>
-          <mesh
-            position={[-0.8, 1.5, 0.8]}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleScaleMode();
-            }}
-          >
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshBasicMaterial
-              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
-              transparent
-              opacity={0.9}
-            />
+
+          {/* Pequenos indicadores nas barras */}
+          <mesh position={[1.5, 1.6, 0]}>
+            <sphereGeometry args={[0.08]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
-          <mesh
-            position={[0.8, 1.5, -0.8]}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleScaleMode();
-            }}
-          >
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshBasicMaterial
-              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
-              transparent
-              opacity={0.9}
-            />
+          <mesh position={[1.5, 0, 0]}>
+            <sphereGeometry args={[0.08]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
-          <mesh
-            position={[-0.8, 1.5, -0.8]}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleScaleMode();
-            }}
-          >
-            <boxGeometry args={[0.2, 0.2, 0.2]} />
-            <meshBasicMaterial
-              color={editTool === 'scale' ? '#dc2626' : '#ef4444'}
-              transparent
-              opacity={0.9}
-            />
+          <mesh position={[-1.5, 1.6, 0]}>
+            <sphereGeometry args={[0.08]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[-1.5, 0, 0]}>
+            <sphereGeometry args={[0.08]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
           </mesh>
         </>
       )}
@@ -373,21 +377,7 @@ onContextMenu={(e) => {
         <ModelComponent />
       </Suspense>
       
-      {/* Indicador de nome e instruções */}
-      {selected && (
-        <>
-          <mesh position={[0, 2.8, 0]}>
-            <planeGeometry args={[3, 0.6]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-          </mesh>
-          {editMode && (
-            <mesh position={[0, 2.2, 0]}>
-              <planeGeometry args={[5, 1]} />
-              <meshBasicMaterial color="#1f2937" transparent opacity={0.8} />
-            </mesh>
-          )}
-        </>
-      )}
+      {/* Removido indicadores visuais confusos */}
     </group>
   );
 };
