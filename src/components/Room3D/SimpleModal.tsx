@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface SimpleModalProps {
-  title: string;
+  title: string | React.ReactNode;
   onClose: () => void;
   children: React.ReactNode;
   initialPosition?: { x: number; y: number };
