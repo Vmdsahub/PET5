@@ -5,8 +5,8 @@ import { Package } from 'lucide-react';
 
 interface FurnitureThumbnailProps {
   modelPath: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   fallbackIcon?: React.ReactNode;
 }
 
