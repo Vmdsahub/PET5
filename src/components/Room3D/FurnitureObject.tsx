@@ -233,7 +233,8 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const handlePointerUp = () => {
     if (meshRef.current && isDragging && editMode) {
       setIsDragging(false);
-      setEditTool(null);
+      // Resetar para modo move para permitir movimento contínuo
+      setEditTool('move');
       onDragEnd();
 
       const position = meshRef.current.position;
