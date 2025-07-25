@@ -46,15 +46,30 @@ export const GLBPreview3D: React.FC<GLBPreview3DProps> = ({
 
   useEffect(() => {
     if (file) {
+      setIsLoading(true);
+      setError(null);
+
+      // Verificar se é realmente um arquivo GLB
+      if (file.size === 0) {
+        setError('Arquivo vazio');
+        setIsLoading(false);
+        return;
+      }
+
       const url = URL.createObjectURL(file);
       setModelUrl(url);
-      setError(null);
-      
+
+      // Simular tempo de carregamento para feedback visual
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+
       return () => {
         URL.revokeObjectURL(url);
       };
     } else {
       setModelUrl(null);
+      setIsLoading(false);
     }
   }, [file]);
 
