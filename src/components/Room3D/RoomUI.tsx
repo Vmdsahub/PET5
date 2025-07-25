@@ -12,6 +12,8 @@ interface RoomUIProps {
   onBuyFurniture: (catalogItem: any) => FurnitureItem;
   onSelectFurniture: (furnitureId: string | null) => void;
   isDragging: boolean;
+  isAdmin?: boolean;
+  onAddFurniture?: (furnitureData: any) => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
