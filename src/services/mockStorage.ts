@@ -157,34 +157,31 @@ class MockStorageService {
   }
 
   updateCatalogItemScale(furnitureId: string, newScale: [number, number, number]): boolean {
-    // Encontrar o móvel no catálogo customizado
-    const catalogItem = this.customCatalog.find(item => {
-      // Verificar se algum móvel colocado com este modelo corresponde ao ID
-      return Array.from(this.userRooms.values()).some(room =>
-        room.placedFurniture.some(furniture =>
-          furniture.id === furnitureId && furniture.model === item.model
-        )
-      );
-    });
+    // Encontrar o móvel colocado pelo ID
+    let targetFurniture: FurnitureItem | undefined;
+    let foundRoom: UserRoom | undefined;
+
+    for (const room of this.userRooms.values()) {
+      const furniture = room.placedFurniture.find(f => f.id === furnitureId);
+      if (furniture) {
+        targetFurniture = furniture;
+        foundRoom = room;
+        break;
+      }
+    }
+
+    if (!targetFurniture) return false;
+
+    // Encontrar o item correspondente no catálogo customizado
+    const catalogItem = this.customCatalog.find(item => item.model === targetFurniture!.model);
 
     if (catalogItem) {
       // Atualizar a escala padrão do item no catálogo
-      catalogItem.defaultScale = newScale;
+      (catalogItem as any).defaultScale = newScale;
       this.saveToLocalStorage();
 
-      // Atualizar todos os móveis já comprados baseados neste modelo
-      this.userRooms.forEach(room => {
-        room.placedFurniture.forEach(furniture => {
-          if (furniture.model === catalogItem.model && furniture.id !== furnitureId) {
-            // Manter escala original para móveis já colocados
-          }
-        });
-        room.inventory.forEach(furniture => {
-          if (furniture.model === catalogItem.model && furniture.id !== furnitureId) {
-            // Manter escala original para móveis já comprados
-          }
-        });
-      });
+      console.log(`Escala padrão do móvel '${catalogItem.name}' atualizada para:`, newScale);
+      console.log('Novos móveis comprados terão esta escala automaticamente.');
 
       return true;
     }
