@@ -33,6 +33,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     y: number;
     furnitureId: string | null;
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
+  const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
   const controlsRef = useRef<any>();
 
   // Detectar suporte WebGL na montagem do componente
@@ -100,7 +101,10 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
       // Recarregar catálogo para refletir mudanças
       setCatalog(mockStorageService.getFurnitureCatalog());
-      console.log('Escala do móvel atualizada permanentemente no catálogo');
+
+      // Mostrar notificação
+      setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
+      setTimeout(() => setCatalogUpdateNotification(null), 3000);
     }
   };
 
