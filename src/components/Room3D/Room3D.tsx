@@ -1,8 +1,10 @@
 import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
+import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
+import { ScaleControls } from './ScaleControls';
 import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
@@ -35,6 +37,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
   const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
   const controlsRef = useRef<any>();
+  const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
 
   // Detectar suporte WebGL na montagem do componente
   useEffect(() => {
@@ -306,24 +309,44 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <Room />
 
           {/* Móveis colocados */}
-          {placedFurniture.map((furniture) => (
-            <FurnitureObject
-              key={furniture.id}
-              furniture={furniture}
-              selected={selectedFurniture === furniture.id}
-              onSelect={handleFurnitureSelect}
-              onMove={handleMoveFurniture}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              editMode={editMode}
-              onUpdateTransform={handleUpdateTransform}
-              onContextMenu={handleContextMenu}
-              isAdmin={isAdmin}
-              onUpdateCatalogItem={handleUpdateCatalogItem}
-            />
-          ))}
+          {placedFurniture.map((furniture) => {
+            // Create ref for this furniture if it doesn't exist
+            if (!furnitureRefs.current[furniture.id]) {
+              furnitureRefs.current[furniture.id] = React.createRef<THREE.Group>();
+            }
+
+            return (
+              <FurnitureObject
+                key={furniture.id}
+                furniture={furniture}
+                selected={selectedFurniture === furniture.id}
+                onSelect={handleFurnitureSelect}
+                onMove={handleMoveFurniture}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                editMode={editMode}
+                onUpdateTransform={handleUpdateTransform}
+                onContextMenu={handleContextMenu}
+                isAdmin={isAdmin}
+                onUpdateCatalogItem={handleUpdateCatalogItem}
+                meshRef={furnitureRefs.current[furniture.id]}
+              />
+            );
+          })}
         </Suspense>
       </Canvas>
+
+      {/* Scale Controls - Outside Canvas for 2D UI */}
+      {selectedFurniture && editMode && isAdmin && (
+        <ScaleControls
+          furniture={placedFurniture.find(f => f.id === selectedFurniture)!}
+          meshRef={furnitureRefs.current[selectedFurniture]}
+          onUpdateTransform={handleUpdateTransform}
+          onUpdateCatalogItem={handleUpdateCatalogItem}
+          isAdmin={isAdmin}
+          visible={true}
+        />
+      )}
 
       {/* Interface do usuário */}
       <RoomUI
