@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
+import { ScaleControls } from './ScaleControls';
 import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
