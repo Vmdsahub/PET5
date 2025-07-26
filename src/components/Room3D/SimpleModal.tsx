@@ -116,12 +116,7 @@ export const SimpleModal: React.FC<SimpleModalProps> = ({
           {children}
         </div>
 
-        {/* Dragging indicator */}
-        {isDragging && (
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-            Movendo...
-          </div>
-        )}
+
       </div>
     </div>
   );
