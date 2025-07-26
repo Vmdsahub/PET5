@@ -521,29 +521,26 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+              <div className="grid grid-cols-4 gap-3 p-4">
                 {inventory.map((item) => (
                   <div
                     key={item.id}
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-move"
+                    className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col"
                   >
-                    <div className="w-full h-24 rounded-lg mb-3">
+                    <div className="flex-1 rounded-md mb-2 min-h-0">
                       <FurnitureThumbnail
                         modelPath={item.model}
                         width="100%"
-                        height={96}
+                        height="100%"
                       />
                     </div>
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-gray-600 text-xs mb-2">{item.description}</p>
-                    <div className="text-xs text-gray-500">
-                      Categoria: <span className="capitalize">{item.category}</span>
-                    </div>
-                    <div className="mt-2 text-xs text-blue-600">
-                      Arraste para o quarto
+                    <div className="text-center">
+                      <h3 className="font-semibold text-xs truncate mb-1" title={item.name}>{item.name}</h3>
+                      <div className="text-xs text-gray-500 capitalize">{item.category}</div>
+                      <div className="text-xs text-blue-600 mt-1">Arraste</div>
                     </div>
                   </div>
                 ))}
