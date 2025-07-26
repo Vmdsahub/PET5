@@ -1,0 +1,68 @@
+/* Vertical Slider Styles */
+.slider-vertical {
+  writing-mode: bt-lr; /* IE/Edge */
+  writing-mode: vertical-lr; /* Standard */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+  transform: rotate(180deg); /* Flip to make 0 at bottom */
+}
+
+.slider-vertical::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.slider-vertical::-webkit-slider-thumb:hover {
+  background: #f0f0f0;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.slider-vertical::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slider-vertical::-moz-range-track {
+  background: rgba(255, 255, 255, 0.2);
+  height: 8px;
+  border-radius: 4px;
+}
+
+.slider-vertical:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Firefox specific */
+.slider-vertical::-moz-range-thumb {
+  border: none;
+  background: #ffffff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slider-vertical::-moz-range-track {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: none;
+}
