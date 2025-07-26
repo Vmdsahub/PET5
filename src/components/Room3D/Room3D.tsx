@@ -96,6 +96,14 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
   };
 
+  const handleUpdateCatalogItem = (furnitureId: string, newScale: [number, number, number]) => {
+    if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
+      // Recarregar catálogo para refletir mudanças
+      setCatalog(mockStorageService.getFurnitureCatalog());
+      console.log('Escala do móvel atualizada permanentemente no catálogo');
+    }
+  };
+
   const handleContextMenu = (event: any, furnitureId: string) => {
     setContextMenuState({
       visible: true,
@@ -296,6 +304,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               editMode={editMode}
               onUpdateTransform={handleUpdateTransform}
               onContextMenu={handleContextMenu}
+              isAdmin={isAdmin}
+              onUpdateCatalogItem={handleUpdateCatalogItem}
             />
           ))}
         </Suspense>
