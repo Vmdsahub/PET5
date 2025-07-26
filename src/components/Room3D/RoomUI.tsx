@@ -421,30 +421,32 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   </button>
 
                   {expandedSection === 'limitados' && (
-                    <div className="border-t border-gray-200 p-4 space-y-3 max-h-60 overflow-y-auto">
-                      {limitedFurniture.map((item, index) => (
-                        <div
-                          key={index}
-                          onClick={() => setSelectedCatalogItem(item)}
-                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                            selectedCatalogItem?.name === item.name
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FurnitureThumbnail
-                              modelPath={item.model}
-                              width={48}
-                              height={48}
-                            />
-                            <div className="flex-1">
-                              <h4 className="font-medium text-sm">{item.name}</h4>
+                    <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
+                      <div className="grid grid-cols-3 gap-2">
+                        {limitedFurniture.map((item, index) => (
+                          <div
+                            key={index}
+                            onClick={() => setSelectedCatalogItem(item)}
+                            className={`p-2 rounded-lg border cursor-pointer transition-all aspect-square flex flex-col ${
+                              selectedCatalogItem?.name === item.name
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex-1 mb-1 min-h-0">
+                              <FurnitureThumbnail
+                                modelPath={item.model}
+                                width="100%"
+                                height="100%"
+                              />
+                            </div>
+                            <div className="text-center">
+                              <h4 className="font-medium text-xs truncate" title={item.name}>{item.name}</h4>
                               <p className="text-xs text-gray-500">${item.price}</p>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
