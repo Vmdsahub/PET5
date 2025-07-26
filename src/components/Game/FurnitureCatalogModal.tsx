@@ -600,22 +600,22 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         {section.id === "admin" &&
                           isAdmin &&
                           section.isExpanded && (
-                            <motion.button
-                              onClick={() => setShowUploadModal(true)}
-                              className="mx-4 mb-2 p-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 transition-colors bg-purple-50 hover:bg-purple-100"
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              <div className="flex items-center justify-center gap-3 text-purple-700">
-                                <Upload className="w-5 h-5" />
-                                <span className="font-medium">
+                            <div className="mx-4 mb-2">
+                              <motion.button
+                                onClick={() => setShowUploadModal(true)}
+                                className="w-full p-3 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 transition-colors bg-purple-50 hover:bg-purple-100 aspect-square flex flex-col items-center justify-center"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                <Upload className="w-6 h-6 text-purple-700 mb-1" />
+                                <span className="font-medium text-xs text-purple-700 text-center">
                                   Enviar modelo 3D
                                 </span>
-                              </div>
-                              <p className="text-xs text-purple-600 mt-1">
-                                Adicione arquivos GLB ao catálogo
-                              </p>
-                            </motion.button>
+                                <p className="text-xs text-purple-600 mt-0.5 text-center">
+                                  Adicione GLB
+                                </p>
+                              </motion.button>
+                            </div>
                           )}
                       </motion.div>
                     )}
