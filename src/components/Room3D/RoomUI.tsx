@@ -520,7 +520,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="hover:shadow-md transition-shadow cursor-move aspect-square overflow-hidden"
+                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg"
                   >
                     <FurnitureThumbnail
                       modelPath={item.model}
