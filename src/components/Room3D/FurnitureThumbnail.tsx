@@ -1,7 +1,9 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Package } from 'lucide-react';
+import * as THREE from 'three';
+import { blobCache } from '../../utils/blobCache';
 
 interface FurnitureThumbnailProps {
   modelPath: string;
@@ -15,11 +17,51 @@ interface ModelProps {
 }
 
 const Model: React.FC<ModelProps> = ({ modelPath }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return <FallbackGeometry />;
+  }
+
+  // Verificar se é uma URL de blob válida
+  if (modelPath.startsWith('blob:') && !blobCache.isValidUrl(modelPath)) {
+    console.warn(`URL de blob inválida no thumbnail: ${modelPath}`);
+    setHasError(true);
+    return <FallbackGeometry />;
+  }
+
   try {
-    const { scene } = useGLTF(modelPath);
-    return <primitive object={scene.clone()} scale={0.8} />;
+    const { scene } = useGLTF(modelPath, undefined, undefined, (error) => {
+      console.warn('Erro ao carregar modelo:', modelPath, error);
+      setHasError(true);
+    });
+
+    if (!scene) {
+      return <FallbackGeometry />;
+    }
+
+    const clonedScene = scene.clone();
+
+    // Calcular bounding box para centralizar e escalar adequadamente
+    const box = new THREE.Box3().setFromObject(clonedScene);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Centralizar o modelo
+    clonedScene.position.sub(center);
+
+    // Escalar para caber na thumbnail
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    if (maxDimension > 0) {
+      const scale = 1.5 / maxDimension;
+      clonedScene.scale.setScalar(scale);
+    }
+
+    return <primitive object={clonedScene} />;
   } catch (error) {
-    return null;
+    console.warn('Erro ao carregar modelo:', modelPath, error);
+    setHasError(true);
+    return <FallbackGeometry />;
   }
 };
 
@@ -38,10 +80,10 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
   height = 64,
   fallbackIcon
 }) => {
-  // Se o modelo não existe ou é um placeholder, mostrar ícone
-  if (!modelPath || modelPath.includes('/models/')) {
+  // Se o modelo não existe, mostrar ícone
+  if (!modelPath) {
     return (
-      <div 
+      <div
         className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border border-gray-300"
         style={{ width, height }}
       >
@@ -51,18 +93,24 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
   }
 
   return (
-    <div 
-      className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg overflow-hidden border border-gray-200"
-      style={{ width, height }}
+    <div
+      className="rounded-lg overflow-hidden border border-gray-200"
+      style={{
+        width,
+        height,
+        background: 'transparent'
+      }}
     >
       <Canvas
-        camera={{ position: [1.5, 1.5, 1.5], fov: 50 }}
+        camera={{ position: [2, 1.5, 2], fov: 45 }}
         style={{ background: 'transparent' }}
+        gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={<FallbackGeometry />}>
-          <ambientLight intensity={0.8} />
-          <directionalLight position={[2, 2, 2]} intensity={0.6} />
-          
+          <ambientLight intensity={0.9} />
+          <directionalLight position={[3, 3, 3]} intensity={0.7} />
+          <directionalLight position={[-2, 2, -2]} intensity={0.3} />
+
           <Model modelPath={modelPath} />
         </Suspense>
       </Canvas>
@@ -70,11 +118,7 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
   );
 };
 
-// Preload para modelos comuns (apenas se existirem)
-try {
-  useGLTF.preload('/models/sofa.glb');
-  useGLTF.preload('/models/coffee-table.glb');
-  useGLTF.preload('/models/armchair.glb');
-} catch (error) {
-  // Ignorar erros de preload
-}
+// Limpar cache de modelos ao desmontar
+export const clearThumbnailCache = () => {
+  useGLTF.clear();
+};

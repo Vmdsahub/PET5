@@ -17,79 +17,8 @@ export interface UserRoom {
   inventory: FurnitureItem[];
 }
 
-// Mock data para catálogo de móveis
-const FURNITURE_CATALOG: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [
-  {
-    name: 'Sofá Moderno',
-    model: '/models/sofa.glb',
-    category: 'sala',
-    price: 500,
-    description: 'Sofá confortável para sua sala'
-  },
-  {
-    name: 'Mesa de Centro',
-    model: '/models/coffee-table.glb',
-    category: 'sala',
-    price: 200,
-    description: 'Mesa de centro elegante'
-  },
-  {
-    name: 'Poltrona',
-    model: '/models/armchair.glb',
-    category: 'sala',
-    price: 300,
-    description: 'Poltrona confortável'
-  },
-  {
-    name: 'Estante',
-    model: '/models/bookshelf.glb',
-    category: 'sala',
-    price: 400,
-    description: 'Estante para livros e decorações'
-  },
-  {
-    name: 'Cama',
-    model: '/models/bed.glb',
-    category: 'quarto',
-    price: 800,
-    description: 'Cama confortável'
-  },
-  {
-    name: 'Guarda-roupa',
-    model: '/models/wardrobe.glb',
-    category: 'quarto',
-    price: 600,
-    description: 'Guarda-roupa espaçoso'
-  },
-  {
-    name: 'Mesa de Jantar',
-    model: '/models/dining-table.glb',
-    category: 'cozinha',
-    price: 700,
-    description: 'Mesa para refeições'
-  },
-  {
-    name: 'Cadeira',
-    model: '/models/chair.glb',
-    category: 'geral',
-    price: 150,
-    description: 'Cadeira confortável'
-  },
-  {
-    name: 'Planta',
-    model: '/models/plant.glb',
-    category: 'decoração',
-    price: 100,
-    description: 'Planta decorativa'
-  },
-  {
-    name: 'Luminária',
-    model: '/models/lamp.glb',
-    category: 'iluminação',
-    price: 250,
-    description: 'Luminária moderna'
-  }
-];
+// Mock data para catálogo de móveis (vazio - apenas móveis customizados)
+const FURNITURE_CATALOG: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
 
 class MockStorageService {
   private userRooms: Map<string, UserRoom> = new Map();
@@ -151,7 +80,7 @@ class MockStorageService {
       id: this.generateId(),
       position: [0, 0, 0],
       rotation: [0, 0, 0],
-      scale: [1, 1, 1]
+      scale: (catalogItem as any).defaultScale || [1, 1, 1]
     };
     
     userRoom.inventory.push(newItem);
@@ -175,11 +104,24 @@ class MockStorageService {
   updateFurniturePosition(userId: string, furnitureId: string, position: [number, number, number], rotation?: [number, number, number]): boolean {
     const userRoom = this.getUserRoom(userId);
     const furniture = userRoom.placedFurniture.find(item => item.id === furnitureId);
-    
+
     if (!furniture) return false;
 
     furniture.position = position;
     if (rotation) furniture.rotation = rotation;
+    this.saveToLocalStorage();
+    return true;
+  }
+
+  updateFurnitureTransform(userId: string, furnitureId: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]): boolean {
+    const userRoom = this.getUserRoom(userId);
+    const furniture = userRoom.placedFurniture.find(item => item.id === furnitureId);
+
+    if (!furniture) return false;
+
+    furniture.position = position;
+    furniture.rotation = rotation;
+    furniture.scale = scale;
     this.saveToLocalStorage();
     return true;
   }
@@ -212,6 +154,39 @@ class MockStorageService {
   addCustomFurniture(furnitureData: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): void {
     this.customCatalog.push(furnitureData);
     this.saveToLocalStorage();
+  }
+
+  updateCatalogItemScale(furnitureId: string, newScale: [number, number, number]): boolean {
+    // Encontrar o móvel colocado pelo ID
+    let targetFurniture: FurnitureItem | undefined;
+    let foundRoom: UserRoom | undefined;
+
+    for (const room of this.userRooms.values()) {
+      const furniture = room.placedFurniture.find(f => f.id === furnitureId);
+      if (furniture) {
+        targetFurniture = furniture;
+        foundRoom = room;
+        break;
+      }
+    }
+
+    if (!targetFurniture) return false;
+
+    // Encontrar o item correspondente no catálogo customizado
+    const catalogItem = this.customCatalog.find(item => item.model === targetFurniture!.model);
+
+    if (catalogItem) {
+      // Atualizar a escala padrão do item no catálogo
+      (catalogItem as any).defaultScale = newScale;
+      this.saveToLocalStorage();
+
+      console.log(`Escala padrão do móvel '${catalogItem.name}' atualizada para:`, newScale);
+      console.log('Novos móveis comprados terão esta escala automaticamente.');
+
+      return true;
+    }
+
+    return false;
   }
 }
 

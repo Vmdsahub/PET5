@@ -23,9 +23,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [inventory, setInventory] = useState<FurnitureItem[]>(
     mockStorageService.getInventory(userId)
   );
-  const [catalog] = useState(mockStorageService.getFurnitureCatalog());
+  const [catalog, setCatalog] = useState(mockStorageService.getFurnitureCatalog());
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [contextMenuState, setContextMenuState] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  }>({ visible: false, x: 0, y: 0, furnitureId: null });
+  const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
   const controlsRef = useRef<any>();
 
   // Detectar suporte WebGL na montagem do componente
@@ -68,7 +76,45 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleAddFurniture = (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
     // Recarregar catálogo para mostrar o novo móvel
-    window.location.reload(); // Simples refresh - em produção poderia ser mais elegante
+    setCatalog(mockStorageService.getFurnitureCatalog());
+  };
+
+  const handleToggleEditMode = () => {
+    setEditMode(!editMode);
+    setSelectedFurniture(null);
+  };
+
+  const handleStoreFurniture = (furnitureId: string) => {
+    if (mockStorageService.removeFurniture(userId, furnitureId)) {
+      setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      setInventory(mockStorageService.getInventory(userId));
+      setSelectedFurniture(null);
+    }
+  };
+
+  const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
+    mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
+    setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+  };
+
+  const handleUpdateCatalogItem = (furnitureId: string, newScale: [number, number, number]) => {
+    if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
+      // Recarregar catálogo para refletir mudanças
+      setCatalog(mockStorageService.getFurnitureCatalog());
+
+      // Mostrar notificação
+      setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
+      setTimeout(() => setCatalogUpdateNotification(null), 3000);
+    }
+  };
+
+  const handleContextMenu = (event: any, furnitureId: string) => {
+    setContextMenuState({
+      visible: true,
+      x: event.clientX || window.innerWidth / 2,
+      y: event.clientY || window.innerHeight / 2,
+      furnitureId
+    });
   };
 
   const handleFurnitureSelect = (furnitureId: string | null) => {
@@ -164,6 +210,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           isDragging={isDragging}
           isAdmin={isAdmin}
           onAddFurniture={handleAddFurniture}
+          editMode={editMode}
+          onToggleEditMode={handleToggleEditMode}
+          onStoreFurniture={handleStoreFurniture}
+          contextMenuState={contextMenuState}
+          onCloseContextMenu={() => setContextMenuState({ visible: false, x: 0, y: 0, furnitureId: null })}
         />
       </div>
     );
@@ -189,6 +240,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           📱 Modo 2D
         </button>
       </div>
+
+      {/* Notificação de atualização do catálogo */}
+      {catalogUpdateNotification && (
+        <div className="absolute top-20 right-4 z-30 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <div className="flex items-center space-x-2">
+            <span>✓</span>
+            <span>{catalogUpdateNotification}</span>
+          </div>
+        </div>
+      )}
 
       {/* Canvas 3D */}
       <Canvas
@@ -254,6 +315,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onMove={handleMoveFurniture}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
+              editMode={editMode}
+              onUpdateTransform={handleUpdateTransform}
+              onContextMenu={handleContextMenu}
+              isAdmin={isAdmin}
+              onUpdateCatalogItem={handleUpdateCatalogItem}
             />
           ))}
         </Suspense>
@@ -269,6 +335,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         onBuyFurniture={handleBuyFurniture}
         onSelectFurniture={handleFurnitureSelect}
         isDragging={isDragging}
+        isAdmin={isAdmin}
+        onAddFurniture={handleAddFurniture}
+        editMode={editMode}
+        onToggleEditMode={handleToggleEditMode}
+        onStoreFurniture={handleStoreFurniture}
+        contextMenuState={contextMenuState}
+        onCloseContextMenu={() => setContextMenuState({ visible: false, x: 0, y: 0, furnitureId: null })}
       />
     </div>
   );

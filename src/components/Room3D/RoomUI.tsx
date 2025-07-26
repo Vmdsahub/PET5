@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, Home, X, Trash2, Plus } from 'lucide-react';
+import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3 } from 'lucide-react';
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
@@ -17,6 +17,16 @@ interface RoomUIProps {
   isDragging: boolean;
   isAdmin?: boolean;
   onAddFurniture?: (furnitureData: any) => void;
+  editMode?: boolean;
+  onToggleEditMode?: () => void;
+  onStoreFurniture?: (furnitureId: string) => void;
+  contextMenuState?: {
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  };
+  onCloseContextMenu?: () => void;
 }
 
 export const RoomUI: React.FC<RoomUIProps> = ({
@@ -29,32 +39,123 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onSelectFurniture,
   isDragging,
   isAdmin = false,
-  onAddFurniture
+  onAddFurniture,
+  editMode = false,
+  onToggleEditMode,
+  onStoreFurniture,
+  contextMenuState,
+  onCloseContextMenu
 }) => {
   const { user } = useAuthStore();
   const isUserAdmin = user?.isAdmin || isAdmin;
   const [showCatalog, setShowCatalog] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number, y: number } | null>(null);
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  // Usar contexto externo ou estado local como fallback
+  const [localContextMenu, setLocalContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    furnitureId: string | null;
+  }>({ visible: false, x: 0, y: 0, furnitureId: null });
 
-  const handleDragStart = (item: FurnitureItem) => {
+  const contextMenu = contextMenuState || localContextMenu;
+
+  const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
     setDraggedItem(item);
+    // Criar uma imagem ghost transparente
+    const dragImage = new Image();
+    dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+    event.dataTransfer.setDragImage(dragImage, 0, 0);
   };
 
-  const handleDragEnd = (event: React.DragEvent) => {
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
     if (draggedItem) {
-      // Calcular posição 3D baseada na posição do mouse
-      const rect = (event.target as HTMLElement).getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 10;
-      const z = ((event.clientY - rect.top) / rect.height - 0.5) * 10;
-      
-      onPlaceFurniture(draggedItem.id, [x, 0.5, z]);
-      setDraggedItem(null);
+      setDragPosition({ x: event.clientX, y: event.clientY });
     }
   };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    if (draggedItem) {
+      // Calcular posição 3D baseada na posição exata do canvas
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+        const z = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
+
+        onPlaceFurniture(draggedItem.id, [x, 0, z]);
+      }
+      setDraggedItem(null);
+      setDragPosition(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+    setDragPosition(null);
+  };
+
+  const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
+    event.preventDefault();
+    if (onCloseContextMenu) {
+      // Usar estado externo (não deveria chegar aqui com nova implementação)
+    } else {
+      setLocalContextMenu({
+        visible: true,
+        x: event.clientX,
+        y: event.clientY,
+        furnitureId
+      });
+    }
+  };
+
+  const handleCloseContextMenu = () => {
+    if (onCloseContextMenu) {
+      onCloseContextMenu();
+    } else {
+      setLocalContextMenu({ visible: false, x: 0, y: 0, furnitureId: null });
+    }
+  };
+
+  const handleInspectFurniture = () => {
+    if (contextMenu.furnitureId) {
+      onSelectFurniture(contextMenu.furnitureId);
+    }
+    handleCloseContextMenu();
+  };
+
+  const handleStoreFurniture = () => {
+    if (contextMenu.furnitureId) {
+      onStoreFurniture?.(contextMenu.furnitureId);
+    }
+    handleCloseContextMenu();
+  };
+
+  // Fechar menu de contexto ao clicar fora
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      if (contextMenu.visible) {
+        handleCloseContextMenu();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu.visible]);
+
+  // Cleanup quando contexto muda
+  React.useEffect(() => {
+    if (!contextMenu.visible && contextMenuState?.visible === false) {
+      // Sincronizar estados se necessário
+    }
+  }, [contextMenu.visible, contextMenuState]);
 
   const handleBuy = (catalogItem: any) => {
     onBuyFurniture(catalogItem);
@@ -74,6 +175,64 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   return (
     <>
+      {/* Indicador de Modo Edição */}
+      {editMode && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-2xl border border-purple-400">
+          <div className="text-center">
+            <h3 className="font-bold text-lg mb-3 flex items-center justify-center">
+              <span className="mr-2">🎮</span>
+              Modo Edição Ativo
+            </h3>
+            <div className="text-sm space-y-2">
+              <div className="flex items-center justify-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                  <span>Móvel: Mover</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-white rounded-full border border-gray-400"></div>
+                  <span>Círculo: Rotacionar</span>
+                </div>
+              </div>
+              {isUserAdmin ? (
+                <>
+                  <div className="flex items-center justify-center space-x-3 text-xs">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-2 bg-blue-400 rounded"></div>
+                      <span>X (Largura)</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-4 bg-red-400 rounded"></div>
+                      <span>Y (Altura)</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-2 bg-green-400 rounded"></div>
+                      <span>Z (Profundidade)</span>
+                    </div>
+                  </div>
+                  <p className="text-xs opacity-75 text-yellow-200 mt-1">
+                    ⚠️ Alterações de escala são permanentes no catálogo
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs opacity-90">
+                  Controles de escala disponíveis apenas para administradores
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Área de drop invisível sobre todo o canvas */}
+      {draggedItem && (
+        <div
+          className="fixed inset-0 z-40 pointer-events-auto"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onDragEnd={handleDragEnd}
+        />
+      )}
       {/* Navegação vertical esquerda */}
       <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-10">
         <div className="bg-white/90 backdrop-blur rounded-full shadow-lg p-2 space-y-3 border border-white/20 flex flex-col">
@@ -116,6 +275,22 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 {inventory.length}
               </span>
             )}
+          </button>
+
+          {/* Botão Modo Edição */}
+          <button
+            onClick={() => {
+              onToggleEditMode?.();
+              setShowCatalog(false);
+              setShowInventory(false);
+              onSelectFurniture(null);
+            }}
+            className={`p-3 rounded-full transition-colors ${
+              editMode ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100 text-gray-700'
+            }`}
+            title="Modo Edição"
+          >
+            <Edit3 size={24} />
           </button>
 
           {/* Botão Home */}
@@ -343,7 +518,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div className="p-8 text-center text-gray-500">
                 <Package size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>Seu inventário está vazio</p>
-                <p className="text-sm">Compre móveis no catálogo!</p>
+                <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
@@ -351,7 +526,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   <div
                     key={item.id}
                     draggable
-                    onDragStart={() => handleDragStart(item)}
+                    onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-move"
                   >
@@ -384,6 +559,34 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
             Colocando {draggedItem.name}...
           </div>
+        </div>
+      )}
+
+      {/* Menu de Contexto */}
+      {contextMenu.visible && (
+        <div
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+            transform: 'translate(-50%, -10px)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleInspectFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <X size={16} className="text-blue-500" />
+            <span>Inspecionar</span>
+          </button>
+          <button
+            onClick={handleStoreFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <Package size={16} className="text-green-500" />
+            <span>Guardar</span>
+          </button>
         </div>
       )}
 
