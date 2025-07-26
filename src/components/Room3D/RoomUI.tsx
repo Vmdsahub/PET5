@@ -421,19 +421,17 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           <div
                             key={index}
                             onClick={() => setSelectedCatalogItem(item)}
-                            className={`p-2 rounded-lg border cursor-pointer transition-all aspect-square flex flex-col overflow-hidden ${
+                            className={`cursor-pointer transition-all aspect-square overflow-hidden ${
                               selectedCatalogItem?.name === item.name
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                ? 'bg-blue-50 ring-2 ring-blue-500'
+                                : 'hover:bg-gray-50'
                             }`}
                           >
-                            <div className="w-full h-full overflow-hidden">
-                              <FurnitureThumbnail
-                                modelPath={item.model}
-                                width="100%"
-                                height="100%"
-                              />
-                            </div>
+                            <FurnitureThumbnail
+                              modelPath={item.model}
+                              width="100%"
+                              height="100%"
+                            />
                           </div>
                         ))}
                       </div>
