@@ -384,23 +384,17 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           <div
                             key={index}
                             onClick={() => setSelectedCatalogItem(item)}
-                            className={`p-2 rounded-lg border cursor-pointer transition-all aspect-square flex flex-col ${
-                              selectedCatalogItem?.name === item.name
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
+                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
+                                ? 'bg-blue-50 ring-2 ring-blue-500'
+                                : 'hover:bg-gray-50'
                             }`}
                           >
-                            <div className="flex-1 mb-1 min-h-0">
-                              <FurnitureThumbnail
-                                modelPath={item.model}
-                                width="100%"
-                                height="100%"
-                              />
-                            </div>
-                            <div className="text-center">
-                              <h4 className="font-medium text-xs truncate" title={item.name}>{item.name}</h4>
-                              <p className="text-xs text-gray-500">${item.price}</p>
-                            </div>
+                            <FurnitureThumbnail
+                              modelPath={item.model}
+                              width="100%"
+                              height="100%"
+                            />
                           </div>
                         ))}
                       </div>
@@ -427,23 +421,17 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           <div
                             key={index}
                             onClick={() => setSelectedCatalogItem(item)}
-                            className={`p-2 rounded-lg border cursor-pointer transition-all aspect-square flex flex-col ${
-                              selectedCatalogItem?.name === item.name
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
+                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
+                                ? 'bg-blue-50 ring-2 ring-blue-500'
+                                : 'hover:bg-gray-50'
                             }`}
                           >
-                            <div className="flex-1 mb-1 min-h-0">
-                              <FurnitureThumbnail
-                                modelPath={item.model}
-                                width="100%"
-                                height="100%"
-                              />
-                            </div>
-                            <div className="text-center">
-                              <h4 className="font-medium text-xs truncate" title={item.name}>{item.name}</h4>
-                              <p className="text-xs text-gray-500">${item.price}</p>
-                            </div>
+                            <FurnitureThumbnail
+                              modelPath={item.model}
+                              width="100%"
+                              height="100%"
+                            />
                           </div>
                         ))}
                       </div>
@@ -532,20 +520,13 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col"
+                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg"
                   >
-                    <div className="flex-1 rounded-md mb-2 min-h-0">
-                      <FurnitureThumbnail
-                        modelPath={item.model}
-                        width="100%"
-                        height="100%"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <h3 className="font-semibold text-xs truncate mb-1" title={item.name}>{item.name}</h3>
-                      <div className="text-xs text-gray-500 capitalize">{item.category}</div>
-                      <div className="text-xs text-blue-600 mt-1">Arraste</div>
-                    </div>
+                    <FurnitureThumbnail
+                      modelPath={item.model}
+                      width="100%"
+                      height="100%"
+                    />
                   </div>
                 ))}
               </div>

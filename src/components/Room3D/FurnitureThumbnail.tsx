@@ -50,10 +50,13 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     // Centralizar o modelo
     clonedScene.position.sub(center);
 
+    // Ajustar posição Y para melhor centralização visual
+    clonedScene.position.y += 0.1;
+
     // Escalar para caber na thumbnail
     const maxDimension = Math.max(size.x, size.y, size.z);
     if (maxDimension > 0) {
-      const scale = 1.5 / maxDimension;
+      const scale = 0.9 / maxDimension; // Aumentar um pouco a escala
       clonedScene.scale.setScalar(scale);
     }
 
@@ -98,12 +101,17 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
       style={{
         width,
         height,
-        background: 'transparent'
+        background: 'transparent',
+        aspectRatio: '1'
       }}
     >
       <Canvas
-        camera={{ position: [0, 0.2, 3], fov: 35 }}
-        style={{ background: 'transparent' }}
+        camera={{ position: [0, 0, 2.5], fov: 35 }}
+        style={{
+          background: 'transparent',
+          width: '100%',
+          height: '100%'
+        }}
         gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={<FallbackGeometry />}>
