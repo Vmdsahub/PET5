@@ -104,13 +104,17 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     // Verificar se é uma URL de blob válida
     if (furniture.model.startsWith('blob:') && !blobCache.isValidUrl(furniture.model)) {
       console.warn(`URL de blob inválida: ${furniture.model}`);
-      setHasError(true);
+      // Use useEffect to set error state to avoid setState during render
+      useEffect(() => {
+        setHasError(true);
+      }, []);
       return <FallbackGeometry furniture={furniture} />;
     }
 
     try {
       const { scene } = useGLTF(furniture.model, undefined, undefined, (error) => {
         console.warn(`Erro ao carregar modelo ${furniture.model}:`, error);
+        // This callback is already async, so it's safe to call setState here
         setHasError(true);
       });
 
@@ -126,12 +130,18 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
           clonedScene.scale.setScalar(scale);
         }
 
-        setModelLoaded(true);
+        // Use useEffect to set model loaded state to avoid setState during render
+        useEffect(() => {
+          setModelLoaded(true);
+        }, []);
         return <primitive object={clonedScene} />;
       }
     } catch (error) {
       console.warn(`Falha ao renderizar modelo ${furniture.model}:`, error);
-      setHasError(true);
+      // Use useEffect to set error state to avoid setState during render
+      useEffect(() => {
+        setHasError(true);
+      }, []);
     }
 
     return <FallbackGeometry furniture={furniture} />;
