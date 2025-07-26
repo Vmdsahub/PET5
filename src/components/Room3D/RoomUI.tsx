@@ -526,8 +526,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     onDragEnd={handleDragEnd}
                     className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col overflow-hidden"
                   >
-                    <div className="w-full h-full flex flex-col">
-                      <div className="flex-1">
+                    <div className="w-full h-full flex flex-col overflow-hidden">
+                      <div className="flex-1 overflow-hidden">
                         <FurnitureThumbnail
                           modelPath={item.model}
                           width="100%"
