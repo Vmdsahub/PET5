@@ -194,20 +194,31 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                   <span>Círculo: Rotacionar</span>
                 </div>
               </div>
-              <div className="flex items-center justify-center space-x-3 text-xs">
-                <div className="flex items-center space-x-1">
-                  <div className="w-4 h-2 bg-blue-400 rounded"></div>
-                  <span>X (Largura)</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-4 bg-red-400 rounded"></div>
-                  <span>Y (Altura)</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-4 h-2 bg-green-400 rounded"></div>
-                  <span>Z (Profundidade)</span>
-                </div>
-              </div>
+              {isUserAdmin ? (
+                <>
+                  <div className="flex items-center justify-center space-x-3 text-xs">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-2 bg-blue-400 rounded"></div>
+                      <span>X (Largura)</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-4 bg-red-400 rounded"></div>
+                      <span>Y (Altura)</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-2 bg-green-400 rounded"></div>
+                      <span>Z (Profundidade)</span>
+                    </div>
+                  </div>
+                  <p className="text-xs opacity-75 text-yellow-200 mt-1">
+                    ⚠️ Alterações de escala são permanentes no catálogo
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs opacity-90">
+                  Controles de escala disponíveis apenas para administradores
+                </p>
+              )}
             </div>
           </div>
         </div>
