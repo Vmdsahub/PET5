@@ -524,7 +524,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col"
+                    className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col overflow-hidden"
                   >
                     <div className="w-full h-full flex flex-col">
                       <div className="flex-1">
