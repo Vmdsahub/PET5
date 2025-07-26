@@ -309,22 +309,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <Room />
 
           {/* Móveis colocados */}
-          {placedFurniture.map((furniture) => (
-            <FurnitureObject
-              key={furniture.id}
-              furniture={furniture}
-              selected={selectedFurniture === furniture.id}
-              onSelect={handleFurnitureSelect}
-              onMove={handleMoveFurniture}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              editMode={editMode}
-              onUpdateTransform={handleUpdateTransform}
-              onContextMenu={handleContextMenu}
-              isAdmin={isAdmin}
-              onUpdateCatalogItem={handleUpdateCatalogItem}
-            />
-          ))}
+          {placedFurniture.map((furniture) => {
+            // Create ref for this furniture if it doesn't exist
+            if (!furnitureRefs.current[furniture.id]) {
+              furnitureRefs.current[furniture.id] = React.createRef<THREE.Group>();
+            }
+
+            return (
+              <FurnitureObject
+                key={furniture.id}
+                furniture={furniture}
+                selected={selectedFurniture === furniture.id}
+                onSelect={handleFurnitureSelect}
+                onMove={handleMoveFurniture}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                editMode={editMode}
+                onUpdateTransform={handleUpdateTransform}
+                onContextMenu={handleContextMenu}
+                isAdmin={isAdmin}
+                onUpdateCatalogItem={handleUpdateCatalogItem}
+                meshRef={furnitureRefs.current[furniture.id]}
+              />
+            );
+          })}
         </Suspense>
       </Canvas>
 
