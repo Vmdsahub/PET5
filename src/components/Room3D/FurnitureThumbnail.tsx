@@ -53,7 +53,7 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     // Escalar para caber na thumbnail
     const maxDimension = Math.max(size.x, size.y, size.z);
     if (maxDimension > 0) {
-      const scale = 1.5 / maxDimension;
+      const scale = 1.2 / maxDimension; // Reduzir escala para evitar cortes
       clonedScene.scale.setScalar(scale);
     }
 
