@@ -23,7 +23,7 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     return <FallbackGeometry />;
   }
 
-  // Verificar se é uma URL de blob v��lida
+  // Verificar se é uma URL de blob válida
   if (modelPath.startsWith('blob:') && !blobCache.isValidUrl(modelPath)) {
     console.warn(`URL de blob inválida no thumbnail: ${modelPath}`);
     setHasError(true);
@@ -53,7 +53,7 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     // Escalar para caber na thumbnail
     const maxDimension = Math.max(size.x, size.y, size.z);
     if (maxDimension > 0) {
-      const scale = 1.2 / maxDimension; // Reduzir escala para evitar cortes
+      const scale = 0.8 / maxDimension; // Escala muito menor para garantir que caiba
       clonedScene.scale.setScalar(scale);
     }
 
