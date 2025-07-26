@@ -328,6 +328,18 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         </Suspense>
       </Canvas>
 
+      {/* Scale Controls - Outside Canvas for 2D UI */}
+      {selectedFurniture && editMode && isAdmin && (
+        <ScaleControls
+          furniture={placedFurniture.find(f => f.id === selectedFurniture)!}
+          meshRef={furnitureRefs.current[selectedFurniture]}
+          onUpdateTransform={handleUpdateTransform}
+          onUpdateCatalogItem={handleUpdateCatalogItem}
+          isAdmin={isAdmin}
+          visible={true}
+        />
+      )}
+
       {/* Interface do usuário */}
       <RoomUI
         inventory={inventory}
