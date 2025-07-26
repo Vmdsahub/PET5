@@ -80,9 +80,11 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   onContextMenu,
   onUpdateTransform,
   isAdmin = false,
-  onUpdateCatalogItem
+  onUpdateCatalogItem,
+  meshRef: passedMeshRef
 }) => {
-  const meshRef = useRef<THREE.Group>(null);
+  const internalMeshRef = useRef<THREE.Group>(null);
+  const meshRef = passedMeshRef || internalMeshRef;
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(new Vector3());
   const [editTool, setEditTool] = useState<'move' | 'rotate' | 'scale' | 'scaleX' | 'scaleY' | 'scaleZ' | null>('move');
