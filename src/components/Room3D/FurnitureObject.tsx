@@ -16,6 +16,8 @@ interface FurnitureObjectProps {
   editMode?: boolean;
   onContextMenu?: (event: React.MouseEvent, furnitureId: string) => void;
   onUpdateTransform?: (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => void;
+  isAdmin?: boolean;
+  onUpdateCatalogItem?: (furnitureId: string, newScale: [number, number, number]) => void;
 }
 
 // Componente fallback para quando o modelo GLB não estiver disponível
@@ -73,7 +75,9 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   onDragEnd,
   editMode = false,
   onContextMenu,
-  onUpdateTransform
+  onUpdateTransform,
+  isAdmin = false,
+  onUpdateCatalogItem
 }) => {
   const meshRef = useRef<THREE.Group>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -304,8 +308,8 @@ onContextMenu={(e) => {
     >
       {/* Contorno de seleção removido conforme solicitado */}
 
-      {/* Controles de edição intuitivos */}
-      {selected && editMode && (
+      {/* Controles de edição intuitivos - apenas para admins */}
+      {selected && editMode && isAdmin && (
         <>
           {/* Círculo branco opaco para rotação */}
           <mesh
