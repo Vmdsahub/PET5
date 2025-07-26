@@ -50,10 +50,13 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     // Centralizar o modelo
     clonedScene.position.sub(center);
 
+    // Ajustar posição Y para melhor centralização visual
+    clonedScene.position.y += 0.1;
+
     // Escalar para caber na thumbnail
     const maxDimension = Math.max(size.x, size.y, size.z);
     if (maxDimension > 0) {
-      const scale = 0.8 / maxDimension; // Escala muito menor para garantir que caiba
+      const scale = 0.9 / maxDimension; // Aumentar um pouco a escala
       clonedScene.scale.setScalar(scale);
     }
 
