@@ -241,6 +241,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         </button>
       </div>
 
+      {/* Notificação de atualização do catálogo */}
+      {catalogUpdateNotification && (
+        <div className="absolute top-20 right-4 z-30 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg">
+          <div className="flex items-center space-x-2">
+            <span>✓</span>
+            <span>{catalogUpdateNotification}</span>
+          </div>
+        </div>
+      )}
+
       {/* Canvas 3D */}
       <Canvas
         camera={{
