@@ -429,16 +429,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                             }`}
                           >
-                            <div className="flex-1 mb-1 min-h-0">
+                            <div className="w-full h-full">
                               <FurnitureThumbnail
                                 modelPath={item.model}
                                 width="100%"
                                 height="100%"
                               />
-                            </div>
-                            <div className="text-center">
-                              <h4 className="font-medium text-xs truncate" title={item.name}>{item.name}</h4>
-                              <p className="text-xs text-gray-500">${item.price}</p>
                             </div>
                           </div>
                         ))}
