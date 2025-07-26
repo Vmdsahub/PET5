@@ -524,20 +524,13 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="border border-gray-200 rounded-lg p-2 hover:shadow-md transition-shadow cursor-move aspect-square flex flex-col overflow-hidden"
+                    className="hover:shadow-md transition-shadow cursor-move aspect-square overflow-hidden"
                   >
-                    <div className="w-full h-full flex flex-col overflow-hidden">
-                      <div className="flex-1 overflow-hidden">
-                        <FurnitureThumbnail
-                          modelPath={item.model}
-                          width="100%"
-                          height="100%"
-                        />
-                      </div>
-                      <div className="text-center mt-1">
-                        <div className="text-xs text-blue-600">Arraste</div>
-                      </div>
-                    </div>
+                    <FurnitureThumbnail
+                      modelPath={item.model}
+                      width="100%"
+                      height="100%"
+                    />
                   </div>
                 ))}
               </div>
