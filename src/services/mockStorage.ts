@@ -80,7 +80,7 @@ class MockStorageService {
       id: this.generateId(),
       position: [0, 0, 0],
       rotation: [0, 0, 0],
-      scale: [1, 1, 1]
+      scale: (catalogItem as any).defaultScale || [1, 1, 1]
     };
     
     userRoom.inventory.push(newItem);
@@ -154,6 +154,42 @@ class MockStorageService {
   addCustomFurniture(furnitureData: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): void {
     this.customCatalog.push(furnitureData);
     this.saveToLocalStorage();
+  }
+
+  updateCatalogItemScale(furnitureId: string, newScale: [number, number, number]): boolean {
+    // Encontrar o móvel no catálogo customizado
+    const catalogItem = this.customCatalog.find(item => {
+      // Verificar se algum móvel colocado com este modelo corresponde ao ID
+      return Array.from(this.userRooms.values()).some(room =>
+        room.placedFurniture.some(furniture =>
+          furniture.id === furnitureId && furniture.model === item.model
+        )
+      );
+    });
+
+    if (catalogItem) {
+      // Atualizar a escala padrão do item no catálogo
+      catalogItem.defaultScale = newScale;
+      this.saveToLocalStorage();
+
+      // Atualizar todos os móveis já comprados baseados neste modelo
+      this.userRooms.forEach(room => {
+        room.placedFurniture.forEach(furniture => {
+          if (furniture.model === catalogItem.model && furniture.id !== furnitureId) {
+            // Manter escala original para móveis já colocados
+          }
+        });
+        room.inventory.forEach(furniture => {
+          if (furniture.model === catalogItem.model && furniture.id !== furnitureId) {
+            // Manter escala original para móveis já comprados
+          }
+        });
+      });
+
+      return true;
+    }
+
+    return false;
   }
 }
 
