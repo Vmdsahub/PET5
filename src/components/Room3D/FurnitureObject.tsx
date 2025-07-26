@@ -371,17 +371,7 @@ onContextMenu={(e) => {
         <ModelComponent />
       </Suspense>
 
-      {/* 2D Scale Controls Portal */}
-      {selected && editMode && isAdmin && typeof window !== 'undefined' && createPortal(
-        <ScaleControls
-          furniture={furniture}
-          meshRef={meshRef}
-          onUpdateTransform={onUpdateTransform}
-          onUpdateCatalogItem={onUpdateCatalogItem}
-          isAdmin={isAdmin}
-        />,
-        document.body
-      )}
+
     </group>
   );
 };
