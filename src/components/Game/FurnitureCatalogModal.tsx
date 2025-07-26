@@ -538,57 +538,63 @@ export const FurnitureCatalogModal: React.FC<FurnitureCatalogModalProps> = ({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        {section.items.map((item) => (
-                          <motion.div
-                            key={item.id}
-                            className={`p-3 mx-4 mb-2 border border-gray-200 rounded-lg cursor-pointer transition-all ${
-                              selectedItem?.id === item.id
-                                ? "bg-blue-50 border-blue-300"
-                                : "hover:bg-gray-50"
-                            } ${!canAfford(item) ? "opacity-60" : ""}`}
-                            onClick={() => setSelectedItem(item)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <Package className="w-5 h-5 text-gray-500" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-gray-800">
-                                    {item.name}
-                                  </span>
+                        <div className="grid grid-cols-3 gap-2 mx-4 mb-2">
+                          {section.items.map((item) => (
+                            <motion.div
+                              key={item.id}
+                              className={`p-2 border border-gray-200 rounded-lg cursor-pointer transition-all aspect-square flex flex-col ${
+                                selectedItem?.id === item.id
+                                  ? "bg-blue-50 border-blue-300"
+                                  : "hover:bg-gray-50"
+                              } ${!canAfford(item) ? "opacity-60" : ""}`}
+                              onClick={() => setSelectedItem(item)}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {/* Furniture thumbnail - cubic display */}
+                              <div className="flex-1 bg-gray-100 rounded-md mb-1 flex items-center justify-center relative">
+                                <Package className="w-6 h-6 text-gray-500" />
+
+                                {/* Status badges */}
+                                <div className="absolute top-1 right-1 flex flex-col gap-1">
                                   {item.isLimited && (
-                                    <Clock className="w-3 h-3 text-orange-500" />
+                                    <Clock className="w-3 h-3 text-orange-500 bg-white rounded-full p-0.5" />
                                   )}
                                   {item.adminOnly && (
-                                    <Crown className="w-3 h-3 text-purple-500" />
+                                    <Crown className="w-3 h-3 text-purple-500 bg-white rounded-full p-0.5" />
                                   )}
                                 </div>
-                                <div className="flex items-center gap-1 mt-1">
+
+                                {/* Delete button for admin items */}
+                                {section.id === "admin" && item.adminOnly && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteCustomFurniture(item.id);
+                                    }}
+                                    className="absolute top-1 left-1 p-1 hover:bg-red-100 rounded-md transition-colors bg-white shadow-sm"
+                                    title="Deletar modelo"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-red-600" />
+                                  </button>
+                                )}
+                              </div>
+
+                              {/* Item info */}
+                              <div className="text-center">
+                                <div className="font-medium text-xs text-gray-800 truncate" title={item.name}>
+                                  {item.name}
+                                </div>
+                                <div className="flex items-center justify-center gap-1 mt-0.5">
                                   {getCurrencyIcon(item.currency)}
                                   <span className="text-xs font-semibold text-gray-600">
                                     {item.price.toLocaleString()}
                                   </span>
                                 </div>
                               </div>
-                              {/* Delete button for admin items */}
-                              {section.id === "admin" && item.adminOnly && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteCustomFurniture(item.id);
-                                  }}
-                                  className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                  title="Deletar modelo"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
-                                </button>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
+                            </motion.div>
+                          ))}
+                        </div>
 
                         {/* Upload button for admin section */}
                         {section.id === "admin" &&
