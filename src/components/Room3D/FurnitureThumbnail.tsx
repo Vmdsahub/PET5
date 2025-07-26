@@ -106,7 +106,7 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
       }}
     >
       <Canvas
-        camera={{ position: [0, 0.3, 2.8], fov: 35 }}
+        camera={{ position: [1, 1, 2.5], fov: 35 }}
         style={{
           background: 'transparent',
           width: '100%',
