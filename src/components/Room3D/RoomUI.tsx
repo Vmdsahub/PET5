@@ -384,8 +384,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                           <div
                             key={index}
                             onClick={() => setSelectedCatalogItem(item)}
-                            className={`cursor-pointer transition-all aspect-square overflow-hidden ${
-                              selectedCatalogItem?.name === item.name
+                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
+                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
                                 ? 'bg-blue-50 ring-2 ring-blue-500'
                                 : 'hover:bg-gray-50'
                             }`}
