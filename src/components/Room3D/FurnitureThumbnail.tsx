@@ -23,7 +23,7 @@ const Model: React.FC<ModelProps> = ({ modelPath }) => {
     return <FallbackGeometry />;
   }
 
-  // Verificar se é uma URL de blob válida
+  // Verificar se é uma URL de blob v��lida
   if (modelPath.startsWith('blob:') && !blobCache.isValidUrl(modelPath)) {
     console.warn(`URL de blob inválida no thumbnail: ${modelPath}`);
     setHasError(true);
@@ -98,12 +98,17 @@ export const FurnitureThumbnail: React.FC<FurnitureThumbnailProps> = ({
       style={{
         width,
         height,
-        background: 'transparent'
+        background: 'transparent',
+        aspectRatio: '1'
       }}
     >
       <Canvas
-        camera={{ position: [0, 0.5, 2.5], fov: 40 }}
-        style={{ background: 'transparent' }}
+        camera={{ position: [0, 0.3, 2.8], fov: 35 }}
+        style={{
+          background: 'transparent',
+          width: '100%',
+          height: '100%'
+        }}
         gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={<FallbackGeometry />}>
