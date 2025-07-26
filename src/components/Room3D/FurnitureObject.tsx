@@ -18,6 +18,7 @@ interface FurnitureObjectProps {
   onUpdateTransform?: (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => void;
   isAdmin?: boolean;
   onUpdateCatalogItem?: (furnitureId: string, newScale: [number, number, number]) => void;
+  meshRef?: React.RefObject<THREE.Group>;
 }
 
 
