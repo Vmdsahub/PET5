@@ -237,6 +237,7 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
   const handlePointerUp = () => {
     if (meshRef.current && isDragging && editMode) {
       setIsDragging(false);
+      const currentEditTool = editTool;
       // Resetar para modo move para permitir movimento contínuo
       setEditTool('move');
       onDragEnd();
@@ -251,6 +252,11 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
           [rotation.x, rotation.y, rotation.z],
           [scale.x, scale.y, scale.z]
         );
+      }
+
+      // Se admin alterou escala, persistir no catálogo
+      if (isAdmin && (currentEditTool === 'scaleX' || currentEditTool === 'scaleY' || currentEditTool === 'scaleZ') && onUpdateCatalogItem) {
+        onUpdateCatalogItem(furniture.id, [scale.x, scale.y, scale.z]);
       }
     }
   };
