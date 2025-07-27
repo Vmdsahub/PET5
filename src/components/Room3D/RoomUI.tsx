@@ -623,7 +623,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       {/* Menu de Contexto */}
       {contextMenu.visible && (
         <div
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 min-w-[150px]"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -635,15 +635,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             onClick={handleInspectFurniture}
             className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
           >
-            <X size={16} className="text-blue-500" />
+            <Package size={16} className="text-blue-500" />
             <span>Inspecionar</span>
           </button>
           <button
-            onClick={handleStoreFurniture}
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            onClick={handleDiscardFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-red-50 transition-colors flex items-center space-x-2 text-red-600"
           >
-            <Package size={16} className="text-green-500" />
-            <span>Guardar</span>
+            <Trash2 size={16} className="text-red-500" />
+            <span>Descartar</span>
           </button>
         </div>
       )}
