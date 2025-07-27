@@ -109,9 +109,15 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
   if (!visible) return null;
 
   return (
-    <div className="fixed top-4 right-4 bg-black/80 backdrop-blur-sm p-4 rounded-lg border border-white/20 z-50">
-      <div className="text-white text-sm mb-3 font-medium">Escala do Móvel</div>
-      <div className="flex gap-6">
+    <div
+      className="fixed z-50 pointer-events-auto"
+      style={{
+        left: `${screenPosition.x}px`,
+        top: `${screenPosition.y}px`,
+        transform: 'translate(-50%, -50%)'
+      }}
+    >
+      <div className="flex gap-3">
         {/* Slider X */}
         <div className="flex flex-col items-center">
           <div className="text-xs text-blue-400 mb-2 font-medium">X</div>
