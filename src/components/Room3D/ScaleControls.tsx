@@ -212,8 +212,8 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
 
         {/* Slider Y */}
         <div className="flex flex-col items-center">
-          <div className="text-xs text-red-400 mb-1 font-bold bg-black/60 px-2 py-0.5 rounded">Y</div>
-          <div className="relative h-24 w-4">
+          <div className="text-xs text-red-400 mb-1 font-bold bg-black/60 px-1.5 py-0.5 rounded">Y</div>
+          <div className="relative h-16 w-3">
             <input
               type="range"
               min="0.1"
@@ -233,8 +233,8 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
 
         {/* Slider Z */}
         <div className="flex flex-col items-center">
-          <div className="text-xs text-green-400 mb-1 font-bold bg-black/60 px-2 py-0.5 rounded">Z</div>
-          <div className="relative h-24 w-4">
+          <div className="text-xs text-green-400 mb-1 font-bold bg-black/60 px-1.5 py-0.5 rounded">Z</div>
+          <div className="relative h-16 w-3">
             <input
               type="range"
               min="0.1"
