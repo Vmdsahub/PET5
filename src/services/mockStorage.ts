@@ -195,8 +195,9 @@ class MockStorageService {
   createCustomSection(sectionName: string): boolean {
     const normalizedName = sectionName.toLowerCase().trim();
 
-    // Verificar se a seção já existe
-    if (this.customSections.includes(normalizedName)) {
+    // Verificar se a seção já existe (customizada ou básica)
+    const allSections = this.getAllSections();
+    if (allSections.includes(normalizedName)) {
       return false; // Seção já existe
     }
 
@@ -216,17 +217,15 @@ class MockStorageService {
     return [...baseSections, ...this.customSections];
   }
 
-  deleteCustomSection(sectionName: string): boolean {
+  deleteSection(sectionName: string): boolean {
     const normalizedName = sectionName.toLowerCase().trim();
 
-    // Verificar se a seção existe
+    // Verificar se é uma seção customizada
     const sectionIndex = this.customSections.indexOf(normalizedName);
-    if (sectionIndex === -1) {
-      return false; // Seção não encontrada
+    if (sectionIndex !== -1) {
+      // Remover seção customizada
+      this.customSections.splice(sectionIndex, 1);
     }
-
-    // Remover a seção
-    this.customSections.splice(sectionIndex, 1);
 
     // Remover todos os móveis dessa seção do catálogo customizado
     // IMPORTANTE: Não remove móveis já comprados/posicionados pelos usuários
@@ -237,6 +236,38 @@ class MockStorageService {
     console.log('Móveis da seção removidos do catálogo (não afeta móveis já adquiridos)');
     console.log('Seções restantes:', this.customSections);
     return true;
+  }
+
+  deleteFurnitureFromSection(sectionName: string, furnitureIndex: number): boolean {
+    const normalizedSection = sectionName.toLowerCase().trim();
+
+    // Encontrar móveis dessa seção
+    const sectionFurniture = this.customCatalog.filter(item => item.category === normalizedSection);
+
+    if (furnitureIndex < 0 || furnitureIndex >= sectionFurniture.length) {
+      return false; // Índice inválido
+    }
+
+    const furnitureToDelete = sectionFurniture[furnitureIndex];
+
+    // Remover o móvel do catálogo customizado
+    const catalogIndex = this.customCatalog.findIndex(item =>
+      item.model === furnitureToDelete.model && item.name === furnitureToDelete.name
+    );
+
+    if (catalogIndex !== -1) {
+      this.customCatalog.splice(catalogIndex, 1);
+      this.saveToLocalStorage();
+      console.log('Móvel excluído:', furnitureToDelete.name, 'da seção:', sectionName);
+      return true;
+    }
+
+    return false;
+  }
+
+  getFurnitureBySection(sectionName: string): Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] {
+    const normalizedSection = sectionName.toLowerCase().trim();
+    return this.customCatalog.filter(item => item.category === normalizedSection);
   }
 }
 
