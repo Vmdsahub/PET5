@@ -213,8 +213,7 @@ class MockStorageService {
   }
 
   getAllSections(): string[] {
-    const baseSections = ['basicos', 'limitados'];
-    return [...baseSections, ...this.customSections];
+    return [...this.customSections];
   }
 
   deleteSection(sectionName: string): boolean {
