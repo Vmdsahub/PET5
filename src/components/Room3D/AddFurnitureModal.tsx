@@ -9,6 +9,7 @@ interface AddFurnitureModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFurniture: (furnitureData: any) => void;
+  sectionsVersion?: number;
 }
 
 interface GLBPreviewProps {
@@ -49,7 +50,8 @@ const GLBPreview: React.FC<GLBPreviewProps> = ({ file }) => {
 export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
   isOpen,
   onClose,
-  onAddFurniture
+  onAddFurniture,
+  sectionsVersion = 0
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -68,7 +70,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
              section === 'limitados' ? 'Móveis Limitados' :
              section.charAt(0).toUpperCase() + section.slice(1)
     }));
-  }, [isOpen]); // Re-executar quando o modal abrir
+  }, [isOpen, sectionsVersion]); // Re-executar quando o modal abrir ou seções mudarem
 
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
