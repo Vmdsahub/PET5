@@ -3,11 +3,13 @@ import { Upload, Package, X } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { GLBPreview3D } from './GLBPreview3D';
 import { blobCache } from '../../utils/blobCache';
+import { mockStorageService } from '../../services/mockStorage';
 
 interface AddFurnitureModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFurniture: (furnitureData: any) => void;
+  sectionsVersion?: number;
 }
 
 interface GLBPreviewProps {
@@ -48,17 +50,28 @@ const GLBPreview: React.FC<GLBPreviewProps> = ({ file }) => {
 export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
   isOpen,
   onClose,
-  onAddFurniture
+  onAddFurniture,
+  sectionsVersion = 0
 }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'basicos' as 'basicos' | 'limitados',
+    category: 'basicos',
     price: '',
     currency: 'xenocoins' as 'xenocoins' | 'xenocash'
   });
-  const [showNewSectionInput, setShowNewSectionInput] = useState(false);
-  const [newSectionName, setNewSectionName] = useState('');
+
+  // Usar React.useMemo para atualizar dinamicamente as seções
+  const availableSections = React.useMemo(() => {
+    const sections = mockStorageService.getAllSections();
+    return sections.map(section => ({
+      value: section,
+      label: section === 'basicos' ? 'Móveis Básicos' :
+             section === 'limitados' ? 'Móveis Limitados' :
+             section.charAt(0).toUpperCase() + section.slice(1)
+    }));
+  }, [isOpen, sectionsVersion]); // Re-executar quando o modal abrir ou seções mudarem
+
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,7 +142,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     setFormData({
       name: '',
       description: '',
-      category: 'basicos',
+      category: availableSections[0]?.value || 'basicos',
       price: '',
       currency: 'xenocoins'
     });
@@ -146,9 +159,9 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       onClose={onClose}
       initialPosition={{ x: 150, y: 50 }}
       width="650px"
-      height="750px"
+      height="700px"
     >
-      <div className="p-4 space-y-4 overflow-y-auto max-h-[650px]">
+      <div className="p-4 space-y-4 overflow-y-auto max-h-[600px]">
         {/* Upload do arquivo GLB */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -212,65 +225,20 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Seção
           </label>
-          <div className="space-y-2">
-            <select
-              value={showNewSectionInput ? 'nova' : formData.category}
-              onChange={(e) => {
-                if (e.target.value === 'nova') {
-                  setShowNewSectionInput(true);
-                } else {
-                  setShowNewSectionInput(false);
-                  setFormData(prev => ({ ...prev, category: e.target.value as 'basicos' | 'limitados' }));
-                }
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="basicos">Móveis Básicos</option>
-              <option value="limitados">Móveis Limitados</option>
-              <option value="nova">+ Criar Nova Seção</option>
-            </select>
-
-            {showNewSectionInput && (
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  value={newSectionName}
-                  onChange={(e) => setNewSectionName(e.target.value)}
-                  placeholder="Nome da nova seção"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (newSectionName.trim()) {
-                        // Criar uma nova categoria/seção personalizada
-                        const customCategory = newSectionName.toLowerCase().replace(/\s+/g, '_');
-                        console.log('Nova seção criada:', newSectionName, 'categoria:', customCategory);
-                        setShowNewSectionInput(false);
-                        // Usar o nome da nova seção como categoria
-                        setFormData(prev => ({ ...prev, category: customCategory as any }));
-                        setNewSectionName('');
-                      }
-                    }}
-                    className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
-                  >
-                    Criar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowNewSectionInput(false);
-                      setNewSectionName('');
-                    }}
-                    className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {availableSections.map(section => (
+              <option key={section.value} value={section.value}>
+                {section.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Para criar novas seções, use o Painel de Administração
+          </p>
         </div>
 
         {/* Preço e Moeda */}

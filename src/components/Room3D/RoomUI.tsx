@@ -3,8 +3,10 @@ import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3 } from 'lucide-reac
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
+import { FurnitureAdminPanel } from './FurnitureAdminPanel';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
 import { useAuthStore } from '../../store/authStore';
+import { mockStorageService } from '../../services/mockStorage';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
@@ -52,9 +54,11 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number, y: number } | null>(null);
-  const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [sectionsVersion, setSectionsVersion] = useState(0);
   // Usar contexto externo ou estado local como fallback
   const [localContextMenu, setLocalContextMenu] = useState<{
     visible: boolean;
@@ -164,18 +168,28 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const selectedItem = inventory.find(item => item.id === selectedFurniture) ||
                       null;
 
-  // Dividir catálogo em básicos e limitados
+  // Obter todas as seções disponíveis (re-executar quando sectionsVersion muda)
+  const allSections = React.useMemo(() => mockStorageService.getAllSections(), [sectionsVersion]);
+  const customSections = React.useMemo(() => mockStorageService.getCustomSections(), [sectionsVersion]);
+
+  // Dividir catálogo por seções
   const basicFurniture = catalog.filter(item =>
-    ['sala', 'quarto', 'geral'].includes(item.category)
+    item.category === 'basicos' || ['sala', 'quarto', 'geral'].includes(item.category)
   );
 
   const limitedFurniture = catalog.filter(item =>
-    ['decoração', 'iluminação', 'cozinha'].includes(item.category)
+    item.category === 'limitados' || ['decoração', 'iluminação', 'cozinha'].includes(item.category)
   );
+
+  // Agrupar móveis por seções customizadas (apenas móveis exatamente dessa categoria)
+  const customSectionsFurniture = customSections.reduce((acc, section) => {
+    acc[section] = catalog.filter(item => item.category === section);
+    return acc;
+  }, {} as Record<string, typeof catalog>);
 
   return (
     <>
-      {/* Indicador de Modo Edição */}
+      {/* Indicador de Modo Edi��ão */}
       {editMode && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-2xl border border-purple-400">
           <div className="text-center">
@@ -331,12 +345,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             <div className="flex justify-between items-center w-full">
               <span>Catálogo de Móveis</span>
               <button
-                onClick={() => setShowAddFurniture(true)}
+                onClick={() => setShowAdminPanel(true)}
                 className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
-                title="Adicionar Móvel"
+                title="Painel de Administração do Catálogo"
                 style={{ display: isUserAdmin ? 'flex' : 'none' }}
               >
-                +
+                ⚙️
               </button>
             </div>
           }
@@ -426,6 +440,55 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     </div>
                   )}
                 </div>
+
+                {/* Seções Customizadas */}
+                {customSections.map((section) => (
+                  <div key={section} className="border border-gray-200 rounded-lg">
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === section ? null : section)}
+                      className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-medium text-gray-800 capitalize">
+                        {section.charAt(0).toUpperCase() + section.slice(1)}
+                      </span>
+                      <span className="text-gray-500">
+                        {expandedSection === section ? '−' : '+'}
+                      </span>
+                    </button>
+
+                    {expandedSection === section && (
+                      <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
+                        {customSectionsFurniture[section]?.length > 0 ? (
+                          <div className="grid grid-cols-6 gap-0.5">
+                            {customSectionsFurniture[section].map((item, index) => (
+                              <div
+                                key={index}
+                                onClick={() => setSelectedCatalogItem(item)}
+                                className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
+                                  selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
+                                    ? 'bg-blue-50 ring-2 ring-blue-500'
+                                    : 'hover:bg-gray-50'
+                                }`}
+                              >
+                                <FurnitureThumbnail
+                                  modelPath={item.model}
+                                  width="100%"
+                                  height="100%"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center text-gray-500 py-8">
+                            <Package size={32} className="mx-auto mb-2 text-gray-300" />
+                            <p className="text-sm">Nenhum móvel nesta seção</p>
+                            <p className="text-xs">Adicione móveis usando o painel administrativo</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -560,12 +623,53 @@ export const RoomUI: React.FC<RoomUIProps> = ({
         </div>
       )}
 
+      {/* Painel Administrativo */}
+      {isUserAdmin && (
+        <FurnitureAdminPanel
+          isOpen={showAdminPanel}
+          onClose={() => setShowAdminPanel(false)}
+          onAddFurniture={onAddFurniture}
+          onCreateSection={(sectionName) => {
+            const success = mockStorageService.createCustomSection(sectionName);
+            if (success) {
+              console.log('Nova seção criada com sucesso:', sectionName);
+              // Forçar re-render das seções
+              setSectionsVersion(prev => prev + 1);
+            }
+            return success;
+          }}
+          onDeleteSection={(sectionName) => {
+            const success = mockStorageService.deleteSection(sectionName);
+            if (success) {
+              console.log('Seção excluída com sucesso:', sectionName);
+              // Forçar re-render das seções
+              setSectionsVersion(prev => prev + 1);
+              // Fechar seção expandida se foi a que foi excluída
+              if (expandedSection === sectionName.toLowerCase()) {
+                setExpandedSection(null);
+              }
+            }
+            return success;
+          }}
+          onDeleteFurniture={(sectionName, furnitureIndex) => {
+            const success = mockStorageService.deleteFurnitureFromSection(sectionName, furnitureIndex);
+            if (success) {
+              console.log('Móvel excluído com sucesso da seção:', sectionName);
+              // Forçar re-render do catálogo
+              setSectionsVersion(prev => prev + 1);
+            }
+            return success;
+          }}
+        />
+      )}
+
       {/* Modal Adicionar Móvel (Admin) */}
       {isUserAdmin && (
         <AddFurnitureModal
           isOpen={showAddFurniture}
           onClose={() => setShowAddFurniture(false)}
           onAddFurniture={onAddFurniture || (() => {})}
+          sectionsVersion={sectionsVersion}
         />
       )}
     </>

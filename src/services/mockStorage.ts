@@ -24,6 +24,7 @@ class MockStorageService {
   private userRooms: Map<string, UserRoom> = new Map();
   private nextId = 1;
   private customCatalog: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
+  private customSections: string[] = [];
 
   constructor() {
     // Carregar dados do localStorage se existirem
@@ -38,6 +39,7 @@ class MockStorageService {
         this.userRooms = new Map(data.userRooms || []);
         this.nextId = data.nextId || 1;
         this.customCatalog = data.customCatalog || [];
+        this.customSections = data.customSections || [];
       } catch (error) {
         console.warn('Erro ao carregar dados do localStorage:', error);
       }
@@ -48,7 +50,8 @@ class MockStorageService {
     const data = {
       userRooms: Array.from(this.userRooms.entries()),
       nextId: this.nextId,
-      customCatalog: this.customCatalog
+      customCatalog: this.customCatalog,
+      customSections: this.customSections
     };
     localStorage.setItem('xenopets_room_data', JSON.stringify(data));
   }
@@ -187,6 +190,84 @@ class MockStorageService {
     }
 
     return false;
+  }
+
+  createCustomSection(sectionName: string): boolean {
+    const normalizedName = sectionName.toLowerCase().trim();
+
+    // Verificar se a seção já existe (customizada ou básica)
+    const allSections = this.getAllSections();
+    if (allSections.includes(normalizedName)) {
+      return false; // Seção já existe
+    }
+
+    this.customSections.push(normalizedName);
+    this.saveToLocalStorage();
+    console.log('Nova seção criada:', sectionName, 'ID:', normalizedName);
+    console.log('Seções customizadas atuais:', this.customSections);
+    return true;
+  }
+
+  getCustomSections(): string[] {
+    return [...this.customSections];
+  }
+
+  getAllSections(): string[] {
+    const baseSections = ['basicos', 'limitados'];
+    return [...baseSections, ...this.customSections];
+  }
+
+  deleteSection(sectionName: string): boolean {
+    const normalizedName = sectionName.toLowerCase().trim();
+
+    // Verificar se é uma seção customizada
+    const sectionIndex = this.customSections.indexOf(normalizedName);
+    if (sectionIndex !== -1) {
+      // Remover seção customizada
+      this.customSections.splice(sectionIndex, 1);
+    }
+
+    // Remover todos os móveis dessa seção do catálogo customizado
+    // IMPORTANTE: Não remove móveis já comprados/posicionados pelos usuários
+    this.customCatalog = this.customCatalog.filter(item => item.category !== normalizedName);
+
+    this.saveToLocalStorage();
+    console.log('Seção excluída:', sectionName, 'ID:', normalizedName);
+    console.log('Móveis da seção removidos do catálogo (não afeta móveis já adquiridos)');
+    console.log('Seções restantes:', this.customSections);
+    return true;
+  }
+
+  deleteFurnitureFromSection(sectionName: string, furnitureIndex: number): boolean {
+    const normalizedSection = sectionName.toLowerCase().trim();
+
+    // Encontrar móveis dessa seção
+    const sectionFurniture = this.customCatalog.filter(item => item.category === normalizedSection);
+
+    if (furnitureIndex < 0 || furnitureIndex >= sectionFurniture.length) {
+      return false; // Índice inválido
+    }
+
+    const furnitureToDelete = sectionFurniture[furnitureIndex];
+
+    // Remover o móvel do catálogo customizado
+    const catalogIndex = this.customCatalog.findIndex(item =>
+      item.model === furnitureToDelete.model && item.name === furnitureToDelete.name
+    );
+
+    if (catalogIndex !== -1) {
+      this.customCatalog.splice(catalogIndex, 1);
+      this.saveToLocalStorage();
+      console.log('Móvel excluído:', furnitureToDelete.name, 'da seção:', sectionName);
+      return true;
+    }
+
+    return false;
+  }
+
+  getFurnitureBySection(sectionName: string): Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] {
+    const normalizedSection = sectionName.toLowerCase().trim();
+    return this.customCatalog.filter(item => item.category === normalizedSection);
   }
 }
 
