@@ -20,6 +20,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   const [showCreateSection, setShowCreateSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [sectionError, setSectionError] = useState('');
+  const [sectionSuccess, setSectionSuccess] = useState('');
 
   const handleCreateSection = () => {
     if (!newSectionName.trim()) {
