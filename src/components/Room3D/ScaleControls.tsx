@@ -137,9 +137,9 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
         transform: 'translate(-50%, -50%)'
       }}
     >
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-4 items-center">
         {/* Controles de Posição Y */}
-        <div className="flex flex-col items-center mr-4">
+        <div className="flex flex-col items-center">
           <button
             onMouseDown={(e) => {
               e.preventDefault();
@@ -159,7 +159,7 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
             }}
-            className="bg-white/80 hover:bg-white text-gray-800 w-6 h-12 rounded flex flex-col items-center justify-center text-xs cursor-ns-resize border border-gray-300"
+            className="bg-white/80 hover:bg-white text-gray-800 w-6 h-12 rounded flex flex-col items-center justify-center text-xs cursor-ns-resize border border-gray-300 shadow-sm"
             title="Arraste para ajustar altura"
           >
             <span className="text-xs mb-1">▲</span>
