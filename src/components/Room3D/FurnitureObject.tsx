@@ -335,7 +335,7 @@ onContextMenu={(e) => {
           {/* Círculo branco opaco para rotação */}
           <mesh
             position={[0, 0.05, 0]}
-            rotation={[0, 0, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
             onPointerDown={(e) => {
               e.stopPropagation();
               handleRotateMode();
@@ -350,7 +350,7 @@ onContextMenu={(e) => {
               onDragStart();
             }}
           >
-            <torusGeometry args={[0.8, 0.03, 6, 24]} />
+            <torusGeometry args={[0.8, 0.03, 8, 32]} />
             <meshBasicMaterial
               color="#ffffff"
               transparent
