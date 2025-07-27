@@ -258,7 +258,7 @@ const FurnitureDeleteForm: React.FC<{
         onClose={onClose}
         initialPosition={{ x: 150, y: 50 }}
         width="560px"
-      height="520px"
+      height="450px"
       >
         <div className="p-4 space-y-2">
           <div className="text-center mb-4">
