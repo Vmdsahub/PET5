@@ -197,9 +197,7 @@ const FurnitureDeleteForm: React.FC<{
         <option value="">Selecionar seção</option>
         {allSections.map((section: string) => (
           <option key={section} value={section}>
-            {section === 'basicos' ? 'Móveis Básicos' :
-             section === 'limitados' ? 'Móveis Limitados' :
-             section.charAt(0).toUpperCase() + section.slice(1)}
+            {section.charAt(0).toUpperCase() + section.slice(1)}
           </option>
         ))}
       </select>
