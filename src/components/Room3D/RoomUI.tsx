@@ -181,7 +181,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     item.category === 'limitados' || ['decoração', 'iluminação', 'cozinha'].includes(item.category)
   );
 
-  // Agrupar móveis por seções customizadas
+  // Agrupar móveis por seções customizadas (apenas móveis exatamente dessa categoria)
   const customSectionsFurniture = customSections.reduce((acc, section) => {
     acc[section] = catalog.filter(item => item.category === section);
     return acc;
