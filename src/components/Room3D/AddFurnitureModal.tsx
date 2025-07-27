@@ -3,6 +3,7 @@ import { Upload, Package, X } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { GLBPreview3D } from './GLBPreview3D';
 import { blobCache } from '../../utils/blobCache';
+import { mockStorageService } from '../../services/mockStorage';
 
 interface AddFurnitureModalProps {
   isOpen: boolean;
@@ -53,9 +54,19 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'basicos' as 'basicos' | 'limitados',
+    category: 'basicos',
     price: '',
     currency: 'xenocoins' as 'xenocoins' | 'xenocash'
+  });
+
+  const [availableSections] = useState(() => {
+    const sections = mockStorageService.getAllSections();
+    return sections.map(section => ({
+      value: section,
+      label: section === 'basicos' ? 'Móveis Básicos' :
+             section === 'limitados' ? 'Móveis Limitados' :
+             section.charAt(0).toUpperCase() + section.slice(1)
+    }));
   });
 
   const [glbFile, setGlbFile] = useState<File | null>(null);
@@ -128,7 +139,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     setFormData({
       name: '',
       description: '',
-      category: 'basicos',
+      category: availableSections[0]?.value || 'basicos',
       price: '',
       currency: 'xenocoins'
     });
@@ -213,11 +224,14 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
           </label>
           <select
             value={formData.category}
-            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as 'basicos' | 'limitados' }))}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="basicos">Móveis Básicos</option>
-            <option value="limitados">Móveis Limitados</option>
+            {availableSections.map(section => (
+              <option key={section.value} value={section.value}>
+                {section.label}
+              </option>
+            ))}
           </select>
           <p className="text-xs text-gray-500 mt-1">
             Para criar novas seções, use o Painel de Administração
