@@ -139,7 +139,7 @@ const SectionDeleteForm: React.FC<{
         width="560px"
       height="520px"
       >
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-2">
           <div className="text-center mb-4">
             <Package size={40} className="mx-auto mb-2 text-blue-500" />
             <h2 className="text-base font-semibold text-gray-800">
