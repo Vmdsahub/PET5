@@ -58,6 +58,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [sectionsVersion, setSectionsVersion] = useState(0);
   // Usar contexto externo ou estado local como fallback
   const [localContextMenu, setLocalContextMenu] = useState<{
     visible: boolean;
