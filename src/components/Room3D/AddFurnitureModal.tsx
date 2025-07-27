@@ -57,6 +57,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     price: '',
     currency: 'xenocoins' as 'xenocoins' | 'xenocash'
   });
+  const [showNewSectionInput, setShowNewSectionInput] = useState(false);
+  const [newSectionName, setNewSectionName] = useState('');
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
