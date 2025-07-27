@@ -137,11 +137,62 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
         transform: 'translate(-50%, -50%)'
       }}
     >
-      <div className="flex gap-3">
+      <div className="flex gap-2 items-center">
+        {/* Controles de Posição Y */}
+        <div className="flex flex-col items-center gap-1">
+          <button
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startY = e.clientY;
+              const startPos = positionY;
+
+              const handleMouseMove = (moveEvent: MouseEvent) => {
+                const deltaY = (startY - moveEvent.clientY) * 0.01;
+                updatePositionY(Math.max(-2, Math.min(5, startPos + deltaY)));
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+            className="bg-yellow-500/70 hover:bg-yellow-500 text-white w-4 h-3 rounded-sm flex items-center justify-center text-xs cursor-ns-resize"
+          >
+            ▲
+          </button>
+          <button
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startY = e.clientY;
+              const startPos = positionY;
+
+              const handleMouseMove = (moveEvent: MouseEvent) => {
+                const deltaY = (moveEvent.clientY - startY) * 0.01;
+                updatePositionY(Math.max(-2, Math.min(5, startPos + deltaY)));
+              };
+
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+            className="bg-yellow-500/70 hover:bg-yellow-500 text-white w-4 h-3 rounded-sm flex items-center justify-center text-xs cursor-ns-resize"
+          >
+            ▼
+          </button>
+          <div className="text-xs text-white font-medium bg-black/60 px-1 py-0.5 rounded">{positionY.toFixed(1)}</div>
+        </div>
+
         {/* Slider X */}
         <div className="flex flex-col items-center">
-          <div className="text-xs text-blue-400 mb-1 font-bold bg-black/60 px-2 py-0.5 rounded">X</div>
-          <div className="relative h-24 w-4">
+          <div className="text-xs text-blue-400 mb-1 font-bold bg-black/60 px-1.5 py-0.5 rounded">X</div>
+          <div className="relative h-16 w-3">
             <input
               type="range"
               min="0.1"
