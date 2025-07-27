@@ -112,12 +112,29 @@ class MockStorageService {
   placeFurniture(userId: string, furnitureId: string, position: [number, number, number]): boolean {
     const userRoom = this.getUserRoom(userId);
     const inventoryIndex = userRoom.inventory.findIndex(item => item.id === furnitureId);
-    
+
     if (inventoryIndex === -1) return false;
 
-    const furniture = userRoom.inventory.splice(inventoryIndex, 1)[0];
-    furniture.position = position;
-    userRoom.placedFurniture.push(furniture);
+    const furniture = userRoom.inventory[inventoryIndex];
+
+    // Criar uma nova instância do móvel para colocar
+    const placedFurniture: FurnitureItem = {
+      ...furniture,
+      id: this.generateId(), // Novo ID para o móvel posicionado
+      position: position,
+      quantity: 1 // Móveis colocados sempre têm quantity 1
+    };
+
+    userRoom.placedFurniture.push(placedFurniture);
+
+    // Decrementar quantidade no inventário
+    if (furniture.quantity && furniture.quantity > 1) {
+      furniture.quantity -= 1;
+    } else {
+      // Se só tem 1, remover do inventário
+      userRoom.inventory.splice(inventoryIndex, 1);
+    }
+
     this.saveToLocalStorage();
     return true;
   }
