@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, Plus, FolderPlus, Upload } from 'lucide-react';
+import { Package, Plus, FolderPlus, Upload, Settings, Edit3 } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 
