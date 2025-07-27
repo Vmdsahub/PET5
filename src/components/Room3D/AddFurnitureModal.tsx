@@ -242,12 +242,13 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
                     type="button"
                     onClick={() => {
                       if (newSectionName.trim()) {
-                        // Aqui você pode adicionar a lógica para criar a nova seção
-                        console.log('Nova seção criada:', newSectionName);
+                        // Criar uma nova categoria/seção personalizada
+                        const customCategory = newSectionName.toLowerCase().replace(/\s+/g, '_');
+                        console.log('Nova seção criada:', newSectionName, 'categoria:', customCategory);
                         setShowNewSectionInput(false);
+                        // Usar o nome da nova se��ão como categoria
+                        setFormData(prev => ({ ...prev, category: customCategory as any }));
                         setNewSectionName('');
-                        // Por enquanto, vamos manter como limitados
-                        setFormData(prev => ({ ...prev, category: 'limitados' }));
                       }
                     }}
                     className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
