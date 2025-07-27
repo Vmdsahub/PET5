@@ -75,8 +75,8 @@ const SectionDeleteForm: React.FC<{
 }> = ({ onDeleteSection, onSuccess, onError, deleteError, deleteSuccess }) => {
   const [selectedSection, setSelectedSection] = useState('');
 
-  // Obter seções customizadas
-  const customSections = mockStorageService.getCustomSections();
+  // Obter todas as seções (básicas e customizadas)
+  const allSections = mockStorageService.getAllSections();
 
   const handleDelete = () => {
     if (!selectedSection) {
