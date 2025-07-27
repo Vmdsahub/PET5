@@ -571,13 +571,20 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg"
+                    onContextMenu={(e) => handleContextMenu(e, item.id)}
+                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg relative"
                   >
                     <FurnitureThumbnail
                       modelPath={item.model}
                       width="100%"
                       height="100%"
                     />
+                    {/* Contador de quantidade */}
+                    {item.quantity && item.quantity > 1 && (
+                      <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                        {item.quantity > 99 ? "99+" : item.quantity}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
