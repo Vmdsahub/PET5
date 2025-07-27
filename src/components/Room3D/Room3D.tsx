@@ -37,6 +37,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
   const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
   const controlsRef = useRef<any>();
+  const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
 
   // Detectar suporte WebGL na montagem do componente
@@ -266,6 +267,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
           state.gl.setClearColor('#1a2845', 1);
+          cameraRef.current = state.camera;
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
@@ -345,6 +347,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onUpdateCatalogItem={handleUpdateCatalogItem}
           isAdmin={isAdmin}
           visible={true}
+          camera={cameraRef.current}
         />
       )}
 

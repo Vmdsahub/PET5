@@ -239,12 +239,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           {/* Botão Catálogo */}
           <button
             onClick={() => {
-              if (showCatalog) {
-                setShowCatalog(false);
-              } else {
-                setShowInventory(false);
-                setShowCatalog(true);
-              }
+              setShowCatalog(!showCatalog);
             }}
             className={`p-3 rounded-full transition-colors ${
               showCatalog ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
@@ -257,12 +252,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           {/* Botão Inventário */}
           <button
             onClick={() => {
-              if (showInventory) {
-                setShowInventory(false);
-              } else {
-                setShowCatalog(false);
-                setShowInventory(true);
-              }
+              setShowInventory(!showInventory);
             }}
             className={`p-3 rounded-full transition-colors relative ${
               showInventory ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
@@ -281,8 +271,6 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           <button
             onClick={() => {
               onToggleEditMode?.();
-              setShowCatalog(false);
-              setShowInventory(false);
               onSelectFurniture(null);
             }}
             className={`p-3 rounded-full transition-colors ${
@@ -301,7 +289,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               onSelectFurniture(null);
             }}
             className="p-3 rounded-full hover:bg-gray-100 transition-colors"
-            title="Fechar Modais"
+            title="Fechar Todos os Modais"
           >
             <Home size={24} className="text-gray-700" />
           </button>
@@ -379,7 +367,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
                   {expandedSection === 'basicos' && (
                     <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-6 gap-0.5">
                         {basicFurniture.map((item, index) => (
                           <div
                             key={index}
@@ -416,7 +404,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
                   {expandedSection === 'limitados' && (
                     <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-6 gap-0.5">
                         {limitedFurniture.map((item, index) => (
                           <div
                             key={index}
@@ -513,7 +501,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-3 p-4">
+              <div className="grid grid-cols-8 gap-1 p-4">
                 {inventory.map((item) => (
                   <div
                     key={item.id}
