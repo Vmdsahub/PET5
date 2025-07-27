@@ -6,6 +6,7 @@ import { AddFurnitureModal } from './AddFurnitureModal';
 import { FurnitureAdminPanel } from './FurnitureAdminPanel';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
 import { useAuthStore } from '../../store/authStore';
+import { mockStorageService } from '../../services/mockStorage';
 
 interface RoomUIProps {
   inventory: FurnitureItem[];
@@ -569,8 +570,13 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           onClose={() => setShowAdminPanel(false)}
           onAddFurniture={onAddFurniture}
           onCreateSection={(sectionName) => {
-            console.log('Nova seção criada:', sectionName);
-            // Aqui você pode implementar a lógica para criar a seção
+            const success = mockStorageService.createCustomSection(sectionName);
+            if (success) {
+              console.log('Nova seção criada com sucesso:', sectionName);
+              // Forçar atualização do catálogo
+              window.location.reload();
+            }
+            return success;
           }}
         />
       )}
