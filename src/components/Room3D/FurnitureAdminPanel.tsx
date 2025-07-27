@@ -61,6 +61,73 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
     setShowCreateSection(false);
   };
 
+// Componente para excluir seções
+const SectionDeleteForm: React.FC<{
+  onDeleteSection?: (sectionName: string) => boolean;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+  deleteError: string;
+  deleteSuccess: string;
+}> = ({ onDeleteSection, onSuccess, onError, deleteError, deleteSuccess }) => {
+  const [selectedSection, setSelectedSection] = useState('');
+
+  // Importar mockStorageService para obter seções customizadas
+  const { mockStorageService } = require('../../services/mockStorage');
+  const customSections = mockStorageService.getCustomSections();
+
+  const handleDelete = () => {
+    if (!selectedSection) {
+      onError('Selecione uma seção para excluir');
+      return;
+    }
+
+    const success = onDeleteSection?.(selectedSection);
+    if (success) {
+      onSuccess(`Seção "${selectedSection}" excluída com sucesso!`);
+      setSelectedSection('');
+    } else {
+      onError('Erro ao excluir seção ou seção não encontrada');
+    }
+  };
+
+  return (
+    <div className="mt-3 p-2 bg-white rounded border">
+      <select
+        value={selectedSection}
+        onChange={(e) => {
+          setSelectedSection(e.target.value);
+          onError('');
+        }}
+        className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-red-500 focus:border-red-500 border-gray-300"
+      >
+        <option value="">Selecionar seção para excluir</option>
+        {customSections.map((section: string) => (
+          <option key={section} value={section}>
+            {section.charAt(0).toUpperCase() + section.slice(1)}
+          </option>
+        ))}
+      </select>
+      {deleteError && <p className="text-red-500 text-xs mt-1">{deleteError}</p>}
+      {deleteSuccess && <p className="text-green-600 text-xs mt-1">{deleteSuccess}</p>}
+      <div className="flex space-x-1 mt-2">
+        <button
+          onClick={handleDelete}
+          disabled={!selectedSection}
+          className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white py-1 px-2 rounded text-xs transition-colors"
+        >
+          Excluir
+        </button>
+        <button
+          onClick={() => setSelectedSection('')}
+          className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-1 px-2 rounded text-xs transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+};
+
   if (!isOpen) return null;
 
   return (
