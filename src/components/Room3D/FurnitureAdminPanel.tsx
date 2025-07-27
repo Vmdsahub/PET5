@@ -51,6 +51,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   const handleCancelCreateSection = () => {
     setNewSectionName('');
     setSectionError('');
+    setSectionSuccess('');
     setShowCreateSection(false);
   };
 
