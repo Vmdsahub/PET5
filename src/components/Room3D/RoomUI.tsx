@@ -239,12 +239,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           {/* Botão Catálogo */}
           <button
             onClick={() => {
-              if (showCatalog) {
-                setShowCatalog(false);
-              } else {
-                setShowInventory(false);
-                setShowCatalog(true);
-              }
+              setShowCatalog(!showCatalog);
             }}
             className={`p-3 rounded-full transition-colors ${
               showCatalog ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
