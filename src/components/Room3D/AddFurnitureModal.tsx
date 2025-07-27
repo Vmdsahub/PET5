@@ -59,7 +59,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     currency: 'xenocoins' as 'xenocoins' | 'xenocash'
   });
 
-  const [availableSections] = useState(() => {
+  // Usar React.useMemo para atualizar dinamicamente as seções
+  const availableSections = React.useMemo(() => {
     const sections = mockStorageService.getAllSections();
     return sections.map(section => ({
       value: section,
@@ -67,7 +68,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
              section === 'limitados' ? 'Móveis Limitados' :
              section.charAt(0).toUpperCase() + section.slice(1)
     }));
-  });
+  }, [isOpen]); // Re-executar quando o modal abrir
 
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -156,7 +157,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       onClose={onClose}
       initialPosition={{ x: 150, y: 50 }}
       width="650px"
-      height="750px"
+      height="700px"
     >
       <div className="p-4 space-y-4 overflow-y-auto max-h-[650px]">
         {/* Upload do arquivo GLB */}
