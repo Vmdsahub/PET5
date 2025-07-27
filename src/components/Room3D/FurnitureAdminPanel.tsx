@@ -20,9 +20,13 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
 }) => {
   const [showAddFurniture, setShowAddFurniture] = useState(false);
   const [showCreateSection, setShowCreateSection] = useState(false);
+  const [showDeleteSection, setShowDeleteSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [selectedSectionToDelete, setSelectedSectionToDelete] = useState('');
   const [sectionError, setSectionError] = useState('');
   const [sectionSuccess, setSectionSuccess] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleteSuccess, setDeleteSuccess] = useState('');
 
   const handleCreateSection = () => {
     if (!newSectionName.trim()) {
@@ -91,30 +95,52 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
             </div>
           </button>
 
-          {/* Botão Criar Nova Seção */}
-          {!showCreateSection ? (
-            <button
-              onClick={() => setShowCreateSection(true)}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 px-6 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
-            >
-              <FolderPlus size={24} />
-              <div className="text-left">
-                <div className="font-semibold">Adicionar Nova Seção</div>
-                <div className="text-xs opacity-90">Criar categoria personalizada de móveis</div>
-              </div>
-            </button>
-          ) : (
-            /* Formulário para criar nova seção */
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-3">
-              <div className="flex items-center space-x-2 mb-3">
-                <FolderPlus size={20} className="text-green-600" />
-                <h3 className="font-medium text-green-800">Nova Seção do Catálogo</h3>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome da Seção
-                </label>
+          {/* Gerenciar Seções */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center space-x-2 mb-3">
+              <FolderPlus size={18} className="text-green-600" />
+              <h3 className="font-medium text-green-800 text-sm">Gerenciar Seções</h3>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {/* Criar Nova Seção */}
+              <button
+                onClick={() => {
+                  setShowCreateSection(!showCreateSection);
+                  setShowDeleteSection(false);
+                  setSectionError('');
+                  setSectionSuccess('');
+                }}
+                className={`py-2 px-3 rounded text-xs font-medium transition-colors ${
+                  showCreateSection
+                    ? 'bg-green-600 text-white'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
+              >
+                + Nova Seção
+              </button>
+
+              {/* Excluir Seção */}
+              <button
+                onClick={() => {
+                  setShowDeleteSection(!showDeleteSection);
+                  setShowCreateSection(false);
+                  setDeleteError('');
+                  setDeleteSuccess('');
+                }}
+                className={`py-2 px-3 rounded text-xs font-medium transition-colors ${
+                  showDeleteSection
+                    ? 'bg-red-600 text-white'
+                    : 'bg-red-100 text-red-700 hover:bg-red-200'
+                }`}
+              >
+                − Excluir Seção
+              </button>
+            </div>
+
+            {/* Formulário Criar Seção */}
+            {showCreateSection && (
+              <div className="mt-3 p-2 bg-white rounded border">
                 <input
                   type="text"
                   value={newSectionName}
@@ -123,50 +149,67 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
                     setSectionError('');
                     setSectionSuccess('');
                   }}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
+                  className={`w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-green-500 focus:border-green-500 ${
                     sectionError ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Ex: Móveis de Escritório, Decoração Premium..."
+                  placeholder="Nome da nova seção"
                 />
                 {sectionError && <p className="text-red-500 text-xs mt-1">{sectionError}</p>}
                 {sectionSuccess && <p className="text-green-600 text-xs mt-1">{sectionSuccess}</p>}
+                <div className="flex space-x-1 mt-2">
+                  <button
+                    onClick={handleCreateSection}
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded text-xs transition-colors"
+                  >
+                    Criar
+                  </button>
+                  <button
+                    onClick={handleCancelCreateSection}
+                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-1 px-2 rounded text-xs transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
+            )}
 
-              <div className="flex space-x-2 pt-2">
-                <button
-                  onClick={handleCreateSection}
-                  className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-                >
-                  Criar Seção
-                </button>
-                <button
-                  onClick={handleCancelCreateSection}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          )}
+            {/* Formulário Excluir Seção */}
+            {showDeleteSection && (
+              <SectionDeleteForm
+                onDeleteSection={onDeleteSection}
+                onSuccess={(message) => {
+                  setDeleteSuccess(message);
+                  setDeleteError('');
+                  setTimeout(() => setDeleteSuccess(''), 3000);
+                }}
+                onError={(message) => {
+                  setDeleteError(message);
+                  setDeleteSuccess('');
+                }}
+                deleteError={deleteError}
+                deleteSuccess={deleteSuccess}
+              />
+            )}
+          </div>
 
           {/* Botão Gerenciar Móveis Existentes */}
           <button
-            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
           >
-            <Edit3 size={24} />
+            <Edit3 size={20} />
             <div className="text-left">
-              <div className="font-semibold">Gerenciar Móveis Existentes</div>
+              <div className="font-semibold text-sm">Gerenciar Móveis Existentes</div>
               <div className="text-xs opacity-90">Editar, remover e organizar móveis</div>
             </div>
           </button>
 
           {/* Informação sobre as funções */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4">
-            <h4 className="text-sm font-medium text-gray-800 mb-2">Informações:</h4>
-            <ul className="text-xs text-gray-600 space-y-0.5">
-              <li>• Upload GLB: Adiciona novos modelos 3D ao catálogo</li>
-              <li>• Nova Seção: Cria categorias personalizadas</li>
-              <li>• Gerenciar: Edita móveis já cadastrados</li>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
+            <h4 className="text-xs font-medium text-gray-800 mb-1">Informações:</h4>
+            <ul className="text-xs text-gray-600 space-y-0">
+              <li>• Upload GLB: Adiciona modelos 3D</li>
+              <li>• Gerenciar Seções: Criar/excluir categorias</li>
+              <li>• Gerenciar: Editar móveis existentes</li>
             </ul>
           </div>
         </div>
