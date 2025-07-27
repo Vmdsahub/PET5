@@ -32,13 +32,20 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
 
     if (success === false) {
       setSectionError('Esta seção já existe');
+      setSectionSuccess('');
       return;
     }
 
-    // Reset form
-    setNewSectionName('');
+    // Mostrar sucesso
+    setSectionSuccess(`Seção "${newSectionName}" criada com sucesso! A página será recarregada.`);
     setSectionError('');
-    setShowCreateSection(false);
+
+    // Reset form após um delay
+    setTimeout(() => {
+      setNewSectionName('');
+      setSectionSuccess('');
+      setShowCreateSection(false);
+    }, 2000);
   };
 
   const handleCancelCreateSection = () => {
