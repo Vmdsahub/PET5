@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, Plus, FolderPlus, Upload, Settings, Edit3 } from 'lucide-react';
+import { Package, Plus, FolderPlus, Upload, Settings, Edit3, Trash2 } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 
@@ -8,13 +8,15 @@ interface FurnitureAdminPanelProps {
   onClose: () => void;
   onAddFurniture?: (furnitureData: any) => void;
   onCreateSection?: (sectionName: string) => boolean;
+  onDeleteSection?: (sectionName: string) => boolean;
 }
 
 export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   isOpen,
   onClose,
   onAddFurniture,
-  onCreateSection
+  onCreateSection,
+  onDeleteSection
 }) => {
   const [showAddFurniture, setShowAddFurniture] = useState(false);
   const [showCreateSection, setShowCreateSection] = useState(false);
@@ -63,16 +65,16 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
         title="Painel de Administração - Catálogo de Móveis"
         onClose={onClose}
         initialPosition={{ x: 150, y: 50 }}
-        width="540px"
-      height="580px"
+        width="560px"
+      height="520px"
       >
-        <div className="p-6 space-y-4 overflow-y-auto max-h-[520px]">
-          <div className="text-center mb-6">
-            <Package size={48} className="mx-auto mb-3 text-blue-500" />
-            <h2 className="text-lg font-semibold text-gray-800">
+        <div className="p-4 space-y-3">
+          <div className="text-center mb-4">
+            <Package size={40} className="mx-auto mb-2 text-blue-500" />
+            <h2 className="text-base font-semibold text-gray-800">
               Gerenciar Catálogo de Móveis
             </h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Escolha uma função para administrar o catálogo
             </p>
           </div>
@@ -80,11 +82,11 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
           {/* Botão Upload de Móvel GLB */}
           <button
             onClick={() => setShowAddFurniture(true)}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-4 px-6 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
           >
-            <Upload size={24} />
+            <Upload size={20} />
             <div className="text-left">
-              <div className="font-semibold">Fazer Upload de Móvel GLB</div>
+              <div className="font-semibold text-sm">Fazer Upload de Móvel GLB</div>
               <div className="text-xs opacity-90">Adicionar novo modelo 3D ao catálogo</div>
             </div>
           </button>
