@@ -252,12 +252,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           {/* Botão Inventário */}
           <button
             onClick={() => {
-              if (showInventory) {
-                setShowInventory(false);
-              } else {
-                setShowCatalog(false);
-                setShowInventory(true);
-              }
+              setShowInventory(!showInventory);
             }}
             className={`p-3 rounded-full transition-colors relative ${
               showInventory ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
