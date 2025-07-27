@@ -55,9 +55,9 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
       const x = (vector.x * 0.5 + 0.5) * rect.width + rect.left;
       const y = (vector.y * -0.5 + 0.5) * rect.height + rect.top;
 
-      // Position controls to the right of the furniture with some offset
+      // Position controls to the left of the furniture with some offset
       setScreenPosition({
-        x: Math.min(x + 80, window.innerWidth - 200), // Offset to the right, but stay in screen
+        x: Math.max(x - 150, 100), // Offset to the left, but stay in screen
         y: Math.max(y - 80, 50) // Offset up a bit, but stay in screen
       });
     };
