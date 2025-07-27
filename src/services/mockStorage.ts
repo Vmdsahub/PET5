@@ -322,6 +322,18 @@ class MockStorageService {
     const normalizedSection = sectionName.toLowerCase().trim();
     return this.customCatalog.filter(item => item.category === normalizedSection);
   }
+
+  deleteInventoryFurniture(userId: string, furnitureId: string): boolean {
+    const userRoom = this.getUserRoom(userId);
+    const inventoryIndex = userRoom.inventory.findIndex(item => item.id === furnitureId);
+
+    if (inventoryIndex === -1) return false;
+
+    // Remover completamente do inventário
+    userRoom.inventory.splice(inventoryIndex, 1);
+    this.saveToLocalStorage();
+    return true;
+  }
 }
 
 export const mockStorageService = new MockStorageService();
