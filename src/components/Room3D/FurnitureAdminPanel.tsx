@@ -104,9 +104,11 @@ const SectionDeleteForm: React.FC<{
         className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-red-500 focus:border-red-500 border-gray-300"
       >
         <option value="">Selecionar seção para excluir</option>
-        {customSections.map((section: string) => (
+        {allSections.map((section: string) => (
           <option key={section} value={section}>
-            {section.charAt(0).toUpperCase() + section.slice(1)}
+            {section === 'basicos' ? 'Móveis Básicos' :
+             section === 'limitados' ? 'Móveis Limitados' :
+             section.charAt(0).toUpperCase() + section.slice(1)}
           </option>
         ))}
       </select>
