@@ -254,7 +254,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             <ShoppingCart size={24} />
           </button>
 
-          {/* Botão Inventário */}
+          {/* Bot��o Inventário */}
           <button
             onClick={() => {
               if (showInventory) {
@@ -379,7 +379,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
                   {expandedSection === 'basicos' && (
                     <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-5 gap-1">
+                      <div className="grid grid-cols-6 gap-0.5">
                         {basicFurniture.map((item, index) => (
                           <div
                             key={index}
