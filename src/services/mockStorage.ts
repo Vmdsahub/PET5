@@ -79,17 +79,34 @@ class MockStorageService {
 
   buyFurniture(userId: string, catalogItem: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): FurnitureItem {
     const userRoom = this.getUserRoom(userId);
-    const newItem: FurnitureItem = {
-      ...catalogItem,
-      id: this.generateId(),
-      position: [0, 0, 0],
-      rotation: [0, 0, 0],
-      scale: (catalogItem as any).defaultScale || [1, 1, 1]
-    };
-    
-    userRoom.inventory.push(newItem);
-    this.saveToLocalStorage();
-    return newItem;
+
+    // Procurar item existente no inventário com mesmo name e model
+    const existingItem = userRoom.inventory.find(item =>
+      item.name === catalogItem.name &&
+      item.model === catalogItem.model &&
+      item.category === catalogItem.category
+    );
+
+    if (existingItem) {
+      // Se existe, incrementar quantity
+      existingItem.quantity = (existingItem.quantity || 1) + 1;
+      this.saveToLocalStorage();
+      return existingItem;
+    } else {
+      // Se não existe, criar novo com quantity = 1
+      const newItem: FurnitureItem = {
+        ...catalogItem,
+        id: this.generateId(),
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        scale: (catalogItem as any).defaultScale || [1, 1, 1],
+        quantity: 1
+      };
+
+      userRoom.inventory.push(newItem);
+      this.saveToLocalStorage();
+      return newItem;
+    }
   }
 
   placeFurniture(userId: string, furnitureId: string, position: [number, number, number]): boolean {
