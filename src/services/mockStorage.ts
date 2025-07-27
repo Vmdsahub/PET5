@@ -203,6 +203,7 @@ class MockStorageService {
     this.customSections.push(normalizedName);
     this.saveToLocalStorage();
     console.log('Nova seção criada:', sectionName, 'ID:', normalizedName);
+    console.log('Seções customizadas atuais:', this.customSections);
     return true;
   }
 
