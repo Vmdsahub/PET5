@@ -108,7 +108,9 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       const furnitureData = {
         name: formData.name,
         description: formData.description,
-        category: formData.category === 'basicos' ? 'sala' : 'decoração',
+        category: formData.category === 'basicos' ? 'sala' :
+                 formData.category === 'limitados' ? 'decoração' :
+                 formData.category, // Para seções customizadas, usar o nome diretamente
         price: Number(formData.price),
         currency: formData.currency,
         model: modelUrl,
@@ -246,7 +248,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
                         const customCategory = newSectionName.toLowerCase().replace(/\s+/g, '_');
                         console.log('Nova seção criada:', newSectionName, 'categoria:', customCategory);
                         setShowNewSectionInput(false);
-                        // Usar o nome da nova se��ão como categoria
+                        // Usar o nome da nova seção como categoria
                         setFormData(prev => ({ ...prev, category: customCategory as any }));
                         setNewSectionName('');
                       }
