@@ -335,7 +335,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <button
                 onClick={() => setShowAdminPanel(true)}
                 className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
-                title="Painel de Administração"
+                title="Painel de Administração do Catálogo"
                 style={{ display: isUserAdmin ? 'flex' : 'none' }}
               >
                 ⚙️
