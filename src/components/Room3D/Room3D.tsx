@@ -347,6 +347,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onUpdateCatalogItem={handleUpdateCatalogItem}
           isAdmin={isAdmin}
           visible={true}
+          camera={cameraRef.current}
         />
       )}
 
