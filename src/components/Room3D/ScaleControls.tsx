@@ -139,7 +139,7 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
     >
       <div className="flex gap-2 items-center">
         {/* Controles de Posição Y */}
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center mr-4">
           <button
             onMouseDown={(e) => {
               e.preventDefault();
@@ -159,34 +159,13 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
             }}
-            className="bg-yellow-500/70 hover:bg-yellow-500 text-white w-4 h-3 rounded-sm flex items-center justify-center text-xs cursor-ns-resize"
+            className="bg-white/80 hover:bg-white text-gray-800 w-6 h-12 rounded flex flex-col items-center justify-center text-xs cursor-ns-resize border border-gray-300"
+            title="Arraste para ajustar altura"
           >
-            ▲
+            <span className="text-xs mb-1">▲</span>
+            <span className="text-xs font-bold">{positionY.toFixed(1)}</span>
+            <span className="text-xs mt-1">▼</span>
           </button>
-          <button
-            onMouseDown={(e) => {
-              e.preventDefault();
-              const startY = e.clientY;
-              const startPos = positionY;
-
-              const handleMouseMove = (moveEvent: MouseEvent) => {
-                const deltaY = (moveEvent.clientY - startY) * 0.01;
-                updatePositionY(Math.max(-2, Math.min(5, startPos + deltaY)));
-              };
-
-              const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-              };
-
-              document.addEventListener('mousemove', handleMouseMove);
-              document.addEventListener('mouseup', handleMouseUp);
-            }}
-            className="bg-yellow-500/70 hover:bg-yellow-500 text-white w-4 h-3 rounded-sm flex items-center justify-center text-xs cursor-ns-resize"
-          >
-            ▼
-          </button>
-          <div className="text-xs text-white font-medium bg-black/60 px-1 py-0.5 rounded">{positionY.toFixed(1)}</div>
         </div>
 
         {/* Slider X */}
