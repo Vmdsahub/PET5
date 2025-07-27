@@ -24,6 +24,7 @@ class MockStorageService {
   private userRooms: Map<string, UserRoom> = new Map();
   private nextId = 1;
   private customCatalog: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
+  private customSections: string[] = [];
 
   constructor() {
     // Carregar dados do localStorage se existirem
@@ -38,6 +39,7 @@ class MockStorageService {
         this.userRooms = new Map(data.userRooms || []);
         this.nextId = data.nextId || 1;
         this.customCatalog = data.customCatalog || [];
+        this.customSections = data.customSections || [];
       } catch (error) {
         console.warn('Erro ao carregar dados do localStorage:', error);
       }
@@ -48,7 +50,8 @@ class MockStorageService {
     const data = {
       userRooms: Array.from(this.userRooms.entries()),
       nextId: this.nextId,
-      customCatalog: this.customCatalog
+      customCatalog: this.customCatalog,
+      customSections: this.customSections
     };
     localStorage.setItem('xenopets_room_data', JSON.stringify(data));
   }
@@ -187,6 +190,29 @@ class MockStorageService {
     }
 
     return false;
+  }
+
+  createCustomSection(sectionName: string): boolean {
+    const normalizedName = sectionName.toLowerCase().trim();
+
+    // Verificar se a seção já existe
+    if (this.customSections.includes(normalizedName)) {
+      return false; // Seção já existe
+    }
+
+    this.customSections.push(normalizedName);
+    this.saveToLocalStorage();
+    console.log('Nova seção criada:', sectionName, 'ID:', normalizedName);
+    return true;
+  }
+
+  getCustomSections(): string[] {
+    return [...this.customSections];
+  }
+
+  getAllSections(): string[] {
+    const baseSections = ['basicos', 'limitados'];
+    return [...baseSections, ...this.customSections];
   }
 }
 
