@@ -127,6 +127,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
                   placeholder="Ex: Móveis de Escritório, Decoração Premium..."
                 />
                 {sectionError && <p className="text-red-500 text-xs mt-1">{sectionError}</p>}
+                {sectionSuccess && <p className="text-green-600 text-xs mt-1">{sectionSuccess}</p>}
               </div>
 
               <div className="flex space-x-2 pt-2">
