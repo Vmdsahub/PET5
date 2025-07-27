@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, Plus, FolderPlus, Upload, Settings, Edit3, Trash2 } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
+import { mockStorageService } from '../../services/mockStorage';
 import { AddFurnitureModal } from './AddFurnitureModal';
 
 interface FurnitureAdminPanelProps {
