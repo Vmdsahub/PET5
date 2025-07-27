@@ -9,6 +9,7 @@ export interface FurnitureItem {
   category: string;
   price: number;
   description: string;
+  quantity?: number;
 }
 
 export interface UserRoom {
