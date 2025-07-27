@@ -27,10 +27,13 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
       return;
     }
 
-    if (onCreateSection) {
-      onCreateSection(newSectionName.trim());
+    const success = onCreateSection?.(newSectionName.trim());
+
+    if (success === false) {
+      setSectionError('Esta seção já existe');
+      return;
     }
-    
+
     // Reset form
     setNewSectionName('');
     setSectionError('');
@@ -51,8 +54,8 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
         title="Painel de Administração - Catálogo de Móveis"
         onClose={onClose}
         initialPosition={{ x: 150, y: 50 }}
-        width="500px"
-        height="400px"
+        width="520px"
+      height="550px"
       >
         <div className="p-6 space-y-4">
           <div className="text-center mb-6">
@@ -61,7 +64,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
               Gerenciar Catálogo de Móveis
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Escolha uma função para administrar o catálogo
+              Escolha uma funç��o para administrar o catálogo
             </p>
           </div>
 
