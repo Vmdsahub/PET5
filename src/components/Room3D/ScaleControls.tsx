@@ -24,6 +24,7 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
   const [scaleX, setScaleX] = useState(furniture.scale?.[0] || 1);
   const [scaleY, setScaleY] = useState(furniture.scale?.[1] || 1);
   const [scaleZ, setScaleZ] = useState(furniture.scale?.[2] || 1);
+  const [positionY, setPositionY] = useState(furniture.position?.[1] || 0);
   const [screenPosition, setScreenPosition] = useState({ x: 100, y: 100 });
   const animationFrameRef = useRef<number>();
 
