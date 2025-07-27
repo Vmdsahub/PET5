@@ -189,7 +189,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   return (
     <>
-      {/* Indicador de Modo Edição */}
+      {/* Indicador de Modo Edi��ão */}
       {editMode && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-2xl border border-purple-400">
           <div className="text-center">
@@ -639,7 +639,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             return success;
           }}
           onDeleteSection={(sectionName) => {
-            const success = mockStorageService.deleteCustomSection(sectionName);
+            const success = mockStorageService.deleteSection(sectionName);
             if (success) {
               console.log('Seção excluída com sucesso:', sectionName);
               // Forçar re-render das seções
@@ -648,6 +648,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               if (expandedSection === sectionName.toLowerCase()) {
                 setExpandedSection(null);
               }
+            }
+            return success;
+          }}
+          onDeleteFurniture={(sectionName, furnitureIndex) => {
+            const success = mockStorageService.deleteFurnitureFromSection(sectionName, furnitureIndex);
+            if (success) {
+              console.log('Móvel excluído com sucesso da seção:', sectionName);
+              // Forçar re-render do catálogo
+              setSectionsVersion(prev => prev + 1);
             }
             return success;
           }}
