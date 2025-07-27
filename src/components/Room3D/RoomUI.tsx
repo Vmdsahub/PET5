@@ -54,7 +54,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [showInventory, setShowInventory] = useState(false);
   const [draggedItem, setDraggedItem] = useState<FurnitureItem | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number, y: number } | null>(null);
-  const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -167,14 +167,24 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const selectedItem = inventory.find(item => item.id === selectedFurniture) ||
                       null;
 
-  // Dividir catálogo em básicos e limitados
+  // Obter todas as seções disponíveis
+  const allSections = mockStorageService.getAllSections();
+  const customSections = mockStorageService.getCustomSections();
+
+  // Dividir catálogo por seções
   const basicFurniture = catalog.filter(item =>
-    ['sala', 'quarto', 'geral'].includes(item.category)
+    item.category === 'basicos' || ['sala', 'quarto', 'geral'].includes(item.category)
   );
 
   const limitedFurniture = catalog.filter(item =>
-    ['decoração', 'iluminação', 'cozinha'].includes(item.category)
+    item.category === 'limitados' || ['decoração', 'iluminação', 'cozinha'].includes(item.category)
   );
+
+  // Agrupar móveis por seções customizadas
+  const customSectionsFurniture = customSections.reduce((acc, section) => {
+    acc[section] = catalog.filter(item => item.category === section);
+    return acc;
+  }, {} as Record<string, typeof catalog>);
 
   return (
     <>
@@ -429,6 +439,55 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     </div>
                   )}
                 </div>
+
+                {/* Seções Customizadas */}
+                {customSections.map((section) => (
+                  <div key={section} className="border border-gray-200 rounded-lg">
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === section ? null : section)}
+                      className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-medium text-gray-800 capitalize">
+                        {section.charAt(0).toUpperCase() + section.slice(1)}
+                      </span>
+                      <span className="text-gray-500">
+                        {expandedSection === section ? '−' : '+'}
+                      </span>
+                    </button>
+
+                    {expandedSection === section && (
+                      <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
+                        {customSectionsFurniture[section]?.length > 0 ? (
+                          <div className="grid grid-cols-6 gap-0.5">
+                            {customSectionsFurniture[section].map((item, index) => (
+                              <div
+                                key={index}
+                                onClick={() => setSelectedCatalogItem(item)}
+                                className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
+                                  selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
+                                    ? 'bg-blue-50 ring-2 ring-blue-500'
+                                    : 'hover:bg-gray-50'
+                                }`}
+                              >
+                                <FurnitureThumbnail
+                                  modelPath={item.model}
+                                  width="100%"
+                                  height="100%"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center text-gray-500 py-8">
+                            <Package size={32} className="mx-auto mb-2 text-gray-300" />
+                            <p className="text-sm">Nenhum móvel nesta seção</p>
+                            <p className="text-xs">Adicione móveis usando o painel administrativo</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
