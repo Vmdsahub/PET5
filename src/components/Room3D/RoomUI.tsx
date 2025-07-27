@@ -385,79 +385,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             {/* Lado esquerdo - Seções */}
             <div className="w-1/2 overflow-y-auto border-r border-gray-200 max-h-full">
               <div className="p-4 space-y-2">
-                {/* Seção Móveis Básicos */}
-                <div className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === 'basicos' ? null : 'basicos')}
-                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-medium text-gray-800">Móveis Básicos</span>
-                    <span className="text-gray-500">
-                      {expandedSection === 'basicos' ? '−' : '+'}
-                    </span>
-                  </button>
 
-                  {expandedSection === 'basicos' && (
-                    <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-6 gap-0.5">
-                        {basicFurniture.map((item, index) => (
-                          <div
-                            key={index}
-                            onClick={() => setSelectedCatalogItem(item)}
-                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
-                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
-                                ? 'bg-blue-50 ring-2 ring-blue-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <FurnitureThumbnail
-                              modelPath={item.model}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Seção Móveis Limitados */}
-                <div className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === 'limitados' ? null : 'limitados')}
-                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-medium text-gray-800">Móveis Limitados</span>
-                    <span className="text-gray-500">
-                      {expandedSection === 'limitados' ? '−' : '+'}
-                    </span>
-                  </button>
-
-                  {expandedSection === 'limitados' && (
-                    <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-6 gap-0.5">
-                        {limitedFurniture.map((item, index) => (
-                          <div
-                            key={index}
-                            onClick={() => setSelectedCatalogItem(item)}
-                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
-                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
-                                ? 'bg-blue-50 ring-2 ring-blue-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <FurnitureThumbnail
-                              modelPath={item.model}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
 
                 {/* Seções Customizadas */}
                 {customSections.map((section) => (
