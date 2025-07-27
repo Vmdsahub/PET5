@@ -190,14 +190,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const allSections = React.useMemo(() => mockStorageService.getAllSections(), [sectionsVersion]);
   const customSections = React.useMemo(() => mockStorageService.getCustomSections(), [sectionsVersion]);
 
-  // Dividir catálogo por seções
-  const basicFurniture = catalog.filter(item =>
-    item.category === 'basicos' || ['sala', 'quarto', 'geral'].includes(item.category)
-  );
 
-  const limitedFurniture = catalog.filter(item =>
-    item.category === 'limitados' || ['decoração', 'iluminação', 'cozinha'].includes(item.category)
-  );
 
   // Agrupar móveis por seções customizadas (apenas móveis exatamente dessa categoria)
   const customSectionsFurniture = customSections.reduce((acc, section) => {
