@@ -267,6 +267,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
           state.gl.setClearColor('#1a2845', 1);
+          cameraRef.current = state.camera;
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
