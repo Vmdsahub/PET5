@@ -72,15 +72,8 @@ const SectionDeleteForm: React.FC<{
 }> = ({ onDeleteSection, onSuccess, onError, deleteError, deleteSuccess }) => {
   const [selectedSection, setSelectedSection] = useState('');
 
-  // Importar mockStorageService para obter seções customizadas
-  const [customSections, setCustomSections] = useState<string[]>([]);
-
-  React.useEffect(() => {
-    // Dinamicamente importar e obter seções
-    import('../../services/mockStorage').then(({ mockStorageService }) => {
-      setCustomSections(mockStorageService.getCustomSections());
-    });
-  }, []);
+  // Obter seções customizadas
+  const customSections = mockStorageService.getCustomSections();
 
   const handleDelete = () => {
     if (!selectedSection) {
