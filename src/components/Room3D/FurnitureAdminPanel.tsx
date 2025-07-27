@@ -133,6 +133,122 @@ const SectionDeleteForm: React.FC<{
   );
 };
 
+// Componente para excluir móveis de uma seção
+const FurnitureDeleteForm: React.FC<{
+  onDeleteFurniture?: (sectionName: string, furnitureIndex: number) => boolean;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+  deleteError: string;
+  deleteSuccess: string;
+}> = ({ onDeleteFurniture, onSuccess, onError, deleteError, deleteSuccess }) => {
+  const [selectedSection, setSelectedSection] = useState('');
+  const [selectedFurniture, setSelectedFurniture] = useState('');
+  const [sectionFurniture, setSectionFurniture] = useState<any[]>([]);
+
+  // Obter todas as seções
+  const allSections = mockStorageService.getAllSections();
+
+  // Atualizar móveis quando seção muda
+  React.useEffect(() => {
+    if (selectedSection) {
+      const furniture = mockStorageService.getFurnitureBySection(selectedSection);
+      setSectionFurniture(furniture);
+      setSelectedFurniture('');
+    } else {
+      setSectionFurniture([]);
+      setSelectedFurniture('');
+    }
+  }, [selectedSection]);
+
+  const handleDelete = () => {
+    if (!selectedSection) {
+      onError('Selecione uma seção');
+      return;
+    }
+
+    if (!selectedFurniture) {
+      onError('Selecione um móvel para excluir');
+      return;
+    }
+
+    const furnitureIndex = parseInt(selectedFurniture);
+    const success = onDeleteFurniture?.(selectedSection, furnitureIndex);
+
+    if (success) {
+      const furnitureName = sectionFurniture[furnitureIndex]?.name || 'móvel';
+      onSuccess(`Móvel "${furnitureName}" excluído com sucesso!`);
+      setSelectedFurniture('');
+      // Atualizar lista de móveis
+      const updatedFurniture = mockStorageService.getFurnitureBySection(selectedSection);
+      setSectionFurniture(updatedFurniture);
+    } else {
+      onError('Erro ao excluir móvel');
+    }
+  };
+
+  return (
+    <div className="mt-3 p-2 bg-white rounded border space-y-2">
+      <select
+        value={selectedSection}
+        onChange={(e) => {
+          setSelectedSection(e.target.value);
+          onError('');
+        }}
+        className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 border-gray-300"
+      >
+        <option value="">Selecionar seção</option>
+        {allSections.map((section: string) => (
+          <option key={section} value={section}>
+            {section === 'basicos' ? 'Móveis Básicos' :
+             section === 'limitados' ? 'Móveis Limitados' :
+             section.charAt(0).toUpperCase() + section.slice(1)}
+          </option>
+        ))}
+      </select>
+
+      {selectedSection && (
+        <select
+          value={selectedFurniture}
+          onChange={(e) => {
+            setSelectedFurniture(e.target.value);
+            onError('');
+          }}
+          className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 border-gray-300"
+        >
+          <option value="">Selecionar móvel para excluir</option>
+          {sectionFurniture.map((furniture, index) => (
+            <option key={index} value={index}>
+              {furniture.name}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {deleteError && <p className="text-red-500 text-xs mt-1">{deleteError}</p>}
+      {deleteSuccess && <p className="text-green-600 text-xs mt-1">{deleteSuccess}</p>}
+
+      <div className="flex space-x-1 mt-2">
+        <button
+          onClick={handleDelete}
+          disabled={!selectedSection || !selectedFurniture}
+          className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white py-1 px-2 rounded text-xs transition-colors"
+        >
+          Excluir Móvel
+        </button>
+        <button
+          onClick={() => {
+            setSelectedSection('');
+            setSelectedFurniture('');
+          }}
+          className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-1 px-2 rounded text-xs transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+};
+
   if (!isOpen) return null;
 
   return (
