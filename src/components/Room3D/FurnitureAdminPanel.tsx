@@ -137,7 +137,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
           <button
             className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
           >
-            <Package size={24} />
+            <Edit3 size={24} />
             <div className="text-left">
               <div className="font-semibold">Gerenciar Móveis Existentes</div>
               <div className="text-xs opacity-90">Editar, remover e organizar móveis</div>
