@@ -34,7 +34,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
 
   const handleCreateSection = () => {
     if (!newSectionName.trim()) {
-      setSectionError('Nome da se��ão é obrigatório');
+      setSectionError('Nome da seção é obrigatório');
       return;
     }
 
@@ -106,9 +106,7 @@ const SectionDeleteForm: React.FC<{
         <option value="">Selecionar seção para excluir</option>
         {allSections.map((section: string) => (
           <option key={section} value={section}>
-            {section === 'basicos' ? 'Móveis Básicos' :
-             section === 'limitados' ? 'Móveis Limitados' :
-             section.charAt(0).toUpperCase() + section.slice(1)}
+            {section.charAt(0).toUpperCase() + section.slice(1)}
           </option>
         ))}
       </select>
