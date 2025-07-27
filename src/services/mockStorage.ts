@@ -167,14 +167,33 @@ class MockStorageService {
   removeFurniture(userId: string, furnitureId: string): boolean {
     const userRoom = this.getUserRoom(userId);
     const placedIndex = userRoom.placedFurniture.findIndex(item => item.id === furnitureId);
-    
+
     if (placedIndex === -1) return false;
 
     const furniture = userRoom.placedFurniture.splice(placedIndex, 1)[0];
-    // Reset position and add back to inventory
-    furniture.position = [0, 0, 0];
-    furniture.rotation = [0, 0, 0];
-    userRoom.inventory.push(furniture);
+
+    // Procurar item existente no inventário com mesmo name e model
+    const existingItem = userRoom.inventory.find(item =>
+      item.name === furniture.name &&
+      item.model === furniture.model &&
+      item.category === furniture.category
+    );
+
+    if (existingItem) {
+      // Se existe, incrementar quantity
+      existingItem.quantity = (existingItem.quantity || 1) + 1;
+    } else {
+      // Se não existe, criar novo com quantity = 1
+      const inventoryItem: FurnitureItem = {
+        ...furniture,
+        id: this.generateId(), // Novo ID para o inventário
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        quantity: 1
+      };
+      userRoom.inventory.push(inventoryItem);
+    }
+
     this.saveToLocalStorage();
     return true;
   }
