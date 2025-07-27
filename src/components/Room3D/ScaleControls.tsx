@@ -12,17 +12,20 @@ interface ScaleControlsProps {
   camera?: THREE.Camera;
 }
 
-export const ScaleControls: React.FC<ScaleControlsProps> = ({ 
-  furniture, 
-  meshRef, 
-  onUpdateTransform, 
-  onUpdateCatalogItem, 
+export const ScaleControls: React.FC<ScaleControlsProps> = ({
+  furniture,
+  meshRef,
+  onUpdateTransform,
+  onUpdateCatalogItem,
   isAdmin,
-  visible 
+  visible,
+  camera
 }) => {
   const [scaleX, setScaleX] = useState(furniture.scale?.[0] || 1);
   const [scaleY, setScaleY] = useState(furniture.scale?.[1] || 1);
   const [scaleZ, setScaleZ] = useState(furniture.scale?.[2] || 1);
+  const [screenPosition, setScreenPosition] = useState({ x: 100, y: 100 });
+  const animationFrameRef = useRef<number>();
 
   // Update local state when furniture changes
   useEffect(() => {
