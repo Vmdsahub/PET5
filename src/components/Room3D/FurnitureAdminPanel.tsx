@@ -7,7 +7,7 @@ interface FurnitureAdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFurniture?: (furnitureData: any) => void;
-  onCreateSection?: (sectionName: string) => void;
+  onCreateSection?: (sectionName: string) => boolean;
 }
 
 export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
@@ -64,7 +64,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
               Gerenciar Catálogo de Móveis
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Escolha uma funç��o para administrar o catálogo
+              Escolha uma função para administrar o catálogo
             </p>
           </div>
 
