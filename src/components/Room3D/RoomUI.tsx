@@ -647,6 +647,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           isOpen={showAddFurniture}
           onClose={() => setShowAddFurniture(false)}
           onAddFurniture={onAddFurniture || (() => {})}
+          sectionsVersion={sectionsVersion}
         />
       )}
     </>
