@@ -10,6 +10,7 @@ interface FurnitureAdminPanelProps {
   onAddFurniture?: (furnitureData: any) => void;
   onCreateSection?: (sectionName: string) => boolean;
   onDeleteSection?: (sectionName: string) => boolean;
+  onDeleteFurniture?: (sectionName: string, furnitureIndex: number) => boolean;
 }
 
 export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
@@ -17,11 +18,13 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   onClose,
   onAddFurniture,
   onCreateSection,
-  onDeleteSection
+  onDeleteSection,
+  onDeleteFurniture
 }) => {
   const [showAddFurniture, setShowAddFurniture] = useState(false);
   const [showCreateSection, setShowCreateSection] = useState(false);
   const [showDeleteSection, setShowDeleteSection] = useState(false);
+  const [showDeleteFurniture, setShowDeleteFurniture] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
   const [selectedSectionToDelete, setSelectedSectionToDelete] = useState('');
   const [sectionError, setSectionError] = useState('');
@@ -169,22 +172,23 @@ const SectionDeleteForm: React.FC<{
               <h3 className="font-medium text-green-800 text-sm">Gerenciar Seções</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-1">
               {/* Criar Nova Seção */}
               <button
                 onClick={() => {
                   setShowCreateSection(!showCreateSection);
                   setShowDeleteSection(false);
+                  setShowDeleteFurniture(false);
                   setSectionError('');
                   setSectionSuccess('');
                 }}
-                className={`py-2 px-3 rounded text-xs font-medium transition-colors ${
+                className={`py-2 px-2 rounded text-xs font-medium transition-colors ${
                   showCreateSection
                     ? 'bg-green-600 text-white'
                     : 'bg-green-100 text-green-700 hover:bg-green-200'
                 }`}
               >
-                + Nova Seção
+                + Nova
               </button>
 
               {/* Excluir Seção */}
@@ -192,16 +196,35 @@ const SectionDeleteForm: React.FC<{
                 onClick={() => {
                   setShowDeleteSection(!showDeleteSection);
                   setShowCreateSection(false);
+                  setShowDeleteFurniture(false);
                   setDeleteError('');
                   setDeleteSuccess('');
                 }}
-                className={`py-2 px-3 rounded text-xs font-medium transition-colors ${
+                className={`py-2 px-2 rounded text-xs font-medium transition-colors ${
                   showDeleteSection
                     ? 'bg-red-600 text-white'
                     : 'bg-red-100 text-red-700 hover:bg-red-200'
                 }`}
               >
-                − Excluir Seção
+                − Seção
+              </button>
+
+              {/* Excluir Móvel */}
+              <button
+                onClick={() => {
+                  setShowDeleteFurniture(!showDeleteFurniture);
+                  setShowCreateSection(false);
+                  setShowDeleteSection(false);
+                  setDeleteError('');
+                  setDeleteSuccess('');
+                }}
+                className={`py-2 px-2 rounded text-xs font-medium transition-colors ${
+                  showDeleteFurniture
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                }`}
+              >
+                − Móvel
               </button>
             </div>
 
@@ -257,28 +280,27 @@ const SectionDeleteForm: React.FC<{
                 deleteSuccess={deleteSuccess}
               />
             )}
+
+            {/* Formulário Excluir Móvel */}
+            {showDeleteFurniture && (
+              <FurnitureDeleteForm
+                onDeleteFurniture={onDeleteFurniture}
+                onSuccess={(message) => {
+                  setDeleteSuccess(message);
+                  setDeleteError('');
+                  setTimeout(() => setDeleteSuccess(''), 3000);
+                }}
+                onError={(message) => {
+                  setDeleteError(message);
+                  setDeleteSuccess('');
+                }}
+                deleteError={deleteError}
+                deleteSuccess={deleteSuccess}
+              />
+            )}
           </div>
 
-          {/* Botão Gerenciar Móveis Existentes */}
-          <button
-            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
-          >
-            <Edit3 size={20} />
-            <div className="text-left">
-              <div className="font-semibold text-sm">Gerenciar Móveis Existentes</div>
-              <div className="text-xs opacity-90">Editar, remover e organizar móveis</div>
-            </div>
-          </button>
 
-          {/* Informação sobre as funções */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-2">
-            <h4 className="text-xs font-medium text-gray-800 mb-1">Informações:</h4>
-            <ul className="text-xs text-gray-600 space-y-0">
-              <li>• Upload GLB: Adiciona modelos 3D</li>
-              <li>• Gerenciar Seções: Criar/excluir categorias</li>
-              <li>• Gerenciar: Editar móveis existentes</li>
-            </ul>
-          </div>
         </div>
       </SimpleModal>
 
