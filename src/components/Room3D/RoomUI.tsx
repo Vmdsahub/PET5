@@ -416,7 +416,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
                   {expandedSection === 'limitados' && (
                     <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-4 gap-1.5">
                         {limitedFurniture.map((item, index) => (
                           <div
                             key={index}
