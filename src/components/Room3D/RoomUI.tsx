@@ -168,9 +168,9 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const selectedItem = inventory.find(item => item.id === selectedFurniture) ||
                       null;
 
-  // Obter todas as seções disponíveis
-  const allSections = mockStorageService.getAllSections();
-  const customSections = mockStorageService.getCustomSections();
+  // Obter todas as seções disponíveis (re-executar quando sectionsVersion muda)
+  const allSections = React.useMemo(() => mockStorageService.getAllSections(), [sectionsVersion]);
+  const customSections = React.useMemo(() => mockStorageService.getCustomSections(), [sectionsVersion]);
 
   // Dividir catálogo por seções
   const basicFurniture = catalog.filter(item =>
