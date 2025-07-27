@@ -33,7 +33,8 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
     setScaleX(furniture.scale?.[0] || 1);
     setScaleY(furniture.scale?.[1] || 1);
     setScaleZ(furniture.scale?.[2] || 1);
-  }, [furniture.id, furniture.scale]);
+    setPositionY(furniture.position?.[1] || 0);
+  }, [furniture.id, furniture.scale, furniture.position]);
 
   // Calculate screen position based on 3D position
   useEffect(() => {
