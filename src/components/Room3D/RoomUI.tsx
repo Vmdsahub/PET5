@@ -289,7 +289,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               onSelectFurniture(null);
             }}
             className="p-3 rounded-full hover:bg-gray-100 transition-colors"
-            title="Fechar Modais"
+            title="Fechar Todos os Modais"
           >
             <Home size={24} className="text-gray-700" />
           </button>
