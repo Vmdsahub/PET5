@@ -271,8 +271,6 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           <button
             onClick={() => {
               onToggleEditMode?.();
-              setShowCatalog(false);
-              setShowInventory(false);
               onSelectFurniture(null);
             }}
             className={`p-3 rounded-full transition-colors ${
