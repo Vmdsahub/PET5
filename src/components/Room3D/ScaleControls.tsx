@@ -34,6 +34,48 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
     setScaleZ(furniture.scale?.[2] || 1);
   }, [furniture.id, furniture.scale]);
 
+  // Calculate screen position based on 3D position
+  useEffect(() => {
+    const updateScreenPosition = () => {
+      if (!meshRef.current || !camera) return;
+
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const worldPosition = new THREE.Vector3();
+      meshRef.current.getWorldPosition(worldPosition);
+
+      // Project 3D position to 2D screen coordinates
+      const vector = worldPosition.clone();
+      vector.project(camera);
+
+      const x = (vector.x * 0.5 + 0.5) * rect.width + rect.left;
+      const y = (vector.y * -0.5 + 0.5) * rect.height + rect.top;
+
+      // Position controls to the right of the furniture with some offset
+      setScreenPosition({
+        x: Math.min(x + 80, window.innerWidth - 200), // Offset to the right, but stay in screen
+        y: Math.max(y - 80, 50) // Offset up a bit, but stay in screen
+      });
+    };
+
+    const animate = () => {
+      updateScreenPosition();
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    if (visible && meshRef.current && camera) {
+      animate();
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [visible, meshRef, camera]);
+
   const updateScale = (axis: 'x' | 'y' | 'z', value: number) => {
     if (!meshRef.current) return;
 
