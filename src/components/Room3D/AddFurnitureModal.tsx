@@ -57,8 +57,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     price: '',
     currency: 'xenocoins' as 'xenocoins' | 'xenocash'
   });
-  const [showNewSectionInput, setShowNewSectionInput] = useState(false);
-  const [newSectionName, setNewSectionName] = useState('');
+
   const [glbFile, setGlbFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -212,65 +211,17 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Seção
           </label>
-          <div className="space-y-2">
-            <select
-              value={showNewSectionInput ? 'nova' : formData.category}
-              onChange={(e) => {
-                if (e.target.value === 'nova') {
-                  setShowNewSectionInput(true);
-                } else {
-                  setShowNewSectionInput(false);
-                  setFormData(prev => ({ ...prev, category: e.target.value as 'basicos' | 'limitados' }));
-                }
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="basicos">Móveis Básicos</option>
-              <option value="limitados">Móveis Limitados</option>
-              <option value="nova">+ Criar Nova Seção</option>
-            </select>
-
-            {showNewSectionInput && (
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  value={newSectionName}
-                  onChange={(e) => setNewSectionName(e.target.value)}
-                  placeholder="Nome da nova seção"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (newSectionName.trim()) {
-                        // Criar uma nova categoria/seção personalizada
-                        const customCategory = newSectionName.toLowerCase().replace(/\s+/g, '_');
-                        console.log('Nova seção criada:', newSectionName, 'categoria:', customCategory);
-                        setShowNewSectionInput(false);
-                        // Usar o nome da nova seção como categoria
-                        setFormData(prev => ({ ...prev, category: customCategory as any }));
-                        setNewSectionName('');
-                      }
-                    }}
-                    className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
-                  >
-                    Criar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowNewSectionInput(false);
-                      setNewSectionName('');
-                    }}
-                    className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as 'basicos' | 'limitados' }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="basicos">Móveis Básicos</option>
+            <option value="limitados">Móveis Limitados</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Para criar novas seções, use o Painel de Administração
+          </p>
         </div>
 
         {/* Preço e Moeda */}
