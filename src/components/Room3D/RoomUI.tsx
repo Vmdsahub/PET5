@@ -513,7 +513,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-3 p-4">
+              <div className="grid grid-cols-6 gap-2 p-4">
                 {inventory.map((item) => (
                   <div
                     key={item.id}
