@@ -108,6 +108,24 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
     }
   };
 
+  const updatePositionY = (value: number) => {
+    if (!meshRef.current) return;
+
+    setPositionY(value);
+    meshRef.current.position.y = value;
+
+    if (onUpdateTransform) {
+      const position = meshRef.current.position;
+      const rotation = meshRef.current.rotation;
+      const scale = meshRef.current.scale;
+      onUpdateTransform(furniture.id,
+        [position.x, value, position.z],
+        [rotation.x, rotation.y, rotation.z],
+        [scale.x, scale.y, scale.z]
+      );
+    }
+  };
+
   if (!visible) return null;
 
   return (
