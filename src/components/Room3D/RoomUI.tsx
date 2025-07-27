@@ -3,6 +3,7 @@ import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3 } from 'lucide-reac
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
+import { FurnitureAdminPanel } from './FurnitureAdminPanel';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
 import { useAuthStore } from '../../store/authStore';
 
@@ -55,6 +56,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const [expandedSection, setExpandedSection] = useState<'basicos' | 'limitados' | null>(null);
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any>(null);
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   // Usar contexto externo ou estado local como fallback
   const [localContextMenu, setLocalContextMenu] = useState<{
     visible: boolean;
@@ -331,12 +333,12 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             <div className="flex justify-between items-center w-full">
               <span>Catálogo de Móveis</span>
               <button
-                onClick={() => setShowAddFurniture(true)}
+                onClick={() => setShowAdminPanel(true)}
                 className="bg-blue-500 hover:bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-colors shadow-sm"
-                title="Adicionar Móvel"
+                title="Painel de Administração"
                 style={{ display: isUserAdmin ? 'flex' : 'none' }}
               >
-                +
+                ⚙️
               </button>
             </div>
           }
@@ -558,6 +560,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             <span>Guardar</span>
           </button>
         </div>
+      )}
+
+      {/* Painel Administrativo */}
+      {isUserAdmin && (
+        <FurnitureAdminPanel
+          isOpen={showAdminPanel}
+          onClose={() => setShowAdminPanel(false)}
+          onAddFurniture={onAddFurniture}
+          onCreateSection={(sectionName) => {
+            console.log('Nova seção criada:', sectionName);
+            // Aqui você pode implementar a lógica para criar a seção
+          }}
+        />
       )}
 
       {/* Modal Adicionar Móvel (Admin) */}
