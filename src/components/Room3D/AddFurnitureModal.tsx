@@ -159,7 +159,7 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       width="650px"
       height="700px"
     >
-      <div className="p-4 space-y-4 overflow-y-auto max-h-[650px]">
+      <div className="p-4 space-y-4 overflow-y-auto max-h-[600px]">
         {/* Upload do arquivo GLB */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
