@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { FurnitureItem } from '../../services/mockStorage';
 
@@ -9,6 +9,7 @@ interface ScaleControlsProps {
   onUpdateCatalogItem?: (furnitureId: string, newScale: [number, number, number]) => void;
   isAdmin?: boolean;
   visible: boolean;
+  camera?: THREE.Camera;
 }
 
 export const ScaleControls: React.FC<ScaleControlsProps> = ({ 
