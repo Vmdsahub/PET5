@@ -63,10 +63,10 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
         title="Painel de Administração - Catálogo de Móveis"
         onClose={onClose}
         initialPosition={{ x: 150, y: 50 }}
-        width="520px"
-      height="550px"
+        width="540px"
+      height="580px"
       >
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 overflow-y-auto max-h-[520px]">
           <div className="text-center mb-6">
             <Package size={48} className="mx-auto mb-3 text-blue-500" />
             <h2 className="text-lg font-semibold text-gray-800">
@@ -159,9 +159,9 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
           </button>
 
           {/* Informação sobre as funções */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mt-4">
             <h4 className="text-sm font-medium text-gray-800 mb-2">Informações:</h4>
-            <ul className="text-xs text-gray-600 space-y-1">
+            <ul className="text-xs text-gray-600 space-y-0.5">
               <li>• Upload GLB: Adiciona novos modelos 3D ao catálogo</li>
               <li>• Nova Seção: Cria categorias personalizadas</li>
               <li>• Gerenciar: Edita móveis já cadastrados</li>
