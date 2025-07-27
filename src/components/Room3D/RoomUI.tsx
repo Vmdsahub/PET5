@@ -142,6 +142,24 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     handleCloseContextMenu();
   };
 
+  const handleDiscardFurniture = () => {
+    if (contextMenu.furnitureId) {
+      const confirmed = window.confirm('Tem certeza que deseja descartar este móvel? Esta ação não pode ser desfeita.');
+      if (confirmed) {
+        // Usar a nova função de deletar do mockStorage
+        const { user } = useAuthStore.getState();
+        if (user) {
+          const success = mockStorageService.deleteInventoryFurniture(user.id, contextMenu.furnitureId);
+          if (success) {
+            // Forçar re-render removendo o item do estado local se necessário
+            console.log('Móvel descartado com sucesso');
+          }
+        }
+      }
+    }
+    handleCloseContextMenu();
+  };
+
   // Fechar menu de contexto ao clicar fora
   React.useEffect(() => {
     const handleClickOutside = () => {
