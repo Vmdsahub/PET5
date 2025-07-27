@@ -633,15 +633,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             const success = mockStorageService.createCustomSection(sectionName);
             if (success) {
               console.log('Nova seção criada com sucesso:', sectionName);
-              // Fechar o painel para forçar re-render
-              setTimeout(() => {
-                setShowAdminPanel(false);
-                setShowCatalog(false);
-                // Reabrir catálogo após um delay para mostrar a nova seção
-                setTimeout(() => {
-                  setShowCatalog(true);
-                }, 500);
-              }, 2000);
+              // Forçar re-render das seções
+              setSectionsVersion(prev => prev + 1);
             }
             return success;
           }}
