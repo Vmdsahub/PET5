@@ -638,6 +638,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             }
             return success;
           }}
+          onDeleteSection={(sectionName) => {
+            const success = mockStorageService.deleteCustomSection(sectionName);
+            if (success) {
+              console.log('Seção excluída com sucesso:', sectionName);
+              // Forçar re-render das seções
+              setSectionsVersion(prev => prev + 1);
+              // Fechar seção expandida se foi a que foi excluída
+              if (expandedSection === sectionName.toLowerCase()) {
+                setExpandedSection(null);
+              }
+            }
+            return success;
+          }}
         />
       )}
 
