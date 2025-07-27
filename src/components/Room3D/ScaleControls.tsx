@@ -120,8 +120,8 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
       <div className="flex gap-3">
         {/* Slider X */}
         <div className="flex flex-col items-center">
-          <div className="text-xs text-blue-400 mb-2 font-medium">X</div>
-          <div className="relative h-32 w-6">
+          <div className="text-xs text-blue-400 mb-1 font-bold bg-black/60 px-2 py-0.5 rounded">X</div>
+          <div className="relative h-24 w-4">
             <input
               type="range"
               min="0.1"
@@ -129,14 +129,14 @@ export const ScaleControls: React.FC<ScaleControlsProps> = ({
               step="0.1"
               value={scaleX}
               onChange={(e) => updateScale('x', parseFloat(e.target.value))}
-              className="slider-vertical h-full w-full appearance-none bg-white/20 rounded-full outline-none cursor-pointer"
+              className="slider-vertical h-full w-full appearance-none bg-blue-400/40 rounded-full outline-none cursor-pointer"
               style={{
                 writingMode: 'bt-lr',
                 WebkitAppearance: 'slider-vertical'
               }}
             />
           </div>
-          <div className="text-xs text-white/70 mt-2">{scaleX.toFixed(1)}</div>
+          <div className="text-xs text-white font-medium mt-1 bg-black/60 px-1 py-0.5 rounded">{scaleX.toFixed(1)}</div>
         </div>
 
         {/* Slider Y */}
