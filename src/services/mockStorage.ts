@@ -215,6 +215,29 @@ class MockStorageService {
     const baseSections = ['basicos', 'limitados'];
     return [...baseSections, ...this.customSections];
   }
+
+  deleteCustomSection(sectionName: string): boolean {
+    const normalizedName = sectionName.toLowerCase().trim();
+
+    // Verificar se a seção existe
+    const sectionIndex = this.customSections.indexOf(normalizedName);
+    if (sectionIndex === -1) {
+      return false; // Seção não encontrada
+    }
+
+    // Remover a seção
+    this.customSections.splice(sectionIndex, 1);
+
+    // Remover todos os móveis dessa seção do catálogo customizado
+    // IMPORTANTE: Não remove móveis já comprados/posicionados pelos usuários
+    this.customCatalog = this.customCatalog.filter(item => item.category !== normalizedName);
+
+    this.saveToLocalStorage();
+    console.log('Seção excluída:', sectionName, 'ID:', normalizedName);
+    console.log('Móveis da seção removidos do catálogo (não afeta móveis já adquiridos)');
+    console.log('Seções restantes:', this.customSections);
+    return true;
+  }
 }
 
 export const mockStorageService = new MockStorageService();
