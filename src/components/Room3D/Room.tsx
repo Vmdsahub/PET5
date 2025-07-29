@@ -9,8 +9,8 @@ interface RoomProps {
 
 export const Room: React.FC<RoomProps> = ({ dimensions }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
-  const { width, length, height } = roomDimensions;
-  
+  const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
+
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
   const ceilingRef = useRef<THREE.Mesh>(null);
@@ -19,7 +19,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
   const wallSouthRightRef = useRef<THREE.Mesh>(null);
   const wallEastRef = useRef<THREE.Mesh>(null);
   const wallWestRef = useRef<THREE.Mesh>(null);
-  
+
   const { camera } = useThree();
 
   // Sistema de culling otimizado
@@ -27,41 +27,40 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
     if (!camera) return;
 
     const cameraPos = camera.position;
-    
+
     // Chão - mostrar apenas se câmera estiver acima
     if (floorRef.current) {
       floorRef.current.visible = cameraPos.y > 0.2;
     }
-    
+
     // Teto - mostrar apenas se câmera estiver abaixo
     if (ceilingRef.current) {
       ceilingRef.current.visible = cameraPos.y < height - 0.2;
     }
-    
+
     // Paredes - mostrar apenas quando visualizadas de fora
     if (wallNorthRef.current) {
       wallNorthRef.current.visible = cameraPos.z > -length/2 + 0.3;
     }
-    
+
     if (wallEastRef.current) {
       wallEastRef.current.visible = cameraPos.x < width/2 - 0.3;
     }
-    
+
     if (wallWestRef.current) {
       wallWestRef.current.visible = cameraPos.x > -width/2 + 0.3;
     }
-    
+
     // Paredes do sul (com entrada)
     if (wallSouthLeftRef.current) {
       wallSouthLeftRef.current.visible = cameraPos.z < length/2 - 0.3;
     }
-    
+
     if (wallSouthRightRef.current) {
       wallSouthRightRef.current.visible = cameraPos.z < length/2 - 0.3;
     }
   });
 
-  const wallThickness = 0.1;
   const doorWidth = 2;
 
   return (
