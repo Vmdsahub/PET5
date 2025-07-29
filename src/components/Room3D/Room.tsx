@@ -20,7 +20,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
       >
-        <planeGeometry args={[roomSize, roomSize]} />
+        <planeGeometry args={[roomDimensions.width, roomDimensions.length]} />
         <meshLambertMaterial
           color="#8B7355"
         />
