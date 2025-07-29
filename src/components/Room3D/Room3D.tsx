@@ -288,6 +288,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         >
           🗑️ Limpar Tudo
         </button>
+
+        {isAdmin && (
+          <button
+            onClick={() => setShowRoomProperties(true)}
+            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+            title="Configurar propriedades do quarto"
+          >
+            ⚙️ Propriedades
+          </button>
+        )}
       </div>
 
       {/* Notificação de atualização do catálogo */}
