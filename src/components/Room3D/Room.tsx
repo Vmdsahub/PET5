@@ -77,39 +77,25 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
         <meshLambertMaterial color="#ffffff" />
       </mesh>
 
-      {/* Parede Norte (traseira) - encaixa perfeitamente nas bordas */}
+      {/* Parede Norte (traseira) - igual a todas as outras */}
       <mesh ref={wallNorthRef} position={[0, height/2, -length/2]} rotation={[0, 0, 0]}>
         <boxGeometry args={[width, height, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Sul Esquerda (com entrada) */}
-      <mesh
-        ref={wallSouthLeftRef}
-        position={[-(width - doorWidth)/4, height/2, length/2]}
-        rotation={[0, 0, 0]}
-      >
-        <boxGeometry args={[(width - doorWidth)/2, height, wallThickness]} />
+      {/* Parede Sul (frontal) - igual a todas as outras, SEM buraco */}
+      <mesh ref={wallSouthLeftRef} position={[0, height/2, length/2]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[width, height, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Sul Direita (com entrada) */}
-      <mesh
-        ref={wallSouthRightRef}
-        position={[(width - doorWidth)/4, height/2, length/2]}
-        rotation={[0, 0, 0]}
-      >
-        <boxGeometry args={[(width - doorWidth)/2, height, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
-      </mesh>
-
-      {/* Parede Leste (direita) - encaixa perfeitamente nas bordas */}
+      {/* Parede Leste (direita) - igual a todas as outras */}
       <mesh ref={wallEastRef} position={[width/2, height/2, 0]} rotation={[0, 0, 0]}>
         <boxGeometry args={[wallThickness, height, length]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Oeste (esquerda) - encaixa perfeitamente nas bordas */}
+      {/* Parede Oeste (esquerda) - igual a todas as outras */}
       <mesh ref={wallWestRef} position={[-width/2, height/2, 0]} rotation={[0, 0, 0]}>
         <boxGeometry args={[wallThickness, height, length]} />
         <meshLambertMaterial color="#f5f5f5" />
