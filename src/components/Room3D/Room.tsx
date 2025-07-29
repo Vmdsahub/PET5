@@ -7,34 +7,32 @@ interface RoomProps {
   dimensions?: RoomDimensions;
 }
 
-// Componente para parede com espessura
+// Componente para parede com espessura e culling simples
 const ThickWall: React.FC<{
   position: [number, number, number];
   dimensions: [number, number, number];
   rotation?: [number, number, number];
   color: string;
-  children?: React.ReactNode;
-}> = ({ position, dimensions, rotation = [0, 0, 0], color, children }) => {
+  normalDirection: [number, number, number];
+}> = ({ position, dimensions, rotation = [0, 0, 0], color, normalDirection }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
 
   useFrame(() => {
     if (meshRef.current && camera) {
-      // Calcular se a parede deve ser visível baseado na posição da câmera
-      const wallPosition = new THREE.Vector3(...position);
-      const cameraPosition = camera.position.clone();
-      
-      // Direção da parede (normal)
-      const wallNormal = new THREE.Vector3(0, 0, 1);
-      wallNormal.applyEuler(new THREE.Euler(...rotation));
+      // Posição da parede e câmera
+      const wallPos = new THREE.Vector3(...position);
+      const cameraPos = camera.position.clone();
       
       // Direção da câmera para a parede
-      const cameraToWall = wallPosition.clone().sub(cameraPosition).normalize();
+      const cameraToWall = wallPos.clone().sub(cameraPos).normalize();
       
-      // Se o produto escalar for positivo, a câmera está vendo a face externa
-      const dot = wallNormal.dot(cameraToWall);
+      // Normal da parede
+      const normal = new THREE.Vector3(...normalDirection);
       
-      meshRef.current.visible = dot > 0;
+      // Se o produto escalar for negativo, a câmera está vendo a parede de frente
+      const dot = normal.dot(cameraToWall);
+      meshRef.current.visible = dot < 0.1; // Pequena margem para evitar flickering
     }
   });
 
@@ -42,40 +40,37 @@ const ThickWall: React.FC<{
     <mesh ref={meshRef} position={position} rotation={rotation}>
       <boxGeometry args={dimensions} />
       <meshLambertMaterial color={color} />
-      {children}
     </mesh>
   );
 };
 
-// Componente para superfície plana com espessura (chão/teto)
+// Componente para chão/teto com culling simples
 const ThickSurface: React.FC<{
   position: [number, number, number];
   dimensions: [number, number, number];
-  rotation?: [number, number, number];
   color: string;
   isFloor?: boolean;
-}> = ({ position, dimensions, rotation = [0, 0, 0], color, isFloor = false }) => {
+}> = ({ position, dimensions, color, isFloor = false }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
 
   useFrame(() => {
     if (meshRef.current && camera) {
-      const surfacePosition = new THREE.Vector3(...position);
-      const cameraPosition = camera.position.clone();
+      const surfaceY = position[1];
+      const cameraY = camera.position.y;
       
-      // Para chão e teto, verificar se a câmera está acima ou abaixo
       if (isFloor) {
-        // Mostrar chão apenas se a câmera estiver acima
-        meshRef.current.visible = cameraPosition.y > surfacePosition.y;
+        // Mostrar chão se a câmera estiver acima
+        meshRef.current.visible = cameraY > surfaceY + 0.1;
       } else {
-        // Mostrar teto apenas se a câmera estiver abaixo
-        meshRef.current.visible = cameraPosition.y < surfacePosition.y;
+        // Mostrar teto se a câmera estiver abaixo
+        meshRef.current.visible = cameraY < surfaceY - 0.1;
       }
     }
   });
 
   return (
-    <mesh ref={meshRef} position={position} rotation={rotation}>
+    <mesh ref={meshRef} position={position}>
       <boxGeometry args={dimensions} />
       <meshLambertMaterial color={color} />
     </mesh>
@@ -83,134 +78,98 @@ const ThickSurface: React.FC<{
 };
 
 export const Room: React.FC<RoomProps> = ({ dimensions }) => {
-  // Usar dimensões fornecidas ou padrões do storage
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const wallHeight = roomDimensions.height;
-  const wallThickness = 0.2; // Espessura das paredes
-  const floorThickness = 0.1; // Espessura do chão
-  const ceilingThickness = 0.1; // Espessura do teto
+  const wallThickness = 0.15;
+  const floorThickness = 0.1;
 
   return (
     <group>
-      {/* Chão com espessura */}
+      {/* Chão */}
       <ThickSurface
         position={[0, -floorThickness / 2, 0]}
-        dimensions={[roomDimensions.width, floorThickness, roomDimensions.length]}
+        dimensions={[roomDimensions.width + wallThickness, floorThickness, roomDimensions.length + wallThickness]}
         color="#8B7355"
         isFloor={true}
       />
 
-      {/* Teto com espessura */}
+      {/* Teto */}
       <ThickSurface
-        position={[0, wallHeight + ceilingThickness / 2, 0]}
-        dimensions={[roomDimensions.width, ceilingThickness, roomDimensions.length]}
+        position={[0, wallHeight + floorThickness / 2, 0]}
+        dimensions={[roomDimensions.width + wallThickness, floorThickness, roomDimensions.length + wallThickness]}
         color="#ffffff"
         isFloor={false}
       />
 
-      {/* Parede traseira (Norte) com espessura */}
+      {/* Parede traseira (Norte) */}
       <ThickWall
-        position={[0, wallHeight / 2, -roomDimensions.length / 2 - wallThickness / 2]}
-        dimensions={[roomDimensions.width, wallHeight, wallThickness]}
+        position={[0, wallHeight / 2, -roomDimensions.length / 2]}
+        dimensions={[roomDimensions.width + wallThickness, wallHeight, wallThickness]}
         color="#f5f5f5"
+        normalDirection={[0, 0, 1]}
       />
 
-      {/* Parede da frente (Sul) - dividida em duas partes para entrada */}
-      <group>
-        {/* Parte esquerda da parede da frente */}
-        <ThickWall
-          position={[-roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2 + wallThickness / 2]}
-          dimensions={[roomDimensions.width / 2, wallHeight, wallThickness]}
-          rotation={[0, Math.PI, 0]}
-          color="#f5f5f5"
-        />
-
-        {/* Parte direita da parede da frente */}
-        <ThickWall
-          position={[roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2 + wallThickness / 2]}
-          dimensions={[roomDimensions.width / 2, wallHeight, wallThickness]}
-          rotation={[0, Math.PI, 0]}
-          color="#f5f5f5"
-        />
-      </group>
-
-      {/* Parede esquerda (Oeste) com espessura */}
+      {/* Parede esquerda (Oeste) */}
       <ThickWall
-        position={[-roomDimensions.width / 2 - wallThickness / 2, wallHeight / 2, 0]}
+        position={[-roomDimensions.width / 2, wallHeight / 2, 0]}
         dimensions={[wallThickness, wallHeight, roomDimensions.length]}
-        rotation={[0, Math.PI / 2, 0]}
         color="#f5f5f5"
+        normalDirection={[1, 0, 0]}
       />
 
-      {/* Parede direita (Leste) com espessura */}
+      {/* Parede direita (Leste) */}
       <ThickWall
-        position={[roomDimensions.width / 2 + wallThickness / 2, wallHeight / 2, 0]}
+        position={[roomDimensions.width / 2, wallHeight / 2, 0]}
         dimensions={[wallThickness, wallHeight, roomDimensions.length]}
-        rotation={[0, -Math.PI / 2, 0]}
         color="#f5f5f5"
+        normalDirection={[-1, 0, 0]}
       />
 
-      {/* Rodapés (opcional, para melhor acabamento) */}
+      {/* Parede frontal esquerda */}
+      <ThickWall
+        position={[-roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
+        dimensions={[roomDimensions.width / 2 - 1, wallHeight, wallThickness]}
+        color="#f5f5f5"
+        normalDirection={[0, 0, -1]}
+      />
+
+      {/* Parede frontal direita */}
+      <ThickWall
+        position={[roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
+        dimensions={[roomDimensions.width / 2 - 1, wallHeight, wallThickness]}
+        color="#f5f5f5"
+        normalDirection={[0, 0, -1]}
+      />
+
+      {/* Rodapés - sempre visíveis */}
       <group>
-        {/* Rodapé parede traseira */}
-        <mesh position={[0, 0.1, -roomDimensions.length / 2 - wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#6B5B47" />
+        {/* Rodapé traseiro */}
+        <mesh position={[0, 0.05, -roomDimensions.length / 2 + wallThickness / 2]}>
+          <boxGeometry args={[roomDimensions.width, 0.1, wallThickness]} />
+          <meshLambertMaterial color="#654321" />
         </mesh>
 
-        {/* Rodapé parede esquerda */}
-        <mesh position={[-roomDimensions.width / 2 - wallThickness / 4, 0.1, 0]}>
-          <boxGeometry args={[wallThickness / 2, 0.2, roomDimensions.length]} />
-          <meshLambertMaterial color="#6B5B47" />
+        {/* Rodapé esquerdo */}
+        <mesh position={[-roomDimensions.width / 2 + wallThickness / 2, 0.05, 0]}>
+          <boxGeometry args={[wallThickness, 0.1, roomDimensions.length - wallThickness]} />
+          <meshLambertMaterial color="#654321" />
         </mesh>
 
-        {/* Rodapé parede direita */}
-        <mesh position={[roomDimensions.width / 2 + wallThickness / 4, 0.1, 0]}>
-          <boxGeometry args={[wallThickness / 2, 0.2, roomDimensions.length]} />
-          <meshLambertMaterial color="#6B5B47" />
+        {/* Rodapé direito */}
+        <mesh position={[roomDimensions.width / 2 - wallThickness / 2, 0.05, 0]}>
+          <boxGeometry args={[wallThickness, 0.1, roomDimensions.length - wallThickness]} />
+          <meshLambertMaterial color="#654321" />
         </mesh>
 
-        {/* Rodapés da parede frontal (partes esquerda e direita) */}
-        <mesh position={[-roomDimensions.width / 4, 0.1, roomDimensions.length / 2 + wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width / 2, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#6B5B47" />
+        {/* Rodapés frontais */}
+        <mesh position={[-roomDimensions.width / 4, 0.05, roomDimensions.length / 2 - wallThickness / 2]}>
+          <boxGeometry args={[roomDimensions.width / 2 - 1, 0.1, wallThickness]} />
+          <meshLambertMaterial color="#654321" />
         </mesh>
         
-        <mesh position={[roomDimensions.width / 4, 0.1, roomDimensions.length / 2 + wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width / 2, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#6B5B47" />
-        </mesh>
-      </group>
-
-      {/* Molduras do teto (opcional, para melhor acabamento) */}
-      <group>
-        {/* Moldura parede traseira */}
-        <mesh position={[0, wallHeight - 0.1, -roomDimensions.length / 2 - wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#E5E5E5" />
-        </mesh>
-
-        {/* Moldura parede esquerda */}
-        <mesh position={[-roomDimensions.width / 2 - wallThickness / 4, wallHeight - 0.1, 0]}>
-          <boxGeometry args={[wallThickness / 2, 0.2, roomDimensions.length]} />
-          <meshLambertMaterial color="#E5E5E5" />
-        </mesh>
-
-        {/* Moldura parede direita */}
-        <mesh position={[roomDimensions.width / 2 + wallThickness / 4, wallHeight - 0.1, 0]}>
-          <boxGeometry args={[wallThickness / 2, 0.2, roomDimensions.length]} />
-          <meshLambertMaterial color="#E5E5E5" />
-        </mesh>
-
-        {/* Molduras da parede frontal */}
-        <mesh position={[-roomDimensions.width / 4, wallHeight - 0.1, roomDimensions.length / 2 + wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width / 2, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#E5E5E5" />
-        </mesh>
-        
-        <mesh position={[roomDimensions.width / 4, wallHeight - 0.1, roomDimensions.length / 2 + wallThickness / 4]}>
-          <boxGeometry args={[roomDimensions.width / 2, 0.2, wallThickness / 2]} />
-          <meshLambertMaterial color="#E5E5E5" />
+        <mesh position={[roomDimensions.width / 4, 0.05, roomDimensions.length / 2 - wallThickness / 2]}>
+          <boxGeometry args={[roomDimensions.width / 2 - 1, 0.1, wallThickness]} />
+          <meshLambertMaterial color="#654321" />
         </mesh>
       </group>
     </group>
