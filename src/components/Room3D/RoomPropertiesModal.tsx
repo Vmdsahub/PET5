@@ -45,31 +45,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
     onDimensionsUpdate?.(newDimensions);
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setSaveMessage(null);
-    
-    try {
-      const success = mockStorageService.updateRoomDimensions(dimensions);
-      
-      if (success) {
-        setSaveMessage('✅ Propriedades do quarto salvas com sucesso!');
-        onDimensionsUpdate?.(dimensions);
-        
-        // Fechar modal após 2 segundos
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setSaveMessage('❌ Erro: Valores fora dos limites permitidos.');
-      }
-    } catch (error) {
-      console.error('Erro ao salvar propriedades:', error);
-      setSaveMessage('❌ Erro interno ao salvar configurações.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
 
   const handleReset = () => {
     const defaultDimensions: RoomDimensions = {
