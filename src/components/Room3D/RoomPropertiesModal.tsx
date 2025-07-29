@@ -183,45 +183,34 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
           </div>
         </div>
 
-        {/* Mensagem de status */}
-        {saveMessage && (
-          <div className={`p-3 rounded-lg text-sm ${
-            saveMessage.includes('✅') 
-              ? 'bg-green-50 text-green-800 border border-green-200' 
-              : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
-            {saveMessage}
-          </div>
-        )}
-
         {/* Botões */}
-        <div className="flex space-x-3 pt-4 border-t border-gray-200">
+        <div className="flex space-x-2 pt-3 border-t border-gray-200">
           <button
             onClick={handleReset}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm transition-colors"
           >
-            Restaurar Padrão
+            Padrão
           </button>
-          
+
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors"
+            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-3 rounded text-sm transition-colors"
           >
             Cancelar
           </button>
-          
+
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 px-3 rounded text-sm transition-colors flex items-center justify-center"
           >
             {isSaving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Salvando...
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                Salvar...
               </>
             ) : (
-              'Salvar Alterações'
+              'Salvar'
             )}
           </button>
         </div>
