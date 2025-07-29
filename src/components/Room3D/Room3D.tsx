@@ -96,6 +96,35 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }
   };
 
+  const handleClearAllFurniture = () => {
+    const confirmClear = window.confirm(
+      'Tem certeza que deseja deletar TODOS os móveis do quarto? Esta ação não pode ser desfeita.'
+    );
+
+    if (confirmClear) {
+      // Pegar todos os móveis colocados
+      const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
+
+      // Remover todos os móveis um por um (isso vai movê-los para o inventário)
+      currentPlacedFurniture.forEach(furniture => {
+        mockStorageService.removeFurniture(userId, furniture.id);
+      });
+
+      // Depois deletar todos do inventário também
+      const currentInventory = mockStorageService.getInventory(userId);
+      currentInventory.forEach(furniture => {
+        mockStorageService.deleteInventoryFurniture(userId, furniture.id);
+      });
+
+      // Atualizar o estado
+      setPlacedFurniture([]);
+      setInventory([]);
+      setSelectedFurniture(null);
+
+      console.log('Todos os móveis foram deletados do quarto e inventário');
+    }
+  };
+
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
     mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
     setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
