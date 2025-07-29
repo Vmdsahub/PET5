@@ -128,6 +128,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }
   };
 
+  const handleRoomDimensionsUpdate = (newDimensions: RoomDimensions) => {
+    setRoomDimensions(newDimensions);
+    console.log('Dimensões do quarto atualizadas:', newDimensions);
+  };
+
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
     mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
     setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
