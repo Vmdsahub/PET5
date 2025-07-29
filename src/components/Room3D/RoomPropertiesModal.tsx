@@ -97,7 +97,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.width}
                 onChange={(e) => handleInputChange('width', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
 
@@ -113,7 +113,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.length}
                 onChange={(e) => handleInputChange('length', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
 
@@ -129,7 +129,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.height}
                 onChange={(e) => handleInputChange('height', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
           </div>
@@ -152,7 +152,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.floorThickness}
                 onChange={(e) => handleInputChange('floorThickness', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
               />
             </div>
 
@@ -168,7 +168,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.wallThickness}
                 onChange={(e) => handleInputChange('wallThickness', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
               />
             </div>
 
@@ -184,7 +184,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.ceilingThickness}
                 onChange={(e) => handleInputChange('ceilingThickness', parseFloat(e.target.value))}
-                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-orange"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-orange"
               />
             </div>
           </div>
