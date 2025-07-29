@@ -23,8 +23,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
     wallThickness: 0.2,
     ceilingThickness: 0.2
   });
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
 
   // Carregar dimensões atuais quando modal abrir
   useEffect(() => {
