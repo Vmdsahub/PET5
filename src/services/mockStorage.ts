@@ -12,6 +12,15 @@ export interface FurnitureItem {
   quantity?: number;
 }
 
+export interface RoomDimensions {
+  length: number;  // comprimento (Z)
+  width: number;   // largura (X)
+  height: number;  // altura das paredes
+  floorThickness: number;  // espessura do chão
+  wallThickness: number;   // espessura das paredes
+  ceilingThickness: number; // espessura do teto
+}
+
 export interface UserRoom {
   userId: string;
   placedFurniture: FurnitureItem[];
