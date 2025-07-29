@@ -5,10 +5,11 @@ import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { ScaleControls } from './ScaleControls';
-import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
+import { mockStorageService, FurnitureItem, RoomDimensions } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
 import { Room2DFallback } from './Room2DFallback';
+import { RoomPropertiesModal } from './RoomPropertiesModal';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
