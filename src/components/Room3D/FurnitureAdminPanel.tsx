@@ -106,9 +106,7 @@ const SectionDeleteForm: React.FC<{
         <option value="">Selecionar seção para excluir</option>
         {allSections.map((section: string) => (
           <option key={section} value={section}>
-            {section === 'basicos' ? 'Móveis Básicos' :
-             section === 'limitados' ? 'Móveis Limitados' :
-             section.charAt(0).toUpperCase() + section.slice(1)}
+            {section.charAt(0).toUpperCase() + section.slice(1)}
           </option>
         ))}
       </select>
@@ -199,9 +197,7 @@ const FurnitureDeleteForm: React.FC<{
         <option value="">Selecionar seção</option>
         {allSections.map((section: string) => (
           <option key={section} value={section}>
-            {section === 'basicos' ? 'Móveis Básicos' :
-             section === 'limitados' ? 'Móveis Limitados' :
-             section.charAt(0).toUpperCase() + section.slice(1)}
+            {section.charAt(0).toUpperCase() + section.slice(1)}
           </option>
         ))}
       </select>
@@ -258,9 +254,10 @@ const FurnitureDeleteForm: React.FC<{
         onClose={onClose}
         initialPosition={{ x: 150, y: 50 }}
         width="560px"
-      height="450px"
+        height="auto"
+        maxHeight="80vh"
       >
-        <div className="p-4 space-y-2">
+        <div className="p-4 space-y-2 max-h-[70vh] overflow-y-auto">
           <div className="text-center mb-4">
             <Package size={40} className="mx-auto mb-2 text-blue-500" />
             <h2 className="text-base font-semibold text-gray-800">

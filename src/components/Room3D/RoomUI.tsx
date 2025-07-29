@@ -142,6 +142,24 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     handleCloseContextMenu();
   };
 
+  const handleDiscardFurniture = () => {
+    if (contextMenu.furnitureId) {
+      const confirmed = window.confirm('Tem certeza que deseja descartar este móvel? Esta ação não pode ser desfeita.');
+      if (confirmed) {
+        // Usar a nova função de deletar do mockStorage
+        const { user } = useAuthStore.getState();
+        if (user) {
+          const success = mockStorageService.deleteInventoryFurniture(user.id, contextMenu.furnitureId);
+          if (success) {
+            // Forçar re-render removendo o item do estado local se necessário
+            console.log('Móvel descartado com sucesso');
+          }
+        }
+      }
+    }
+    handleCloseContextMenu();
+  };
+
   // Fechar menu de contexto ao clicar fora
   React.useEffect(() => {
     const handleClickOutside = () => {
@@ -172,14 +190,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const allSections = React.useMemo(() => mockStorageService.getAllSections(), [sectionsVersion]);
   const customSections = React.useMemo(() => mockStorageService.getCustomSections(), [sectionsVersion]);
 
-  // Dividir catálogo por seções
-  const basicFurniture = catalog.filter(item =>
-    item.category === 'basicos' || ['sala', 'quarto', 'geral'].includes(item.category)
-  );
 
-  const limitedFurniture = catalog.filter(item =>
-    item.category === 'limitados' || ['decoração', 'iluminação', 'cozinha'].includes(item.category)
-  );
 
   // Agrupar móveis por seções customizadas (apenas móveis exatamente dessa categoria)
   const customSectionsFurniture = customSections.reduce((acc, section) => {
@@ -367,79 +378,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             {/* Lado esquerdo - Seções */}
             <div className="w-1/2 overflow-y-auto border-r border-gray-200 max-h-full">
               <div className="p-4 space-y-2">
-                {/* Seção Móveis Básicos */}
-                <div className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === 'basicos' ? null : 'basicos')}
-                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-medium text-gray-800">Móveis Básicos</span>
-                    <span className="text-gray-500">
-                      {expandedSection === 'basicos' ? '−' : '+'}
-                    </span>
-                  </button>
 
-                  {expandedSection === 'basicos' && (
-                    <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-6 gap-0.5">
-                        {basicFurniture.map((item, index) => (
-                          <div
-                            key={index}
-                            onClick={() => setSelectedCatalogItem(item)}
-                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
-                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
-                                ? 'bg-blue-50 ring-2 ring-blue-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <FurnitureThumbnail
-                              modelPath={item.model}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Seção Móveis Limitados */}
-                <div className="border border-gray-200 rounded-lg">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === 'limitados' ? null : 'limitados')}
-                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="font-medium text-gray-800">Móveis Limitados</span>
-                    <span className="text-gray-500">
-                      {expandedSection === 'limitados' ? '−' : '+'}
-                    </span>
-                  </button>
-
-                  {expandedSection === 'limitados' && (
-                    <div className="border-t border-gray-200 p-4 max-h-60 overflow-y-auto">
-                      <div className="grid grid-cols-6 gap-0.5">
-                        {limitedFurniture.map((item, index) => (
-                          <div
-                            key={index}
-                            onClick={() => setSelectedCatalogItem(item)}
-                            className={`cursor-pointer transition-all aspect-square overflow-hidden rounded-lg ${
-                              selectedCatalogItem?.name === item.name && selectedCatalogItem?.model === item.model
-                                ? 'bg-blue-50 ring-2 ring-blue-500'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <FurnitureThumbnail
-                              modelPath={item.model}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
 
                 {/* Seções Customizadas */}
                 {customSections.map((section) => (
@@ -571,13 +510,20 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     draggable
                     onDragStart={(e) => handleDragStart(item, e)}
                     onDragEnd={handleDragEnd}
-                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg"
+                    onContextMenu={(e) => handleContextMenu(e, item.id)}
+                    className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg relative"
                   >
                     <FurnitureThumbnail
                       modelPath={item.model}
                       width="100%"
                       height="100%"
                     />
+                    {/* Contador de quantidade */}
+                    {item.quantity && item.quantity > 1 && (
+                      <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                        {item.quantity > 99 ? "99+" : item.quantity}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -598,7 +544,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       {/* Menu de Contexto */}
       {contextMenu.visible && (
         <div
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 min-w-[150px]"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -610,15 +556,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
             onClick={handleInspectFurniture}
             className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
           >
-            <X size={16} className="text-blue-500" />
+            <Package size={16} className="text-blue-500" />
             <span>Inspecionar</span>
           </button>
           <button
-            onClick={handleStoreFurniture}
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            onClick={handleDiscardFurniture}
+            className="w-full px-4 py-2 text-left hover:bg-red-50 transition-colors flex items-center space-x-2 text-red-600"
           >
-            <Package size={16} className="text-green-500" />
-            <span>Guardar</span>
+            <Trash2 size={16} className="text-red-500" />
+            <span>Descartar</span>
           </button>
         </div>
       )}

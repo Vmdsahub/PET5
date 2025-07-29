@@ -9,6 +9,16 @@ export interface FurnitureItem {
   category: string;
   price: number;
   description: string;
+  quantity?: number;
+}
+
+export interface RoomDimensions {
+  length: number;  // comprimento (Z)
+  width: number;   // largura (X)
+  height: number;  // altura das paredes
+  floorThickness: number;  // espessura do chão
+  wallThickness: number;   // espessura das paredes
+  ceilingThickness: number; // espessura do teto
 }
 
 export interface UserRoom {
@@ -25,6 +35,14 @@ class MockStorageService {
   private nextId = 1;
   private customCatalog: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
   private customSections: string[] = [];
+  private roomDimensions: RoomDimensions = {
+    length: 10,
+    width: 10,
+    height: 5,
+    floorThickness: 0.1,
+    wallThickness: 0.2,
+    ceilingThickness: 0.1
+  };
 
   constructor() {
     // Carregar dados do localStorage se existirem
@@ -40,6 +58,7 @@ class MockStorageService {
         this.nextId = data.nextId || 1;
         this.customCatalog = data.customCatalog || [];
         this.customSections = data.customSections || [];
+        this.roomDimensions = data.roomDimensions || this.roomDimensions;
       } catch (error) {
         console.warn('Erro ao carregar dados do localStorage:', error);
       }
@@ -51,7 +70,8 @@ class MockStorageService {
       userRooms: Array.from(this.userRooms.entries()),
       nextId: this.nextId,
       customCatalog: this.customCatalog,
-      customSections: this.customSections
+      customSections: this.customSections,
+      roomDimensions: this.roomDimensions
     };
     localStorage.setItem('xenopets_room_data', JSON.stringify(data));
   }
@@ -78,28 +98,62 @@ class MockStorageService {
 
   buyFurniture(userId: string, catalogItem: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>): FurnitureItem {
     const userRoom = this.getUserRoom(userId);
-    const newItem: FurnitureItem = {
-      ...catalogItem,
-      id: this.generateId(),
-      position: [0, 0, 0],
-      rotation: [0, 0, 0],
-      scale: (catalogItem as any).defaultScale || [1, 1, 1]
-    };
-    
-    userRoom.inventory.push(newItem);
-    this.saveToLocalStorage();
-    return newItem;
+
+    // Procurar item existente no inventário com mesmo name e model
+    const existingItem = userRoom.inventory.find(item =>
+      item.name === catalogItem.name &&
+      item.model === catalogItem.model &&
+      item.category === catalogItem.category
+    );
+
+    if (existingItem) {
+      // Se existe, incrementar quantity
+      existingItem.quantity = (existingItem.quantity || 1) + 1;
+      this.saveToLocalStorage();
+      return existingItem;
+    } else {
+      // Se não existe, criar novo com quantity = 1
+      const newItem: FurnitureItem = {
+        ...catalogItem,
+        id: this.generateId(),
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        scale: (catalogItem as any).defaultScale || [1, 1, 1],
+        quantity: 1
+      };
+
+      userRoom.inventory.push(newItem);
+      this.saveToLocalStorage();
+      return newItem;
+    }
   }
 
   placeFurniture(userId: string, furnitureId: string, position: [number, number, number]): boolean {
     const userRoom = this.getUserRoom(userId);
     const inventoryIndex = userRoom.inventory.findIndex(item => item.id === furnitureId);
-    
+
     if (inventoryIndex === -1) return false;
 
-    const furniture = userRoom.inventory.splice(inventoryIndex, 1)[0];
-    furniture.position = position;
-    userRoom.placedFurniture.push(furniture);
+    const furniture = userRoom.inventory[inventoryIndex];
+
+    // Criar uma nova instância do móvel para colocar
+    const placedFurniture: FurnitureItem = {
+      ...furniture,
+      id: this.generateId(), // Novo ID para o móvel posicionado
+      position: position,
+      quantity: 1 // Móveis colocados sempre têm quantity 1
+    };
+
+    userRoom.placedFurniture.push(placedFurniture);
+
+    // Decrementar quantidade no inventário
+    if (furniture.quantity && furniture.quantity > 1) {
+      furniture.quantity -= 1;
+    } else {
+      // Se só tem 1, remover do inventário
+      userRoom.inventory.splice(inventoryIndex, 1);
+    }
+
     this.saveToLocalStorage();
     return true;
   }
@@ -132,14 +186,33 @@ class MockStorageService {
   removeFurniture(userId: string, furnitureId: string): boolean {
     const userRoom = this.getUserRoom(userId);
     const placedIndex = userRoom.placedFurniture.findIndex(item => item.id === furnitureId);
-    
+
     if (placedIndex === -1) return false;
 
     const furniture = userRoom.placedFurniture.splice(placedIndex, 1)[0];
-    // Reset position and add back to inventory
-    furniture.position = [0, 0, 0];
-    furniture.rotation = [0, 0, 0];
-    userRoom.inventory.push(furniture);
+
+    // Procurar item existente no inventário com mesmo name e model
+    const existingItem = userRoom.inventory.find(item =>
+      item.name === furniture.name &&
+      item.model === furniture.model &&
+      item.category === furniture.category
+    );
+
+    if (existingItem) {
+      // Se existe, incrementar quantity
+      existingItem.quantity = (existingItem.quantity || 1) + 1;
+    } else {
+      // Se não existe, criar novo com quantity = 1
+      const inventoryItem: FurnitureItem = {
+        ...furniture,
+        id: this.generateId(), // Novo ID para o inventário
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+        quantity: 1
+      };
+      userRoom.inventory.push(inventoryItem);
+    }
+
     this.saveToLocalStorage();
     return true;
   }
@@ -213,8 +286,7 @@ class MockStorageService {
   }
 
   getAllSections(): string[] {
-    const baseSections = ['basicos', 'limitados'];
-    return [...baseSections, ...this.customSections];
+    return [...this.customSections];
   }
 
   deleteSection(sectionName: string): boolean {
@@ -268,6 +340,37 @@ class MockStorageService {
   getFurnitureBySection(sectionName: string): Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] {
     const normalizedSection = sectionName.toLowerCase().trim();
     return this.customCatalog.filter(item => item.category === normalizedSection);
+  }
+
+  deleteInventoryFurniture(userId: string, furnitureId: string): boolean {
+    const userRoom = this.getUserRoom(userId);
+    const inventoryIndex = userRoom.inventory.findIndex(item => item.id === furnitureId);
+
+    if (inventoryIndex === -1) return false;
+
+    // Remover completamente do inventário
+    userRoom.inventory.splice(inventoryIndex, 1);
+    this.saveToLocalStorage();
+    return true;
+  }
+
+  getRoomDimensions(): RoomDimensions {
+    return { ...this.roomDimensions };
+  }
+
+  updateRoomDimensions(newDimensions: RoomDimensions): boolean {
+    // Validar valores mínimos e máximos
+    if (newDimensions.length < 5 || newDimensions.length > 20) return false;
+    if (newDimensions.width < 5 || newDimensions.width > 20) return false;
+    if (newDimensions.height < 3 || newDimensions.height > 10) return false;
+    if (newDimensions.floorThickness < 0.05 || newDimensions.floorThickness > 1) return false;
+    if (newDimensions.wallThickness < 0.1 || newDimensions.wallThickness > 1) return false;
+    if (newDimensions.ceilingThickness < 0.05 || newDimensions.ceilingThickness > 1) return false;
+
+    this.roomDimensions = { ...newDimensions };
+    this.saveToLocalStorage();
+    console.log('Dimensões do quarto atualizadas:', this.roomDimensions);
+    return true;
   }
 }
 

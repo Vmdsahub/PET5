@@ -5,10 +5,11 @@ import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { ScaleControls } from './ScaleControls';
-import { mockStorageService, FurnitureItem } from '../../services/mockStorage';
+import { mockStorageService, FurnitureItem, RoomDimensions } from '../../services/mockStorage';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
 import { Room2DFallback } from './Room2DFallback';
+import { RoomPropertiesModal } from './RoomPropertiesModal';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
@@ -36,6 +37,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     furnitureId: string | null;
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
   const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
+  const [showRoomProperties, setShowRoomProperties] = useState(false);
+  const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
   const controlsRef = useRef<any>();
   const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
@@ -94,6 +97,40 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setInventory(mockStorageService.getInventory(userId));
       setSelectedFurniture(null);
     }
+  };
+
+  const handleClearAllFurniture = () => {
+    const confirmClear = window.confirm(
+      'Tem certeza que deseja deletar TODOS os móveis do quarto? Esta ação não pode ser desfeita.'
+    );
+
+    if (confirmClear) {
+      // Pegar todos os móveis colocados
+      const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
+
+      // Remover todos os móveis um por um (isso vai movê-los para o inventário)
+      currentPlacedFurniture.forEach(furniture => {
+        mockStorageService.removeFurniture(userId, furniture.id);
+      });
+
+      // Depois deletar todos do inventário também
+      const currentInventory = mockStorageService.getInventory(userId);
+      currentInventory.forEach(furniture => {
+        mockStorageService.deleteInventoryFurniture(userId, furniture.id);
+      });
+
+      // Atualizar o estado
+      setPlacedFurniture([]);
+      setInventory([]);
+      setSelectedFurniture(null);
+
+      console.log('Todos os móveis foram deletados do quarto e inventário');
+    }
+  };
+
+  const handleRoomDimensionsUpdate = (newDimensions: RoomDimensions) => {
+    setRoomDimensions(newDimensions);
+    console.log('Dimensões do quarto atualizadas:', newDimensions);
   };
 
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
@@ -234,8 +271,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
       `
     }}>
-      {/* Botão para alternar para modo 2D */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Botões no canto superior direito */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
         <button
           onClick={() => setUse2DMode(true)}
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
@@ -243,6 +280,24 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         >
           📱 Modo 2D
         </button>
+
+        <button
+          onClick={handleClearAllFurniture}
+          className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+          title="Deletar todos os móveis do quarto"
+        >
+          🗑️ Limpar Tudo
+        </button>
+
+        {isAdmin && (
+          <button
+            onClick={() => setShowRoomProperties(true)}
+            className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+            title="Configurar propriedades do quarto"
+          >
+            ⚙️ Propriedades
+          </button>
+        )}
       </div>
 
       {/* Notificação de atualização do catálogo */}
@@ -308,7 +363,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           />
           
           {/* Quarto */}
-          <Room />
+          <Room dimensions={roomDimensions} />
 
           {/* Móveis colocados */}
           {placedFurniture.map((furniture) => {
@@ -369,6 +424,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         contextMenuState={contextMenuState}
         onCloseContextMenu={() => setContextMenuState({ visible: false, x: 0, y: 0, furnitureId: null })}
       />
+
+      {/* Modal de Propriedades do Quarto (apenas para admin) */}
+      {isAdmin && (
+        <RoomPropertiesModal
+          isOpen={showRoomProperties}
+          onClose={() => setShowRoomProperties(false)}
+          onDimensionsUpdate={handleRoomDimensionsUpdate}
+        />
+      )}
     </div>
   );
 };

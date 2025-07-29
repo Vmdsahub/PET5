@@ -1,11 +1,17 @@
 import React from 'react';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
+import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
 
-export const Room: React.FC = () => {
-  // Carregar texturas (usando cores por enquanto, depois pode adicionar texturas)
-  const roomSize = 10;
-  const wallHeight = 5;
+interface RoomProps {
+  dimensions?: RoomDimensions;
+}
+
+export const Room: React.FC<RoomProps> = ({ dimensions }) => {
+  // Usar dimensões fornecidas ou padrões do storage
+  const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
+  const roomSize = Math.max(roomDimensions.width, roomDimensions.length);
+  const wallHeight = roomDimensions.height;
 
   return (
     <group>
@@ -14,7 +20,7 @@ export const Room: React.FC = () => {
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
       >
-        <planeGeometry args={[roomSize, roomSize]} />
+        <planeGeometry args={[roomDimensions.width, roomDimensions.length]} />
         <meshLambertMaterial
           color="#8B7355"
         />
@@ -22,9 +28,9 @@ export const Room: React.FC = () => {
 
       {/* Parede traseira (Norte) */}
       <mesh
-        position={[0, wallHeight / 2, -roomSize / 2]}
+        position={[0, wallHeight / 2, -roomDimensions.length / 2]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.width, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -34,21 +40,21 @@ export const Room: React.FC = () => {
       <group>
         {/* Parte esquerda da parede da frente */}
         <mesh
-          position={[-roomSize / 4, wallHeight / 2, roomSize / 2]}
+          position={[-roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
           rotation={[0, Math.PI, 0]}
         >
-          <planeGeometry args={[roomSize / 2, wallHeight]} />
+          <planeGeometry args={[roomDimensions.width / 2, wallHeight]} />
           <meshLambertMaterial
             color="#f5f5f5"
           />
         </mesh>
-        
+
         {/* Parte direita da parede da frente */}
         <mesh
-          position={[roomSize / 4, wallHeight / 2, roomSize / 2]}
+          position={[roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
           rotation={[0, Math.PI, 0]}
         >
-          <planeGeometry args={[roomSize / 2, wallHeight]} />
+          <planeGeometry args={[roomDimensions.width / 2, wallHeight]} />
           <meshLambertMaterial
             color="#f5f5f5"
           />
@@ -57,10 +63,10 @@ export const Room: React.FC = () => {
 
       {/* Parede esquerda (Oeste) */}
       <mesh
-        position={[-roomSize / 2, wallHeight / 2, 0]}
+        position={[-roomDimensions.width / 2, wallHeight / 2, 0]}
         rotation={[0, Math.PI / 2, 0]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.length, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -68,10 +74,10 @@ export const Room: React.FC = () => {
 
       {/* Parede direita (Leste) */}
       <mesh
-        position={[roomSize / 2, wallHeight / 2, 0]}
+        position={[roomDimensions.width / 2, wallHeight / 2, 0]}
         rotation={[0, -Math.PI / 2, 0]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.length, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -82,41 +88,13 @@ export const Room: React.FC = () => {
         rotation={[Math.PI / 2, 0, 0]}
         position={[0, wallHeight, 0]}
       >
-        <planeGeometry args={[roomSize, roomSize]} />
+        <planeGeometry args={[roomDimensions.width, roomDimensions.length]} />
         <meshLambertMaterial
           color="#ffffff"
         />
       </mesh>
 
-      {/* Rodapés */}
-      {/* Rodapé traseiro */}
-      <mesh position={[0, 0.1, -roomSize / 2 + 0.05]}>
-        <boxGeometry args={[roomSize, 0.2, 0.1]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
 
-      {/* Rodapé esquerdo */}
-      <mesh position={[-roomSize / 2 + 0.05, 0.1, 0]}>
-        <boxGeometry args={[0.1, 0.2, roomSize]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
-
-      {/* Rodapé direito */}
-      <mesh position={[roomSize / 2 - 0.05, 0.1, 0]}>
-        <boxGeometry args={[0.1, 0.2, roomSize]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
-
-      {/* Rodapés da parede da frente (divididos) */}
-      <mesh position={[-roomSize / 4, 0.1, roomSize / 2 - 0.05]}>
-        <boxGeometry args={[roomSize / 2, 0.2, 0.1]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
-      
-      <mesh position={[roomSize / 4, 0.1, roomSize / 2 - 0.05]}>
-        <boxGeometry args={[roomSize / 2, 0.2, 0.1]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
     </group>
   );
 };
