@@ -35,21 +35,10 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
   }, [isOpen]);
 
   const handleInputChange = (field: keyof RoomDimensions, value: number) => {
-    setDimensions(prev => {
-      // Se alterou a espessura das paredes, sincronizar todas as espessuras
-      if (field === 'wallThickness') {
-        return {
-          ...prev,
-          wallThickness: value,
-          floorThickness: value,
-          ceilingThickness: value
-        };
-      }
-      return {
-        ...prev,
-        [field]: value
-      };
-    });
+    setDimensions(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleSave = async () => {
