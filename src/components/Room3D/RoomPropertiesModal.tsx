@@ -109,53 +109,71 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-800">Dimensões Principais</h3>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Largura (X) - metros
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Largura (X)
+                </label>
+                <span className="text-sm font-bold text-blue-600">{dimensions.width}m</span>
+              </div>
               <input
-                type="number"
+                type="range"
                 min="5"
                 max="20"
                 step="0.5"
                 value={dimensions.width}
                 onChange={(e) => handleInputChange('width', parseFloat(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <p className="text-xs text-gray-500 mt-1">Min: 5m | Max: 20m</p>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>5m</span>
+                <span>20m</span>
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Comprimento (Z) - metros
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Comprimento (Z)
+                </label>
+                <span className="text-sm font-bold text-blue-600">{dimensions.length}m</span>
+              </div>
               <input
-                type="number"
+                type="range"
                 min="5"
                 max="20"
                 step="0.5"
                 value={dimensions.length}
                 onChange={(e) => handleInputChange('length', parseFloat(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <p className="text-xs text-gray-500 mt-1">Min: 5m | Max: 20m</p>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>5m</span>
+                <span>20m</span>
+              </div>
             </div>
 
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Altura das Paredes - metros
-              </label>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Altura das Paredes
+                </label>
+                <span className="text-sm font-bold text-blue-600">{dimensions.height}m</span>
+              </div>
               <input
-                type="number"
+                type="range"
                 min="3"
                 max="10"
                 step="0.5"
                 value={dimensions.height}
                 onChange={(e) => handleInputChange('height', parseFloat(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <p className="text-xs text-gray-500 mt-1">Min: 3m | Max: 10m</p>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>3m</span>
+                <span>10m</span>
+              </div>
             </div>
           </div>
         </div>
