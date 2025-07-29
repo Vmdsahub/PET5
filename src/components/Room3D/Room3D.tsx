@@ -37,6 +37,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     furnitureId: string | null;
   }>({ visible: false, x: 0, y: 0, furnitureId: null });
   const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
+  const [showRoomProperties, setShowRoomProperties] = useState(false);
+  const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
   const controlsRef = useRef<any>();
   const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
