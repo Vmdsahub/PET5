@@ -263,14 +263,22 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
       `
     }}>
-      {/* Botão para alternar para modo 2D */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Botões no canto superior direito */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
         <button
           onClick={() => setUse2DMode(true)}
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Alternar para modo 2D"
         >
           📱 Modo 2D
+        </button>
+
+        <button
+          onClick={handleClearAllFurniture}
+          className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
+          title="Deletar todos os móveis do quarto"
+        >
+          🗑️ Limpar Tudo
         </button>
       </div>
 
