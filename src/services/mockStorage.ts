@@ -353,6 +353,25 @@ class MockStorageService {
     this.saveToLocalStorage();
     return true;
   }
+
+  getRoomDimensions(): RoomDimensions {
+    return { ...this.roomDimensions };
+  }
+
+  updateRoomDimensions(newDimensions: RoomDimensions): boolean {
+    // Validar valores mínimos e máximos
+    if (newDimensions.length < 5 || newDimensions.length > 20) return false;
+    if (newDimensions.width < 5 || newDimensions.width > 20) return false;
+    if (newDimensions.height < 3 || newDimensions.height > 10) return false;
+    if (newDimensions.floorThickness < 0.05 || newDimensions.floorThickness > 1) return false;
+    if (newDimensions.wallThickness < 0.1 || newDimensions.wallThickness > 1) return false;
+    if (newDimensions.ceilingThickness < 0.05 || newDimensions.ceilingThickness > 1) return false;
+
+    this.roomDimensions = { ...newDimensions };
+    this.saveToLocalStorage();
+    console.log('Dimensões do quarto atualizadas:', this.roomDimensions);
+    return true;
+  }
 }
 
 export const mockStorageService = new MockStorageService();
