@@ -63,6 +63,10 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
 
   const doorWidth = 2;
 
+  // Altura efetiva das paredes (entre chão e teto)
+  const wallHeight = height - floorThickness - ceilingThickness;
+  const wallCenterY = floorThickness + wallHeight/2;
+
   return (
     <group>
       {/* Chão - base do quarto */}
@@ -77,27 +81,27 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
         <meshLambertMaterial color="#ffffff" />
       </mesh>
 
-      {/* Parede Norte (traseira) - posicionada para encaixar perfeitamente */}
-      <mesh ref={wallNorthRef} position={[0, height/2, -length/2 + wallThickness/2]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[width, height, wallThickness]} />
+      {/* Parede Norte - IGUAL A TODAS */}
+      <mesh ref={wallNorthRef} position={[0, wallCenterY, -length/2 + wallThickness/2]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[width, wallHeight, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Sul (frontal) - posicionada para encaixar perfeitamente */}
-      <mesh ref={wallSouthLeftRef} position={[0, height/2, length/2 - wallThickness/2]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[width, height, wallThickness]} />
+      {/* Parede Sul - IGUAL A TODAS */}
+      <mesh ref={wallSouthLeftRef} position={[0, wallCenterY, length/2 - wallThickness/2]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[width, wallHeight, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Leste (direita) - posicionada para encaixar perfeitamente */}
-      <mesh ref={wallEastRef} position={[width/2 - wallThickness/2, height/2, 0]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[wallThickness, height, length - wallThickness*2]} />
+      {/* Parede Leste - IGUAL A TODAS */}
+      <mesh ref={wallEastRef} position={[width/2 - wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+        <boxGeometry args={[length, wallHeight, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Oeste (esquerda) - posicionada para encaixar perfeitamente */}
-      <mesh ref={wallWestRef} position={[-width/2 + wallThickness/2, height/2, 0]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[wallThickness, height, length - wallThickness*2]} />
+      {/* Parede Oeste - IGUAL A TODAS */}
+      <mesh ref={wallWestRef} position={[-width/2 + wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+        <boxGeometry args={[length, wallHeight, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
     </group>
