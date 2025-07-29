@@ -83,9 +83,9 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
       length: 10,
       width: 10,
       height: 5,
-      floorThickness: 0.1,
+      floorThickness: 0.2,
       wallThickness: 0.2,
-      ceilingThickness: 0.1
+      ceilingThickness: 0.2
     };
     setDimensions(defaultDimensions);
   };
