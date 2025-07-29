@@ -1,11 +1,17 @@
 import React from 'react';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
+import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
 
-export const Room: React.FC = () => {
-  // Carregar texturas (usando cores por enquanto, depois pode adicionar texturas)
-  const roomSize = 10;
-  const wallHeight = 5;
+interface RoomProps {
+  dimensions?: RoomDimensions;
+}
+
+export const Room: React.FC<RoomProps> = ({ dimensions }) => {
+  // Usar dimensões fornecidas ou padrões do storage
+  const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
+  const roomSize = Math.max(roomDimensions.width, roomDimensions.length);
+  const wallHeight = roomDimensions.height;
 
   return (
     <group>
