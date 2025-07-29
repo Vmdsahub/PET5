@@ -28,9 +28,9 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
 
       {/* Parede traseira (Norte) */}
       <mesh
-        position={[0, wallHeight / 2, -roomSize / 2]}
+        position={[0, wallHeight / 2, -roomDimensions.length / 2]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.width, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -40,21 +40,21 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
       <group>
         {/* Parte esquerda da parede da frente */}
         <mesh
-          position={[-roomSize / 4, wallHeight / 2, roomSize / 2]}
+          position={[-roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
           rotation={[0, Math.PI, 0]}
         >
-          <planeGeometry args={[roomSize / 2, wallHeight]} />
+          <planeGeometry args={[roomDimensions.width / 2, wallHeight]} />
           <meshLambertMaterial
             color="#f5f5f5"
           />
         </mesh>
-        
+
         {/* Parte direita da parede da frente */}
         <mesh
-          position={[roomSize / 4, wallHeight / 2, roomSize / 2]}
+          position={[roomDimensions.width / 4, wallHeight / 2, roomDimensions.length / 2]}
           rotation={[0, Math.PI, 0]}
         >
-          <planeGeometry args={[roomSize / 2, wallHeight]} />
+          <planeGeometry args={[roomDimensions.width / 2, wallHeight]} />
           <meshLambertMaterial
             color="#f5f5f5"
           />
@@ -63,10 +63,10 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
 
       {/* Parede esquerda (Oeste) */}
       <mesh
-        position={[-roomSize / 2, wallHeight / 2, 0]}
+        position={[-roomDimensions.width / 2, wallHeight / 2, 0]}
         rotation={[0, Math.PI / 2, 0]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.length, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -74,10 +74,10 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
 
       {/* Parede direita (Leste) */}
       <mesh
-        position={[roomSize / 2, wallHeight / 2, 0]}
+        position={[roomDimensions.width / 2, wallHeight / 2, 0]}
         rotation={[0, -Math.PI / 2, 0]}
       >
-        <planeGeometry args={[roomSize, wallHeight]} />
+        <planeGeometry args={[roomDimensions.length, wallHeight]} />
         <meshLambertMaterial
           color="#f5f5f5"
         />
@@ -88,7 +88,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
         rotation={[Math.PI / 2, 0, 0]}
         position={[0, wallHeight, 0]}
       >
-        <planeGeometry args={[roomSize, roomSize]} />
+        <planeGeometry args={[roomDimensions.width, roomDimensions.length]} />
         <meshLambertMaterial
           color="#ffffff"
         />
