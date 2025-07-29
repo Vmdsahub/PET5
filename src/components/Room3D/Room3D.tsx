@@ -424,6 +424,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         contextMenuState={contextMenuState}
         onCloseContextMenu={() => setContextMenuState({ visible: false, x: 0, y: 0, furnitureId: null })}
       />
+
+      {/* Modal de Propriedades do Quarto (apenas para admin) */}
+      {isAdmin && (
+        <RoomPropertiesModal
+          isOpen={showRoomProperties}
+          onClose={() => setShowRoomProperties(false)}
+          onDimensionsUpdate={handleRoomDimensionsUpdate}
+        />
+      )}
     </div>
   );
 };
