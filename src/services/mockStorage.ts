@@ -58,6 +58,7 @@ class MockStorageService {
         this.nextId = data.nextId || 1;
         this.customCatalog = data.customCatalog || [];
         this.customSections = data.customSections || [];
+        this.roomDimensions = data.roomDimensions || this.roomDimensions;
       } catch (error) {
         console.warn('Erro ao carregar dados do localStorage:', error);
       }
