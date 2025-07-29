@@ -64,20 +64,20 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
   const doorWidth = 2;
 
   // Altura efetiva das paredes (entre chão e teto)
-  const wallHeight = height - wallThickness - wallThickness;
-  const wallCenterY = wallThickness + wallHeight/2;
+  const wallHeight = height - floorThickness - ceilingThickness;
+  const wallCenterY = floorThickness + wallHeight/2;
 
   return (
     <group>
-      {/* Chão - base do quarto - mesma espessura das paredes */}
-      <mesh ref={floorRef} position={[0, wallThickness/2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[width, length, wallThickness]} />
+      {/* Chão - base do quarto */}
+      <mesh ref={floorRef} position={[0, floorThickness/2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[width, length, floorThickness]} />
         <meshLambertMaterial color="#8B7355" />
       </mesh>
 
-      {/* Teto - topo do quarto - mesma espessura das paredes */}
-      <mesh ref={ceilingRef} position={[0, height - wallThickness/2, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[width, length, wallThickness]} />
+      {/* Teto - topo do quarto */}
+      <mesh ref={ceilingRef} position={[0, height - ceilingThickness/2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[width, length, ceilingThickness]} />
         <meshLambertMaterial color="#ffffff" />
       </mesh>
 
