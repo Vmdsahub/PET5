@@ -151,24 +151,58 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
           </div>
         </div>
 
-        {/* Espessura única */}
+        {/* Espessuras individuais */}
         <div className="space-y-3">
-          <h3 className="text-base font-semibold text-gray-800">Espessura</h3>
+          <h3 className="text-base font-semibold text-gray-800">Espessuras</h3>
 
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-sm font-medium text-gray-700">Paredes/Chão/Teto</label>
-              <span className="text-sm font-bold text-purple-600">{dimensions.wallThickness}m</span>
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Chão</label>
+                <span className="text-sm font-bold text-green-600">{dimensions.floorThickness}m</span>
+              </div>
+              <input
+                type="range"
+                min="0.05"
+                max="1"
+                step="0.05"
+                value={dimensions.floorThickness}
+                onChange={(e) => handleInputChange('floorThickness', parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
+              />
             </div>
-            <input
-              type="range"
-              min="0.1"
-              max="1"
-              step="0.05"
-              value={dimensions.wallThickness}
-              onChange={(e) => handleInputChange('wallThickness', parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
-            />
+
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Paredes</label>
+                <span className="text-sm font-bold text-purple-600">{dimensions.wallThickness}m</span>
+              </div>
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.05"
+                value={dimensions.wallThickness}
+                onChange={(e) => handleInputChange('wallThickness', parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Teto</label>
+                <span className="text-sm font-bold text-orange-600">{dimensions.ceilingThickness}m</span>
+              </div>
+              <input
+                type="range"
+                min="0.05"
+                max="1"
+                step="0.05"
+                value={dimensions.ceilingThickness}
+                onChange={(e) => handleInputChange('ceilingThickness', parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-orange"
+              />
+            </div>
           </div>
         </div>
 
