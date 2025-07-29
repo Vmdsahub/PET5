@@ -113,10 +113,8 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
 
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Largura (X)
-                </label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Largura</label>
                 <span className="text-sm font-bold text-blue-600">{dimensions.width}m</span>
               </div>
               <input
@@ -128,17 +126,11 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 onChange={(e) => handleInputChange('width', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>5m</span>
-                <span>20m</span>
-              </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Comprimento (Z)
-                </label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Comprimento</label>
                 <span className="text-sm font-bold text-blue-600">{dimensions.length}m</span>
               </div>
               <input
@@ -150,17 +142,11 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 onChange={(e) => handleInputChange('length', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>5m</span>
-                <span>20m</span>
-              </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Altura das Paredes
-                </label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium text-gray-700">Altura</label>
                 <span className="text-sm font-bold text-blue-600">{dimensions.height}m</span>
               </div>
               <input
@@ -172,10 +158,6 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 onChange={(e) => handleInputChange('height', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>3m</span>
-                <span>10m</span>
-              </div>
             </div>
           </div>
         </div>
