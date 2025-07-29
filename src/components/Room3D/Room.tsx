@@ -65,28 +65,28 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
 
   return (
     <group>
-      {/* Chão */}
-      <mesh ref={floorRef} position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[width, length, wallThickness]} />
+      {/* Chão - posicionado na base do quarto */}
+      <mesh ref={floorRef} position={[0, floorThickness/2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[width + wallThickness, length + wallThickness, floorThickness]} />
         <meshLambertMaterial color="#8B7355" />
       </mesh>
 
-      {/* Teto */}
-      <mesh ref={ceilingRef} position={[0, height, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[width, length, wallThickness]} />
+      {/* Teto - posicionado no topo do quarto */}
+      <mesh ref={ceilingRef} position={[0, height - ceilingThickness/2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[width + wallThickness, length + wallThickness, ceilingThickness]} />
         <meshLambertMaterial color="#ffffff" />
       </mesh>
 
-      {/* Parede Norte (traseira) */}
-      <mesh ref={wallNorthRef} position={[0, height/2, -length/2]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[width, height, wallThickness]} />
+      {/* Parede Norte (traseira) - ajustada para encaixar perfeitamente */}
+      <mesh ref={wallNorthRef} position={[0, height/2, -(length/2 + wallThickness/2)]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[width + wallThickness, height, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
       {/* Parede Sul Esquerda (com entrada) */}
-      <mesh 
-        ref={wallSouthLeftRef} 
-        position={[-(width - doorWidth)/4, height/2, length/2]} 
+      <mesh
+        ref={wallSouthLeftRef}
+        position={[-(width + doorWidth)/4, height/2, length/2 + wallThickness/2]}
         rotation={[0, 0, 0]}
       >
         <boxGeometry args={[(width - doorWidth)/2, height, wallThickness]} />
@@ -94,55 +94,55 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
       </mesh>
 
       {/* Parede Sul Direita (com entrada) */}
-      <mesh 
-        ref={wallSouthRightRef} 
-        position={[(width - doorWidth)/4, height/2, length/2]} 
+      <mesh
+        ref={wallSouthRightRef}
+        position={[(width + doorWidth)/4, height/2, length/2 + wallThickness/2]}
         rotation={[0, 0, 0]}
       >
         <boxGeometry args={[(width - doorWidth)/2, height, wallThickness]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Leste (direita) */}
-      <mesh ref={wallEastRef} position={[width/2, height/2, 0]} rotation={[0, 0, 0]}>
+      {/* Parede Leste (direita) - ajustada para encaixar perfeitamente */}
+      <mesh ref={wallEastRef} position={[width/2 + wallThickness/2, height/2, 0]} rotation={[0, 0, 0]}>
         <boxGeometry args={[wallThickness, height, length]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Parede Oeste (esquerda) */}
-      <mesh ref={wallWestRef} position={[-width/2, height/2, 0]} rotation={[0, 0, 0]}>
+      {/* Parede Oeste (esquerda) - ajustada para encaixar perfeitamente */}
+      <mesh ref={wallWestRef} position={[-width/2 - wallThickness/2, height/2, 0]} rotation={[0, 0, 0]}>
         <boxGeometry args={[wallThickness, height, length]} />
         <meshLambertMaterial color="#f5f5f5" />
       </mesh>
 
-      {/* Rodapé simples - apenas uma linha no chão */}
+      {/* Rodapé - melhor posicionado na base das paredes */}
       <group>
         {/* Rodapé Norte */}
-        <mesh position={[0, 0.02, -length/2 + wallThickness/2]}>
-          <boxGeometry args={[width - wallThickness, 0.04, wallThickness/2]} />
+        <mesh position={[0, floorThickness + 0.02, -(length/2 + wallThickness/2)]}>
+          <boxGeometry args={[width + wallThickness, 0.04, wallThickness/2]} />
           <meshLambertMaterial color="#654321" />
         </mesh>
-        
+
         {/* Rodapé Leste */}
-        <mesh position={[width/2 - wallThickness/2, 0.02, 0]}>
-          <boxGeometry args={[wallThickness/2, 0.04, length - wallThickness]} />
+        <mesh position={[width/2 + wallThickness/2, floorThickness + 0.02, 0]}>
+          <boxGeometry args={[wallThickness/2, 0.04, length]} />
           <meshLambertMaterial color="#654321" />
         </mesh>
-        
+
         {/* Rodapé Oeste */}
-        <mesh position={[-width/2 + wallThickness/2, 0.02, 0]}>
-          <boxGeometry args={[wallThickness/2, 0.04, length - wallThickness]} />
+        <mesh position={[-width/2 - wallThickness/2, floorThickness + 0.02, 0]}>
+          <boxGeometry args={[wallThickness/2, 0.04, length]} />
           <meshLambertMaterial color="#654321" />
         </mesh>
-        
+
         {/* Rodapés Sul (partes da entrada) */}
-        <mesh position={[-(width - doorWidth)/4, 0.02, length/2 - wallThickness/2]}>
-          <boxGeometry args={[(width - doorWidth)/2 - wallThickness, 0.04, wallThickness/2]} />
+        <mesh position={[-(width + doorWidth)/4, floorThickness + 0.02, length/2 + wallThickness/2]}>
+          <boxGeometry args={[(width - doorWidth)/2, 0.04, wallThickness/2]} />
           <meshLambertMaterial color="#654321" />
         </mesh>
-        
-        <mesh position={[(width - doorWidth)/4, 0.02, length/2 - wallThickness/2]}>
-          <boxGeometry args={[(width - doorWidth)/2 - wallThickness, 0.04, wallThickness/2]} />
+
+        <mesh position={[(width + doorWidth)/4, floorThickness + 0.02, length/2 + wallThickness/2]}>
+          <boxGeometry args={[(width - doorWidth)/2, 0.04, wallThickness/2]} />
           <meshLambertMaterial color="#654321" />
         </mesh>
       </group>
