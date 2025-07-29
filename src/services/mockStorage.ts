@@ -35,6 +35,14 @@ class MockStorageService {
   private nextId = 1;
   private customCatalog: Omit<FurnitureItem, 'id' | 'position' | 'rotation' | 'scale'>[] = [];
   private customSections: string[] = [];
+  private roomDimensions: RoomDimensions = {
+    length: 10,
+    width: 10,
+    height: 5,
+    floorThickness: 0.1,
+    wallThickness: 0.2,
+    ceilingThickness: 0.1
+  };
 
   constructor() {
     // Carregar dados do localStorage se existirem
