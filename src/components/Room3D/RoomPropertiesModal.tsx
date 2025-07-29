@@ -35,10 +35,15 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
   }, [isOpen]);
 
   const handleInputChange = (field: keyof RoomDimensions, value: number) => {
-    setDimensions(prev => ({
-      ...prev,
+    const newDimensions = {
+      ...dimensions,
       [field]: value
-    }));
+    };
+    setDimensions(newDimensions);
+
+    // Atualizar em tempo real
+    mockStorageService.updateRoomDimensions(newDimensions);
+    onDimensionsUpdate?.(newDimensions);
   };
 
   const handleSave = async () => {
@@ -77,6 +82,10 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
       ceilingThickness: 0.2
     };
     setDimensions(defaultDimensions);
+
+    // Aplicar valores padrão em tempo real
+    mockStorageService.updateRoomDimensions(defaultDimensions);
+    onDimensionsUpdate?.(defaultDimensions);
   };
 
   if (!isOpen) return null;
@@ -113,7 +122,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.width}
                 onChange={(e) => handleInputChange('width', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
 
@@ -129,7 +138,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.length}
                 onChange={(e) => handleInputChange('length', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
 
@@ -145,7 +154,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.5"
                 value={dimensions.height}
                 onChange={(e) => handleInputChange('height', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue"
               />
             </div>
           </div>
@@ -168,7 +177,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.floorThickness}
                 onChange={(e) => handleInputChange('floorThickness', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
               />
             </div>
 
@@ -184,7 +193,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.wallThickness}
                 onChange={(e) => handleInputChange('wallThickness', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-purple"
               />
             </div>
 
@@ -200,7 +209,7 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
                 step="0.05"
                 value={dimensions.ceilingThickness}
                 onChange={(e) => handleInputChange('ceilingThickness', parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-orange"
+                className="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-orange"
               />
             </div>
           </div>
@@ -217,24 +226,9 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
 
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-3 rounded text-sm transition-colors"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm transition-colors"
           >
-            Cancelar
-          </button>
-
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 px-3 rounded text-sm transition-colors flex items-center justify-center"
-          >
-            {isSaving ? (
-              <>
-                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
-                Salvar...
-              </>
-            ) : (
-              'Salvar'
-            )}
+            Fechar
           </button>
         </div>
       </div>
