@@ -70,7 +70,8 @@ class MockStorageService {
       userRooms: Array.from(this.userRooms.entries()),
       nextId: this.nextId,
       customCatalog: this.customCatalog,
-      customSections: this.customSections
+      customSections: this.customSections,
+      roomDimensions: this.roomDimensions
     };
     localStorage.setItem('xenopets_room_data', JSON.stringify(data));
   }
