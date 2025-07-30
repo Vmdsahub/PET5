@@ -85,6 +85,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', onSu
         rotation={[-Math.PI / 2, 0, 0]}
         onClick={(e) => {
           e.stopPropagation();
+          console.log('Clique no chão detectado!');
           onSurfaceClick?.('floor');
         }}
         onPointerEnter={() => setHoveredSurface('floor')}
