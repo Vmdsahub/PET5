@@ -630,12 +630,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           isOpen={showAdminPanel}
           onClose={() => setShowAdminPanel(false)}
           onAddFurniture={onAddFurniture}
-          onAddTexture={(textureData) => {
-            mockStorageService.addCustomTexture(textureData);
-            console.log('Nova textura adicionada:', textureData);
-            // Forçar re-render do catálogo
-            setSectionsVersion(prev => prev + 1);
-          }}
+          onAddTexture={onAddTexture}
           onCreateSection={(sectionName) => {
             const success = mockStorageService.createCustomSection(sectionName);
             if (success) {
