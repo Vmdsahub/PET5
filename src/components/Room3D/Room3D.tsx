@@ -128,12 +128,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     if (scene) {
       // Buscar por todos os meshes na cena
-      const allMeshes: THREE.Mesh[] = [];
       scene.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          allMeshes.push(child);
-          console.log('Mesh encontrado:', { name: child.name, position: child.position });
-
           if (child.name) {
             const name = child.name;
 
@@ -149,9 +145,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           }
         }
       });
-
-      console.log('Total de meshes encontrados:', allMeshes.length);
-      console.log('Superfícies identificadas:', surfaces);
     }
 
     // Se não encontrou superfícies pelo nome, tentar raycast em todos os meshes
