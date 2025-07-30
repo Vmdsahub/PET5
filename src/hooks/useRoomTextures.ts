@@ -118,11 +118,12 @@ export const useRoomTextures = (userId: string) => {
       const diffuseTexture = loader.load(
         textureData.textureUrls.diffuse,
         (texture) => {
-          // Callback de sucesso - aplicar textura suavemente
-          texture.wrapS = THREE.ClampToEdgeWrapping;
-          texture.wrapT = THREE.ClampToEdgeWrapping;
+          // Callback de sucesso - aplicar textura suavemente para todas as faces
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
           texture.repeat.set(1, 1);
           texture.offset.set(0, 0);
+          texture.flipY = false; // Importante para UV mapping correto
           texture.minFilter = THREE.LinearFilter;
           texture.magFilter = THREE.LinearFilter;
           texture.needsUpdate = true;
