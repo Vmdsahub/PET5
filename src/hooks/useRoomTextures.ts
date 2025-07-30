@@ -164,6 +164,9 @@ export const useRoomTextures = (userId: string) => {
       material.aoMap = aoTexture;
     }
 
+    // Forçar atualização do material
+    material.needsUpdate = true;
+
     return material;
   };
 
