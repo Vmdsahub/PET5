@@ -118,9 +118,9 @@ export const useRoomTextures = (userId: string) => {
         textureData.textureUrls.diffuse,
         (texture) => {
           // Callback de sucesso - aplicar textura suavemente
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(1, 1); // Usar 1x1 para cobrir toda a superfície sem gaps
+          texture.wrapS = THREE.ClampToEdgeWrapping;
+          texture.wrapT = THREE.ClampToEdgeWrapping;
+          texture.repeat.set(1, 1);
           texture.offset.set(0, 0);
           texture.minFilter = THREE.LinearFilter;
           texture.magFilter = THREE.LinearFilter;
