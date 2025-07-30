@@ -185,7 +185,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       });
     }
 
-    console.log(`Encontradas ${surfaces.length} superfícies nomeadas de ${allMeshes.length} meshes`);
+    console.log(`Encontradas ${surfaces.length} superfícies nomeadas de ${allMeshes.length} meshes`, {
+      surfaces: surfaces.map(s => ({ name: s.object.name, type: s.type, id: s.id })),
+      mouseNDC: mouse,
+      dropCoordinates: { dropX, dropY }
+    });
 
     // Fazer raycast primeiro em superfícies nomeadas, depois em todos os meshes
     let intersects: THREE.Intersection[] = [];
@@ -199,6 +203,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     if (intersects.length === 0) {
       intersects = raycaster.intersectObjects(allMeshes);
       console.log(`Fallback para ${allMeshes.length} meshes: ${intersects.length} intersecções`);
+    }
+
+    // Log para debug de todas as intersecções
+    if (intersects.length > 0) {
+      console.log('Todas as intersecções encontradas:', intersects.map((intersection, index) => ({
+        index,
+        objectName: intersection.object.name,
+        userData: intersection.object.userData,
+        distance: intersection.distance,
+        point: intersection.point
+      })));
     }
 
     if (intersects.length > 0) {
