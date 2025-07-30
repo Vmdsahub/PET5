@@ -232,6 +232,16 @@ class MockStorageService {
     this.saveToLocalStorage();
   }
 
+  addCustomTexture(textureData: any): void {
+    // Adicionar a textura ao catálogo customizado com flag especial
+    this.customCatalog.push({
+      ...textureData,
+      model: 'texture', // Identificador especial para texturas
+      isTexture: true
+    });
+    this.saveToLocalStorage();
+  }
+
   updateCatalogItemScale(furnitureId: string, newScale: [number, number, number]): boolean {
     // Encontrar o móvel colocado pelo ID
     let targetFurniture: FurnitureItem | undefined;
