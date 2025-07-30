@@ -186,11 +186,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         const pos = intersectedObject.position;
         console.log('Tentando detectar por posição:', pos);
 
-        // Detectar tipo baseado na posição Y
-        if (pos.y < 1) {
+        // Detectar tipo baseado na posição Y (valores mais flexíveis)
+        if (pos.y <= 1.5) {
           closestSurface = { object: intersectedObject, type: 'floor' };
           console.log('Detectado como chão por posição');
-        } else if (pos.y > 4) {
+        } else if (pos.y >= 3.5) {
           closestSurface = { object: intersectedObject, type: 'ceiling' };
           console.log('Detectado como teto por posição');
         } else {
