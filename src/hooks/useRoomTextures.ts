@@ -114,6 +114,7 @@ export const useRoomTextures = (userId: string) => {
       diffuseTexture.wrapS = THREE.RepeatWrapping;
       diffuseTexture.wrapT = THREE.RepeatWrapping;
       diffuseTexture.repeat.set(2, 2); // Ajustar repetição conforme necessário
+      diffuseTexture.needsUpdate = true;
       material.map = diffuseTexture;
     }
 
