@@ -121,115 +121,10 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }, 100);
   };
 
-  const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
+  const handleTextureApplied = (surfaceType: string, wallId?: string) => {
     if (!draggedTexture) return;
 
-    console.log(`🎯 Aplicando textura "${draggedTexture.name}" (${draggedTexture.type})`);
-
-    // Obter canvas e câmera
-    const canvas = document.querySelector('canvas');
-    if (!canvas || !cameraRef.current) {
-      console.error('Canvas ou câmera não encontrados');
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    
-    // Converter coordenadas do mouse para NDC
-    const mouse = new THREE.Vector2();
-    mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
-
-    // Criar raycaster
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, cameraRef.current);
-
-    // Debug: investigar a hierarquia da cena
-    console.log('🔍 Investigando hierarquia da cena...');
-    console.log('Camera parent:', cameraRef.current.parent);
-
-    // Buscar em diferentes níveis da hierarquia
-    const allMeshes: THREE.Mesh[] = [];
-    const roomMeshes: THREE.Mesh[] = [];
-
-    // Tentar diferentes pontos de entrada na hierarquia
-    const possibleRoots = [
-      cameraRef.current.parent,
-      cameraRef.current.parent?.parent,
-      cameraRef.current.parent?.parent?.parent
-    ].filter(Boolean);
-
-    console.log(`🌳 Testando ${possibleRoots.length} possíveis raízes da cena`);
-
-    for (let i = 0; i < possibleRoots.length; i++) {
-      const root = possibleRoots[i];
-      console.log(`📁 Nível ${i + 1}:`, root?.type, root?.name);
-
-      root?.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          allMeshes.push(child);
-          console.log(`  🎯 Mesh encontrada: "${child.name}" (tipo: ${child.type})`);
-
-          if (child.name &&
-              (child.name === 'floor' || child.name === 'ceiling' || child.name.startsWith('wall-'))) {
-            roomMeshes.push(child);
-            console.log(`    ✅ Mesh do quarto: ${child.name}`);
-          }
-        }
-      });
-    }
-
-    console.log(`🔍 Total de meshes encontradas: ${allMeshes.length}`);
-    console.log(`🏠 Meshes do quarto encontradas: ${roomMeshes.length}`);
-    console.log('🏠 Nomes das meshes do quarto:', roomMeshes.map(m => m.name));
-
-    // Fazer raycast
-    const intersects = raycaster.intersectObjects(roomMeshes);
-    
-    if (intersects.length === 0) {
-      console.log('❌ Nenhuma superfície do quarto foi atingida');
-      setDraggedTexture(null);
-      return;
-    }
-
-    // Pegar a primeira intersecção (mais próxima)
-    const intersectedObject = intersects[0].object;
-    const surfaceName = intersectedObject.name;
-    
-    console.log(`🎯 Superfície detectada: ${surfaceName}`);
-
-    // Determinar o tipo de superfície baseado no nome
-    let surfaceType: string;
-    let wallId: string | undefined;
-
-    if (surfaceName === 'floor') {
-      surfaceType = 'floor';
-    } else if (surfaceName === 'ceiling') {
-      surfaceType = 'ceiling';
-    } else if (surfaceName.startsWith('wall-')) {
-      surfaceType = 'wall';
-      wallId = surfaceName.replace('wall-', ''); // north, south, east, west
-    } else {
-      console.log('❌ Superfície não reconhecida');
-      setDraggedTexture(null);
-      return;
-    }
-
-    // Verificar compatibilidade
-    if (draggedTexture.type !== surfaceType) {
-      const typeNames = {
-        floor: 'chão',
-        wall: 'parede', 
-        ceiling: 'teto'
-      };
-      alert(`Esta textura é para ${typeNames[draggedTexture.type as keyof typeof typeNames]}, não para ${typeNames[surfaceType as keyof typeof typeNames]}.`);
-      setDraggedTexture(null);
-      return;
-    }
-
     // Aplicar textura na superfície correta
-    console.log(`✅ Aplicando textura ${draggedTexture.name} em ${surfaceType}${wallId ? ` (${wallId})` : ''}`);
-
     switch (surfaceType) {
       case 'floor':
         applyFloorTexture(draggedTexture);
@@ -262,6 +157,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }, 50);
 
     setDraggedTexture(null);
+  };
+
+  const handleTextureFailed = () => {
+    setDraggedTexture(null);
+  };
+
+  const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
+    // Esta função agora é apenas um proxy para o TextureDropHandler
+    if ((window as any).handleTextureDropOnSurface) {
+      (window as any).handleTextureDropOnSurface(dropX, dropY);
+    }
   };
 
   const handleToggleEditMode = () => {
