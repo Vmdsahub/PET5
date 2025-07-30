@@ -107,6 +107,8 @@ export const useRoomTextures = (userId: string) => {
       color: defaultColor, // Manter cor padrão enquanto carrega
       roughness: 0.8,
       metalness: 0.1,
+      transparent: false,
+      alphaTest: 0,
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
