@@ -91,116 +91,112 @@ export const useRoomTextures = (userId: string) => {
     }, 100);
   };
 
-  // Criar material Three.js a partir dos dados da textura
-  const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff', surfaceKey?: string) => {
-    if (!textureData || !textureData.textureUrls.diffuse) {
-      return new THREE.MeshLambertMaterial({
-        color: defaultColor,
-        side: THREE.DoubleSide,
-        name: `default_${surfaceKey || 'surface'}`
-      });
-    }
-
+  // Função para criar textura configurada corretamente
+  const createConfiguredTexture = (url: string, repeatX: number = 1, repeatY: number = 1) => {
     const loader = new THREE.TextureLoader();
+    const texture = loader.load(url);
+    
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(repeatX, repeatY);
+    texture.offset.set(0, 0);
+    texture.center.set(0.5, 0.5);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.flipY = false;
+    texture.needsUpdate = true;
+    
+    return texture;
+  };
 
-    // Criar material com cor padrão primeiro para evitar flash preto
-    const material = new THREE.MeshStandardMaterial({
-      color: defaultColor, // Manter cor padrão enquanto carrega
-      roughness: 0.8,
-      metalness: 0.1,
-      transparent: false,
-      alphaTest: 0,
-      side: THREE.DoubleSide, // Garantir que ambos os lados sejam renderizados
-      name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
+  // Criar array de materiais para boxGeometry (6 faces: direita, esquerda, topo, fundo, frente, trás)
+  const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff', surfaceKey?: string) => {
+    // Material padrão para quando não há textura
+    const defaultMaterial = new THREE.MeshLambertMaterial({
+      color: defaultColor,
+      name: `default_${surfaceKey || 'surface'}`
     });
 
-    // Carregar mapa difuso (obrigatório) com callback para suavizar transição
-    if (textureData.textureUrls.diffuse) {
-      const diffuseTexture = loader.load(
-        textureData.textureUrls.diffuse,
-        (texture) => {
-          // Callback de sucesso - aplicar textura suavemente para todas as faces
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(1, 1);
-          texture.offset.set(0, 0);
-          texture.flipY = false; // Importante para UV mapping correto
-          texture.minFilter = THREE.LinearFilter;
-          texture.magFilter = THREE.LinearFilter;
-          texture.needsUpdate = true;
-
-          // Remover cor padrão quando textura carregar
-          material.color.setHex(0xffffff);
-          material.map = texture;
-          material.needsUpdate = true;
-        },
-        undefined,
-        (error) => {
-          console.warn('Erro ao carregar textura difusa:', error);
-        }
-      );
+    if (!textureData || !textureData.textureUrls.diffuse) {
+      // Retornar array de 6 materiais iguais para boxGeometry
+      return [defaultMaterial, defaultMaterial, defaultMaterial, defaultMaterial, defaultMaterial, defaultMaterial];
     }
 
-    // Carregar mapa normal (opcional)
-    if (textureData.textureUrls.normal) {
-      const normalTexture = loader.load(textureData.textureUrls.normal);
-      normalTexture.wrapS = THREE.RepeatWrapping;
-      normalTexture.wrapT = THREE.RepeatWrapping;
-      normalTexture.repeat.set(2, 2);
-      normalTexture.offset.set(0, 0);
-      normalTexture.center.set(0.5, 0.5);
-      material.normalMap = normalTexture;
+    // Criar material com textura
+    const createTexturedMaterial = () => {
+      const material = new THREE.MeshStandardMaterial({
+        color: '#ffffff',
+        roughness: 0.8,
+        metalness: 0.1,
+        transparent: false,
+        name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
+      });
+
+      // Carregar mapa difuso
+      if (textureData.textureUrls.diffuse) {
+        const diffuseTexture = createConfiguredTexture(textureData.textureUrls.diffuse, 1, 1);
+        material.map = diffuseTexture;
+      }
+
+      // Carregar mapa normal
+      if (textureData.textureUrls.normal) {
+        const normalTexture = createConfiguredTexture(textureData.textureUrls.normal, 1, 1);
+        material.normalMap = normalTexture;
+      }
+
+      // Carregar mapa de rugosidade
+      if (textureData.textureUrls.roughness) {
+        const roughnessTexture = createConfiguredTexture(textureData.textureUrls.roughness, 1, 1);
+        material.roughnessMap = roughnessTexture;
+      }
+
+      // Carregar mapa de displacement
+      if (textureData.textureUrls.displacement) {
+        const displacementTexture = createConfiguredTexture(textureData.textureUrls.displacement, 1, 1);
+        material.displacementMap = displacementTexture;
+        material.displacementScale = 0.1;
+      }
+
+      // Carregar mapa metálico
+      if (textureData.textureUrls.metallic) {
+        const metallicTexture = createConfiguredTexture(textureData.textureUrls.metallic, 1, 1);
+        material.metalnessMap = metallicTexture;
+      }
+
+      // Carregar mapa AO
+      if (textureData.textureUrls.ao) {
+        const aoTexture = createConfiguredTexture(textureData.textureUrls.ao, 1, 1);
+        material.aoMap = aoTexture;
+      }
+
+      material.needsUpdate = true;
+      return material;
+    };
+
+    // Para chão e teto, aplicar textura apenas na face superior/inferior
+    if (surfaceKey === 'floor') {
+      const texturedMaterial = createTexturedMaterial();
+      // boxGeometry faces: [+x, -x, +y, -y, +z, -z]
+      // Para chão rotacionado, queremos textura na face que fica visível
+      return [defaultMaterial, defaultMaterial, texturedMaterial, defaultMaterial, defaultMaterial, defaultMaterial];
     }
 
-    // Carregar mapa de rugosidade (opcional)
-    if (textureData.textureUrls.roughness) {
-      const roughnessTexture = loader.load(textureData.textureUrls.roughness);
-      roughnessTexture.wrapS = THREE.RepeatWrapping;
-      roughnessTexture.wrapT = THREE.RepeatWrapping;
-      roughnessTexture.repeat.set(3, 3);
-      roughnessTexture.minFilter = THREE.LinearFilter;
-      roughnessTexture.magFilter = THREE.LinearFilter;
-      material.roughnessMap = roughnessTexture;
+    if (surfaceKey === 'ceiling') {
+      const texturedMaterial = createTexturedMaterial();
+      // Para teto rotacionado, queremos textura na face que fica visível
+      return [defaultMaterial, defaultMaterial, defaultMaterial, texturedMaterial, defaultMaterial, defaultMaterial];
     }
 
-    // Carregar mapa de displacement (opcional)
-    if (textureData.textureUrls.displacement) {
-      const displacementTexture = loader.load(textureData.textureUrls.displacement);
-      displacementTexture.wrapS = THREE.RepeatWrapping;
-      displacementTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.repeat.set(3, 3);
-      displacementTexture.minFilter = THREE.LinearFilter;
-      displacementTexture.magFilter = THREE.LinearFilter;
-      material.displacementMap = displacementTexture;
-      material.displacementScale = 0.1;
+    // Para paredes, aplicar textura na face principal
+    if (surfaceKey?.startsWith('wall')) {
+      const texturedMaterial = createTexturedMaterial();
+      // Para paredes, aplicar na face frontal
+      return [defaultMaterial, defaultMaterial, defaultMaterial, defaultMaterial, texturedMaterial, defaultMaterial];
     }
 
-    // Carregar mapa metálico (opcional)
-    if (textureData.textureUrls.metallic) {
-      const metallicTexture = loader.load(textureData.textureUrls.metallic);
-      metallicTexture.wrapS = THREE.RepeatWrapping;
-      metallicTexture.wrapT = THREE.RepeatWrapping;
-      metallicTexture.repeat.set(3, 3);
-      metallicTexture.minFilter = THREE.LinearFilter;
-      metallicTexture.magFilter = THREE.LinearFilter;
-      material.metalnessMap = metallicTexture;
-    }
-
-    // Carregar mapa AO (opcional)
-    if (textureData.textureUrls.ao) {
-      const aoTexture = loader.load(textureData.textureUrls.ao);
-      aoTexture.wrapS = THREE.RepeatWrapping;
-      aoTexture.wrapT = THREE.RepeatWrapping;
-      aoTexture.repeat.set(3, 3);
-      aoTexture.minFilter = THREE.LinearFilter;
-      aoTexture.magFilter = THREE.LinearFilter;
-      material.aoMap = aoTexture;
-    }
-
-    // Forçar atualização do material
-    material.needsUpdate = true;
-
-    return material;
+    // Fallback: aplicar em todas as faces
+    const texturedMaterial = createTexturedMaterial();
+    return [texturedMaterial, texturedMaterial, texturedMaterial, texturedMaterial, texturedMaterial, texturedMaterial];
   };
 
   // Limpar textura
