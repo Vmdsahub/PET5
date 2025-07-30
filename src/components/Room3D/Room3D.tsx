@@ -121,12 +121,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   };
 
   const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
-    if (!draggedTexture) return;
+    if (!draggedTexture) {
+      console.log('❌ Nenhuma textura sendo arrastada');
+      return;
+    }
+
+    console.log(`🎯 Tentando aplicar textura "${draggedTexture.name}" (tipo: ${draggedTexture.type}) em coordenadas (${dropX}, ${dropY})`);
 
     // Obter canvas e câmera para raycasting
     const canvas = document.querySelector('canvas');
     if (!canvas || !cameraRef.current) {
-      console.log('Canvas ou câmera não encontrados');
+      console.log('❌ Canvas ou câmera não encontrados');
       return;
     }
 
