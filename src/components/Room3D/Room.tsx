@@ -107,7 +107,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[-Math.PI / 2, 0, 0]}
         userData={{ surfaceType: 'floor' }}
       >
-        <boxGeometry args={[width, length, floorThickness]} />
+        <boxGeometry args={[width + 0.01, length + 0.01, floorThickness]} />
         <primitive
           key={`floor_${updateKey}`}
           object={createMaterialFromTexture(
