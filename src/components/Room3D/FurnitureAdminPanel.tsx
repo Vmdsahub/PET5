@@ -441,6 +441,13 @@ const FurnitureDeleteForm: React.FC<{
         onClose={() => setShowAddFurniture(false)}
         onAddFurniture={onAddFurniture || (() => {})}
       />
+
+      {/* Modal de adicionar textura */}
+      <AddTextureModal
+        isOpen={showAddTexture}
+        onClose={() => setShowAddTexture(false)}
+        onAddTexture={onAddTexture || (() => {})}
+      />
     </>
   );
 };
