@@ -18,10 +18,10 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
   const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
 
   // Estado para forçar re-render quando texturas mudam
-  const [updateKey, setUpdateKey] = React.useState(0);
+  const [updateKey, setUpdateKey] = useState(0);
 
   // Listener para atualizações de textura
-  React.useEffect(() => {
+  useEffect(() => {
     const handleTextureUpdate = () => {
       setUpdateKey(prev => prev + 1);
     };
