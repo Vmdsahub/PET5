@@ -83,7 +83,11 @@ export const useRoomTextures = (userId: string) => {
     }
 
     const loader = new THREE.TextureLoader();
-    const material = new THREE.MeshStandardMaterial();
+    const material = new THREE.MeshStandardMaterial({
+      // Definir propriedades padrão para melhor performance
+      roughness: 0.8,
+      metalness: 0.1
+    });
 
     // Carregar mapa difuso (obrigatório)
     if (textureData.textureUrls.diffuse) {
