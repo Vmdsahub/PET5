@@ -26,8 +26,17 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       setUpdateKey(prev => prev + 1);
     };
 
+    const handleForceUpdate = () => {
+      setUpdateKey(prev => prev + 1);
+    };
+
     window.addEventListener('roomTextureUpdate', handleTextureUpdate);
-    return () => window.removeEventListener('roomTextureUpdate', handleTextureUpdate);
+    window.addEventListener('forceRoomUpdate', handleForceUpdate);
+
+    return () => {
+      window.removeEventListener('roomTextureUpdate', handleTextureUpdate);
+      window.removeEventListener('forceRoomUpdate', handleForceUpdate);
+    };
   }, []);
 
   // Refs para cada superfície
