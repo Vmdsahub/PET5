@@ -145,7 +145,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[0, 0, 0]}
         userData={{ wallId: 'north', surfaceType: 'wall' }}
       >
-        <boxGeometry args={[width, wallHeight, wallThickness]} />
+        <boxGeometry args={[width + wallThickness, wallHeight, wallThickness]} />
         <primitive
           key={`wall_north_${updateKey}`}
           object={createMaterialFromTexture(
