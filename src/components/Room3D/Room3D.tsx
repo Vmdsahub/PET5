@@ -45,7 +45,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const controlsRef = useRef<any>();
 
   // Hook para gerenciar texturas do quarto
-  const { applyFloorTexture, applyCeilingTexture, applyWallTexture } = useRoomTextures(userId);
+  const { applyFloorTexture, applyCeilingTexture, applyWallTexture, clearAllTextures } = useRoomTextures(userId);
 
   // Listener para forçar atualização do Room component
   React.useEffect(() => {
