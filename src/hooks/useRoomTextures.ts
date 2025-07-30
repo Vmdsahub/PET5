@@ -140,7 +140,9 @@ export const useRoomTextures = (userId: string) => {
       const normalTexture = loader.load(textureData.textureUrls.normal);
       normalTexture.wrapS = THREE.RepeatWrapping;
       normalTexture.wrapT = THREE.RepeatWrapping;
-      normalTexture.repeat.set(2, 2);
+      normalTexture.repeat.set(3, 3);
+      normalTexture.minFilter = THREE.LinearFilter;
+      normalTexture.magFilter = THREE.LinearFilter;
       material.normalMap = normalTexture;
     }
 
@@ -149,7 +151,9 @@ export const useRoomTextures = (userId: string) => {
       const roughnessTexture = loader.load(textureData.textureUrls.roughness);
       roughnessTexture.wrapS = THREE.RepeatWrapping;
       roughnessTexture.wrapT = THREE.RepeatWrapping;
-      roughnessTexture.repeat.set(2, 2);
+      roughnessTexture.repeat.set(3, 3);
+      roughnessTexture.minFilter = THREE.LinearFilter;
+      roughnessTexture.magFilter = THREE.LinearFilter;
       material.roughnessMap = roughnessTexture;
     }
 
@@ -158,7 +162,9 @@ export const useRoomTextures = (userId: string) => {
       const displacementTexture = loader.load(textureData.textureUrls.displacement);
       displacementTexture.wrapS = THREE.RepeatWrapping;
       displacementTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.repeat.set(2, 2);
+      displacementTexture.repeat.set(3, 3);
+      displacementTexture.minFilter = THREE.LinearFilter;
+      displacementTexture.magFilter = THREE.LinearFilter;
       material.displacementMap = displacementTexture;
       material.displacementScale = 0.1;
     }
@@ -168,7 +174,9 @@ export const useRoomTextures = (userId: string) => {
       const metallicTexture = loader.load(textureData.textureUrls.metallic);
       metallicTexture.wrapS = THREE.RepeatWrapping;
       metallicTexture.wrapT = THREE.RepeatWrapping;
-      metallicTexture.repeat.set(2, 2);
+      metallicTexture.repeat.set(3, 3);
+      metallicTexture.minFilter = THREE.LinearFilter;
+      metallicTexture.magFilter = THREE.LinearFilter;
       material.metalnessMap = metallicTexture;
     }
 
@@ -177,7 +185,9 @@ export const useRoomTextures = (userId: string) => {
       const aoTexture = loader.load(textureData.textureUrls.ao);
       aoTexture.wrapS = THREE.RepeatWrapping;
       aoTexture.wrapT = THREE.RepeatWrapping;
-      aoTexture.repeat.set(2, 2);
+      aoTexture.repeat.set(3, 3);
+      aoTexture.minFilter = THREE.LinearFilter;
+      aoTexture.magFilter = THREE.LinearFilter;
       material.aoMap = aoTexture;
     }
 
