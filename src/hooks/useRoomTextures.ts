@@ -92,16 +92,20 @@ export const useRoomTextures = (userId: string) => {
   };
 
   // Criar material Three.js a partir dos dados da textura
-  const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff') => {
+  const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff', surfaceKey?: string) => {
     if (!textureData || !textureData.textureUrls.diffuse) {
-      return new THREE.MeshLambertMaterial({ color: defaultColor });
+      return new THREE.MeshLambertMaterial({
+        color: defaultColor,
+        name: `default_${surfaceKey || 'surface'}`
+      });
     }
 
     const loader = new THREE.TextureLoader();
     const material = new THREE.MeshStandardMaterial({
       // Definir propriedades padrão para melhor performance
       roughness: 0.8,
-      metalness: 0.1
+      metalness: 0.1,
+      name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
     // Carregar mapa difuso (obrigatório)
