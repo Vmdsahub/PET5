@@ -19,6 +19,8 @@ interface RoomUIProps {
   isDragging: boolean;
   isAdmin?: boolean;
   onAddFurniture?: (furnitureData: any) => void;
+  onDraggedTexture?: (texture: any) => void;
+  draggedTexture?: any;
   editMode?: boolean;
   onToggleEditMode?: () => void;
   onStoreFurniture?: (furnitureId: string) => void;
