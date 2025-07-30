@@ -143,9 +143,9 @@ export const useRoomTextures = (userId: string) => {
       const normalTexture = loader.load(textureData.textureUrls.normal);
       normalTexture.wrapS = THREE.RepeatWrapping;
       normalTexture.wrapT = THREE.RepeatWrapping;
-      normalTexture.repeat.set(3, 3);
-      normalTexture.minFilter = THREE.LinearFilter;
-      normalTexture.magFilter = THREE.LinearFilter;
+      normalTexture.repeat.set(2, 2);
+      normalTexture.offset.set(0, 0);
+      normalTexture.center.set(0.5, 0.5);
       material.normalMap = normalTexture;
     }
 
