@@ -150,7 +150,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     // Se não encontrou superfícies pelo nome, tentar raycast em todos os meshes
     let targetObjects = surfaces.map(s => s.object);
     if (targetObjects.length === 0) {
-      console.log('Nenhuma superfície nomeada encontrada, tentando todos os meshes...');
       scene?.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           targetObjects.push(child);
@@ -160,7 +159,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     // Fazer raycast
     const intersects = raycaster.intersectObjects(targetObjects);
-    console.log('Intersecções encontradas:', intersects.length);
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
