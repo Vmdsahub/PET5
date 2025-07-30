@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { ScaleControls } from './ScaleControls';
+import { TextureDropHandler } from './TextureDropHandler';
 import { mockStorageService, FurnitureItem, RoomDimensions } from '../../services/mockStorage';
 import { useRoomTextures } from '../../hooks/useRoomTextures';
 import { RoomUI } from './RoomUI';
