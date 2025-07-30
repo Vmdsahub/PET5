@@ -176,9 +176,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       });
     }
 
-    if (surfaces.length === 0) {
-      console.log(`Nenhuma superfície nomeada encontrada em ${allMeshes.length} meshes, usando detecção por posição`);
-    }
+    console.log(`Encontradas ${surfaces.length} superfícies nomeadas de ${allMeshes.length} meshes`);
 
     // Fazer raycast primeiro em superfícies nomeadas, depois em todos os meshes
     let intersects: THREE.Intersection[] = [];
@@ -361,7 +359,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       // Pegar todos os móveis colocados
       const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
 
-      // Remover todos os móveis um por um (isso vai movê-los para o inventário)
+      // Remover todos os móveis um por um (isso vai movê-los para o invent��rio)
       currentPlacedFurniture.forEach(furniture => {
         mockStorageService.removeFurniture(userId, furniture.id);
       });
