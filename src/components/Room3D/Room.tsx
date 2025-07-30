@@ -93,9 +93,9 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
 
   const doorWidth = 2;
 
-  // Altura efetiva das paredes (entre chão e teto) com sobreposição para eliminar gaps
-  const wallHeight = height - floorThickness - ceilingThickness + 0.02; // Pequena sobreposição
-  const wallCenterY = floorThickness + wallHeight/2 - 0.01; // Ajuste para centralização
+  // Altura efetiva das paredes (entre chão e teto)
+  const wallHeight = height - floorThickness - ceilingThickness;
+  const wallCenterY = floorThickness + wallHeight/2;
 
   return (
     <group>
@@ -107,7 +107,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[-Math.PI / 2, 0, 0]}
         userData={{ surfaceType: 'floor' }}
       >
-        <boxGeometry args={[width + 0.01, length + 0.01, floorThickness]} />
+        <boxGeometry args={[width, length, floorThickness]} />
         <primitive
           key={`floor_${updateKey}`}
           object={createMaterialFromTexture(
@@ -126,7 +126,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[Math.PI / 2, 0, 0]}
         userData={{ surfaceType: 'ceiling' }}
       >
-        <boxGeometry args={[width + 0.01, length + 0.01, ceilingThickness]} />
+        <boxGeometry args={[width, length, ceilingThickness]} />
         <primitive
           key={`ceiling_${updateKey}`}
           object={createMaterialFromTexture(
@@ -145,7 +145,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[0, 0, 0]}
         userData={{ wallId: 'north', surfaceType: 'wall' }}
       >
-        <boxGeometry args={[width + wallThickness, wallHeight, wallThickness]} />
+        <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
           key={`wall_north_${updateKey}`}
           object={createMaterialFromTexture(
@@ -164,7 +164,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[0, 0, 0]}
         userData={{ wallId: 'south', surfaceType: 'wall' }}
       >
-        <boxGeometry args={[width + wallThickness, wallHeight, wallThickness]} />
+        <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
           key={`wall_south_${updateKey}`}
           object={createMaterialFromTexture(
