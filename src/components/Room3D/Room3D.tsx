@@ -455,6 +455,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             target={[0, 0, 0]}
           />
           
+          {/* Handler para detecção de texturas */}
+          <TextureDropHandler
+            draggedTexture={draggedTexture}
+            onTextureApplied={handleTextureApplied}
+            onTextureFailed={handleTextureFailed}
+          />
+
           {/* Quarto */}
           <Room
             key={roomUpdateKey}
