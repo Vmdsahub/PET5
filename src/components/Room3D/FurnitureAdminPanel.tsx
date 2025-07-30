@@ -19,6 +19,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   isOpen,
   onClose,
   onAddFurniture,
+  onAddTexture,
   onCreateSection,
   onDeleteSection,
   onDeleteFurniture
