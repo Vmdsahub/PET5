@@ -424,9 +424,10 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           {/* Controles de câmera */}
           <OrbitControls
             ref={controlsRef}
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
+            enablePan={!draggedTexture}
+            enableZoom={!draggedTexture}
+            enableRotate={!draggedTexture}
+            enabled={!draggedTexture}
             minDistance={5}
             maxDistance={20}
             maxPolarAngle={Math.PI / 2}
