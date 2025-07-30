@@ -22,6 +22,7 @@ interface RoomUIProps {
   onAddFurniture?: (furnitureData: any) => void;
   onDraggedTexture?: (texture: any) => void;
   draggedTexture?: any;
+  onTextureDropOnSurface?: (dropX: number, dropY: number) => void;
   editMode?: boolean;
   onToggleEditMode?: () => void;
   onStoreFurniture?: (furnitureId: string) => void;
