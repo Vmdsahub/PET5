@@ -291,44 +291,39 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       return;
     }
 
-    // Se não interceptou nenhuma superfície válida
-    console.log('Nenhuma superfície válida interceptada');
-    console.log('Total de intersecções:', intersects.length);
+    // Se não interceptou nenhuma superfície
+    console.log('❌ Nenhuma intersecção encontrada');
+    console.log('🔍 Tentando fallback simples...');
 
-    // Só usar fallback simples se realmente necessário, e apenas para o tipo específico
-    if (intersects.length === 0) {
-      console.log('Nenhuma intersecção encontrada - fallback limitado');
-
-      // Fallback muito conservador - só aplicar em tipo específico
-      if (draggedTexture.type === 'floor') {
-        applyFloorTexture(draggedTexture);
-        console.log('Fallback: aplicado no chão');
-      } else if (draggedTexture.type === 'ceiling') {
-        applyCeilingTexture(draggedTexture);
-        console.log('Fallback: aplicado no teto');
-      } else {
-        // Para paredes, não usar fallback - usuário deve ser mais preciso
-        console.log('Fallback: textura de parede não aplicada - tente arrastar mais perto da parede específica');
-        setDraggedTexture(null);
-        return;
-      }
-
-      // Remover do inventário apenas se aplicou
-      const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
-      if (textureInventoryItem) {
-        if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
-          textureInventoryItem.quantity -= 1;
-        } else {
-          mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
-        }
-        setInventory(mockStorageService.getInventory(userId));
-      }
-
-      // Forçar re-render
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
-      }, 50);
+    // Fallback simples - aplicar na superfície correta
+    if (draggedTexture.type === 'wall') {
+      // Para paredes, aplicar em uma parede padrão
+      applyWallTexture('north', draggedTexture);
+      console.log('🔧 Fallback: textura de parede aplicada na parede norte');
+    } else if (draggedTexture.type === 'floor') {
+      applyFloorTexture(draggedTexture);
+      console.log('🔧 Fallback: textura aplicada no chão');
+    } else if (draggedTexture.type === 'ceiling') {
+      applyCeilingTexture(draggedTexture);
+      console.log('🔧 Fallback: textura aplicada no teto');
     }
+
+    // Remover do inventário
+    const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
+    if (textureInventoryItem) {
+      if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
+        textureInventoryItem.quantity -= 1;
+      } else {
+        mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
+      }
+      setInventory(mockStorageService.getInventory(userId));
+    }
+
+    // Forçar re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    }, 50);
 
     setDraggedTexture(null);
   };
