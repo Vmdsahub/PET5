@@ -98,8 +98,9 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
+
     if (draggedItem) {
-      // Calcular posição 3D baseada na posição exata do canvas
+      // Lógica original para móveis
       const canvas = document.querySelector('canvas');
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -110,6 +111,10 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       }
       setDraggedItem(null);
       setDragPosition(null);
+    } else if (draggedTexture) {
+      // Para texturas, apenas limpar o estado - a aplicação acontece via clique nas superfícies
+      // O usuário deve clicar na superfície (chão, parede, teto) para aplicar
+      console.log('Textura arrastada para o quarto. Clique na superfície desejada para aplicar.');
     }
   };
 
@@ -529,7 +534,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div className="p-8 text-center text-gray-500">
                 <Package size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>Seu inventário está vazio</p>
-                <p className="text-sm">Compre m��veis no catálogo!</p>
+                <p className="text-sm">Compre m��veis no cat��logo!</p>
               </div>
             ) : (
               <div className="grid grid-cols-8 gap-1 p-4">
