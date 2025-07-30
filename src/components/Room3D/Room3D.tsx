@@ -155,7 +155,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       });
     }
 
-    console.log(`Encontrados ${allMeshes.length} meshes, ${surfaces.length} superfícies nomeadas`);
+    if (surfaces.length === 0) {
+      console.log(`Nenhuma superfície nomeada encontrada em ${allMeshes.length} meshes, usando detecção por posição`);
+    }
 
     // Se encontrou superfícies nomeadas, usar apenas elas, senão usar todos os meshes
     let targetObjects = surfaces.length > 0 ? surfaces.map(s => s.object) : allMeshes;
