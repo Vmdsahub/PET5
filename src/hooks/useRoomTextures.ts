@@ -67,6 +67,11 @@ export const useRoomTextures = (userId: string) => {
       ceiling: textureData
     };
     saveTextures(newTextures);
+
+    // Forçar re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    }, 100);
   };
 
   // Aplicar textura a uma parede específica
@@ -79,6 +84,11 @@ export const useRoomTextures = (userId: string) => {
       }
     };
     saveTextures(newTextures);
+
+    // Forçar re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    }, 100);
   };
 
   // Criar material Three.js a partir dos dados da textura
