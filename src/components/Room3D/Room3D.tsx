@@ -295,6 +295,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setInventory(mockStorageService.getInventory(userId));
     }
 
+    // Forçar re-render imediato do Room component
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
+    }, 50);
+
     setDraggedTexture(null);
   };
 
