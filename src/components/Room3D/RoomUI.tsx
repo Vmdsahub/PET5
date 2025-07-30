@@ -5,6 +5,7 @@ import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 import { FurnitureAdminPanel } from './FurnitureAdminPanel';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
+import { TexturePreview } from './TexturePreview';
 import { useAuthStore } from '../../store/authStore';
 import { mockStorageService } from '../../services/mockStorage';
 
