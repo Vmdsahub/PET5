@@ -9,6 +9,7 @@ interface FurnitureAdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFurniture?: (furnitureData: any) => void;
+  onAddTexture?: (textureData: any) => void;
   onCreateSection?: (sectionName: string) => boolean;
   onDeleteSection?: (sectionName: string) => boolean;
   onDeleteFurniture?: (sectionName: string, furnitureIndex: number) => boolean;
