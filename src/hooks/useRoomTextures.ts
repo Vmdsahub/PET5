@@ -213,6 +213,7 @@ export const useRoomTextures = (userId: string) => {
     clearFloorTexture,
     clearCeilingTexture,
     clearWallTexture,
+    clearAllTextures,
     createMaterialFromTexture
   };
 };
