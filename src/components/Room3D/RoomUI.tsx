@@ -114,9 +114,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       setDraggedItem(null);
       setDragPosition(null);
     } else if (draggedTexture) {
-      // Para texturas, apenas limpar o estado - a aplicação acontece via clique nas superfícies
-      // O usuário deve clicar na superfície (chão, parede, teto) para aplicar
-      console.log('Textura arrastada para o quarto. Clique na superfície desejada para aplicar.');
+      // Para texturas, usar raycasting para detectar superfície automaticamente
+      onTextureDropOnSurface?.(event.clientX, event.clientY);
     }
   };
 
@@ -195,7 +194,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   // Cleanup quando contexto muda
   React.useEffect(() => {
     if (!contextMenu.visible && contextMenuState?.visible === false) {
-      // Sincronizar estados se necessário
+      // Sincronizar estados se necess��rio
     }
   }, [contextMenu.visible, contextMenuState]);
 
