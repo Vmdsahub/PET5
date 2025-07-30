@@ -116,8 +116,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
 
-    console.log('Coordenadas normalizadas do mouse:', mouse);
-
     // Criar raycaster
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, cameraRef.current);
@@ -127,7 +125,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     // Buscar superfícies na cena - usar uma abordagem mais robusta
     const scene = cameraRef.current.parent?.parent || cameraRef.current.parent;
-    console.log('Cena encontrada:', scene);
 
     if (scene) {
       // Buscar por todos os meshes na cena
