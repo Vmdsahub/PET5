@@ -137,15 +137,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
 
-    console.log('Coordenadas de drop:', { dropX, dropY, rect, normalized: mouse });
-
     // Criar raycaster
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, cameraRef.current);
-
-    // Debug: Mostrar direção do ray
-    console.log('Ray origin:', raycaster.ray.origin);
-    console.log('Ray direction:', raycaster.ray.direction);
 
     // Lista de objetos para interceptar (todas as superfícies do quarto)
     const surfaces: { object: THREE.Object3D; type: string; id?: string }[] = [];
