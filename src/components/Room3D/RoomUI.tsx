@@ -268,7 +268,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Área de drop invisível sobre todo o canvas */}
-      {draggedItem && (
+      {(draggedItem || draggedTexture) && (
         <div
           className="fixed inset-0 z-40 pointer-events-auto"
           onDragOver={handleDragOver}
@@ -534,7 +534,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div className="p-8 text-center text-gray-500">
                 <Package size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>Seu inventário está vazio</p>
-                <p className="text-sm">Compre m��veis no cat��logo!</p>
+                <p className="text-sm">Compre m��veis no catálogo!</p>
               </div>
             ) : (
               <div className="grid grid-cols-8 gap-1 p-4">
