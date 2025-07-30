@@ -184,10 +184,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         // Detectar tipo baseado na posição Y (valores mais flexíveis)
         if (pos.y <= 1.5) {
           closestSurface = { object: intersectedObject, type: 'floor' };
-          console.log('Detectado como chão por posição');
         } else if (pos.y >= 3.5) {
           closestSurface = { object: intersectedObject, type: 'ceiling' };
-          console.log('Detectado como teto por posição');
         } else {
           // É uma parede, determinar qual baseado na posição e dimensões do quarto
           let wallId = 'north';
