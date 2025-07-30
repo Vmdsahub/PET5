@@ -102,8 +102,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
     if (!draggedTexture) return;
 
-    console.log('handleTextureDropOnSurface chamado:', { dropX, dropY, draggedTexture: draggedTexture.name });
-
     // Obter canvas e câmera para raycasting
     const canvas = document.querySelector('canvas');
     if (!canvas || !cameraRef.current) {
