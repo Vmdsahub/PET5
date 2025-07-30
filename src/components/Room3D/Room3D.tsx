@@ -40,7 +40,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [catalogUpdateNotification, setCatalogUpdateNotification] = useState<string | null>(null);
   const [showRoomProperties, setShowRoomProperties] = useState(false);
   const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
+  const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const controlsRef = useRef<any>();
+
+  // Hook para gerenciar texturas do quarto
+  const { applyFloorTexture, applyCeilingTexture, applyWallTexture } = useRoomTextures(userId);
   const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
 
@@ -287,7 +291,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Deletar todos os móveis do quarto"
         >
-          🗑️ Limpar Tudo
+          ����️ Limpar Tudo
         </button>
 
         {isAdmin && (
