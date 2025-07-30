@@ -17,6 +17,19 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
   // Hook para gerenciar texturas
   const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
 
+  // Estado para forçar re-render quando texturas mudam
+  const [updateKey, setUpdateKey] = React.useState(0);
+
+  // Listener para atualizações de textura
+  React.useEffect(() => {
+    const handleTextureUpdate = () => {
+      setUpdateKey(prev => prev + 1);
+    };
+
+    window.addEventListener('roomTextureUpdate', handleTextureUpdate);
+    return () => window.removeEventListener('roomTextureUpdate', handleTextureUpdate);
+  }, []);
+
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
   const ceilingRef = useRef<THREE.Mesh>(null);
