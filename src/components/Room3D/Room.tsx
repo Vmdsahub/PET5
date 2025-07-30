@@ -122,6 +122,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', onSu
         rotation={[0, 0, 0]}
         onClick={(e) => {
           e.stopPropagation();
+          console.log('Clique na parede norte detectado!');
           onSurfaceClick?.('wall', 'north');
         }}
         onPointerEnter={() => setHoveredSurface('wall-north')}
