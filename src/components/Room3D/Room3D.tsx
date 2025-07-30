@@ -212,8 +212,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
       if (closestSurface) {
         const surfaceType = closestSurface.type as 'floor' | 'wall' | 'ceiling';
-        console.log('Tipo de superfície detectado:', surfaceType);
-        console.log('Tipo de textura arrastada:', draggedTexture.type);
+        console.log(`Aplicando textura ${draggedTexture.type} em ${surfaceType}${closestSurface.id ? ` (${closestSurface.id})` : ''}`);
 
         // Verificar compatibilidade
         if (draggedTexture.type !== surfaceType) {
