@@ -108,13 +108,14 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         userData={{ surfaceType: 'floor' }}
       >
         <boxGeometry args={[width, length, floorThickness]} />
-        {createMaterialFromTexture(
-          roomTextures.floor,
-          draggedTexture?.type === 'floor' ? '#9B8365' : '#8B7355',
-          'floor'
-        ).map((material, index) => (
-          <primitive key={`floor_${updateKey}_${index}`} object={material} attach={`material-${index}`} />
-        ))}
+        <primitive
+          key={`floor_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.floor,
+            draggedTexture?.type === 'floor' ? '#9B8365' : '#8B7355',
+            'floor'
+          )}
+        />
       </mesh>
 
       {/* Teto - topo do quarto */}
