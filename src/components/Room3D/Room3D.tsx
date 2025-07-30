@@ -143,18 +143,44 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, cameraRef.current);
 
-    // Buscar todas as meshes do quarto
+    // Debug: investigar a hierarquia da cena
+    console.log('🔍 Investigando hierarquia da cena...');
+    console.log('Camera parent:', cameraRef.current.parent);
+
+    // Buscar em diferentes níveis da hierarquia
+    const allMeshes: THREE.Mesh[] = [];
     const roomMeshes: THREE.Mesh[] = [];
-    if (cameraRef.current.parent) {
-      cameraRef.current.parent.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.name && 
-            (child.name === 'floor' || child.name === 'ceiling' || child.name.startsWith('wall-'))) {
-          roomMeshes.push(child);
+
+    // Tentar diferentes pontos de entrada na hierarquia
+    const possibleRoots = [
+      cameraRef.current.parent,
+      cameraRef.current.parent?.parent,
+      cameraRef.current.parent?.parent?.parent
+    ].filter(Boolean);
+
+    console.log(`🌳 Testando ${possibleRoots.length} possíveis raízes da cena`);
+
+    for (let i = 0; i < possibleRoots.length; i++) {
+      const root = possibleRoots[i];
+      console.log(`📁 Nível ${i + 1}:`, root?.type, root?.name);
+
+      root?.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          allMeshes.push(child);
+          console.log(`  🎯 Mesh encontrada: "${child.name}" (tipo: ${child.type})`);
+
+          if (child.name &&
+              (child.name === 'floor' || child.name === 'ceiling' || child.name.startsWith('wall-'))) {
+            roomMeshes.push(child);
+            console.log(`    ✅ Mesh do quarto: ${child.name}`);
+          }
         }
       });
     }
 
-    console.log(`🔍 Fazendo raycasting em ${roomMeshes.length} superfícies do quarto`);
+    console.log(`🔍 Total de meshes encontradas: ${allMeshes.length}`);
+    console.log(`🏠 Meshes do quarto encontradas: ${roomMeshes.length}`);
+    console.log('🏠 Nomes das meshes do quarto:', roomMeshes.map(m => m.name));
 
     // Fazer raycast
     const intersects = raycaster.intersectObjects(roomMeshes);
