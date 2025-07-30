@@ -83,12 +83,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={floorRef}
         position={[0, floorThickness/2, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('floor');
-        }}
-        onPointerEnter={() => setHoveredSurface('floor')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[width, length, floorThickness]} />
         <primitive
@@ -105,12 +99,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={ceilingRef}
         position={[0, height - ceilingThickness/2, 0]}
         rotation={[Math.PI / 2, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('ceiling');
-        }}
-        onPointerEnter={() => setHoveredSurface('ceiling')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[width, length, ceilingThickness]} />
         <primitive
@@ -127,12 +115,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={wallNorthRef}
         position={[0, wallCenterY, -length/2 + wallThickness/2]}
         rotation={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('wall', 'north');
-        }}
-        onPointerEnter={() => setHoveredSurface('wall-north')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
@@ -149,12 +131,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={wallSouthLeftRef}
         position={[0, wallCenterY, length/2 - wallThickness/2]}
         rotation={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('wall', 'south');
-        }}
-        onPointerEnter={() => setHoveredSurface('wall-south')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
@@ -171,12 +147,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={wallEastRef}
         position={[width/2 - wallThickness/2, wallCenterY, 0]}
         rotation={[0, Math.PI/2, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('wall', 'east');
-        }}
-        onPointerEnter={() => setHoveredSurface('wall-east')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
@@ -193,12 +163,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ref={wallWestRef}
         position={[-width/2 + wallThickness/2, wallCenterY, 0]}
         rotation={[0, Math.PI/2, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSurfaceClick?.('wall', 'west');
-        }}
-        onPointerEnter={() => setHoveredSurface('wall-west')}
-        onPointerLeave={() => setHoveredSurface(null)}
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
