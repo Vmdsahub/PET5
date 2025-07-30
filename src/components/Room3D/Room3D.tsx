@@ -123,13 +123,21 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     // Lista de objetos para interceptar (todas as superfícies do quarto)
     const surfaces: { object: THREE.Object3D; type: string; id?: string }[] = [];
 
-    // Buscar superfícies na cena - usar uma abordagem mais robusta
-    const scene = cameraRef.current.parent?.parent || cameraRef.current.parent;
+    // Buscar superfícies na cena de forma mais ampla
+    let allMeshes: THREE.Mesh[] = [];
 
-    if (scene) {
-      // Buscar por todos os meshes na cena
-      scene.traverse((child) => {
+    // Tentar diferentes níveis da hierarquia da cena
+    const possibleScenes = [
+      cameraRef.current.parent,
+      cameraRef.current.parent?.parent,
+      cameraRef.current.parent?.parent?.parent
+    ].filter(Boolean);
+
+    for (const scene of possibleScenes) {
+      scene?.traverse((child) => {
         if (child instanceof THREE.Mesh) {
+          allMeshes.push(child);
+
           if (child.name) {
             const name = child.name;
 
@@ -147,15 +155,10 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       });
     }
 
-    // Se não encontrou superfícies pelo nome, tentar raycast em todos os meshes
-    let targetObjects = surfaces.map(s => s.object);
-    if (targetObjects.length === 0) {
-      scene?.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          targetObjects.push(child);
-        }
-      });
-    }
+    console.log(`Encontrados ${allMeshes.length} meshes, ${surfaces.length} superfícies nomeadas`);
+
+    // Se encontrou superfícies nomeadas, usar apenas elas, senão usar todos os meshes
+    let targetObjects = surfaces.length > 0 ? surfaces.map(s => s.object) : allMeshes;
 
     // Fazer raycast
     const intersects = raycaster.intersectObjects(targetObjects);
