@@ -314,9 +314,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         }
 
         // Forçar re-render imediato do Room component
+        console.log('🔄 Forçando re-render do quarto...');
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
+          console.log('📡 Evento forceRoomUpdate disparado');
         }, 50);
+
+        // Também disparar evento de textura atualizada
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+          console.log('📡 Evento roomTextureUpdate disparado');
+        }, 100);
 
         // Remover textura do inventário (decrementar quantidade ou remover completamente)
         const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
