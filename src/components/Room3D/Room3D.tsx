@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { ScaleControls } from './ScaleControls';
+import { TextureDropHandler } from './TextureDropHandler';
 import { mockStorageService, FurnitureItem, RoomDimensions } from '../../services/mockStorage';
 import { useRoomTextures } from '../../hooks/useRoomTextures';
 import { RoomUI } from './RoomUI';
@@ -120,221 +121,53 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     }, 100);
   };
 
-  const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
+  const handleTextureApplied = (surfaceType: string, wallId?: string) => {
     if (!draggedTexture) return;
 
-    // Obter canvas e câmera para raycasting
-    const canvas = document.querySelector('canvas');
-    if (!canvas || !cameraRef.current) {
-      console.log('Canvas ou câmera não encontrados');
-      return;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-
-    // Normalizar coordenadas do mouse para NDC (-1 a +1)
-    const mouse = new THREE.Vector2();
-    mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
-
-    // Criar raycaster
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, cameraRef.current);
-
-    // Lista de objetos para interceptar (todas as superfícies do quarto)
-    const surfaces: { object: THREE.Object3D; type: string; id?: string }[] = [];
-
-    // Buscar superfícies na cena de forma mais ampla
-    let allMeshes: THREE.Mesh[] = [];
-
-    // Tentar diferentes níveis da hierarquia da cena
-    const possibleScenes = [
-      cameraRef.current.parent,
-      cameraRef.current.parent?.parent,
-      cameraRef.current.parent?.parent?.parent
-    ].filter(Boolean);
-
-    for (const scene of possibleScenes) {
-      scene?.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          allMeshes.push(child);
-
-          if (child.name) {
-            const name = child.name;
-
-            // Usar nome do mesh para identificar tipo
-            if (name === 'floor') {
-              surfaces.push({ object: child, type: 'floor' });
-            } else if (name === 'ceiling') {
-              surfaces.push({ object: child, type: 'ceiling' });
-            } else if (name.startsWith('wall-')) {
-              const wallId = name.replace('wall-', '');
-              surfaces.push({ object: child, type: 'wall', id: wallId });
-            }
-          }
-        }
-      });
-    }
-
-    console.log(`Encontradas ${surfaces.length} superfícies nomeadas de ${allMeshes.length} meshes`);
-
-    // Fazer raycast primeiro em superfícies nomeadas, depois em todos os meshes
-    let intersects: THREE.Intersection[] = [];
-
-    if (surfaces.length > 0) {
-      intersects = raycaster.intersectObjects(surfaces.map(s => s.object));
-      console.log(`Raycasting em ${surfaces.length} superfícies nomeadas: ${intersects.length} intersecções`);
-    }
-
-    // Se não interceptou superfícies nomeadas, tentar todos os meshes
-    if (intersects.length === 0) {
-      intersects = raycaster.intersectObjects(allMeshes);
-      console.log(`Fallback para ${allMeshes.length} meshes: ${intersects.length} intersecções`);
-    }
-
-    if (intersects.length > 0) {
-      const intersectedObject = intersects[0].object;
-      const intersectionPoint = intersects[0].point;
-
-      console.log('Raycasting bem-sucedido:', {
-        name: intersectedObject.name,
-        position: intersectedObject.position,
-        intersectionPoint,
-        distance: intersects[0].distance
-      });
-
-      // Primeiro tentar encontrar por nome
-      let closestSurface = surfaces.find(s => s.object === intersectedObject);
-
-      // Se não encontrou por nome, usar posição do ponto de intersecção (mais preciso)
-      if (!closestSurface && intersectedObject instanceof THREE.Mesh) {
-        const point = intersectionPoint;
-        console.log('Detectando por ponto de intersecção:', point);
-
-        // Usar posição do ponto de intersecção para detectar superfície
-        if (point.y <= 1.5) {
-          closestSurface = { object: intersectedObject, type: 'floor' };
-          console.log('Detectado como chão');
-        } else if (point.y >= 3.5) {
-          closestSurface = { object: intersectedObject, type: 'ceiling' };
-          console.log('Detectado como teto');
-        } else {
-          // É uma parede - usar ponto de intersecção para determinar qual
-          const roomDims = roomDimensions;
-          const halfWidth = roomDims.width / 2;
-          const halfLength = roomDims.length / 2;
-
-          // Calcular distâncias às bordas usando ponto de intersecção
-          const distances = {
-            north: Math.abs(point.z + halfLength),
-            south: Math.abs(point.z - halfLength),
-            east: Math.abs(point.x - halfWidth),
-            west: Math.abs(point.x + halfWidth)
-          };
-
-          // Encontrar a menor distância
-          const wallId = Object.keys(distances).reduce((a, b) =>
-            distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
-          ) as string;
-
-          console.log('Detectado como parede:', wallId, 'distâncias:', distances);
-          closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
-        }
-      }
-
-      if (closestSurface) {
-        const surfaceType = closestSurface.type as 'floor' | 'wall' | 'ceiling';
-        console.log(`Aplicando textura ${draggedTexture.type} em ${surfaceType}${closestSurface.id ? ` (${closestSurface.id})` : ''}`);
-
-        // Verificar compatibilidade
-        if (draggedTexture.type !== surfaceType) {
-          alert(`Esta textura é para ${draggedTexture.type === 'floor' ? 'chão' : draggedTexture.type === 'wall' ? 'parede' : 'teto'}, não para ${surfaceType === 'floor' ? 'chão' : surfaceType === 'wall' ? 'parede' : 'teto'}.`);
-          setDraggedTexture(null);
-          return;
-        }
-
-        // Aplicar textura
-        switch (surfaceType) {
-          case 'floor':
-            applyFloorTexture(draggedTexture);
-            console.log('Textura aplicada no chão:', draggedTexture.name);
-            break;
-          case 'ceiling':
-            applyCeilingTexture(draggedTexture);
-            console.log('Textura aplicada no teto:', draggedTexture.name);
-            break;
-          case 'wall':
-            const wallId = closestSurface.id || 'north';
-            applyWallTexture(wallId, draggedTexture);
-            console.log(`Textura aplicada na parede ${wallId}:`, draggedTexture.name);
-            break;
-        }
-
-        // Forçar re-render imediato do Room component
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
-        }, 50);
-
-        // Remover textura do inventário (decrementar quantidade ou remover completamente)
-        const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
-        if (textureInventoryItem) {
-          if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
-            // Decrementar quantidade
-            textureInventoryItem.quantity -= 1;
-          } else {
-            // Remover completamente do inventário
-            mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
-          }
-          // Atualizar estado do inventário
-          setInventory(mockStorageService.getInventory(userId));
-        }
-
-        // Limpar textura arrastada
-        setDraggedTexture(null);
-        return;
-      }
-    }
-
-    // Se não interceptou nenhuma superfície válida
-    console.log('Nenhuma superfície válida interceptada');
-    console.log('Total de intersecções:', intersects.length);
-
-    // Só usar fallback simples se realmente necessário, e apenas para o tipo específico
-    if (intersects.length === 0) {
-      console.log('Nenhuma intersecção encontrada - fallback limitado');
-
-      // Fallback muito conservador - só aplicar em tipo específico
-      if (draggedTexture.type === 'floor') {
+    // Aplicar textura na superfície correta
+    switch (surfaceType) {
+      case 'floor':
         applyFloorTexture(draggedTexture);
-        console.log('Fallback: aplicado no chão');
-      } else if (draggedTexture.type === 'ceiling') {
+        break;
+      case 'ceiling':
         applyCeilingTexture(draggedTexture);
-        console.log('Fallback: aplicado no teto');
-      } else {
-        // Para paredes, não usar fallback - usuário deve ser mais preciso
-        console.log('Fallback: textura de parede não aplicada - tente arrastar mais perto da parede específica');
-        setDraggedTexture(null);
-        return;
-      }
-
-      // Remover do inventário apenas se aplicou
-      const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
-      if (textureInventoryItem) {
-        if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
-          textureInventoryItem.quantity -= 1;
-        } else {
-          mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
+        break;
+      case 'wall':
+        if (wallId) {
+          applyWallTexture(wallId, draggedTexture);
         }
-        setInventory(mockStorageService.getInventory(userId));
-      }
-
-      // Forçar re-render
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
-      }, 50);
+        break;
     }
+
+    // Remover textura do inventário
+    const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
+    if (textureInventoryItem) {
+      if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
+        textureInventoryItem.quantity -= 1;
+      } else {
+        mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
+      }
+      setInventory(mockStorageService.getInventory(userId));
+    }
+
+    // Atualizar o quarto
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    }, 50);
 
     setDraggedTexture(null);
+  };
+
+  const handleTextureFailed = () => {
+    setDraggedTexture(null);
+  };
+
+  const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
+    // Esta função agora é apenas um proxy para o TextureDropHandler
+    if ((window as any).handleTextureDropOnSurface) {
+      (window as any).handleTextureDropOnSurface(dropX, dropY);
+    }
   };
 
   const handleToggleEditMode = () => {
@@ -359,7 +192,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       // Pegar todos os móveis colocados
       const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
 
-      // Remover todos os móveis um por um (isso vai movê-los para o invent��rio)
+      // Remover todos os móveis um por um (isso vai movê-los para o inventário)
       currentPlacedFurniture.forEach(furniture => {
         mockStorageService.removeFurniture(userId, furniture.id);
       });
@@ -466,7 +299,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onClick={() => setUse2DMode(!use2DMode)}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             >
-              {use2DMode ? '🎮 Modo 3D' : '���� Modo 2D'}
+              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
             </button>
           )}
           {!webglSupport.hasSupport && (
@@ -609,7 +442,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             decay={2}
           />
           
-          {/* Controles de c��mera */}
+          {/* Controles de câmera */}
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
@@ -622,6 +455,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             target={[0, 0, 0]}
           />
           
+          {/* Handler para detecção de texturas */}
+          <TextureDropHandler
+            draggedTexture={draggedTexture}
+            onTextureApplied={handleTextureApplied}
+            onTextureFailed={handleTextureFailed}
+          />
+
           {/* Quarto */}
           <Room
             key={roomUpdateKey}
