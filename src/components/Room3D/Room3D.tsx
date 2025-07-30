@@ -126,9 +126,12 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     // Verificar se a textura é compatível com a superfície
     if (draggedTexture.type !== surfaceType) {
+      console.log(`Incompatibilidade: textura é ${draggedTexture.type}, superfície é ${surfaceType}`);
       alert(`Esta textura é para ${draggedTexture.type === 'floor' ? 'chão' : draggedTexture.type === 'wall' ? 'parede' : 'teto'}, não para ${surfaceType === 'floor' ? 'chão' : surfaceType === 'wall' ? 'parede' : 'teto'}.`);
       return;
     }
+
+    console.log('Textura compatível! Aplicando...');
 
     // Aplicar a textura na superfície
     switch (surfaceType) {
