@@ -41,6 +41,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [showRoomProperties, setShowRoomProperties] = useState(false);
   const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
+  const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const controlsRef = useRef<any>();
 
   // Hook para gerenciar texturas do quarto
