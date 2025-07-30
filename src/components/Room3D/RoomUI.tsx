@@ -74,7 +74,14 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const contextMenu = contextMenuState || localContextMenu;
 
   const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
-    setDraggedItem(item);
+    if ((item as any).isTexture) {
+      // É uma textura, configurar para arrastar textura
+      onDraggedTexture?.(item);
+    } else {
+      // É um móvel, manter lógica original
+      setDraggedItem(item);
+    }
+
     // Criar uma imagem ghost transparente
     const dragImage = new Image();
     dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
