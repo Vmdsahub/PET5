@@ -101,8 +101,10 @@ export const useRoomTextures = (userId: string) => {
     }
 
     const loader = new THREE.TextureLoader();
+
+    // Criar material com cor padrão primeiro para evitar flash preto
     const material = new THREE.MeshStandardMaterial({
-      // Definir propriedades padrão para melhor performance
+      color: defaultColor, // Manter cor padrão enquanto carrega
       roughness: 0.8,
       metalness: 0.1,
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
