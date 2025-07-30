@@ -3,6 +3,7 @@ import { Package, Plus, FolderPlus, Upload, Settings, Edit3, Trash2 } from 'luci
 import { SimpleModal } from './SimpleModal';
 import { mockStorageService } from '../../services/mockStorage';
 import { AddFurnitureModal } from './AddFurnitureModal';
+import { AddTextureModal } from './AddTextureModal';
 
 interface FurnitureAdminPanelProps {
   isOpen: boolean;
