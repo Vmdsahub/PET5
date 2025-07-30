@@ -500,7 +500,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     onClick={() => handleBuy(selectedCatalogItem)}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
                   >
-                    Comprar Móvel
+                    {(selectedCatalogItem as any).isTexture ? 'Comprar Textura' : 'Comprar Móvel'}
                   </button>
                 </>
               ) : (
