@@ -8,7 +8,6 @@ interface RoomProps {
   dimensions?: RoomDimensions;
   userId?: string;
   draggedTexture?: any;
-  onSurfaceClick?: (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => void;
 }
 
 export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture, onSurfaceClick }) => {
