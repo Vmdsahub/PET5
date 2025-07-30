@@ -89,8 +89,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
   const handleAddFurniture = (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
-    // Recarregar catálogo para mostrar o novo móvel
-    setCatalog(mockStorageService.getFurnitureCatalog());
+
+    // Forçar atualização do catálogo com delay para garantir que seja processado
+    setTimeout(() => {
+      const newCatalog = mockStorageService.getFurnitureCatalog();
+      setCatalog([...newCatalog]); // Usar spread para forçar re-render
+      console.log('Catálogo atualizado com novo móvel:', furnitureData.name);
+    }, 100);
   };
 
   const handleAddTexture = (textureData: any) => {
