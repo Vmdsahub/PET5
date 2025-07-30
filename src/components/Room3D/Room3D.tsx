@@ -247,9 +247,29 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       }
     }
 
-    // Se não interceptou nenhuma superfície válida
-    console.log('Nenhuma superfície válida interceptada');
+    // Se não interceptou nenhuma superfície válida, usar fallback baseado na posição do cursor
+    console.log('Nenhuma superfície válida interceptada, usando fallback');
     console.log('Total de intersecções:', intersects.length);
+
+    // Fallback: aplicar no tipo correto baseado apenas no tipo da textura
+    // (assumir que se o usuário arrastou para o canvas, quer aplicar)
+    if (draggedTexture.type === 'floor') {
+      console.log('Aplicando textura de chão via fallback');
+      applyFloorTexture(draggedTexture);
+      setDraggedTexture(null);
+      return;
+    } else if (draggedTexture.type === 'ceiling') {
+      console.log('Aplicando textura de teto via fallback');
+      applyCeilingTexture(draggedTexture);
+      setDraggedTexture(null);
+      return;
+    } else if (draggedTexture.type === 'wall') {
+      console.log('Aplicando textura de parede via fallback (parede norte)');
+      applyWallTexture('north', draggedTexture);
+      setDraggedTexture(null);
+      return;
+    }
+
     setDraggedTexture(null);
   };
 
