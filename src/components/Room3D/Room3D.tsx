@@ -175,11 +175,40 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     console.log('Intersecções encontradas:', intersects.length);
 
     if (intersects.length > 0) {
-      // Encontrar a superfície mais próxima
-      const closestSurface = surfaces.find(s => s.object === intersects[0].object);
+      const intersectedObject = intersects[0].object;
+      console.log('Objeto interceptado:', intersectedObject.name, intersectedObject.position);
+
+      // Encontrar a superfície mais próxima pelos nomes
+      let closestSurface = surfaces.find(s => s.object === intersectedObject);
+
+      // Se não encontrou por nome, tentar detectar por posição
+      if (!closestSurface && intersectedObject instanceof THREE.Mesh) {
+        const pos = intersectedObject.position;
+        console.log('Tentando detectar por posição:', pos);
+
+        // Detectar tipo baseado na posição Y
+        if (pos.y < 1) {
+          closestSurface = { object: intersectedObject, type: 'floor' };
+          console.log('Detectado como chão por posição');
+        } else if (pos.y > 4) {
+          closestSurface = { object: intersectedObject, type: 'ceiling' };
+          console.log('Detectado como teto por posição');
+        } else {
+          // É uma parede, determinar qual
+          let wallId = 'north';
+          if (pos.z > 4) wallId = 'south';
+          else if (pos.x > 4) wallId = 'east';
+          else if (pos.x < -4) wallId = 'west';
+
+          closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
+          console.log(`Detectado como parede ${wallId} por posição`);
+        }
+      }
 
       if (closestSurface) {
         const surfaceType = closestSurface.type as 'floor' | 'wall' | 'ceiling';
+        console.log('Tipo de superfície detectado:', surfaceType);
+        console.log('Tipo de textura arrastada:', draggedTexture.type);
 
         // Verificar compatibilidade
         if (draggedTexture.type !== surfaceType) {
@@ -199,10 +228,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             console.log('Textura aplicada no teto:', draggedTexture.name);
             break;
           case 'wall':
-            if (closestSurface.id) {
-              applyWallTexture(closestSurface.id, draggedTexture);
-              console.log(`Textura aplicada na parede ${closestSurface.id}:`, draggedTexture.name);
-            }
+            const wallId = closestSurface.id || 'north';
+            applyWallTexture(wallId, draggedTexture);
+            console.log(`Textura aplicada na parede ${wallId}:`, draggedTexture.name);
             break;
         }
 
@@ -214,6 +242,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     // Se não interceptou nenhuma superfície válida
     console.log('Nenhuma superfície válida interceptada');
+    console.log('Total de intersecções:', intersects.length);
     setDraggedTexture(null);
   };
 
