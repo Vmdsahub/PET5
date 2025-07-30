@@ -194,7 +194,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   // Cleanup quando contexto muda
   React.useEffect(() => {
     if (!contextMenu.visible && contextMenuState?.visible === false) {
-      // Sincronizar estados se necess��rio
+      // Sincronizar estados se necessário
     }
   }, [contextMenu.visible, contextMenuState]);
 
@@ -585,8 +585,8 @@ export const RoomUI: React.FC<RoomUIProps> = ({
               <div>
                 <div className="font-semibold">Textura: {draggedTexture.name}</div>
                 <div className="text-sm opacity-90 mt-1">
-                  Clique no {draggedTexture.type === 'floor' ? 'chão' :
-                            draggedTexture.type === 'wall' ? 'parede' : 'teto'} para aplicar
+                  Solte sobre o {draggedTexture.type === 'floor' ? 'chão' :
+                                draggedTexture.type === 'wall' ? 'parede' : 'teto'} para aplicar
                 </div>
               </div>
             ) : (
