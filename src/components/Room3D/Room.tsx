@@ -93,9 +93,9 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
 
   const doorWidth = 2;
 
-  // Altura efetiva das paredes (entre chão e teto)
-  const wallHeight = height - floorThickness - ceilingThickness;
-  const wallCenterY = floorThickness + wallHeight/2;
+  // Altura efetiva das paredes (entre chão e teto) com sobreposição para eliminar gaps
+  const wallHeight = height - floorThickness - ceilingThickness + 0.02; // Pequena sobreposição
+  const wallCenterY = floorThickness + wallHeight/2 - 0.01; // Ajuste para centralização
 
   return (
     <group>
