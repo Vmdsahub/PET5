@@ -135,7 +135,11 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
-          object={createMaterialFromTexture(roomTextures.walls['north'], hoveredSurface === 'wall-north' ? '#f8f8f8' : '#f5f5f5')}
+          object={createMaterialFromTexture(
+            roomTextures.walls['north'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' :
+            hoveredSurface === 'wall-north' ? '#f8f8f8' : '#f5f5f5'
+          )}
         />
       </mesh>
 
