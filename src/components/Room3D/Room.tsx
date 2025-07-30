@@ -159,7 +159,11 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
-          object={createMaterialFromTexture(roomTextures.walls['south'], hoveredSurface === 'wall-south' ? '#f8f8f8' : '#f5f5f5')}
+          object={createMaterialFromTexture(
+            roomTextures.walls['south'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' :
+            hoveredSurface === 'wall-south' ? '#f8f8f8' : '#f5f5f5'
+          )}
         />
       </mesh>
 
@@ -177,7 +181,11 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
-          object={createMaterialFromTexture(roomTextures.walls['east'], hoveredSurface === 'wall-east' ? '#f8f8f8' : '#f5f5f5')}
+          object={createMaterialFromTexture(
+            roomTextures.walls['east'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' :
+            hoveredSurface === 'wall-east' ? '#f8f8f8' : '#f5f5f5'
+          )}
         />
       </mesh>
 
@@ -195,7 +203,11 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
-          object={createMaterialFromTexture(roomTextures.walls['west'], hoveredSurface === 'wall-west' ? '#f8f8f8' : '#f5f5f5')}
+          object={createMaterialFromTexture(
+            roomTextures.walls['west'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' :
+            hoveredSurface === 'wall-west' ? '#f8f8f8' : '#f5f5f5'
+          )}
         />
       </mesh>
     </group>
