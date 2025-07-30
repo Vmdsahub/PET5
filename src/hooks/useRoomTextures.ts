@@ -189,6 +189,22 @@ export const useRoomTextures = (userId: string) => {
     saveTextures(newTextures);
   };
 
+  // Limpar todas as texturas do quarto
+  const clearAllTextures = () => {
+    const newTextures = {
+      floor: null,
+      walls: {},
+      ceiling: null
+    };
+    saveTextures(newTextures);
+
+    // Forçar re-render
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+      window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
+    }, 100);
+  };
+
   return {
     roomTextures,
     applyFloorTexture,
