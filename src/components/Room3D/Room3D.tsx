@@ -180,53 +180,66 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       console.log(`Nenhuma superfície nomeada encontrada em ${allMeshes.length} meshes, usando detecção por posição`);
     }
 
-    // Se encontrou superfícies nomeadas, usar apenas elas, senão usar todos os meshes
-    let targetObjects = surfaces.length > 0 ? surfaces.map(s => s.object) : allMeshes;
+    // Fazer raycast primeiro em superfícies nomeadas, depois em todos os meshes
+    let intersects: THREE.Intersection[] = [];
 
-    // Fazer raycast
-    const intersects = raycaster.intersectObjects(targetObjects);
+    if (surfaces.length > 0) {
+      intersects = raycaster.intersectObjects(surfaces.map(s => s.object));
+      console.log(`Raycasting em ${surfaces.length} superfícies nomeadas: ${intersects.length} intersecções`);
+    }
+
+    // Se não interceptou superfícies nomeadas, tentar todos os meshes
+    if (intersects.length === 0) {
+      intersects = raycaster.intersectObjects(allMeshes);
+      console.log(`Fallback para ${allMeshes.length} meshes: ${intersects.length} intersecções`);
+    }
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
+      const intersectionPoint = intersects[0].point;
+
       console.log('Raycasting bem-sucedido:', {
         name: intersectedObject.name,
         position: intersectedObject.position,
+        intersectionPoint,
         distance: intersects[0].distance
       });
 
-      // Encontrar a superfície mais próxima pelos nomes
+      // Primeiro tentar encontrar por nome
       let closestSurface = surfaces.find(s => s.object === intersectedObject);
 
-      // Se não encontrou por nome, tentar detectar por posição
+      // Se não encontrou por nome, usar posição do ponto de intersecção (mais preciso)
       if (!closestSurface && intersectedObject instanceof THREE.Mesh) {
-        const pos = intersectedObject.position;
-        console.log('Tentando detectar por posição:', pos);
+        const point = intersectionPoint;
+        console.log('Detectando por ponto de intersecção:', point);
 
-        // Detectar tipo baseado na posição Y (valores mais flexíveis)
-        if (pos.y <= 1.5) {
+        // Usar posição do ponto de intersecção para detectar superfície
+        if (point.y <= 1.5) {
           closestSurface = { object: intersectedObject, type: 'floor' };
-        } else if (pos.y >= 3.5) {
+          console.log('Detectado como chão');
+        } else if (point.y >= 3.5) {
           closestSurface = { object: intersectedObject, type: 'ceiling' };
+          console.log('Detectado como teto');
         } else {
-          // É uma parede, determinar qual baseado na posição e dimensões do quarto
-          let wallId = 'north';
+          // É uma parede - usar ponto de intersecção para determinar qual
           const roomDims = roomDimensions;
           const halfWidth = roomDims.width / 2;
           const halfLength = roomDims.length / 2;
 
-          // Verificar qual borda está mais próxima
+          // Calcular distâncias às bordas usando ponto de intersecção
           const distances = {
-            north: Math.abs(pos.z + halfLength),
-            south: Math.abs(pos.z - halfLength),
-            east: Math.abs(pos.x - halfWidth),
-            west: Math.abs(pos.x + halfWidth)
+            north: Math.abs(point.z + halfLength),
+            south: Math.abs(point.z - halfLength),
+            east: Math.abs(point.x - halfWidth),
+            west: Math.abs(point.x + halfWidth)
           };
 
           // Encontrar a menor distância
-          wallId = Object.keys(distances).reduce((a, b) =>
+          const wallId = Object.keys(distances).reduce((a, b) =>
             distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
           ) as string;
 
+          console.log('Detectado como parede:', wallId, 'distâncias:', distances);
           closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
         }
       }
