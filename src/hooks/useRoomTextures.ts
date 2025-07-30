@@ -118,12 +118,10 @@ export const useRoomTextures = (userId: string) => {
           // Callback de sucesso - aplicar textura suavemente
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(2, 2);
+          texture.repeat.set(1, 1); // Usar 1x1 para cobrir toda a superfície sem gaps
           texture.offset.set(0, 0);
-          texture.center.set(0.5, 0.5);
-          texture.minFilter = THREE.LinearMipmapLinearFilter;
+          texture.minFilter = THREE.LinearFilter;
           texture.magFilter = THREE.LinearFilter;
-          texture.generateMipmaps = true;
           texture.needsUpdate = true;
 
           // Remover cor padrão quando textura carregar
