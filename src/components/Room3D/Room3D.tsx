@@ -399,6 +399,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           console.error('Erro no Canvas 3D:', error);
           setWebglSupport({ hasSupport: false, webgl: false, webgl2: false, failureReason: error.message });
         }}
+        onClick={(event) => {
+          if (draggedTexture) {
+            console.log('Canvas clicado com textura arrastada:', draggedTexture);
+            // Para simplificar, aplicar automaticamente no chão se for textura de chão
+            if (draggedTexture.type === 'floor') {
+              handleSurfaceClick('floor');
+            }
+          }
+        }}
       >
         <Suspense fallback={
           <Html center>
