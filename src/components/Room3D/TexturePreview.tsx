@@ -34,10 +34,9 @@ export const TexturePreview: React.FC<TexturePreviewProps> = ({
       {/* Indicador do tipo de textura */}
       <div className="absolute top-1 right-1 text-xs px-1 py-0.5 rounded text-white font-bold shadow-sm"
            style={{
-             backgroundColor: 
+             backgroundColor:
                textureData.type === 'floor' ? '#8B7355' :
-               textureData.type === 'wall' ? '#9CA3AF' :
-               textureData.type === 'ceiling' ? '#E5E7EB'
+               textureData.type === 'wall' ? '#9CA3AF' : '#E5E7EB'
            }}>
         {textureData.type === 'floor' ? '🏠' : 
          textureData.type === 'wall' ? '🧱' : '🏢'}
