@@ -280,6 +280,18 @@ const FurnitureDeleteForm: React.FC<{
             </div>
           </button>
 
+          {/* Botão Upload de Textura */}
+          <button
+            onClick={() => setShowAddTexture(true)}
+            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+          >
+            <Settings size={20} />
+            <div className="text-left">
+              <div className="font-semibold text-sm">Adicionar Textura de Ambiente</div>
+              <div className="text-xs opacity-90">Texturas para chão, parede e teto</div>
+            </div>
+          </button>
+
           {/* Gerenciar Seções */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-3">
