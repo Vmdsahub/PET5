@@ -48,6 +48,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   onAddFurniture,
   onDraggedTexture,
   draggedTexture,
+  onTextureDropOnSurface,
   editMode = false,
   onToggleEditMode,
   onStoreFurniture,
