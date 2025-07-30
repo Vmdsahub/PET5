@@ -227,6 +227,20 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             break;
         }
 
+        // Remover textura do inventário (decrementar quantidade ou remover completamente)
+        const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
+        if (textureInventoryItem) {
+          if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
+            // Decrementar quantidade
+            textureInventoryItem.quantity -= 1;
+          } else {
+            // Remover completamente do inventário
+            mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
+          }
+          // Atualizar estado do inventário
+          setInventory(mockStorageService.getInventory(userId));
+        }
+
         // Limpar textura arrastada
         setDraggedTexture(null);
         return;
