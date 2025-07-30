@@ -570,10 +570,15 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Overlay de drag and drop */}
-      {draggedItem && (
+      {(draggedItem || draggedTexture) && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
-            Colocando {draggedItem.name}...
+          <div className={`text-white px-4 py-2 rounded-lg shadow-lg ${
+            draggedTexture ? 'bg-purple-500' : 'bg-blue-500'
+          }`}>
+            {draggedTexture ?
+              `Aplicando textura ${draggedTexture.name} - Clique na superfície correspondente` :
+              `Colocando ${draggedItem?.name}...`
+            }
           </div>
         </div>
       )}
