@@ -36,10 +36,10 @@ export const TexturePreview: React.FC<TexturePreviewProps> = ({
            style={{
              backgroundColor:
                textureData.type === 'floor' ? '#8B7355' :
-               textureData.type === 'wall' ? '#9CA3AF' : '#E5E7EB'
+               textureData.type === 'wall' ? '#6B7280' : '#9CA3AF'
            }}>
-        {textureData.type === 'floor' ? '🏠' : 
-         textureData.type === 'wall' ? '🧱' : '🏢'}
+        {textureData.type === 'floor' ? 'Chão' :
+         textureData.type === 'wall' ? 'Parede' : 'Teto'}
       </div>
       
       {/* Nome da textura */}
