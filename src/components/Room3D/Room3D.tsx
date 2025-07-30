@@ -137,9 +137,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
 
-    // Criar raycaster
+    // Criar raycaster com configuração otimizada para paredes
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, cameraRef.current);
+
+    // Configurar raycaster para maior precisão
+    raycaster.near = 0.1;
+    raycaster.far = 100;
+    raycaster.params.Points.threshold = 0.1;
+    raycaster.params.Line.threshold = 1;
 
     // Lista de objetos para interceptar (todas as superfícies do quarto)
     const surfaces: { object: THREE.Object3D; type: string; id?: string }[] = [];
