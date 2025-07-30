@@ -76,9 +76,6 @@ export const useRoomTextures = (userId: string) => {
 
   // Aplicar textura a uma parede específica
   const applyWallTexture = (wallId: string, textureData: TextureData) => {
-    console.log(`🏗️ Hook: Aplicando textura "${textureData.name}" na parede ${wallId}`);
-    console.log('🏗️ Hook: Estado atual das paredes:', roomTextures.walls);
-
     const newTextures = {
       ...roomTextures,
       walls: {
@@ -86,14 +83,11 @@ export const useRoomTextures = (userId: string) => {
         [wallId]: textureData
       }
     };
-
-    console.log('🏗️ Hook: Novo estado das paredes:', newTextures.walls);
     saveTextures(newTextures);
 
     // Forçar re-render
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
-      console.log('🏗️ Hook: Evento roomTextureUpdate disparado para parede');
     }, 100);
   };
 
