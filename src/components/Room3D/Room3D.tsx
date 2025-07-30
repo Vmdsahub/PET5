@@ -142,22 +142,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     const scene = cameraRef.current.parent;
     if (scene) {
       scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          const position = child.position;
-          const name = child.name || '';
+        if (child instanceof THREE.Mesh && child.name) {
+          const name = child.name;
 
-          // Detectar tipo de superfície baseado na posição
-          if (position.y < 1) {
+          // Usar nome do mesh para identificar tipo
+          if (name === 'floor') {
             surfaces.push({ object: child, type: 'floor' });
-          } else if (position.y > 4) {
+          } else if (name === 'ceiling') {
             surfaces.push({ object: child, type: 'ceiling' });
-          } else if (Math.abs(position.x) > 4 || Math.abs(position.z) > 4) {
-            // Determinar qual parede baseado na posição
-            let wallId = 'north';
-            if (position.z > 4) wallId = 'south';
-            else if (position.x > 4) wallId = 'east';
-            else if (position.x < -4) wallId = 'west';
-
+          } else if (name.startsWith('wall-')) {
+            const wallId = name.replace('wall-', '');
             surfaces.push({ object: child, type: 'wall', id: wallId });
           }
         }
