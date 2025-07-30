@@ -6,6 +6,7 @@ import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
 import { ScaleControls } from './ScaleControls';
 import { mockStorageService, FurnitureItem, RoomDimensions } from '../../services/mockStorage';
+import { useRoomTextures } from '../../hooks/useRoomTextures';
 import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
 import { Room2DFallback } from './Room2DFallback';
