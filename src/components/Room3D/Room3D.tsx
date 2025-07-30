@@ -336,7 +336,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onClick={() => setUse2DMode(!use2DMode)}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             >
-              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
+              {use2DMode ? '🎮 Modo 3D' : '���� Modo 2D'}
             </button>
           )}
           {!webglSupport.hasSupport && (
@@ -377,6 +377,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onAddFurniture={handleAddFurniture}
           onDraggedTexture={setDraggedTexture}
           draggedTexture={draggedTexture}
+          onTextureDropOnSurface={handleTextureDropOnSurface}
           editMode={editMode}
           onToggleEditMode={handleToggleEditMode}
           onStoreFurniture={handleStoreFurniture}
