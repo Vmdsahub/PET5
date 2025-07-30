@@ -405,7 +405,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           />
           
           {/* Quarto */}
-          <Room dimensions={roomDimensions} />
+          <Room
+            dimensions={roomDimensions}
+            userId={userId}
+            onSurfaceClick={handleSurfaceClick}
+          />
 
           {/* Móveis colocados */}
           {placedFurniture.map((furniture) => {
