@@ -447,6 +447,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <Room
             dimensions={roomDimensions}
             userId={userId}
+            draggedTexture={draggedTexture}
             onSurfaceClick={handleSurfaceClick}
           />
 
