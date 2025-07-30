@@ -91,7 +91,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
-    if (draggedItem) {
+    if (draggedItem || draggedTexture) {
       setDragPosition({ x: event.clientX, y: event.clientY });
     }
   };
