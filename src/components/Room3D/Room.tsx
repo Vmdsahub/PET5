@@ -126,7 +126,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         rotation={[Math.PI / 2, 0, 0]}
         userData={{ surfaceType: 'ceiling' }}
       >
-        <boxGeometry args={[width, length, ceilingThickness]} />
+        <boxGeometry args={[width + 0.01, length + 0.01, ceilingThickness]} />
         <primitive
           key={`ceiling_${updateKey}`}
           object={createMaterialFromTexture(
