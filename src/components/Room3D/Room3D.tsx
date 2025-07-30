@@ -299,16 +299,17 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         switch (surfaceType) {
           case 'floor':
             applyFloorTexture(draggedTexture);
-            console.log('Textura aplicada no chão:', draggedTexture.name);
+            console.log('✅ Textura aplicada no chão:', draggedTexture.name);
             break;
           case 'ceiling':
             applyCeilingTexture(draggedTexture);
-            console.log('Textura aplicada no teto:', draggedTexture.name);
+            console.log('✅ Textura aplicada no teto:', draggedTexture.name);
             break;
           case 'wall':
             const wallId = closestSurface.id || 'north';
+            console.log(`🧱 Aplicando textura na parede ${wallId}...`);
             applyWallTexture(wallId, draggedTexture);
-            console.log(`Textura aplicada na parede ${wallId}:`, draggedTexture.name);
+            console.log(`✅ Textura "${draggedTexture.name}" aplicada na parede ${wallId} com sucesso!`);
             break;
         }
 
