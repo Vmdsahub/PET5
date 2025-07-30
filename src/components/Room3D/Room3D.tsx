@@ -635,6 +635,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         isDragging={isDragging}
         isAdmin={isAdmin}
         onAddFurniture={handleAddFurniture}
+        onAddTexture={handleAddTexture}
         onDraggedTexture={setDraggedTexture}
         draggedTexture={draggedTexture}
         onTextureDropOnSurface={handleTextureDropOnSurface}
