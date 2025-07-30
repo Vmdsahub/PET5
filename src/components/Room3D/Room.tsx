@@ -1,15 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
+import { useRoomTextures } from '../../hooks/useRoomTextures';
 
 interface RoomProps {
   dimensions?: RoomDimensions;
+  userId?: string;
+  onSurfaceClick?: (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => void;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', onSurfaceClick }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
+
+  // Hook para gerenciar texturas
+  const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
+
+  // Estado para highlight de superfícies quando hover
+  const [hoveredSurface, setHoveredSurface] = useState<string | null>(null);
 
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
@@ -70,39 +79,111 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
   return (
     <group>
       {/* Chão - base do quarto */}
-      <mesh ref={floorRef} position={[0, floorThickness/2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh
+        ref={floorRef}
+        position={[0, floorThickness/2, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('floor');
+        }}
+        onPointerEnter={() => setHoveredSurface('floor')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[width, length, floorThickness]} />
-        <meshLambertMaterial color="#8B7355" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.floor, hoveredSurface === 'floor' ? '#9B8365' : '#8B7355')}
+        />
       </mesh>
 
       {/* Teto - topo do quarto */}
-      <mesh ref={ceilingRef} position={[0, height - ceilingThickness/2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh
+        ref={ceilingRef}
+        position={[0, height - ceilingThickness/2, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('ceiling');
+        }}
+        onPointerEnter={() => setHoveredSurface('ceiling')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[width, length, ceilingThickness]} />
-        <meshLambertMaterial color="#ffffff" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.ceiling, hoveredSurface === 'ceiling' ? '#f8f8f8' : '#ffffff')}
+        />
       </mesh>
 
-      {/* Parede Norte - IGUAL A TODAS */}
-      <mesh ref={wallNorthRef} position={[0, wallCenterY, -length/2 + wallThickness/2]} rotation={[0, 0, 0]}>
+      {/* Parede Norte */}
+      <mesh
+        ref={wallNorthRef}
+        position={[0, wallCenterY, -length/2 + wallThickness/2]}
+        rotation={[0, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('wall', 'north');
+        }}
+        onPointerEnter={() => setHoveredSurface('wall-north')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.walls['north'], hoveredSurface === 'wall-north' ? '#f8f8f8' : '#f5f5f5')}
+        />
       </mesh>
 
-      {/* Parede Sul - IGUAL A TODAS */}
-      <mesh ref={wallSouthLeftRef} position={[0, wallCenterY, length/2 - wallThickness/2]} rotation={[0, 0, 0]}>
+      {/* Parede Sul */}
+      <mesh
+        ref={wallSouthLeftRef}
+        position={[0, wallCenterY, length/2 - wallThickness/2]}
+        rotation={[0, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('wall', 'south');
+        }}
+        onPointerEnter={() => setHoveredSurface('wall-south')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.walls['south'], hoveredSurface === 'wall-south' ? '#f8f8f8' : '#f5f5f5')}
+        />
       </mesh>
 
-      {/* Parede Leste - IGUAL A TODAS */}
-      <mesh ref={wallEastRef} position={[width/2 - wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+      {/* Parede Leste */}
+      <mesh
+        ref={wallEastRef}
+        position={[width/2 - wallThickness/2, wallCenterY, 0]}
+        rotation={[0, Math.PI/2, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('wall', 'east');
+        }}
+        onPointerEnter={() => setHoveredSurface('wall-east')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.walls['east'], hoveredSurface === 'wall-east' ? '#f8f8f8' : '#f5f5f5')}
+        />
       </mesh>
 
-      {/* Parede Oeste - IGUAL A TODAS */}
-      <mesh ref={wallWestRef} position={[-width/2 + wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+      {/* Parede Oeste */}
+      <mesh
+        ref={wallWestRef}
+        position={[-width/2 + wallThickness/2, wallCenterY, 0]}
+        rotation={[0, Math.PI/2, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSurfaceClick?.('wall', 'west');
+        }}
+        onPointerEnter={() => setHoveredSurface('wall-west')}
+        onPointerLeave={() => setHoveredSurface(null)}
+      >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          object={createMaterialFromTexture(roomTextures.walls['west'], hoveredSurface === 'wall-west' ? '#f8f8f8' : '#f5f5f5')}
+        />
       </mesh>
     </group>
   );
