@@ -159,10 +159,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         if (child instanceof THREE.Mesh) {
           allMeshes.push(child);
 
-          if (child.name) {
+          // Usar userData primeiro, depois fallback para nome
+          if (child.userData && child.userData.surfaceType) {
+            const userData = child.userData;
+            if (userData.surfaceType === 'floor') {
+              surfaces.push({ object: child, type: 'floor' });
+            } else if (userData.surfaceType === 'ceiling') {
+              surfaces.push({ object: child, type: 'ceiling' });
+            } else if (userData.surfaceType === 'wall' && userData.wallId) {
+              surfaces.push({ object: child, type: 'wall', id: userData.wallId });
+            }
+          } else if (child.name) {
             const name = child.name;
-
-            // Usar nome do mesh para identificar tipo
+            // Fallback para identificação por nome
             if (name === 'floor') {
               surfaces.push({ object: child, type: 'floor' });
             } else if (name === 'ceiling') {
@@ -203,21 +212,21 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         distance: intersects[0].distance
       });
 
-      // Primeiro tentar encontrar por nome
+      // Primeiro tentar encontrar por userData ou nome
       let closestSurface = surfaces.find(s => s.object === intersectedObject);
 
-      // Se não encontrou por nome, usar posição do ponto de intersecção (mais preciso)
+      // Se não encontrou, usar posição do ponto de intersecção para detectar (fallback)
       if (!closestSurface && intersectedObject instanceof THREE.Mesh) {
         const point = intersectionPoint;
-        console.log('Detectando por ponto de intersecção:', point);
+        console.log('Detectando por ponto de intersecção (fallback):', point);
 
         // Usar posição do ponto de intersecção para detectar superfície
         if (point.y <= 1.5) {
           closestSurface = { object: intersectedObject, type: 'floor' };
-          console.log('Detectado como chão');
+          console.log('Detectado como chão por posição');
         } else if (point.y >= 3.5) {
           closestSurface = { object: intersectedObject, type: 'ceiling' };
-          console.log('Detectado como teto');
+          console.log('Detectado como teto por posição');
         } else {
           // É uma parede - usar ponto de intersecção para determinar qual
           const roomDims = roomDimensions;
@@ -237,9 +246,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
           ) as string;
 
-          console.log('Detectado como parede:', wallId, 'distâncias:', distances);
+          console.log('Detectado como parede por posição:', wallId, 'distâncias:', distances);
           closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
         }
+      } else if (closestSurface) {
+        console.log('Superfície encontrada por userData/nome:', {
+          type: closestSurface.type,
+          id: closestSurface.id,
+          objectName: intersectedObject.name,
+          userData: intersectedObject.userData
+        });
       }
 
       if (closestSurface) {
