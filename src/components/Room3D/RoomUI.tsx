@@ -115,6 +115,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDragPosition(null);
+    onDraggedTexture?.(null);
   };
 
   const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
