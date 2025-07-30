@@ -7,6 +7,7 @@ import { useRoomTextures } from '../../hooks/useRoomTextures';
 interface RoomProps {
   dimensions?: RoomDimensions;
   userId?: string;
+  draggedTexture?: any;
   onSurfaceClick?: (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => void;
 }
 
