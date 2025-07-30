@@ -339,7 +339,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
   const handleClearAllFurniture = () => {
     const confirmClear = window.confirm(
-      'Tem certeza que deseja deletar TODOS os móveis do quarto? Esta ação não pode ser desfeita.'
+      'Tem certeza que deseja limpar TUDO do quarto? Isso irá deletar todos os móveis e remover todas as texturas aplicadas. Esta ação não pode ser desfeita.'
     );
 
     if (confirmClear) {
@@ -357,12 +357,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         mockStorageService.deleteInventoryFurniture(userId, furniture.id);
       });
 
+      // Limpar todas as texturas aplicadas no quarto
+      clearAllTextures();
+
       // Atualizar o estado
       setPlacedFurniture([]);
       setInventory([]);
       setSelectedFurniture(null);
 
-      console.log('Todos os móveis foram deletados do quarto e inventário');
+      console.log('Todos os móveis foram deletados e todas as texturas foram removidas do quarto');
     }
   };
 
@@ -593,7 +596,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             decay={2}
           />
           
-          {/* Controles de câmera */}
+          {/* Controles de c��mera */}
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
