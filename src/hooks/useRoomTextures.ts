@@ -53,6 +53,11 @@ export const useRoomTextures = (userId: string) => {
       floor: textureData
     };
     saveTextures(newTextures);
+
+    // Forçar re-render forçando uma atualização de estado
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    }, 100);
   };
 
   // Aplicar textura ao teto
