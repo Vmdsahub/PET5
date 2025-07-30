@@ -23,10 +23,12 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
   // Listener para atualizações de textura
   useEffect(() => {
     const handleTextureUpdate = () => {
+      console.log('🏠 Room: Recebeu evento roomTextureUpdate, atualizando key');
       setUpdateKey(prev => prev + 1);
     };
 
     const handleForceUpdate = () => {
+      console.log('🏠 Room: Recebeu evento forceRoomUpdate, atualizando key');
       setUpdateKey(prev => prev + 1);
     };
 
