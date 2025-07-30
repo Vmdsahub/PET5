@@ -47,6 +47,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture } = useRoomTextures(userId);
 
+  // Listener para forçar atualização do Room component
+  React.useEffect(() => {
+    const handleForceRoomUpdate = () => {
+      setRoomUpdateKey(prev => prev + 1);
+    };
+
+    window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
+    return () => window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
+  }, []);
+
 
   const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
