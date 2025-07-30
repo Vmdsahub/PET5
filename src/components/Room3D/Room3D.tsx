@@ -207,7 +207,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           ) as string;
 
           closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
-          console.log(`Detectado como parede ${wallId} por posição`);
         }
       }
 
