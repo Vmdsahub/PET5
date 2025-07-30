@@ -96,6 +96,7 @@ export const useRoomTextures = (userId: string) => {
     if (!textureData || !textureData.textureUrls.diffuse) {
       return new THREE.MeshLambertMaterial({
         color: defaultColor,
+        side: THREE.DoubleSide,
         name: `default_${surfaceKey || 'surface'}`
       });
     }
