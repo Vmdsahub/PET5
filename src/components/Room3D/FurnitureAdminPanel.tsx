@@ -3,11 +3,13 @@ import { Package, Plus, FolderPlus, Upload, Settings, Edit3, Trash2 } from 'luci
 import { SimpleModal } from './SimpleModal';
 import { mockStorageService } from '../../services/mockStorage';
 import { AddFurnitureModal } from './AddFurnitureModal';
+import { AddTextureModal } from './AddTextureModal';
 
 interface FurnitureAdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFurniture?: (furnitureData: any) => void;
+  onAddTexture?: (textureData: any) => void;
   onCreateSection?: (sectionName: string) => boolean;
   onDeleteSection?: (sectionName: string) => boolean;
   onDeleteFurniture?: (sectionName: string, furnitureIndex: number) => boolean;
@@ -17,11 +19,13 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   isOpen,
   onClose,
   onAddFurniture,
+  onAddTexture,
   onCreateSection,
   onDeleteSection,
   onDeleteFurniture
 }) => {
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  const [showAddTexture, setShowAddTexture] = useState(false);
   const [showCreateSection, setShowCreateSection] = useState(false);
   const [showDeleteSection, setShowDeleteSection] = useState(false);
   const [showDeleteFurniture, setShowDeleteFurniture] = useState(false);
@@ -280,6 +284,18 @@ const FurnitureDeleteForm: React.FC<{
             </div>
           </button>
 
+          {/* Botão Upload de Textura */}
+          <button
+            onClick={() => setShowAddTexture(true)}
+            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+          >
+            <Settings size={20} />
+            <div className="text-left">
+              <div className="font-semibold text-sm">Adicionar Textura de Ambiente</div>
+              <div className="text-xs opacity-90">Texturas para chão, parede e teto</div>
+            </div>
+          </button>
+
           {/* Gerenciar Seções */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-3">
@@ -424,6 +440,13 @@ const FurnitureDeleteForm: React.FC<{
         isOpen={showAddFurniture}
         onClose={() => setShowAddFurniture(false)}
         onAddFurniture={onAddFurniture || (() => {})}
+      />
+
+      {/* Modal de adicionar textura */}
+      <AddTextureModal
+        isOpen={showAddTexture}
+        onClose={() => setShowAddTexture(false)}
+        onAddTexture={onAddTexture || (() => {})}
       />
     </>
   );

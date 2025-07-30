@@ -1,15 +1,43 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
+import { useRoomTextures } from '../../hooks/useRoomTextures';
 
 interface RoomProps {
   dimensions?: RoomDimensions;
+  userId?: string;
+  draggedTexture?: any;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
+
+  // Hook para gerenciar texturas
+  const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
+
+  // Estado para forçar re-render quando texturas mudam
+  const [updateKey, setUpdateKey] = useState(0);
+
+  // Listener para atualizações de textura
+  useEffect(() => {
+    const handleTextureUpdate = () => {
+      setUpdateKey(prev => prev + 1);
+    };
+
+    const handleForceUpdate = () => {
+      setUpdateKey(prev => prev + 1);
+    };
+
+    window.addEventListener('roomTextureUpdate', handleTextureUpdate);
+    window.addEventListener('forceRoomUpdate', handleForceUpdate);
+
+    return () => {
+      window.removeEventListener('roomTextureUpdate', handleTextureUpdate);
+      window.removeEventListener('forceRoomUpdate', handleForceUpdate);
+    };
+  }, []);
 
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
@@ -70,39 +98,111 @@ export const Room: React.FC<RoomProps> = ({ dimensions }) => {
   return (
     <group>
       {/* Chão - base do quarto */}
-      <mesh ref={floorRef} position={[0, floorThickness/2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh
+        ref={floorRef}
+        name="floor"
+        position={[0, floorThickness/2, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
         <boxGeometry args={[width, length, floorThickness]} />
-        <meshLambertMaterial color="#8B7355" />
+        <primitive
+          key={`floor_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.floor,
+            draggedTexture?.type === 'floor' ? '#9B8365' : '#8B7355',
+            'floor'
+          )}
+        />
       </mesh>
 
       {/* Teto - topo do quarto */}
-      <mesh ref={ceilingRef} position={[0, height - ceilingThickness/2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh
+        ref={ceilingRef}
+        name="ceiling"
+        position={[0, height - ceilingThickness/2, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
         <boxGeometry args={[width, length, ceilingThickness]} />
-        <meshLambertMaterial color="#ffffff" />
+        <primitive
+          key={`ceiling_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.ceiling,
+            draggedTexture?.type === 'ceiling' ? '#f8f8f8' : '#ffffff',
+            'ceiling'
+          )}
+        />
       </mesh>
 
-      {/* Parede Norte - IGUAL A TODAS */}
-      <mesh ref={wallNorthRef} position={[0, wallCenterY, -length/2 + wallThickness/2]} rotation={[0, 0, 0]}>
+      {/* Parede Norte */}
+      <mesh
+        ref={wallNorthRef}
+        name="wall-north"
+        position={[0, wallCenterY, -length/2 + wallThickness/2]}
+        rotation={[0, 0, 0]}
+      >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          key={`wall_north_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.walls['north'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+            'wall_north'
+          )}
+        />
       </mesh>
 
-      {/* Parede Sul - IGUAL A TODAS */}
-      <mesh ref={wallSouthLeftRef} position={[0, wallCenterY, length/2 - wallThickness/2]} rotation={[0, 0, 0]}>
+      {/* Parede Sul */}
+      <mesh
+        ref={wallSouthLeftRef}
+        name="wall-south"
+        position={[0, wallCenterY, length/2 - wallThickness/2]}
+        rotation={[0, 0, 0]}
+      >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          key={`wall_south_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.walls['south'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+            'wall_south'
+          )}
+        />
       </mesh>
 
-      {/* Parede Leste - IGUAL A TODAS */}
-      <mesh ref={wallEastRef} position={[width/2 - wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+      {/* Parede Leste */}
+      <mesh
+        ref={wallEastRef}
+        name="wall-east"
+        position={[width/2 - wallThickness/2, wallCenterY, 0]}
+        rotation={[0, Math.PI/2, 0]}
+      >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          key={`wall_east_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.walls['east'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+            'wall_east'
+          )}
+        />
       </mesh>
 
-      {/* Parede Oeste - IGUAL A TODAS */}
-      <mesh ref={wallWestRef} position={[-width/2 + wallThickness/2, wallCenterY, 0]} rotation={[0, Math.PI/2, 0]}>
+      {/* Parede Oeste */}
+      <mesh
+        ref={wallWestRef}
+        name="wall-west"
+        position={[-width/2 + wallThickness/2, wallCenterY, 0]}
+        rotation={[0, Math.PI/2, 0]}
+      >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <meshLambertMaterial color="#f5f5f5" />
+        <primitive
+          key={`wall_west_${updateKey}`}
+          object={createMaterialFromTexture(
+            roomTextures.walls['west'],
+            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+            'wall_west'
+          )}
+        />
       </mesh>
     </group>
   );

@@ -5,6 +5,7 @@ import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
 import { FurnitureAdminPanel } from './FurnitureAdminPanel';
 import { FurnitureThumbnail } from './FurnitureThumbnail';
+import { TexturePreview } from './TexturePreview';
 import { useAuthStore } from '../../store/authStore';
 import { mockStorageService } from '../../services/mockStorage';
 
@@ -19,6 +20,9 @@ interface RoomUIProps {
   isDragging: boolean;
   isAdmin?: boolean;
   onAddFurniture?: (furnitureData: any) => void;
+  onDraggedTexture?: (texture: any) => void;
+  draggedTexture?: any;
+  onTextureDropOnSurface?: (dropX: number, dropY: number) => void;
   editMode?: boolean;
   onToggleEditMode?: () => void;
   onStoreFurniture?: (furnitureId: string) => void;
@@ -42,6 +46,10 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   isDragging,
   isAdmin = false,
   onAddFurniture,
+  onAddTexture,
+  onDraggedTexture,
+  draggedTexture,
+  onTextureDropOnSurface,
   editMode = false,
   onToggleEditMode,
   onStoreFurniture,
@@ -70,7 +78,14 @@ export const RoomUI: React.FC<RoomUIProps> = ({
   const contextMenu = contextMenuState || localContextMenu;
 
   const handleDragStart = (item: FurnitureItem, event: React.DragEvent) => {
-    setDraggedItem(item);
+    if ((item as any).isTexture) {
+      // É uma textura, configurar para arrastar textura
+      onDraggedTexture?.(item);
+    } else {
+      // É um móvel, manter lógica original
+      setDraggedItem(item);
+    }
+
     // Criar uma imagem ghost transparente
     const dragImage = new Image();
     dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
@@ -79,15 +94,16 @@ export const RoomUI: React.FC<RoomUIProps> = ({
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
-    if (draggedItem) {
+    if (draggedItem || draggedTexture) {
       setDragPosition({ x: event.clientX, y: event.clientY });
     }
   };
 
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
+
     if (draggedItem) {
-      // Calcular posição 3D baseada na posição exata do canvas
+      // Lógica original para móveis
       const canvas = document.querySelector('canvas');
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -98,12 +114,16 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       }
       setDraggedItem(null);
       setDragPosition(null);
+    } else if (draggedTexture) {
+      // Para texturas, usar raycasting para detectar superfície automaticamente
+      onTextureDropOnSurface?.(event.clientX, event.clientY);
     }
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
     setDragPosition(null);
+    onDraggedTexture?.(null);
   };
 
   const handleContextMenu = (event: React.MouseEvent, furnitureId: string) => {
@@ -250,7 +270,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Área de drop invisível sobre todo o canvas */}
-      {draggedItem && (
+      {(draggedItem || draggedTexture) && (
         <div
           className="fixed inset-0 z-40 pointer-events-auto"
           onDragOver={handleDragOver}
@@ -409,11 +429,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                                     : 'hover:bg-gray-50'
                                 }`}
                               >
-                                <FurnitureThumbnail
-                                  modelPath={item.model}
-                                  width="100%"
-                                  height="100%"
-                                />
+                                {(item as any).isTexture ? (
+                                  <TexturePreview
+                                    textureData={item}
+                                    width="100%"
+                                    height="100%"
+                                  />
+                                ) : (
+                                  <FurnitureThumbnail
+                                    modelPath={item.model}
+                                    width="100%"
+                                    height="100%"
+                                  />
+                                )}
                               </div>
                             ))}
                           </div>
@@ -437,11 +465,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                 <>
                   {/* Imagem grande */}
                   <div className="w-full h-48 rounded-lg mb-4 shadow-inner">
-                    <FurnitureThumbnail
-                      modelPath={selectedCatalogItem.model}
-                      width="100%"
-                      height={192}
-                    />
+                    {(selectedCatalogItem as any).isTexture ? (
+                      <TexturePreview
+                        textureData={selectedCatalogItem}
+                        width="100%"
+                        height={192}
+                      />
+                    ) : (
+                      <FurnitureThumbnail
+                        modelPath={selectedCatalogItem.model}
+                        width="100%"
+                        height={192}
+                      />
+                    )}
                   </div>
 
                   {/* Detalhes */}
@@ -471,7 +507,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     onClick={() => handleBuy(selectedCatalogItem)}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors"
                   >
-                    Comprar Móvel
+                    {(selectedCatalogItem as any).isTexture ? 'Comprar Textura' : 'Comprar Móvel'}
                   </button>
                 </>
               ) : (
@@ -513,11 +549,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                     onContextMenu={(e) => handleContextMenu(e, item.id)}
                     className="hover:shadow-md hover:bg-gray-50 transition-all cursor-move aspect-square overflow-hidden rounded-lg relative"
                   >
-                    <FurnitureThumbnail
-                      modelPath={item.model}
-                      width="100%"
-                      height="100%"
-                    />
+                    {(item as any).isTexture ? (
+                      <TexturePreview
+                        textureData={item}
+                        width="100%"
+                        height="100%"
+                      />
+                    ) : (
+                      <FurnitureThumbnail
+                        modelPath={item.model}
+                        width="100%"
+                        height="100%"
+                      />
+                    )}
                     {/* Contador de quantidade */}
                     {item.quantity && item.quantity > 1 && (
                       <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
@@ -533,10 +577,22 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
 
       {/* Overlay de drag and drop */}
-      {draggedItem && (
+      {(draggedItem || draggedTexture) && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
-            Colocando {draggedItem.name}...
+          <div className={`text-white px-6 py-3 rounded-lg shadow-lg max-w-md text-center ${
+            draggedTexture ? 'bg-purple-500' : 'bg-blue-500'
+          }`}>
+            {draggedTexture ? (
+              <div>
+                <div className="font-semibold">Textura: {draggedTexture.name}</div>
+                <div className="text-sm opacity-90 mt-1">
+                  Solte sobre o {draggedTexture.type === 'floor' ? 'chão' :
+                                draggedTexture.type === 'wall' ? 'parede' : 'teto'} para aplicar
+                </div>
+              </div>
+            ) : (
+              `Colocando ${draggedItem?.name}...`
+            )}
           </div>
         </div>
       )}
@@ -575,6 +631,7 @@ export const RoomUI: React.FC<RoomUIProps> = ({
           isOpen={showAdminPanel}
           onClose={() => setShowAdminPanel(false)}
           onAddFurniture={onAddFurniture}
+          onAddTexture={onAddTexture}
           onCreateSection={(sectionName) => {
             const success = mockStorageService.createCustomSection(sectionName);
             if (success) {
