@@ -46,25 +46,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture } = useRoomTextures(userId);
 
-  // Adicionar listener para capturar cliques quando há textura sendo arrastada
-  React.useEffect(() => {
-    const handleCanvasClick = (event: MouseEvent) => {
-      if (draggedTexture) {
-        console.log('Clique no canvas detectado com textura arrastada:', draggedTexture);
-        // Verificar se o clique foi no canvas
-        const canvas = document.querySelector('canvas');
-        if (canvas && event.target === canvas) {
-          console.log('Clique foi no canvas Three.js');
-        }
-      }
-    };
 
-    const canvas = document.querySelector('canvas');
-    if (canvas) {
-      canvas.addEventListener('click', handleCanvasClick);
-      return () => canvas.removeEventListener('click', handleCanvasClick);
-    }
-  }, [draggedTexture]);
   const cameraRef = useRef<THREE.Camera>();
   const furnitureRefs = useRef<{ [key: string]: React.RefObject<THREE.Group> }>({});
 
