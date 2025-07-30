@@ -17,9 +17,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
   // Hook para gerenciar texturas
   const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
 
-  // Estado para highlight de superfícies quando hover
-  const [hoveredSurface, setHoveredSurface] = useState<string | null>(null);
-
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
   const ceilingRef = useRef<THREE.Mesh>(null);
