@@ -109,6 +109,7 @@ export const useRoomTextures = (userId: string) => {
       metalness: 0.1,
       transparent: false,
       alphaTest: 0,
+      side: THREE.DoubleSide, // Garantir que ambos os lados sejam renderizados
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
