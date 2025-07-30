@@ -110,14 +110,27 @@ export const useRoomTextures = (userId: string) => {
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
-    // Carregar mapa difuso (obrigatório)
+    // Carregar mapa difuso (obrigatório) com callback para suavizar transição
     if (textureData.textureUrls.diffuse) {
-      const diffuseTexture = loader.load(textureData.textureUrls.diffuse);
-      diffuseTexture.wrapS = THREE.RepeatWrapping;
-      diffuseTexture.wrapT = THREE.RepeatWrapping;
-      diffuseTexture.repeat.set(2, 2); // Ajustar repetição conforme necessário
-      diffuseTexture.needsUpdate = true;
-      material.map = diffuseTexture;
+      const diffuseTexture = loader.load(
+        textureData.textureUrls.diffuse,
+        (texture) => {
+          // Callback de sucesso - aplicar textura suavemente
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(2, 2);
+          texture.needsUpdate = true;
+
+          // Remover cor padrão quando textura carregar
+          material.color.setHex(0xffffff);
+          material.map = texture;
+          material.needsUpdate = true;
+        },
+        undefined,
+        (error) => {
+          console.warn('Erro ao carregar textura difusa:', error);
+        }
+      );
     }
 
     // Carregar mapa normal (opcional)
