@@ -17,6 +17,18 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
   // Hook para gerenciar texturas
   const { roomTextures, createMaterialFromTexture } = useRoomTextures(userId);
 
+  // Log do estado das texturas para debug
+  useEffect(() => {
+    console.log('🏠 Room: Estado atual das texturas:', {
+      floor: roomTextures.floor?.name || 'nenhuma',
+      ceiling: roomTextures.ceiling?.name || 'nenhuma',
+      walls: Object.keys(roomTextures.walls).map(wallId => ({
+        wallId,
+        texture: roomTextures.walls[wallId]?.name || 'nenhuma'
+      }))
+    });
+  }, [roomTextures]);
+
   // Estado para forçar re-render quando texturas mudam
   const [updateKey, setUpdateKey] = useState(0);
 
