@@ -183,18 +183,24 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           closestSurface = { object: intersectedObject, type: 'ceiling' };
           console.log('Detectado como teto por posição');
         } else {
-          // É uma parede, determinar qual baseado na maior distância do centro
+          // É uma parede, determinar qual baseado na posição e dimensões do quarto
           let wallId = 'north';
-          const absX = Math.abs(pos.x);
-          const absZ = Math.abs(pos.z);
+          const roomDims = roomDimensions;
+          const halfWidth = roomDims.width / 2;
+          const halfLength = roomDims.length / 2;
 
-          if (absZ > absX) {
-            // Parede norte ou sul
-            wallId = pos.z > 0 ? 'south' : 'north';
-          } else {
-            // Parede leste ou oeste
-            wallId = pos.x > 0 ? 'east' : 'west';
-          }
+          // Verificar qual borda está mais próxima
+          const distances = {
+            north: Math.abs(pos.z + halfLength),
+            south: Math.abs(pos.z - halfLength),
+            east: Math.abs(pos.x - halfWidth),
+            west: Math.abs(pos.x + halfWidth)
+          };
+
+          // Encontrar a menor distância
+          wallId = Object.keys(distances).reduce((a, b) =>
+            distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
+          ) as string;
 
           closestSurface = { object: intersectedObject, type: 'wall', id: wallId };
           console.log(`Detectado como parede ${wallId} por posição`);
