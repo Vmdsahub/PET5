@@ -39,26 +39,20 @@ export const TextureDropHandler: React.FC<TextureDropHandlerProps> = ({
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
 
-    // Buscar todas as meshes do quarto diretamente na cena
+    // Buscar apenas as meshes do quarto que estão VISÍVEIS
     const roomMeshes: THREE.Mesh[] = [];
-    
-    console.log('🔍 Investigando cena Three.js...');
-    console.log('🌳 Cena:', scene);
-    
+
     scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        console.log(`  🎯 Mesh encontrada: "${child.name}" (tipo: ${child.type})`);
-        
-        if (child.name && 
+      if (child instanceof THREE.Mesh && child.visible) { // Apenas meshes visíveis
+        if (child.name &&
             (child.name === 'floor' || child.name === 'ceiling' || child.name.startsWith('wall-'))) {
           roomMeshes.push(child);
-          console.log(`    ✅ Mesh do quarto: ${child.name}`);
+          console.log(`✅ Mesh visível: ${child.name}`);
         }
       }
     });
 
-    console.log(`🏠 Meshes do quarto encontradas: ${roomMeshes.length}`);
-    console.log('🏠 Nomes das meshes do quarto:', roomMeshes.map(m => m.name));
+    console.log(`🏠 Superfícies visíveis para raycasting: ${roomMeshes.length}`);
 
     if (roomMeshes.length === 0) {
       console.log('❌ Nenhuma superfície do quarto foi encontrada na cena');
