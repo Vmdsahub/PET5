@@ -102,9 +102,14 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
     if (!draggedTexture) return;
 
+    console.log('handleTextureDropOnSurface chamado:', { dropX, dropY, draggedTexture: draggedTexture.name });
+
     // Obter canvas e câmera para raycasting
     const canvas = document.querySelector('canvas');
-    if (!canvas || !cameraRef.current) return;
+    if (!canvas || !cameraRef.current) {
+      console.log('Canvas ou câmera não encontrados');
+      return;
+    }
 
     const rect = canvas.getBoundingClientRect();
 
@@ -113,6 +118,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     mouse.x = ((dropX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((dropY - rect.top) / rect.height) * 2 + 1;
 
+    console.log('Coordenadas normalizadas do mouse:', mouse);
+
     // Criar raycaster
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, cameraRef.current);
@@ -120,28 +127,52 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     // Lista de objetos para interceptar (todas as superfícies do quarto)
     const surfaces: { object: THREE.Object3D; type: string; id?: string }[] = [];
 
-    // Buscar superfícies na cena
-    const scene = cameraRef.current.parent;
-    if (scene) {
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.name) {
-          const name = child.name;
+    // Buscar superfícies na cena - usar uma abordagem mais robusta
+    const scene = cameraRef.current.parent?.parent || cameraRef.current.parent;
+    console.log('Cena encontrada:', scene);
 
-          // Usar nome do mesh para identificar tipo
-          if (name === 'floor') {
-            surfaces.push({ object: child, type: 'floor' });
-          } else if (name === 'ceiling') {
-            surfaces.push({ object: child, type: 'ceiling' });
-          } else if (name.startsWith('wall-')) {
-            const wallId = name.replace('wall-', '');
-            surfaces.push({ object: child, type: 'wall', id: wallId });
+    if (scene) {
+      // Buscar por todos os meshes na cena
+      const allMeshes: THREE.Mesh[] = [];
+      scene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          allMeshes.push(child);
+          console.log('Mesh encontrado:', { name: child.name, position: child.position });
+
+          if (child.name) {
+            const name = child.name;
+
+            // Usar nome do mesh para identificar tipo
+            if (name === 'floor') {
+              surfaces.push({ object: child, type: 'floor' });
+            } else if (name === 'ceiling') {
+              surfaces.push({ object: child, type: 'ceiling' });
+            } else if (name.startsWith('wall-')) {
+              const wallId = name.replace('wall-', '');
+              surfaces.push({ object: child, type: 'wall', id: wallId });
+            }
           }
+        }
+      });
+
+      console.log('Total de meshes encontrados:', allMeshes.length);
+      console.log('Superfícies identificadas:', surfaces);
+    }
+
+    // Se não encontrou superfícies pelo nome, tentar raycast em todos os meshes
+    let targetObjects = surfaces.map(s => s.object);
+    if (targetObjects.length === 0) {
+      console.log('Nenhuma superfície nomeada encontrada, tentando todos os meshes...');
+      scene?.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          targetObjects.push(child);
         }
       });
     }
 
     // Fazer raycast
-    const intersects = raycaster.intersectObjects(surfaces.map(s => s.object));
+    const intersects = raycaster.intersectObjects(targetObjects);
+    console.log('Intersecções encontradas:', intersects.length);
 
     if (intersects.length > 0) {
       // Encontrar a superfície mais próxima
