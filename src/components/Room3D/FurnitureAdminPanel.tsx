@@ -22,6 +22,7 @@ export const FurnitureAdminPanel: React.FC<FurnitureAdminPanelProps> = ({
   onDeleteFurniture
 }) => {
   const [showAddFurniture, setShowAddFurniture] = useState(false);
+  const [showAddTexture, setShowAddTexture] = useState(false);
   const [showCreateSection, setShowCreateSection] = useState(false);
   const [showDeleteSection, setShowDeleteSection] = useState(false);
   const [showDeleteFurniture, setShowDeleteFurniture] = useState(false);
