@@ -102,86 +102,27 @@ export const useRoomTextures = (userId: string) => {
 
     const loader = new THREE.TextureLoader();
 
-    // Criar material com cor padrão primeiro para evitar flash preto
+    // Criar material básico primeiro
     const material = new THREE.MeshStandardMaterial({
-      color: defaultColor, // Manter cor padrão enquanto carrega
+      color: '#ffffff',
       roughness: 0.8,
       metalness: 0.1,
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
-    // Carregar mapa difuso (obrigatório) com callback para suavizar transição
+    // Carregar textura principal
     if (textureData.textureUrls.diffuse) {
-      const diffuseTexture = loader.load(
-        textureData.textureUrls.diffuse,
-        (texture) => {
-          // Callback de sucesso - aplicar textura suavemente
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(2, 2);
-          texture.needsUpdate = true;
-
-          // Remover cor padrão quando textura carregar
-          material.color.setHex(0xffffff);
-          material.map = texture;
-          material.needsUpdate = true;
-        },
-        undefined,
-        (error) => {
-          console.warn('Erro ao carregar textura difusa:', error);
-        }
-      );
+      const texture = loader.load(textureData.textureUrls.diffuse);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(2, 2);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.needsUpdate = true;
+      material.map = texture;
     }
 
-    // Carregar mapa normal (opcional)
-    if (textureData.textureUrls.normal) {
-      const normalTexture = loader.load(textureData.textureUrls.normal);
-      normalTexture.wrapS = THREE.RepeatWrapping;
-      normalTexture.wrapT = THREE.RepeatWrapping;
-      normalTexture.repeat.set(2, 2);
-      material.normalMap = normalTexture;
-    }
-
-    // Carregar mapa de rugosidade (opcional)
-    if (textureData.textureUrls.roughness) {
-      const roughnessTexture = loader.load(textureData.textureUrls.roughness);
-      roughnessTexture.wrapS = THREE.RepeatWrapping;
-      roughnessTexture.wrapT = THREE.RepeatWrapping;
-      roughnessTexture.repeat.set(2, 2);
-      material.roughnessMap = roughnessTexture;
-    }
-
-    // Carregar mapa de displacement (opcional)
-    if (textureData.textureUrls.displacement) {
-      const displacementTexture = loader.load(textureData.textureUrls.displacement);
-      displacementTexture.wrapS = THREE.RepeatWrapping;
-      displacementTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.repeat.set(2, 2);
-      material.displacementMap = displacementTexture;
-      material.displacementScale = 0.1;
-    }
-
-    // Carregar mapa metálico (opcional)
-    if (textureData.textureUrls.metallic) {
-      const metallicTexture = loader.load(textureData.textureUrls.metallic);
-      metallicTexture.wrapS = THREE.RepeatWrapping;
-      metallicTexture.wrapT = THREE.RepeatWrapping;
-      metallicTexture.repeat.set(2, 2);
-      material.metalnessMap = metallicTexture;
-    }
-
-    // Carregar mapa AO (opcional)
-    if (textureData.textureUrls.ao) {
-      const aoTexture = loader.load(textureData.textureUrls.ao);
-      aoTexture.wrapS = THREE.RepeatWrapping;
-      aoTexture.wrapT = THREE.RepeatWrapping;
-      aoTexture.repeat.set(2, 2);
-      material.aoMap = aoTexture;
-    }
-
-    // Forçar atualização do material
     material.needsUpdate = true;
-
     return material;
   };
 
