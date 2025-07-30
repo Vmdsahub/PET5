@@ -91,6 +91,43 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     setCatalog(mockStorageService.getFurnitureCatalog());
   };
 
+  const handleAddTexture = (textureData: any) => {
+    mockStorageService.addCustomTexture(textureData);
+    // Recarregar catálogo para mostrar a nova textura
+    setCatalog(mockStorageService.getFurnitureCatalog());
+  };
+
+  const handleSurfaceClick = (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => {
+    if (!draggedTexture) return;
+
+    // Verificar se a textura é compatível com a superfície
+    if (draggedTexture.type !== surfaceType) {
+      alert(`Esta textura é para ${draggedTexture.type === 'floor' ? 'chão' : draggedTexture.type === 'wall' ? 'parede' : 'teto'}, não para ${surfaceType === 'floor' ? 'chão' : surfaceType === 'wall' ? 'parede' : 'teto'}.`);
+      return;
+    }
+
+    // Aplicar a textura na superfície
+    switch (surfaceType) {
+      case 'floor':
+        applyFloorTexture(draggedTexture);
+        console.log('Textura aplicada no chão:', draggedTexture.name);
+        break;
+      case 'ceiling':
+        applyCeilingTexture(draggedTexture);
+        console.log('Textura aplicada no teto:', draggedTexture.name);
+        break;
+      case 'wall':
+        if (surfaceId) {
+          applyWallTexture(surfaceId, draggedTexture);
+          console.log(`Textura aplicada na parede ${surfaceId}:`, draggedTexture.name);
+        }
+        break;
+    }
+
+    // Limpar textura arrastada
+    setDraggedTexture(null);
+  };
+
   const handleToggleEditMode = () => {
     setEditMode(!editMode);
     setSelectedFurniture(null);
@@ -291,7 +328,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Deletar todos os móveis do quarto"
         >
-          ����️ Limpar Tudo
+          🗑️ Limpar Tudo
         </button>
 
         {isAdmin && (
