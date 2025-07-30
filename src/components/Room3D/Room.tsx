@@ -10,7 +10,7 @@ interface RoomProps {
   draggedTexture?: any;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture, onSurfaceClick }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
 
