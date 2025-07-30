@@ -553,6 +553,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         onAddFurniture={handleAddFurniture}
         onDraggedTexture={setDraggedTexture}
         draggedTexture={draggedTexture}
+        onTextureDropOnSurface={handleTextureDropOnSurface}
         editMode={editMode}
         onToggleEditMode={handleToggleEditMode}
         onStoreFurniture={handleStoreFurniture}
