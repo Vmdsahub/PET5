@@ -253,21 +253,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     // Fallback: aplicar no tipo correto baseado apenas no tipo da textura
     // (assumir que se o usuário arrastou para o canvas, quer aplicar)
+    console.log('Usando fallback para aplicar textura');
+
+    // Aplicar textura via fallback
     if (draggedTexture.type === 'floor') {
-      console.log('Aplicando textura de chão via fallback');
       applyFloorTexture(draggedTexture);
-      setDraggedTexture(null);
-      return;
     } else if (draggedTexture.type === 'ceiling') {
-      console.log('Aplicando textura de teto via fallback');
       applyCeilingTexture(draggedTexture);
-      setDraggedTexture(null);
-      return;
     } else if (draggedTexture.type === 'wall') {
-      console.log('Aplicando textura de parede via fallback (parede norte)');
+      // Para paredes, aplicar em todas (já que não conseguimos detectar qual)
       applyWallTexture('north', draggedTexture);
-      setDraggedTexture(null);
-      return;
+      applyWallTexture('south', draggedTexture);
+      applyWallTexture('east', draggedTexture);
+      applyWallTexture('west', draggedTexture);
+    }
+
+    // Remover do inventário também no fallback
+    const textureInventoryItem = inventory.find(item => item.id === draggedTexture.id);
+    if (textureInventoryItem) {
+      if (textureInventoryItem.quantity && textureInventoryItem.quantity > 1) {
+        textureInventoryItem.quantity -= 1;
+      } else {
+        mockStorageService.deleteInventoryFurniture(userId, draggedTexture.id);
+      }
+      setInventory(mockStorageService.getInventory(userId));
     }
 
     setDraggedTexture(null);
