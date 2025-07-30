@@ -422,11 +422,19 @@ export const RoomUI: React.FC<RoomUIProps> = ({
                                     : 'hover:bg-gray-50'
                                 }`}
                               >
-                                <FurnitureThumbnail
-                                  modelPath={item.model}
-                                  width="100%"
-                                  height="100%"
-                                />
+                                {(item as any).isTexture ? (
+                                  <TexturePreview
+                                    textureData={item}
+                                    width="100%"
+                                    height="100%"
+                                  />
+                                ) : (
+                                  <FurnitureThumbnail
+                                    modelPath={item.model}
+                                    width="100%"
+                                    height="100%"
+                                  />
+                                )}
                               </div>
                             ))}
                           </div>
