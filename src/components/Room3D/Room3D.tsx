@@ -100,8 +100,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
   const handleAddTexture = (textureData: any) => {
     mockStorageService.addCustomTexture(textureData);
-    // Recarregar catálogo para mostrar a nova textura
-    setCatalog(mockStorageService.getFurnitureCatalog());
+
+    // Forçar atualização do catálogo com delay para garantir que seja processado
+    setTimeout(() => {
+      const newCatalog = mockStorageService.getFurnitureCatalog();
+      setCatalog([...newCatalog]); // Usar spread para forçar re-render
+      console.log('Catálogo atualizado com nova textura:', textureData.name);
+    }, 100);
   };
 
   const handleTextureDropOnSurface = (dropX: number, dropY: number) => {
