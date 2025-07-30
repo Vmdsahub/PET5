@@ -11,7 +11,7 @@ interface RoomProps {
   onSurfaceClick?: (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => void;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', onSurfaceClick }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture, onSurfaceClick }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
 
