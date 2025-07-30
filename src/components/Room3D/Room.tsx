@@ -115,7 +115,11 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, length, ceilingThickness]} />
         <primitive
-          object={createMaterialFromTexture(roomTextures.ceiling, hoveredSurface === 'ceiling' ? '#f8f8f8' : '#ffffff')}
+          object={createMaterialFromTexture(
+            roomTextures.ceiling,
+            draggedTexture?.type === 'ceiling' ? '#f8f8f8' :
+            hoveredSurface === 'ceiling' ? '#f8f8f8' : '#ffffff'
+          )}
         />
       </mesh>
 
