@@ -81,6 +81,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Chão - base do quarto */}
       <mesh
         ref={floorRef}
+        name="floor"
         position={[0, floorThickness/2, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
@@ -97,6 +98,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Teto - topo do quarto */}
       <mesh
         ref={ceilingRef}
+        name="ceiling"
         position={[0, height - ceilingThickness/2, 0]}
         rotation={[Math.PI / 2, 0, 0]}
       >
@@ -113,6 +115,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Parede Norte */}
       <mesh
         ref={wallNorthRef}
+        name="wall-north"
         position={[0, wallCenterY, -length/2 + wallThickness/2]}
         rotation={[0, 0, 0]}
       >
@@ -129,6 +132,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Parede Sul */}
       <mesh
         ref={wallSouthLeftRef}
+        name="wall-south"
         position={[0, wallCenterY, length/2 - wallThickness/2]}
         rotation={[0, 0, 0]}
       >
@@ -145,6 +149,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Parede Leste */}
       <mesh
         ref={wallEastRef}
+        name="wall-east"
         position={[width/2 - wallThickness/2, wallCenterY, 0]}
         rotation={[0, Math.PI/2, 0]}
       >
@@ -161,6 +166,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       {/* Parede Oeste */}
       <mesh
         ref={wallWestRef}
+        name="wall-west"
         position={[-width/2 + wallThickness/2, wallCenterY, 0]}
         rotation={[0, Math.PI/2, 0]}
       >
