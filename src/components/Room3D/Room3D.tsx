@@ -167,7 +167,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
     if (intersects.length > 0) {
       const intersectedObject = intersects[0].object;
-      console.log('Objeto interceptado:', intersectedObject.name, intersectedObject.position);
+      console.log('Raycasting bem-sucedido:', {
+        name: intersectedObject.name,
+        position: intersectedObject.position,
+        distance: intersects[0].distance
+      });
 
       // Encontrar a superfície mais próxima pelos nomes
       let closestSurface = surfaces.find(s => s.object === intersectedObject);
