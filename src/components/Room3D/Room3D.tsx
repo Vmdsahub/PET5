@@ -98,7 +98,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   };
 
   const handleSurfaceClick = (surfaceType: 'floor' | 'wall' | 'ceiling', surfaceId?: string) => {
-    if (!draggedTexture) return;
+    console.log('handleSurfaceClick chamado:', { surfaceType, surfaceId, draggedTexture });
+    if (!draggedTexture) {
+      console.log('Nenhuma textura sendo arrastada');
+      return;
+    }
 
     // Verificar se a textura é compatível com a superfície
     if (draggedTexture.type !== surfaceType) {
