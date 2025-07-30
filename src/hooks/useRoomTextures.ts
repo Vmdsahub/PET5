@@ -118,7 +118,9 @@ export const useRoomTextures = (userId: string) => {
           // Callback de sucesso - aplicar textura suavemente
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(2, 2);
+          texture.repeat.set(3, 3); // Aumentar repeat para melhor continuidade
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
           texture.needsUpdate = true;
 
           // Remover cor padrão quando textura carregar
