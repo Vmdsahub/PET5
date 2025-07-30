@@ -608,6 +608,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           
           {/* Quarto */}
           <Room
+            key={roomUpdateKey}
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
