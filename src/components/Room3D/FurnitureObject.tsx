@@ -430,7 +430,7 @@ onContextMenu={(e) => {
       
       {/* Modelo 3D ou geometria fallback */}
       <Suspense fallback={
-        <mesh>
+        <mesh castShadow receiveShadow>
           <FallbackGeometry furniture={furniture} />
         </mesh>
       }>
