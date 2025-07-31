@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 // Cache global de texturas e loader singleton para máxima performance
