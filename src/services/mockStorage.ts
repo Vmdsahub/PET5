@@ -49,31 +49,50 @@ class MockStorageService {
     this.loadFromLocalStorage();
   }
 
-  private loadFromLocalStorage() {
-    const stored = localStorage.getItem('xenopets_room_data');
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        this.userRooms = new Map(data.userRooms || []);
-        this.nextId = data.nextId || 1;
-        this.customCatalog = data.customCatalog || [];
-        this.customSections = data.customSections || [];
-        this.roomDimensions = data.roomDimensions || this.roomDimensions;
-      } catch (error) {
-        console.warn('Erro ao carregar dados do localStorage:', error);
-      }
-    }
+  private async loadFromLocalStorage() {
+    return new Promise<void>((resolve) => {
+      requestIdleCallback(() => {
+        try {
+          const stored = localStorage.getItem('xenopets_room_data');
+          if (stored) {
+            const data = JSON.parse(stored);
+            this.userRooms = new Map(data.userRooms || []);
+            this.nextId = data.nextId || 1;
+            this.customCatalog = data.customCatalog || [];
+            this.customSections = data.customSections || [];
+            this.roomDimensions = data.roomDimensions || this.roomDimensions;
+          }
+        } catch (error) {
+          console.warn('Erro ao carregar dados do localStorage:', error);
+        }
+        resolve();
+      });
+    });
+  }
+
+  private saveToLocalStorageDebounced = this.debounce(() => {
+    requestIdleCallback(() => {
+      const data = {
+        userRooms: Array.from(this.userRooms.entries()),
+        nextId: this.nextId,
+        customCatalog: this.customCatalog,
+        customSections: this.customSections,
+        roomDimensions: this.roomDimensions
+      };
+      localStorage.setItem('xenopets_room_data', JSON.stringify(data));
+    });
+  }, 300);
+
+  private debounce(func: Function, wait: number) {
+    let timeout: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
   }
 
   private saveToLocalStorage() {
-    const data = {
-      userRooms: Array.from(this.userRooms.entries()),
-      nextId: this.nextId,
-      customCatalog: this.customCatalog,
-      customSections: this.customSections,
-      roomDimensions: this.roomDimensions
-    };
-    localStorage.setItem('xenopets_room_data', JSON.stringify(data));
+    this.saveToLocalStorageDebounced();
   }
 
   private generateId(): string {
