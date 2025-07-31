@@ -507,6 +507,25 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               />
             );
           })}
+
+          {/* Post-Processing Effects */}
+          <EffectComposer enabled={true}>
+            <FXAA />
+            <SSAO
+              samples={31}
+              radius={20}
+              intensity={0.1}
+              luminanceInfluence={0.1}
+              color={new THREE.Color('#1a2845')}
+              bias={0.025}
+            />
+            <Bloom
+              luminanceThreshold={0.9}
+              luminanceSmoothing={0.5}
+              height={300}
+              opacity={0.3}
+            />
+          </EffectComposer>
         </Suspense>
       </Canvas>
 
