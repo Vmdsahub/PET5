@@ -91,6 +91,11 @@ export const useRoomTextures = (userId: string) => {
     }, 100);
   };
 
+  // Cache de texturas para evitar recarregamentos
+  const textureCache = new Map<string, THREE.Texture>();
+  const loaderManager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(loaderManager);
+
   // Criar material Three.js a partir dos dados da textura
   const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff', surfaceKey?: string) => {
     if (!textureData || !textureData.textureUrls.diffuse) {
@@ -100,14 +105,15 @@ export const useRoomTextures = (userId: string) => {
       });
     }
 
-    const loader = new THREE.TextureLoader();
+    // Usar nome consistente sem timestamp para evitar recriações
+    const materialName = `texture_${surfaceKey || 'surface'}_${textureData.id || 'custom'}`;
 
     // Criar material PBR completo
     const material = new THREE.MeshStandardMaterial({
       color: '#ffffff',
       roughness: 0.8,
       metalness: 0.1,
-      name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
+      name: materialName
     });
 
     // Função helper para configurar texturas otimizadas para decoração
