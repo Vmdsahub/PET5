@@ -58,10 +58,23 @@ export const useRoomTextures = (userId: string) => {
     }
   }, [userId]);
 
-  // Salvar texturas no localStorage
+  // Debounce para saveTextures
+  const saveTexturesDebounced = useRef<NodeJS.Timeout>();
+
+  // Salvar texturas no localStorage de forma assíncrona
   const saveTextures = (newTextures: RoomTextures) => {
     setRoomTextures(newTextures);
-    localStorage.setItem(`room_textures_${userId}`, JSON.stringify(newTextures));
+
+    // Salvar no localStorage com debounce para evitar travamentos
+    if (saveTexturesDebounced.current) {
+      clearTimeout(saveTexturesDebounced.current);
+    }
+
+    saveTexturesDebounced.current = setTimeout(() => {
+      requestIdleCallback(() => {
+        localStorage.setItem(`room_textures_${userId}`, JSON.stringify(newTextures));
+      });
+    }, 200);
   };
 
   // Função otimizada para dispatch único
