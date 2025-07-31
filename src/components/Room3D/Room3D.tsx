@@ -518,10 +518,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             );
           })}
 
-          {/* Post-Processing Effects - Versão simplificada para compatibilidade */}
-          <EffectComposer>
-            <FXAA />
-          </EffectComposer>
+          {/* Post-Processing Effects removido temporariamente devido a incompatibilidade de versões */}
+          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as dependências forem atualizadas */}
         </Suspense>
       </Canvas>
 
