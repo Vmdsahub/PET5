@@ -107,43 +107,54 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
 
   const { camera } = useThree();
 
-  // Sistema de culling otimizado
-  useFrame(() => {
+  // Sistema de culling otimizado com throttling
+  const lastCullingUpdate = useRef(0);
+  const cullingThrottle = 100; // ms
+
+  useFrame((state) => {
     if (!camera) return;
+
+    // Throttle para evitar cálculos excessivos
+    const now = state.clock.elapsedTime * 1000;
+    if (now - lastCullingUpdate.current < cullingThrottle) return;
+    lastCullingUpdate.current = now;
 
     const cameraPos = camera.position;
 
-    // Chão - mostrar apenas se câmera estiver acima
-    if (floorRef.current) {
-      floorRef.current.visible = cameraPos.y > 0.2;
-    }
+    // Batch visibility updates para melhor performance
+    requestIdleCallback(() => {
+      // Chão - mostrar apenas se câmera estiver acima
+      if (floorRef.current) {
+        floorRef.current.visible = cameraPos.y > 0.2;
+      }
 
-    // Teto - mostrar apenas se câmera estiver abaixo
-    if (ceilingRef.current) {
-      ceilingRef.current.visible = cameraPos.y < height - 0.2;
-    }
+      // Teto - mostrar apenas se câmera estiver abaixo
+      if (ceilingRef.current) {
+        ceilingRef.current.visible = cameraPos.y < height - 0.2;
+      }
 
-    // Paredes - mostrar apenas quando visualizadas de fora
-    if (wallNorthRef.current) {
-      wallNorthRef.current.visible = cameraPos.z > -length/2 + 0.3;
-    }
+      // Paredes - mostrar apenas quando visualizadas de fora
+      if (wallNorthRef.current) {
+        wallNorthRef.current.visible = cameraPos.z > -length/2 + 0.3;
+      }
 
-    if (wallEastRef.current) {
-      wallEastRef.current.visible = cameraPos.x < width/2 - 0.3;
-    }
+      if (wallEastRef.current) {
+        wallEastRef.current.visible = cameraPos.x < width/2 - 0.3;
+      }
 
-    if (wallWestRef.current) {
-      wallWestRef.current.visible = cameraPos.x > -width/2 + 0.3;
-    }
+      if (wallWestRef.current) {
+        wallWestRef.current.visible = cameraPos.x > -width/2 + 0.3;
+      }
 
-    // Paredes do sul (com entrada)
-    if (wallSouthLeftRef.current) {
-      wallSouthLeftRef.current.visible = cameraPos.z < length/2 - 0.3;
-    }
+      // Paredes do sul (com entrada)
+      if (wallSouthLeftRef.current) {
+        wallSouthLeftRef.current.visible = cameraPos.z < length/2 - 0.3;
+      }
 
-    if (wallSouthRightRef.current) {
-      wallSouthRightRef.current.visible = cameraPos.z < length/2 - 0.3;
-    }
+      if (wallSouthRightRef.current) {
+        wallSouthRightRef.current.visible = cameraPos.z < length/2 - 0.3;
+      }
+    });
   });
 
   const doorWidth = 2;
