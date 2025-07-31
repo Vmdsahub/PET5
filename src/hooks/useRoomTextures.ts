@@ -167,7 +167,7 @@ export const useRoomTextures = (userId: string) => {
       texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
       texture.generateMipmaps = true;
-      texture.anisotropy = Math.min(16, loader.manager.getHandler('.jpg')?.anisotropy || 16);
+      texture.anisotropy = 16; // Valor fixo para evitar consultas desnecessárias
 
       // Configurações específicas por tipo
       if (textureType === 'normal') {
