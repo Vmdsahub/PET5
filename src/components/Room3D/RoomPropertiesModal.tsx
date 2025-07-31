@@ -33,6 +33,15 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
     }
   }, [isOpen]);
 
+  // Cleanup do debounce
+  useEffect(() => {
+    return () => {
+      if (debouncedUpdate.current) {
+        clearTimeout(debouncedUpdate.current);
+      }
+    };
+  }, []);
+
   // Debounce para evitar atualizações excessivas
   const debouncedUpdate = React.useRef<NodeJS.Timeout>();
 
