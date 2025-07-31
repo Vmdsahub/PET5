@@ -141,43 +141,43 @@ export const useRoomTextures = (userId: string) => {
     // Carregar mapa difuso (obrigatório)
     if (textureData.textureUrls.diffuse) {
       const diffuseTexture = loader.load(textureData.textureUrls.diffuse);
-      material.map = configureTexture(diffuseTexture);
+      material.map = configureTexture(diffuseTexture, 'diffuse');
     }
 
     // Carregar mapa normal
     if (textureData.textureUrls.normal) {
       const normalTexture = loader.load(textureData.textureUrls.normal);
-      material.normalMap = configureTexture(normalTexture);
-      material.normalScale = new THREE.Vector2(1, 1);
+      material.normalMap = configureTexture(normalTexture, 'normal');
+      material.normalScale = new THREE.Vector2(0.8, 0.8); // Intensidade suave para decoração
     }
 
     // Carregar mapa de rugosidade
     if (textureData.textureUrls.roughness) {
       const roughnessTexture = loader.load(textureData.textureUrls.roughness);
-      material.roughnessMap = configureTexture(roughnessTexture);
+      material.roughnessMap = configureTexture(roughnessTexture, 'roughness');
       material.roughness = 1.0; // Use texture value
     }
 
     // Carregar mapa metálico
     if (textureData.textureUrls.metallic) {
       const metallicTexture = loader.load(textureData.textureUrls.metallic);
-      material.metalnessMap = configureTexture(metallicTexture);
+      material.metalnessMap = configureTexture(metallicTexture, 'metallic');
       material.metalness = 1.0; // Use texture value
     }
 
     // Carregar mapa de oclusão ambiente (AO)
     if (textureData.textureUrls.ao) {
       const aoTexture = loader.load(textureData.textureUrls.ao);
-      material.aoMap = configureTexture(aoTexture);
-      material.aoMapIntensity = 1.0;
+      material.aoMap = configureTexture(aoTexture, 'ao');
+      material.aoMapIntensity = 0.8; // Intensidade suave para não escurecer demais
     }
 
     // Carregar mapa de displacement
     if (textureData.textureUrls.displacement) {
       const displacementTexture = loader.load(textureData.textureUrls.displacement);
-      material.displacementMap = configureTexture(displacementTexture);
-      material.displacementScale = 0.1;
-      material.displacementBias = 0.0;
+      material.displacementMap = configureTexture(displacementTexture, 'displacement');
+      material.displacementScale = 0.05; // Escala reduzida para decoração
+      material.displacementBias = -0.02;
     }
 
     material.needsUpdate = true;
