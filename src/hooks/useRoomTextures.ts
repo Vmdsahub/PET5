@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import * as THREE from 'three';
 
+// Cache global de texturas e loader singleton para máxima performance
+const globalTextureCache = new Map<string, THREE.Texture>();
+const globalLoaderManager = new THREE.LoadingManager();
+const globalLoader = new THREE.TextureLoader(globalLoaderManager);
+
 interface TextureData {
   id: string;
   name: string;
