@@ -401,9 +401,9 @@ export const AddTextureModal: React.FC<AddTextureModalProps> = ({
 
             {/* Metallic Map */}
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <TextureMapPreview 
-                file={textureFiles.metallic} 
-                label="Mapa Metallic" 
+              <TextureMapPreview
+                file={textureFiles.metallic}
+                label="Mapa Metallic"
                 description="Propriedades metálicas"
               />
               <div className="flex space-x-2 mt-2">
@@ -423,6 +423,38 @@ export const AddTextureModal: React.FC<AddTextureModalProps> = ({
                 {textureFiles.metallic && (
                   <button
                     onClick={() => removeFile('metallic')}
+                    className="bg-red-100 hover:bg-red-200 text-red-700 py-1 px-3 rounded text-sm transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* AO Map */}
+            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <TextureMapPreview
+                file={textureFiles.ao}
+                label="Mapa AO"
+                description="Oclusão ambiente"
+              />
+              <div className="flex space-x-2 mt-2">
+                <input
+                  ref={(el) => fileInputRefs.current.ao = el}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange('ao')}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRefs.current.ao?.click()}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded text-sm transition-colors"
+                >
+                  Selecionar
+                </button>
+                {textureFiles.ao && (
+                  <button
+                    onClick={() => removeFile('ao')}
                     className="bg-red-100 hover:bg-red-200 text-red-700 py-1 px-3 rounded text-sm transition-colors"
                   >
                     <X size={16} />
