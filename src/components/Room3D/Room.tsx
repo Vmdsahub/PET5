@@ -150,7 +150,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, length, ceilingThickness]} />
         <primitive
-          key={`ceiling_${updateKey}`}
           object={createMaterialFromTexture(
             roomTextures.ceiling,
             draggedTexture?.type === 'ceiling' ? '#f8f8f8' : '#ffffff',
