@@ -28,6 +28,22 @@ export const useRoomTextures = (userId: string) => {
     ceiling: null
   });
 
+  // Cache de texturas para evitar recarregamentos
+  const textureCache = new Map<string, THREE.Texture>();
+  const loaderManager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(loaderManager);
+
+  // Cleanup de texturas quando o componente é desmontado
+  useEffect(() => {
+    return () => {
+      // Limpar cache de texturas
+      textureCache.forEach((texture) => {
+        texture.dispose();
+      });
+      textureCache.clear();
+    };
+  }, []);
+
   // Carregar texturas do localStorage
   useEffect(() => {
     const stored = localStorage.getItem(`room_textures_${userId}`);
