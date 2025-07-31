@@ -54,7 +54,7 @@ export const useRoomTextures = (userId: string) => {
     };
     saveTextures(newTextures);
 
-    // Forçar re-render forçando uma atualização de estado
+    // For��ar re-render forçando uma atualização de estado
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
     }, 100);
@@ -102,7 +102,7 @@ export const useRoomTextures = (userId: string) => {
 
     const loader = new THREE.TextureLoader();
 
-    // Criar material básico primeiro
+    // Criar material PBR completo
     const material = new THREE.MeshStandardMaterial({
       color: '#ffffff',
       roughness: 0.8,
@@ -110,16 +110,58 @@ export const useRoomTextures = (userId: string) => {
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
-    // Carregar textura principal
-    if (textureData.textureUrls.diffuse) {
-      const texture = loader.load(textureData.textureUrls.diffuse);
+    // Função helper para configurar texturas
+    const configureTexture = (texture: THREE.Texture) => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(2, 2);
-      texture.minFilter = THREE.LinearFilter;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
       texture.needsUpdate = true;
-      material.map = texture;
+      return texture;
+    };
+
+    // Carregar mapa difuso (obrigatório)
+    if (textureData.textureUrls.diffuse) {
+      const diffuseTexture = loader.load(textureData.textureUrls.diffuse);
+      material.map = configureTexture(diffuseTexture);
+    }
+
+    // Carregar mapa normal
+    if (textureData.textureUrls.normal) {
+      const normalTexture = loader.load(textureData.textureUrls.normal);
+      material.normalMap = configureTexture(normalTexture);
+      material.normalScale = new THREE.Vector2(1, 1);
+    }
+
+    // Carregar mapa de rugosidade
+    if (textureData.textureUrls.roughness) {
+      const roughnessTexture = loader.load(textureData.textureUrls.roughness);
+      material.roughnessMap = configureTexture(roughnessTexture);
+      material.roughness = 1.0; // Use texture value
+    }
+
+    // Carregar mapa metálico
+    if (textureData.textureUrls.metallic) {
+      const metallicTexture = loader.load(textureData.textureUrls.metallic);
+      material.metalnessMap = configureTexture(metallicTexture);
+      material.metalness = 1.0; // Use texture value
+    }
+
+    // Carregar mapa de oclusão ambiente (AO)
+    if (textureData.textureUrls.ao) {
+      const aoTexture = loader.load(textureData.textureUrls.ao);
+      material.aoMap = configureTexture(aoTexture);
+      material.aoMapIntensity = 1.0;
+    }
+
+    // Carregar mapa de displacement
+    if (textureData.textureUrls.displacement) {
+      const displacementTexture = loader.load(textureData.textureUrls.displacement);
+      material.displacementMap = configureTexture(displacementTexture);
+      material.displacementScale = 0.1;
+      material.displacementBias = 0.0;
     }
 
     material.needsUpdate = true;
