@@ -46,6 +46,14 @@ export const useRoomTextures = (userId: string) => {
     localStorage.setItem(`room_textures_${userId}`, JSON.stringify(newTextures));
   };
 
+  // Função otimizada para dispatch único
+  const triggerRoomUpdate = () => {
+    // Usar requestAnimationFrame para otimizar performance
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
+    });
+  };
+
   // Aplicar textura ao chão
   const applyFloorTexture = (textureData: TextureData) => {
     const newTextures = {
@@ -53,11 +61,7 @@ export const useRoomTextures = (userId: string) => {
       floor: textureData
     };
     saveTextures(newTextures);
-
-    // Forçar re-render forçando uma atualização de estado
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
-    }, 100);
+    triggerRoomUpdate();
   };
 
   // Aplicar textura ao teto
@@ -67,11 +71,7 @@ export const useRoomTextures = (userId: string) => {
       ceiling: textureData
     };
     saveTextures(newTextures);
-
-    // Forçar re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
-    }, 100);
+    triggerRoomUpdate();
   };
 
   // Aplicar textura a uma parede específica
@@ -84,11 +84,7 @@ export const useRoomTextures = (userId: string) => {
       }
     };
     saveTextures(newTextures);
-
-    // Forçar re-render
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
-    }, 100);
+    triggerRoomUpdate();
   };
 
   // Cache de texturas para evitar recarregamentos
