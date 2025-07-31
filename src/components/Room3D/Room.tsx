@@ -56,28 +56,44 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
     };
   }, []);
 
-  // Função para atualizar materiais sem re-render
-  const updateRoomMaterials = () => {
+  // Função assíncrona para atualizar materiais sem bloquear UI
+  const updateRoomMaterials = async () => {
+    // Dividir atualizações em chunks para não bloquear UI
+    const updateChunk = async (action: () => void) => {
+      return new Promise<void>((resolve) => {
+        requestIdleCallback(() => {
+          action();
+          resolve();
+        });
+      });
+    };
+
     // Atualizar chão
     if (floorRef.current) {
-      floorRef.current.material = createMaterialFromTexture(roomTextures.floor, '#8B7355', 'floor');
+      await updateChunk(() => {
+        floorRef.current!.material = createMaterialFromTexture(roomTextures.floor, '#8B7355', 'floor');
+      });
     }
 
     // Atualizar teto
     if (ceilingRef.current) {
-      ceilingRef.current.material = createMaterialFromTexture(roomTextures.ceiling, '#f8f8f8', 'ceiling');
+      await updateChunk(() => {
+        ceilingRef.current!.material = createMaterialFromTexture(roomTextures.ceiling, '#f8f8f8', 'ceiling');
+      });
     }
 
-    // Atualizar paredes
+    // Atualizar paredes de forma assíncrona
     const wallRefs = [wallNorthRef, wallSouthLeftRef, wallSouthRightRef, wallEastRef, wallWestRef];
     const wallIds = ['north', 'south-left', 'south-right', 'east', 'west'];
 
-    wallRefs.forEach((ref, index) => {
-      if (ref.current) {
-        const wallTexture = roomTextures.walls[wallIds[index]];
-        ref.current.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
+    for (let i = 0; i < wallRefs.length; i++) {
+      if (wallRefs[i].current) {
+        await updateChunk(() => {
+          const wallTexture = roomTextures.walls[wallIds[i]];
+          wallRefs[i].current!.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
+        });
       }
-    });
+    }
   };
 
   // Refs para cada superfície
