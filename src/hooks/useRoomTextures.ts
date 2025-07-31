@@ -103,11 +103,6 @@ export const useRoomTextures = (userId: string) => {
     triggerRoomUpdate();
   };
 
-  // Cache de texturas para evitar recarregamentos
-  const textureCache = new Map<string, THREE.Texture>();
-  const loaderManager = new THREE.LoadingManager();
-  const loader = new THREE.TextureLoader(loaderManager);
-
   // Criar material Three.js a partir dos dados da textura
   const createMaterialFromTexture = (textureData: TextureData | null, defaultColor: string = '#ffffff', surfaceKey?: string) => {
     if (!textureData || !textureData.textureUrls.diffuse) {
