@@ -19,22 +19,38 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
 
 
 
+  // Debounce para atualizações de material
+  const materialUpdateRef = useRef<NodeJS.Timeout>();
+
   // Listener otimizado para atualizações de textura
   useEffect(() => {
     const handleTextureUpdate = () => {
-      // Atualizar materiais diretamente sem re-render
-      updateRoomMaterials();
+      // Debounce para evitar atualizações excessivas
+      if (materialUpdateRef.current) {
+        clearTimeout(materialUpdateRef.current);
+      }
+
+      materialUpdateRef.current = setTimeout(() => {
+        requestAnimationFrame(() => {
+          updateRoomMaterials();
+        });
+      }, 100);
     };
 
     const handleForceUpdate = () => {
-      // Atualizar materiais diretamente sem re-render
-      updateRoomMaterials();
+      // Força atualização imediata quando necessário
+      requestAnimationFrame(() => {
+        updateRoomMaterials();
+      });
     };
 
     window.addEventListener('roomTextureUpdate', handleTextureUpdate);
     window.addEventListener('forceRoomUpdate', handleForceUpdate);
 
     return () => {
+      if (materialUpdateRef.current) {
+        clearTimeout(materialUpdateRef.current);
+      }
       window.removeEventListener('roomTextureUpdate', handleTextureUpdate);
       window.removeEventListener('forceRoomUpdate', handleForceUpdate);
     };
