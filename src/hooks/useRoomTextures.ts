@@ -49,16 +49,22 @@ export const useRoomTextures = (userId: string) => {
     };
   }, []);
 
-  // Carregar texturas do localStorage
+  // Carregar texturas do localStorage de forma assíncrona
   useEffect(() => {
-    const stored = localStorage.getItem(`room_textures_${userId}`);
-    if (stored) {
-      try {
-        setRoomTextures(JSON.parse(stored));
-      } catch (error) {
-        console.warn('Erro ao carregar texturas do quarto:', error);
-      }
-    }
+    const loadTextures = async () => {
+      requestIdleCallback(() => {
+        try {
+          const stored = localStorage.getItem(`room_textures_${userId}`);
+          if (stored) {
+            setRoomTextures(JSON.parse(stored));
+          }
+        } catch (error) {
+          console.warn('Erro ao carregar texturas do quarto:', error);
+        }
+      });
+    };
+
+    loadTextures();
   }, [userId]);
 
   // Debounce para saveTextures
@@ -170,7 +176,7 @@ export const useRoomTextures = (userId: string) => {
       return texture;
     };
 
-    // Fun��ão helper para configurar texturas otimizadas
+    // Função helper para configurar texturas otimizadas
     const configureTexture = (texture: THREE.Texture, textureType: string = 'diffuse') => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
