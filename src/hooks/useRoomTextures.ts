@@ -232,11 +232,11 @@ export const useRoomTextures = (userId: string) => {
     };
     saveTextures(newTextures);
 
-    // Forçar re-render
-    setTimeout(() => {
+    // Usar requestAnimationFrame para melhor performance
+    requestAnimationFrame(() => {
       window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
       window.dispatchEvent(new CustomEvent('forceRoomUpdate'));
-    }, 100);
+    });
   };
 
   return {
