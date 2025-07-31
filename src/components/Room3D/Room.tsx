@@ -186,7 +186,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
-          key={`wall_south_${updateKey}`}
           object={createMaterialFromTexture(
             roomTextures.walls['south'],
             draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
@@ -205,7 +204,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
-          key={`wall_east_${updateKey}`}
           object={createMaterialFromTexture(
             roomTextures.walls['east'],
             draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
@@ -224,7 +222,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[length, wallHeight, wallThickness]} />
         <primitive
-          key={`wall_west_${updateKey}`}
           object={createMaterialFromTexture(
             roomTextures.walls['west'],
             draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
