@@ -100,26 +100,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     return newItem;
   };
 
-  const handleAddFurniture = (furnitureData: any) => {
+  const handleAddFurniture = async (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
 
-    // Forçar atualização do catálogo com delay para garantir que seja processado
-    setTimeout(() => {
-      const newCatalog = mockStorageService.getFurnitureCatalog();
-      setCatalog([...newCatalog]); // Usar spread para forçar re-render
-      console.log('Catálogo atualizado com novo móvel:', furnitureData.name);
-    }, 100);
+    // Atualizar catálogo de forma assíncrona
+    requestAnimationFrame(() => {
+      requestIdleCallback(() => {
+        const newCatalog = mockStorageService.getFurnitureCatalog();
+        setCatalog([...newCatalog]);
+        console.log('Catálogo atualizado com novo móvel:', furnitureData.name);
+      });
+    });
   };
 
-  const handleAddTexture = (textureData: any) => {
+  const handleAddTexture = async (textureData: any) => {
     mockStorageService.addCustomTexture(textureData);
 
-    // Forçar atualização do catálogo com delay para garantir que seja processado
-    setTimeout(() => {
-      const newCatalog = mockStorageService.getFurnitureCatalog();
-      setCatalog([...newCatalog]); // Usar spread para forçar re-render
-      console.log('Catálogo atualizado com nova textura:', textureData.name);
-    }, 100);
+    // Atualizar catálogo de forma assíncrona
+    requestAnimationFrame(() => {
+      requestIdleCallback(() => {
+        const newCatalog = mockStorageService.getFurnitureCatalog();
+        setCatalog([...newCatalog]);
+        console.log('Catálogo atualizado com nova textura:', textureData.name);
+      });
+    });
   };
 
   const handleTextureApplied = (surfaceType: string, wallId?: string) => {
@@ -370,7 +374,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Alternar para modo 2D"
         >
-          📱 Modo 2D
+          ���� Modo 2D
         </button>
 
         <button
