@@ -168,7 +168,6 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
-          key={`wall_north_${updateKey}`}
           object={createMaterialFromTexture(
             roomTextures.walls['north'],
             draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
