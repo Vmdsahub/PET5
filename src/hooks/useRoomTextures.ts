@@ -54,7 +54,7 @@ export const useRoomTextures = (userId: string) => {
     };
     saveTextures(newTextures);
 
-    // For��ar re-render forçando uma atualização de estado
+    // Forçar re-render forçando uma atualização de estado
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('roomTextureUpdate'));
     }, 100);
@@ -110,14 +110,30 @@ export const useRoomTextures = (userId: string) => {
       name: `texture_${surfaceKey || 'surface'}_${Date.now()}`
     });
 
-    // Função helper para configurar texturas
-    const configureTexture = (texture: THREE.Texture) => {
+    // Função helper para configurar texturas otimizadas para decoração
+    const configureTexture = (texture: THREE.Texture, textureType: string = 'diffuse') => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(2, 2);
+
+      // Ajustar repeat baseado no tipo de textura e superfície
+      const repeatValue = surfaceKey === 'floor' ? 4 : surfaceKey === 'ceiling' ? 3 : 2;
+      texture.repeat.set(repeatValue, repeatValue);
+
+      // Configurações de filtro para máxima qualidade
       texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
       texture.generateMipmaps = true;
+      texture.anisotropy = 16; // Máxima anisotropia para texturas nítidas
+
+      // Configurações específicas por tipo de textura
+      if (textureType === 'normal') {
+        texture.colorSpace = THREE.NoColorSpace;
+      } else if (textureType === 'diffuse') {
+        texture.colorSpace = THREE.SRGBColorSpace;
+      } else {
+        texture.colorSpace = THREE.NoColorSpace;
+      }
+
       texture.needsUpdate = true;
       return texture;
     };
