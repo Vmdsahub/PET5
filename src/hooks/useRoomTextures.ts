@@ -38,14 +38,11 @@ export const useRoomTextures = (userId: string) => {
   const loaderManager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(loaderManager);
 
-  // Cleanup de texturas quando o componente é desmontado
+  // Cleanup otimizado - não limpar cache global para reutilização
   useEffect(() => {
     return () => {
-      // Limpar cache de texturas
-      textureCache.forEach((texture) => {
-        texture.dispose();
-      });
-      textureCache.clear();
+      // Cache global mantido para reutilização entre componentes
+      // Cleanup apenas se necessário por limitações de memória
     };
   }, []);
 
