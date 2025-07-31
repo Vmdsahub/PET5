@@ -44,9 +44,22 @@ class MockStorageService {
     ceilingThickness: 0.1
   };
 
+  private isInitialized = false;
+
   constructor() {
-    // Carregar dados do localStorage se existirem
-    this.loadFromLocalStorage();
+    // Carregar dados do localStorage de forma assíncrona
+    this.initializeAsync();
+  }
+
+  private async initializeAsync() {
+    await this.loadFromLocalStorage();
+    this.isInitialized = true;
+  }
+
+  private async ensureInitialized() {
+    if (!this.isInitialized) {
+      await this.initializeAsync();
+    }
   }
 
   private async loadFromLocalStorage() {
