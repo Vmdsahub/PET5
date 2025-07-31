@@ -55,8 +55,23 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setRoomUpdateKey(prev => prev + 1);
     };
 
+    const handleRoomTextureUpdate = () => {
+      setRoomUpdateKey(prev => prev + 1);
+    };
+
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
-    return () => window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
+    window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+
+    return () => {
+      // Cleanup event listeners
+      window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
+      window.removeEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+
+      // Cleanup transformUpdateRef debounce timeout
+      if (transformUpdateRef.current) {
+        clearTimeout(transformUpdateRef.current);
+      }
+    };
   }, []);
 
 
