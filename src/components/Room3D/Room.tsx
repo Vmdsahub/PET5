@@ -19,17 +19,16 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
 
 
 
-  // Estado para forçar re-render quando texturas mudam
-  const [updateKey, setUpdateKey] = useState(0);
-
-  // Listener para atualizações de textura
+  // Listener otimizado para atualizações de textura
   useEffect(() => {
     const handleTextureUpdate = () => {
-      setUpdateKey(prev => prev + 1);
+      // Atualizar materiais diretamente sem re-render
+      updateRoomMaterials();
     };
 
     const handleForceUpdate = () => {
-      setUpdateKey(prev => prev + 1);
+      // Atualizar materiais diretamente sem re-render
+      updateRoomMaterials();
     };
 
     window.addEventListener('roomTextureUpdate', handleTextureUpdate);
@@ -40,6 +39,30 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       window.removeEventListener('forceRoomUpdate', handleForceUpdate);
     };
   }, []);
+
+  // Função para atualizar materiais sem re-render
+  const updateRoomMaterials = () => {
+    // Atualizar chão
+    if (floorRef.current) {
+      floorRef.current.material = createMaterialFromTexture(roomTextures.floor, '#8B7355', 'floor');
+    }
+
+    // Atualizar teto
+    if (ceilingRef.current) {
+      ceilingRef.current.material = createMaterialFromTexture(roomTextures.ceiling, '#f8f8f8', 'ceiling');
+    }
+
+    // Atualizar paredes
+    const wallRefs = [wallNorthRef, wallSouthLeftRef, wallSouthRightRef, wallEastRef, wallWestRef];
+    const wallIds = ['north', 'south-left', 'south-right', 'east', 'west'];
+
+    wallRefs.forEach((ref, index) => {
+      if (ref.current) {
+        const wallTexture = roomTextures.walls[wallIds[index]];
+        ref.current.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
+      }
+    });
+  };
 
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
