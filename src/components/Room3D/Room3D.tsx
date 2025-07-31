@@ -225,20 +225,36 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     console.log('Dimensões do quarto atualizadas:', newDimensions);
   };
 
+  // Debounce para updates de transform
+  const transformUpdateRef = useRef<NodeJS.Timeout>();
+
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
-    mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
-    setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+    // Debounce para evitar atualizações excessivas durante drag
+    if (transformUpdateRef.current) {
+      clearTimeout(transformUpdateRef.current);
+    }
+
+    transformUpdateRef.current = setTimeout(() => {
+      requestIdleCallback(() => {
+        mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
+        setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      });
+    }, 50);
   };
 
-  const handleUpdateCatalogItem = (furnitureId: string, newScale: [number, number, number]) => {
-    if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
-      // Recarregar catálogo para refletir mudanças
-      setCatalog(mockStorageService.getFurnitureCatalog());
+  const handleUpdateCatalogItem = async (furnitureId: string, newScale: [number, number, number]) => {
+    requestAnimationFrame(() => {
+      if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
+        // Recarregar catálogo de forma assíncrona
+        requestIdleCallback(() => {
+          setCatalog(mockStorageService.getFurnitureCatalog());
 
-      // Mostrar notificação
-      setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
-      setTimeout(() => setCatalogUpdateNotification(null), 3000);
-    }
+          // Mostrar notificação
+          setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
+          setTimeout(() => setCatalogUpdateNotification(null), 3000);
+        });
+      }
+    });
   };
 
   const handleContextMenu = (event: any, furnitureId: string) => {
