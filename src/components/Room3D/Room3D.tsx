@@ -1,7 +1,7 @@
 import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
-import { EffectComposer, FXAA, SSAO, Bloom } from '@react-three/postprocessing';
+// import { EffectComposer, FXAA, SSAO, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
