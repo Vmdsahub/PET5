@@ -128,17 +128,17 @@ export const useRoomTextures = (userId: string) => {
       name: materialName
     });
 
-    // Função helper para carregar texturas com cache
+    // Função helper para carregar texturas com cache global
     const loadTextureAsync = (url: string, textureType: string = 'diffuse'): THREE.Texture => {
       const cacheKey = `${url}_${textureType}`;
 
-      // Verificar cache primeiro
-      if (textureCache.has(cacheKey)) {
-        return textureCache.get(cacheKey)!.clone();
+      // Verificar cache global primeiro
+      if (globalTextureCache.has(cacheKey)) {
+        return globalTextureCache.get(cacheKey)!.clone();
       }
 
       // Carregar textura assincronamente
-      const texture = loader.load(url,
+      const texture = globalLoader.load(url,
         // onLoad - sucesso
         () => {
           // Configurar apenas uma vez quando carregada
@@ -152,8 +152,8 @@ export const useRoomTextures = (userId: string) => {
         }
       );
 
-      // Adicionar ao cache
-      textureCache.set(cacheKey, texture);
+      // Adicionar ao cache global
+      globalTextureCache.set(cacheKey, texture);
       return texture;
     };
 
