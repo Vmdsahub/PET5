@@ -116,7 +116,36 @@ export const useRoomTextures = (userId: string) => {
       name: materialName
     });
 
-    // Função helper para configurar texturas otimizadas para decoração
+    // Função helper para carregar texturas com cache
+    const loadTextureAsync = (url: string, textureType: string = 'diffuse'): THREE.Texture => {
+      const cacheKey = `${url}_${textureType}`;
+
+      // Verificar cache primeiro
+      if (textureCache.has(cacheKey)) {
+        return textureCache.get(cacheKey)!.clone();
+      }
+
+      // Carregar textura assincronamente
+      const texture = loader.load(url,
+        // onLoad - sucesso
+        () => {
+          // Configurar apenas uma vez quando carregada
+          configureTexture(texture, textureType);
+        },
+        // onProgress - opcional
+        undefined,
+        // onError
+        (error) => {
+          console.warn(`Erro ao carregar textura ${url}:`, error);
+        }
+      );
+
+      // Adicionar ao cache
+      textureCache.set(cacheKey, texture);
+      return texture;
+    };
+
+    // Função helper para configurar texturas otimizadas
     const configureTexture = (texture: THREE.Texture, textureType: string = 'diffuse') => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
@@ -125,13 +154,13 @@ export const useRoomTextures = (userId: string) => {
       const repeatValue = surfaceKey === 'floor' ? 4 : surfaceKey === 'ceiling' ? 3 : 2;
       texture.repeat.set(repeatValue, repeatValue);
 
-      // Configurações de filtro para máxima qualidade
+      // Configurações de filtro otimizadas
       texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
       texture.generateMipmaps = true;
-      texture.anisotropy = 16; // Máxima anisotropia para texturas nítidas
+      texture.anisotropy = Math.min(16, loader.manager.getHandler('.jpg')?.anisotropy || 16);
 
-      // Configurações específicas por tipo de textura
+      // Configurações específicas por tipo
       if (textureType === 'normal') {
         texture.colorSpace = THREE.NoColorSpace;
       } else if (textureType === 'diffuse') {
