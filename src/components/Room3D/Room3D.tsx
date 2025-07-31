@@ -411,9 +411,20 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           far: 100
         }}
         className="w-full h-full"
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1,
+          outputColorSpace: THREE.SRGBColorSpace,
+          shadowMap: {
+            enabled: true,
+            type: THREE.PCFSoftShadowMap
+          }
+        }}
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
           state.gl.setClearColor('#1a2845', 1);
+          state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
         }}
         onError={(error) => {
