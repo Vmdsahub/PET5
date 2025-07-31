@@ -135,6 +135,72 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
           clonedScene.scale.setScalar(scale);
         }
 
+        // Otimizar materiais para qualidade visual em jogos de decoração
+        clonedScene.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+
+            if (child.material) {
+              // Se é um material PBR, otimizar configurações
+              if (child.material instanceof THREE.MeshStandardMaterial) {
+                // Melhorar qualidade das texturas existentes
+                if (child.material.map) {
+                  child.material.map.anisotropy = 16;
+                  child.material.map.generateMipmaps = true;
+                  child.material.map.minFilter = THREE.LinearMipmapLinearFilter;
+                  child.material.map.magFilter = THREE.LinearFilter;
+                }
+
+                if (child.material.normalMap) {
+                  child.material.normalMap.anisotropy = 16;
+                  child.material.normalMap.generateMipmaps = true;
+                }
+
+                if (child.material.roughnessMap) {
+                  child.material.roughnessMap.anisotropy = 16;
+                }
+
+                if (child.material.metalnessMap) {
+                  child.material.metalnessMap.anisotropy = 16;
+                }
+
+                if (child.material.aoMap) {
+                  child.material.aoMap.anisotropy = 16;
+                }
+
+                // Ajustar propriedades para aparência mais realista
+                child.material.roughness = Math.max(child.material.roughness || 0.5, 0.1);
+                child.material.metalness = child.material.metalness || 0.0;
+                child.material.envMapIntensity = 0.8;
+                child.material.needsUpdate = true;
+              }
+              // Se é material básico, converter para PBR
+              else if (child.material instanceof THREE.MeshLambertMaterial ||
+                       child.material instanceof THREE.MeshPhongMaterial) {
+                const newMaterial = new THREE.MeshStandardMaterial({
+                  map: child.material.map,
+                  color: child.material.color,
+                  transparent: child.material.transparent,
+                  opacity: child.material.opacity,
+                  roughness: 0.6,
+                  metalness: 0.1,
+                  envMapIntensity: 0.8
+                });
+
+                if (newMaterial.map) {
+                  newMaterial.map.anisotropy = 16;
+                  newMaterial.map.generateMipmaps = true;
+                  newMaterial.map.minFilter = THREE.LinearMipmapLinearFilter;
+                  newMaterial.map.magFilter = THREE.LinearFilter;
+                }
+
+                child.material = newMaterial;
+              }
+            }
+          }
+        });
+
         // Use useEffect to set model loaded state to avoid setState during render
         useEffect(() => {
           setModelLoaded(true);
