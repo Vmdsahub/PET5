@@ -38,11 +38,14 @@ export const useRoomTextures = (userId: string) => {
   const loaderManager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(loaderManager);
 
-  // Cleanup otimizado - não limpar cache global para reutilização
+  // Cleanup otimizado
   useEffect(() => {
     return () => {
+      // Limpar timeout do debounce
+      if (saveTexturesDebounced.current) {
+        clearTimeout(saveTexturesDebounced.current);
+      }
       // Cache global mantido para reutilização entre componentes
-      // Cleanup apenas se necessário por limitações de memória
     };
   }, []);
 
@@ -167,7 +170,7 @@ export const useRoomTextures = (userId: string) => {
       return texture;
     };
 
-    // Função helper para configurar texturas otimizadas
+    // Fun��ão helper para configurar texturas otimizadas
     const configureTexture = (texture: THREE.Texture, textureType: string = 'diffuse') => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
