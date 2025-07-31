@@ -36,7 +36,7 @@ export const SimpleWebGLStars: React.FC<SimpleWebGLStarsProps> = ({
     camera.position.z = 1;
 
     // Create renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0); // Transparent background
 
