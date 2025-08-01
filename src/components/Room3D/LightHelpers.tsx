@@ -44,77 +44,27 @@ export const LightHelpers: React.FC<LightHelpersProps> = ({ lightingSettings, sh
 
   return (
     <group>
-      {/* Helper para luz direcional */}
-      <directionalLight
-        ref={directionalLightRef}
-        position={lightingSettings.directionalPosition}
-        intensity={lightingSettings.directionalIntensity}
-        color={lightingSettings.directionalColor}
-        visible={false} // Luz invisível, só para o helper
-      />
-      
-      {directionalLightRef.current && (
-        <primitive 
-          object={new THREE.DirectionalLightHelper(directionalLightRef.current, 2, 0xffa500)} 
-          ref={directionalHelperRef}
-        />
-      )}
-
-      {/* Helper para luz pontual */}
-      <pointLight
-        ref={pointLightRef}
-        position={lightingSettings.pointPosition}
-        intensity={lightingSettings.pointIntensity}
-        color={lightingSettings.pointColor}
-        distance={lightingSettings.pointDistance}
-        decay={lightingSettings.pointDecay}
-        visible={false} // Luz invisível, só para o helper
-      />
-      
-      {pointLightRef.current && (
-        <primitive 
-          object={new THREE.PointLightHelper(pointLightRef.current, 0.5, 0xffff00)} 
-          ref={pointHelperRef}
-        />
-      )}
-
-      {/* Linha mostrando trajeto da luz direcional */}
-      <TrajectoryLine
-        start={lightingSettings.directionalPosition}
-        end={[0, 0, 0]} // Centro do quarto
-        material={directionalLineMaterial}
-      />
-
-      {/* Esfera mostrando alcance da luz pontual */}
-      <mesh position={lightingSettings.pointPosition}>
-        <sphereGeometry args={[lightingSettings.pointDistance, 16, 16]} />
-        <meshBasicMaterial 
-          color={lightingSettings.pointColor} 
-          wireframe={true} 
-          opacity={0.2} 
-          transparent={true} 
-        />
+      {/* Indicador de luz ambiente - apenas informativo */}
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[0.2, 8, 8]} />
+        <meshBasicMaterial color={lightingSettings.ambientColor} opacity={0.5} transparent={true} />
       </mesh>
 
-      {/* Linha mostrando posição da luz pontual */}
-      <TrajectoryLine
-        start={lightingSettings.pointPosition}
-        end={[lightingSettings.pointPosition[0], 0, lightingSettings.pointPosition[2]]} // Projeção no chão
-        material={lineMaterial}
-      />
+      {/* Texto indicando que apenas luz ambiente está ativa */}
+      <group position={[0, 1, 0]}>
+        <mesh>
+          <boxGeometry args={[0.1, 0.1, 0.1]} />
+          <meshBasicMaterial color={lightingSettings.ambientColor} />
+        </mesh>
+      </group>
 
-      {/* Marcadores de posição */}
-      <PositionMarker 
-        position={lightingSettings.directionalPosition} 
-        color={0xffa500}
-        label="☀️"
-      />
-      
-      <PositionMarker 
-        position={lightingSettings.pointPosition} 
-        color={0xffff00}
-        label="💡"
-      />
+      {/* Nota visual sobre realismo físico */}
+      <group position={[2, 3, 2]}>
+        <mesh>
+          <sphereGeometry args={[0.15, 8, 8]} />
+          <meshBasicMaterial color={0x4444ff} />
+        </mesh>
+      </group>
     </group>
   );
 };
