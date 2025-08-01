@@ -638,6 +638,14 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             draggedTexture={draggedTexture}
             windowCutouts={placedFurniture
               .filter((furniture) => furniture.furnitureType === 'janela')
+              .filter((furniture, index, arr) => {
+                // Evitar duplicatas baseadas na posição
+                return arr.findIndex(f =>
+                  f.position[0] === furniture.position[0] &&
+                  f.position[1] === furniture.position[1] &&
+                  f.position[2] === furniture.position[2]
+                ) === index;
+              })
               .map((windowFurniture) => {
                 // Determinar direção da parede baseado na posição
                 const getWallDirection = (position: [number, number, number]): 'north' | 'south' | 'east' | 'west' => {
