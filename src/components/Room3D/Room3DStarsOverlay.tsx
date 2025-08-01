@@ -119,9 +119,10 @@ export const Room3DStarsOverlay: React.FC = () => {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{
-        zIndex: 1, // Above background
+        zIndex: 5, // Above background, below UI
         opacity: 1, // Full opacity
         backgroundColor: 'transparent',
+        mixBlendMode: 'screen', // Additive blending for glow
       }}
     />
   );
