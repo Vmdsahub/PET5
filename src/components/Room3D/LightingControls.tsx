@@ -55,13 +55,13 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
 
   const resetToDefaults = () => {
     onChange({
-      ambientIntensity: 0.4,
-      ambientColor: '#f0f8ff',
-      directionalIntensity: 0.8,
+      ambientIntensity: 0.8,
+      ambientColor: '#f8f8ff',
+      directionalIntensity: 0.0, // Removida - não realista para quarto fechado
       directionalColor: '#ffffff',
       directionalPosition: [5, 10, 5],
-      castShadows: true,
-      pointIntensity: 0.4,
+      castShadows: false, // Sem sombras sem luzes direcionais
+      pointIntensity: 0.0, // Removida
       pointColor: '#fff8dc',
       pointPosition: [0, 4, 0],
       pointDistance: 15,
