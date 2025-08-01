@@ -637,45 +637,38 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             userId={userId}
             draggedTexture={draggedTexture}
             windowCutouts={(() => {
-              // Sistema super simples: coletar apenas janelas únicas
-              const windowIds = new Set();
-              const uniqueWindows = [];
+              // Sistema ULTRA simples: filtrar janelas reais apenas
+              const realWindows = placedFurniture.filter(furniture =>
+                furniture.furnitureType === 'janela'
+              );
 
-              console.log('=== DEBUG CUTOUTS ===');
-              console.log('Total furniture:', placedFurniture.length);
+              console.log(`REAL WINDOWS COUNT: ${realWindows.length}`);
 
-              for (const furniture of placedFurniture) {
-                if (furniture.furnitureType === 'janela' && !windowIds.has(furniture.id)) {
-                  windowIds.add(furniture.id);
-
-                  const [x, y, z] = furniture.position;
-                  let wallDirection: 'north' | 'south' | 'east' | 'west' | null = null;
-
-                  // Determinar parede com tolerância muito rigorosa
-                  const tolerance = 0.5;
-                  if (Math.abs(z + 4.7) < tolerance) wallDirection = 'north';
-                  else if (Math.abs(z - 4.7) < tolerance) wallDirection = 'south';
-                  else if (Math.abs(x - 4.7) < tolerance) wallDirection = 'east';
-                  else if (Math.abs(x + 4.7) < tolerance) wallDirection = 'west';
-
-                  console.log(`Janela ${furniture.id}: posição [${x}, ${y}, ${z}] → parede: ${wallDirection}`);
-
-                  // Só adicionar se a parede foi determinada corretamente
-                  if (wallDirection) {
-                    uniqueWindows.push({
-                      id: furniture.id,
-                      position: furniture.position,
-                      wallDirection,
-                      size: [1.0, 1.0] as [number, number]
-                    });
-                  }
-                }
+              // Se não há janelas, retornar array vazio
+              if (realWindows.length === 0) {
+                return [];
               }
 
-              console.log('Cutouts criados:', uniqueWindows.length);
-              console.log('=== FIM DEBUG ===');
+              // Processar apenas a primeira janela real para evitar duplicação
+              const window = realWindows[0];
+              const [x, y, z] = window.position;
 
-              return uniqueWindows;
+              let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
+
+              // Determinar parede baseado na posição
+              if (z < -4) wallDirection = 'north';
+              else if (z > 4) wallDirection = 'south';
+              else if (x > 4) wallDirection = 'east';
+              else if (x < -4) wallDirection = 'west';
+
+              console.log(`WINDOW: id=${window.id}, pos=[${x},${y},${z}], wall=${wallDirection}`);
+
+              return [{
+                id: window.id,
+                position: window.position,
+                wallDirection,
+                size: [1.0, 1.0] as [number, number]
+              }];
             })()}
           />
 
