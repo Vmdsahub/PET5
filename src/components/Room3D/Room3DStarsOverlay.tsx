@@ -143,15 +143,11 @@ export const Room3DStarsOverlay: React.FC = () => {
       }
     };
 
-    // Listener para mudanças da câmera do three.js
-    window.addEventListener('cameraChange', handleCameraChange as EventListener);
+    // Listener apenas para movimento do mouse
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('wheel', handleWheel, { passive: true });
 
     return () => {
-      window.removeEventListener('cameraChange', handleCameraChange as EventListener);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('wheel', handleWheel);
     };
   }, []);
 
