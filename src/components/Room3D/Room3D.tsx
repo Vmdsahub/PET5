@@ -68,11 +68,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
       event.preventDefault();
 
-      // Sensibilidade do zoom (menor = mais suave)
-      const zoomSensitivity = 0.5;
+      // Sensibilidade do zoom (menor = mais suave, maior = mais responsivo)
+      const zoomSensitivity = 1.2;
       const zoomStep = event.deltaY * 0.001 * zoomSensitivity;
 
-      // Calcular novo zoom alvo
+      // Calcular novo zoom alvo (limitado entre 2 e 35 unidades)
       const newTargetZoom = Math.max(2, Math.min(35, targetZoomRef.current + zoomStep));
       targetZoomRef.current = newTargetZoom;
     };
@@ -395,7 +395,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onClick={() => setUse2DMode(!use2DMode)}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             >
-              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
+              {use2DMode ? '�� Modo 3D' : '📱 Modo 2D'}
             </button>
           )}
           {!webglSupport.hasSupport && (
@@ -458,7 +458,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
       `
     }}>
-      {/* Bot��es no canto superior direito */}
+      {/* Botões no canto superior direito */}
       <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
         <button
           onClick={() => setUse2DMode(true)}
