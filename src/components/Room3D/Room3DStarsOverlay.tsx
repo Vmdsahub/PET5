@@ -32,42 +32,42 @@ export const Room3DStarsOverlay: React.FC = () => {
     };
 
     // Create layered stars with different parallax like SpaceMap
-    // Layer 1: Deep background
-    for (let i = 0; i < 150; i++) {
+    // Layer 1: Deep background - more visible
+    for (let i = 0; i < 200; i++) {
       starArray.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 0.5 + Math.random() * 1.0,
-        opacity: 0.3 + Math.random() * 0.4,
-        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        size: 1.0 + Math.random() * 1.5,
+        opacity: 0.6 + Math.random() * 0.4,
+        color: Math.random() < 0.85 ? "#ffffff" : generateRandomStarColor(),
         twinkleSpeed: 0.5 + Math.random() * 1.5,
         twinklePhase: Math.random() * Math.PI * 2,
         parallax: 0.1, // Very subtle movement
       });
     }
 
-    // Layer 2: Mid background
-    for (let i = 0; i < 100; i++) {
+    // Layer 2: Mid background - brighter
+    for (let i = 0; i < 120; i++) {
       starArray.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 0.7 + Math.random() * 1.2,
-        opacity: 0.4 + Math.random() * 0.4,
-        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        size: 1.2 + Math.random() * 1.8,
+        opacity: 0.7 + Math.random() * 0.3,
+        color: Math.random() < 0.85 ? "#ffffff" : generateRandomStarColor(),
         twinkleSpeed: 0.3 + Math.random() * 1.2,
         twinklePhase: Math.random() * Math.PI * 2,
         parallax: 0.2,
       });
     }
 
-    // Layer 3: Foreground
-    for (let i = 0; i < 50; i++) {
+    // Layer 3: Foreground - most visible
+    for (let i = 0; i < 80; i++) {
       starArray.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 1.0 + Math.random() * 1.5,
-        opacity: 0.5 + Math.random() * 0.4,
-        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        size: 1.5 + Math.random() * 2.0,
+        opacity: 0.8 + Math.random() * 0.2,
+        color: Math.random() < 0.85 ? "#ffffff" : generateRandomStarColor(),
         twinkleSpeed: 0.2 + Math.random() * 1.0,
         twinklePhase: Math.random() * Math.PI * 2,
         parallax: 0.3,
