@@ -102,13 +102,14 @@ const StarPoint: React.FC<StarPointProps> = ({ position, size, color, twinkleSpe
 
   return (
     <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[size, 6, 6]} />
-      <meshBasicMaterial 
-        color={color} 
-        transparent 
-        opacity={1}
+      <sphereGeometry args={[size, 4, 4]} />
+      <meshBasicMaterial
+        color={color}
+        transparent
+        opacity={0.8}
         emissive={color}
-        emissiveIntensity={0.2}
+        emissiveIntensity={0.5}
+        fog={false}
       />
     </mesh>
   );
