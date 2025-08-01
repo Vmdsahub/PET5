@@ -243,6 +243,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Debounce para updates de transform
   const transformUpdateRef = useRef<NodeJS.Timeout>();
 
+  // Componente para garantir que o damping dos controles funcione
+  const CameraUpdater = () => {
+    useFrame(() => {
+      if (controlsRef.current && controlsRef.current.enabled) {
+        controlsRef.current.update();
+      }
+    });
+    return null;
+  };
+
 
 
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
