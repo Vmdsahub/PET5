@@ -45,6 +45,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const controlsRef = useRef<any>();
+  const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
+  const currentZoomRef = useRef<number>(12); // Valor atual do zoom (para interpolação)
+  const zoomAnimationRef = useRef<number | null>(null);
 
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture, clearAllTextures } = useRoomTextures(userId);
@@ -503,13 +506,20 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
-            enableZoom={!draggedTexture}
+            enableZoom={false} // Desabilitamos o zoom padrão para implementar o nosso
             enableRotate={!draggedTexture}
             enabled={!draggedTexture}
-            minDistance={5}
-            maxDistance={20}
+            minDistance={2} // Zoom mínimo mais próximo
+            maxDistance={35} // Zoom máximo mais distante
             maxPolarAngle={Math.PI / 2}
             target={[0, 0, 0]}
+            onChange={() => {
+              // Quando os controles mudarem, atualizamos nossa referência de zoom atual
+              if (controlsRef.current && !draggedTexture) {
+                currentZoomRef.current = controlsRef.current.getDistance();
+                targetZoomRef.current = currentZoomRef.current;
+              }
+            }}
           />
           
           {/* Handler para detecção de texturas */}
