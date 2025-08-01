@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3 } from 'lucide-react';
+import { ShoppingCart, Package, Home, X, Trash2, Plus, Edit3, Globe } from 'lucide-react';
 import { FurnitureItem } from '../../services/mockStorage';
 import { SimpleModal } from './SimpleModal';
 import { AddFurnitureModal } from './AddFurnitureModal';
