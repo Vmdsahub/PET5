@@ -92,6 +92,7 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
   
   return (
     <mesh
+      ref={wallRef}
       position={wallDimensions.position}
       rotation={wallDimensions.rotation}
       geometry={geometry}
