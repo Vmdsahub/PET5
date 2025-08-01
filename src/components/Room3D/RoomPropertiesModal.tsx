@@ -11,6 +11,9 @@ interface RoomPropertiesModalProps {
   onDimensionsUpdate?: (dimensions: RoomDimensions) => void;
   lightingSettings?: LightingSettings;
   onLightingChange?: (settings: LightingSettings) => void;
+  isAdmin?: boolean;
+  onShowLightHelpers?: (show: boolean) => void;
+  showLightHelpers?: boolean;
 }
 
 export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
