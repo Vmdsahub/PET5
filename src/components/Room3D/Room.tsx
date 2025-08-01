@@ -96,9 +96,13 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
     // As paredes agora são componentes WallWithCutouts que se atualizam automaticamente
   };
 
-  // Refs para superfícies básicas (chão e teto)
+  // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
   const ceilingRef = useRef<THREE.Mesh>(null);
+  const wallNorthRef = useRef<THREE.Mesh>(null);
+  const wallSouthRef = useRef<THREE.Mesh>(null);
+  const wallEastRef = useRef<THREE.Mesh>(null);
+  const wallWestRef = useRef<THREE.Mesh>(null);
 
   const { camera } = useThree();
 
