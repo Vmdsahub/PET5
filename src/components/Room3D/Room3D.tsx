@@ -45,6 +45,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const controlsRef = useRef<any>();
+  const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
+  const currentZoomRef = useRef<number>(12); // Valor atual interpolado
 
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture, clearAllTextures } = useRoomTextures(userId);
@@ -59,13 +61,29 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setRoomUpdateKey(prev => prev + 1);
     };
 
+    // Handler para capturar scroll e definir zoom alvo
+    const handleWheel = (event: WheelEvent) => {
+      if (draggedTexture) return;
+
+      event.preventDefault();
+
+      // Calcular novo zoom alvo baseado no scroll
+      const zoomSensitivity = 1.5;
+      const zoomDelta = event.deltaY * 0.001 * zoomSensitivity;
+
+      // Atualizar zoom alvo (limitado entre 2 e 35)
+      targetZoomRef.current = Math.max(2, Math.min(35, targetZoomRef.current + zoomDelta));
+    };
+
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
     window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+    window.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       // Cleanup event listeners
       window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
       window.removeEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+      window.removeEventListener('wheel', handleWheel);
 
       // Cleanup transformUpdateRef debounce timeout
       if (transformUpdateRef.current) {
@@ -243,13 +261,32 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Debounce para updates de transform
   const transformUpdateRef = useRef<NodeJS.Timeout>();
 
-  // Componente para garantir que o damping dos controles funcione
-  const CameraUpdater = () => {
-    useFrame(() => {
-      if (controlsRef.current && controlsRef.current.enabled) {
-        controlsRef.current.update();
-      }
+  // Componente para interpolação suave do zoom
+  const SmoothZoomController = () => {
+    const { camera } = useThree();
+
+    useFrame((state, delta) => {
+      if (!controlsRef.current) return;
+
+      // Interpolar suavemente entre zoom atual e zoom alvo
+      const lerpSpeed = 6; // Velocidade da interpolação
+      currentZoomRef.current = THREE.MathUtils.lerp(
+        currentZoomRef.current,
+        targetZoomRef.current,
+        delta * lerpSpeed
+      );
+
+      // Aplicar o zoom interpolado
+      const controls = controlsRef.current;
+      const direction = camera.position.clone().sub(controls.target).normalize();
+      const newPosition = controls.target.clone().add(
+        direction.multiplyScalar(currentZoomRef.current)
+      );
+
+      camera.position.copy(newPosition);
+      controls.update();
     });
+
     return null;
   };
 
@@ -515,20 +552,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
-            enableZoom={!draggedTexture}
+            enableZoom={false} // Desabilitado para usar nosso sistema customizado
             enableRotate={!draggedTexture}
             enabled={!draggedTexture}
-            minDistance={2} // Zoom mínimo mais próximo
-            maxDistance={35} // Zoom máximo mais distante
+            minDistance={2}
+            maxDistance={35}
             maxPolarAngle={Math.PI / 2}
             target={[0, 0, 0]}
-            zoomSpeed={1.0} // Velocidade normal
-            enableDamping={true} // Suavização nativa
-            dampingFactor={0.08} // Fator de suavização mais forte para mais suavidade
+            enableDamping={true}
+            dampingFactor={0.05}
           />
 
-          {/* Atualizador contínuo para garantir que o damping funcione */}
-          <CameraUpdater />
+          {/* Sistema de zoom com interpolação suave */}
+          <SmoothZoomController />
           
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
