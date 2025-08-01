@@ -46,6 +46,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
+  const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
+    ambientIntensity: 0.4,
+    ambientColor: '#f0f8ff',
+    directionalIntensity: 0.8,
+    directionalColor: '#ffffff',
+    directionalPosition: [5, 10, 5],
+    castShadows: true,
+    pointIntensity: 0.4,
+    pointColor: '#fff8dc',
+    pointPosition: [0, 4, 0],
+    pointDistance: 15,
+    pointDecay: 2,
+  });
   const controlsRef = useRef<any>();
   const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
   const currentZoomRef = useRef<number>(12); // Valor atual interpolado
