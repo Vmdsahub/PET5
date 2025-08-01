@@ -665,8 +665,46 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             );
           })}
 
+          {/* Cutouts de janelas - criar "buracos" nas paredes para móveis tipo janela */}
+          {placedFurniture
+            .filter((furniture) => furniture.furnitureType === 'janela')
+            .map((windowFurniture) => {
+              // Determinar direção da parede baseado na posição
+              const getWallDirection = (position: [number, number, number]): 'north' | 'south' | 'east' | 'west' => {
+                const [x, y, z] = position;
+                const distances = {
+                  north: Math.abs(z + 4.7),  // Parede norte (z ≈ -4.7)
+                  south: Math.abs(z - 4.7),  // Parede sul (z ≈ 4.7)
+                  east: Math.abs(x - 4.7),   // Parede leste (x ≈ 4.7)
+                  west: Math.abs(x + 4.7)    // Parede oeste (x ≈ -4.7)
+                };
+
+                return Object.keys(distances).reduce((a, b) =>
+                  distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
+                ) as 'north' | 'south' | 'east' | 'west';
+              };
+
+              const wallDirection = getWallDirection(windowFurniture.position);
+
+              // Calcular tamanho do cutout baseado na escala do móvel
+              const furnitureScale = windowFurniture.scale || [1, 1, 1];
+              const cutoutSize: [number, number] = [
+                furnitureScale[0] * 1.5, // Largura
+                furnitureScale[1] * 1.8  // Altura
+              ];
+
+              return (
+                <WindowCutout
+                  key={`cutout-${windowFurniture.id}`}
+                  position={windowFurniture.position}
+                  wallDirection={wallDirection}
+                  size={cutoutSize}
+                />
+              );
+            })}
+
           {/* Post-Processing Effects removido temporariamente devido a incompatibilidade de versões */}
-          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as dependências forem atualizadas */}
+          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as depend��ncias forem atualizadas */}
         </Suspense>
       </Canvas>
 
