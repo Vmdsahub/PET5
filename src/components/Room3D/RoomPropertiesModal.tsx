@@ -16,8 +16,11 @@ interface RoomPropertiesModalProps {
 export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
   isOpen,
   onClose,
-  onDimensionsUpdate
+  onDimensionsUpdate,
+  lightingSettings,
+  onLightingChange
 }) => {
+  const [activeTab, setActiveTab] = useState<'dimensions' | 'lighting'>('dimensions');
   const [dimensions, setDimensions] = useState<RoomDimensions>({
     length: 10,
     width: 10,
