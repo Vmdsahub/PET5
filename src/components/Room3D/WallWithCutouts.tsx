@@ -29,7 +29,8 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
   cutouts,
   material,
   name,
-  userData
+  userData,
+  wallRef
 }) => {
   const geometry = useMemo(() => {
     const { width, height, thickness } = wallDimensions;
