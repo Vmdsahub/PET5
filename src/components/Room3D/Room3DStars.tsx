@@ -14,27 +14,49 @@ export const Room3DStars: React.FC = () => {
   // Generate star field with depth
   const stars = useMemo<StarData[]>(() => {
     const starArray: StarData[] = [];
-    const starCount = 200;
+    const starCount = 150;
 
     for (let i = 0; i < starCount; i++) {
-      // Create stars in a large sphere around the room
-      const phi = Math.acos(-1 + (2 * i) / starCount);
-      const theta = Math.sqrt(starCount * Math.PI) * phi;
-      
-      const radius = 30 + Math.random() * 50; // Far from room
+      // Create stars in multiple depth layers for better atmosphere
+      const layer = Math.random();
+      let radius: number;
+      let size: number;
+      let alpha: number;
+
+      if (layer < 0.4) {
+        // Far background stars (smallest, dimmest)
+        radius = 60 + Math.random() * 40;
+        size = 0.05 + Math.random() * 0.15;
+        alpha = 0.3 + Math.random() * 0.4;
+      } else if (layer < 0.7) {
+        // Mid-distance stars
+        radius = 35 + Math.random() * 25;
+        size = 0.1 + Math.random() * 0.2;
+        alpha = 0.5 + Math.random() * 0.4;
+      } else {
+        // Closer stars (larger, brighter)
+        radius = 25 + Math.random() * 15;
+        size = 0.15 + Math.random() * 0.25;
+        alpha = 0.7 + Math.random() * 0.3;
+      }
+
+      // Random distribution on sphere
+      const phi = Math.acos(-1 + (2 * Math.random()));
+      const theta = Math.random() * 2 * Math.PI;
+
       const x = radius * Math.cos(theta) * Math.sin(phi);
       const y = radius * Math.sin(theta) * Math.sin(phi);
       const z = radius * Math.cos(phi);
 
-      const size = 0.1 + Math.random() * 0.3;
-      const colors = ['#ffffff', '#f0f8ff', '#87ceeb', '#b0c4de', '#e6e6fa'];
+      // Star colors with subtle blue tint like space map
+      const colors = ['#ffffff', '#f8f8ff', '#e6f3ff', '#cce7ff', '#b3d9ff'];
       const color = colors[Math.floor(Math.random() * colors.length)];
 
       starArray.push({
         position: [x, y, z],
         size,
         color,
-        twinkleSpeed: 0.5 + Math.random() * 2,
+        twinkleSpeed: 0.3 + Math.random() * 1.5,
         twinklePhase: Math.random() * Math.PI * 2,
       });
     }
