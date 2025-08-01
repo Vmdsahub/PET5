@@ -280,18 +280,30 @@ export const RoomUI: React.FC<RoomUIProps> = ({
       )}
       {/* Navegação vertical esquerda */}
       <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-10">
-        <div className="bg-white/90 backdrop-blur rounded-full shadow-lg p-2 space-y-3 border border-white/20 flex flex-col">
+        <div className="bg-white/90 backdrop-blur rounded-full shadow-lg p-1.5 space-y-2 border border-white/20 flex flex-col w-12">
+          {/* Botão Globo */}
+          <button
+            onClick={() => {
+              // Placeholder para navegação global ou exploração
+              console.log('Globe clicked - navigate to exploration');
+            }}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-700"
+            title="Exploração Global"
+          >
+            <Globe size={20} />
+          </button>
+
           {/* Botão Catálogo */}
           <button
             onClick={() => {
               setShowCatalog(!showCatalog);
             }}
-            className={`p-3 rounded-full transition-colors ${
+            className={`p-2 rounded-full transition-colors ${
               showCatalog ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-700'
             }`}
             title="Catálogo de Móveis"
           >
-            <ShoppingCart size={24} />
+            <ShoppingCart size={20} />
           </button>
 
           {/* Botão Inventário */}
