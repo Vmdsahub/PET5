@@ -15,7 +15,7 @@ interface RoomProps {
   }>;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture, windowCutouts = [] }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
 
