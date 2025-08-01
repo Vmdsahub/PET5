@@ -9,37 +9,6 @@ interface LightHelpersProps {
 }
 
 export const LightHelpers: React.FC<LightHelpersProps> = ({ lightingSettings, show }) => {
-  const directionalHelperRef = useRef<THREE.DirectionalLightHelper>(null);
-  const pointHelperRef = useRef<THREE.PointLightHelper>(null);
-  const directionalLightRef = useRef<THREE.DirectionalLight>(null);
-  const pointLightRef = useRef<THREE.PointLight>(null);
-  
-  // Material para as linhas de trajeto
-  const lineMaterial = new THREE.LineBasicMaterial({ 
-    color: 0xffff00, 
-    opacity: 0.6, 
-    transparent: true 
-  });
-  
-  const directionalLineMaterial = new THREE.LineBasicMaterial({ 
-    color: 0xffa500, 
-    opacity: 0.8, 
-    transparent: true 
-  });
-
-  useFrame(() => {
-    if (!show) return;
-    
-    // Atualizar helpers se existirem
-    if (directionalHelperRef.current && directionalLightRef.current) {
-      directionalHelperRef.current.update();
-    }
-    
-    if (pointHelperRef.current && pointLightRef.current) {
-      pointHelperRef.current.update();
-    }
-  });
-
   if (!show) return null;
 
   return (
