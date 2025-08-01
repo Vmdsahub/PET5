@@ -128,7 +128,6 @@ const StarPoint: React.FC<StarPointProps> = ({ position, size, color, twinkleSpe
         opacity={0.6}
         emissive={color}
         emissiveIntensity={0.3}
-        fog={false}
       />
     </mesh>
   );
