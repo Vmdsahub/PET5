@@ -183,8 +183,8 @@ export const Room3DStarsOverlay: React.FC = () => {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
       style={{
-        zIndex: -1, // Behind everything, true background
-        opacity: 0.4, // Very subtle
+        zIndex: 0, // Between background and 3D canvas
+        opacity: 0.7, // More visible
       }}
     />
   );
