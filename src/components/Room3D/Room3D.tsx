@@ -63,7 +63,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     };
 
     // Handler para zoom suave com scroll do mouse
-    const handleWheel = useCallback((event: WheelEvent) => {
+    const handleWheel = (event: WheelEvent) => {
       if (!controlsRef.current || draggedTexture) return;
 
       event.preventDefault();
@@ -75,7 +75,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       // Calcular novo zoom alvo
       const newTargetZoom = Math.max(2, Math.min(35, targetZoomRef.current + zoomStep));
       targetZoomRef.current = newTargetZoom;
-    }, [draggedTexture]);
+    };
 
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
     window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
@@ -140,7 +140,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleAddFurniture = async (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
 
-    // Atualizar cat��logo de forma assíncrona
+    // Atualizar catálogo de forma assíncrona
     requestAnimationFrame(() => {
       requestIdleCallback(() => {
         const newCatalog = mockStorageService.getFurnitureCatalog();
