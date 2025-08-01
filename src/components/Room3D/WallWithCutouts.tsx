@@ -51,38 +51,31 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
     wallShape.lineTo(-width/2, height/2);
     wallShape.closePath();
     
-    // Adicionar buracos para cada cutout
+    // Adicionar buracos para cada cutout de forma simples
     relevantCutouts.forEach(cutout => {
-      const [cutoutWidth, cutoutHeight] = cutout.size;
       const [furnitureX, furnitureY, furnitureZ] = cutout.position;
+      const cutoutSize = 0.8; // Tamanho fixo simples
 
       // Calcular posição relativa do buraco na parede 2D
       let relativeX = 0;
-      let relativeY = furnitureY - wallDimensions.position[1]; // Altura relativa
+      let relativeY = furnitureY - wallDimensions.position[1];
 
-      // Determinar coordenada horizontal baseada na direção da parede
-      switch (wallDirection) {
-        case 'north':
-        case 'south':
-          relativeX = furnitureX; // Usar X como horizontal
-          break;
-        case 'east':
-        case 'west':
-          relativeX = furnitureZ; // Usar Z como horizontal
-          break;
+      // Coordenada horizontal baseada na parede
+      if (wallDirection === 'north' || wallDirection === 'south') {
+        relativeX = furnitureX;
+      } else {
+        relativeX = furnitureZ;
       }
 
-      // Verificar se o buraco está dentro dos limites da parede
-      const maxX = width / 2;
-      const maxY = height / 2;
-
-      if (Math.abs(relativeX) < maxX && Math.abs(relativeY) < maxY) {
-        // Criar buraco retangular
+      // Verificar limites básicos
+      if (Math.abs(relativeX) < width/2 && Math.abs(relativeY) < height/2) {
+        // Criar buraco quadrado simples
         const hole = new THREE.Path();
-        hole.moveTo(relativeX - cutoutWidth/2, relativeY - cutoutHeight/2);
-        hole.lineTo(relativeX + cutoutWidth/2, relativeY - cutoutHeight/2);
-        hole.lineTo(relativeX + cutoutWidth/2, relativeY + cutoutHeight/2);
-        hole.lineTo(relativeX - cutoutWidth/2, relativeY + cutoutHeight/2);
+        const half = cutoutSize / 2;
+        hole.moveTo(relativeX - half, relativeY - half);
+        hole.lineTo(relativeX + half, relativeY - half);
+        hole.lineTo(relativeX + half, relativeY + half);
+        hole.lineTo(relativeX - half, relativeY + half);
         hole.closePath();
 
         wallShape.holes.push(hole);
