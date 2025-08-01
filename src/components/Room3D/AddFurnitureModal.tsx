@@ -129,7 +129,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
         currency: formData.currency,
         model: modelUrl,
         isCustom: true,
-        fileKey: fileKey // Chave para recuperar do cache
+        fileKey: fileKey, // Chave para recuperar do cache
+        furnitureType: formData.furnitureType
       };
 
       onAddFurniture(furnitureData);
