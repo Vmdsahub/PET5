@@ -93,8 +93,10 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
     for (let i = 0; i < wallRefs.length; i++) {
       if (wallRefs[i].current) {
         await updateChunk(() => {
-          const wallTexture = roomTextures.walls[wallIds[i]];
-          wallRefs[i].current!.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
+          if (wallRefs[i].current) {
+            const wallTexture = roomTextures.walls[wallIds[i]];
+            wallRefs[i].current.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
+          }
         });
       }
     }
