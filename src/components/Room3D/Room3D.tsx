@@ -545,13 +545,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação PBR otimizada */}
-          <ambientLight intensity={0.4} color="#f0f8ff" />
+          {/* Iluminação PBR dinâmica controlada por interface */}
+          <ambientLight
+            intensity={lightingSettings.ambientIntensity}
+            color={lightingSettings.ambientColor}
+          />
           <directionalLight
-            position={[5, 10, 5]}
-            intensity={0.8}
-            color="#ffffff"
-            castShadow={true}
+            position={lightingSettings.directionalPosition}
+            intensity={lightingSettings.directionalIntensity}
+            color={lightingSettings.directionalColor}
+            castShadow={lightingSettings.castShadows}
             shadow-mapSize={[2048, 2048]}
             shadow-camera-near={0.1}
             shadow-camera-far={50}
@@ -562,11 +565,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             shadow-bias={-0.0001}
           />
           <pointLight
-            position={[0, 4, 0]}
-            intensity={0.4}
-            color="#fff8dc"
-            distance={15}
-            decay={2}
+            position={lightingSettings.pointPosition}
+            intensity={lightingSettings.pointIntensity}
+            color={lightingSettings.pointColor}
+            distance={lightingSettings.pointDistance}
+            decay={lightingSettings.pointDecay}
             castShadow={true}
             shadow-mapSize={[1024, 1024]}
           />
