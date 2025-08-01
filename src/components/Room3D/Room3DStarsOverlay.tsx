@@ -17,17 +17,45 @@ export const Room3DStarsOverlay: React.FC = () => {
   // Generate tiny stars like SpaceMap - only background
   const stars = useMemo<Star[]>(() => {
     const starArray: Star[] = [];
-    
-    // Create many tiny stars like SpaceMap
-    for (let i = 0; i < 300; i++) {
+
+    // Create more stars to better fill the space - 3 distinct layers
+
+    // Layer 1: Far background (slowest, smallest, most subtle)
+    for (let i = 0; i < 200; i++) {
+      starArray.push({
+        x: Math.random() * (window.innerWidth + 200), // Extend beyond edges
+        y: Math.random() * (window.innerHeight + 200),
+        size: 0.3 + Math.random() * 0.6, // Very tiny: 0.3-0.9px
+        opacity: 0.2 + Math.random() * 0.4, // Very subtle: 0.2-0.6
+        color: Math.random() < 0.95 ? "#ffffff" : "#b3d9ff", // Almost all white
+        twinklePhase: Math.random() * Math.PI * 2,
+        parallaxSpeed: 0.005 + Math.random() * 0.015, // Ultra slow
+      });
+    }
+
+    // Layer 2: Mid background (medium speed and size)
+    for (let i = 0; i < 150; i++) {
+      starArray.push({
+        x: Math.random() * (window.innerWidth + 100),
+        y: Math.random() * (window.innerHeight + 100),
+        size: 0.5 + Math.random() * 0.8, // Small: 0.5-1.3px
+        opacity: 0.3 + Math.random() * 0.5, // Subtle: 0.3-0.8
+        color: Math.random() < 0.92 ? "#ffffff" : "#87CEEB", // Mostly white
+        twinklePhase: Math.random() * Math.PI * 2,
+        parallaxSpeed: 0.015 + Math.random() * 0.025, // Slow
+      });
+    }
+
+    // Layer 3: Near background (fastest, slightly larger)
+    for (let i = 0; i < 100; i++) {
       starArray.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 0.5 + Math.random() * 1, // Very small: 0.5-1.5px like SpaceMap
-        opacity: 0.3 + Math.random() * 0.5, // Subtle: 0.3-0.8
-        color: Math.random() < 0.9 ? "#ffffff" : "#87CEEB", // Mostly white
+        size: 0.6 + Math.random() * 1.2, // Slightly larger: 0.6-1.8px
+        opacity: 0.4 + Math.random() * 0.5, // More visible: 0.4-0.9
+        color: Math.random() < 0.88 ? "#ffffff" : "#6eb5ff", // Some blue
         twinklePhase: Math.random() * Math.PI * 2,
-        parallaxSpeed: 0.02 + Math.random() * 0.03, // Very slow parallax
+        parallaxSpeed: 0.025 + Math.random() * 0.035, // Faster
       });
     }
 
