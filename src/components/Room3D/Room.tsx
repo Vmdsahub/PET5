@@ -258,24 +258,24 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       />
 
       {/* Parede Leste */}
-      <mesh
-        ref={wallEastRef}
+      <WallWithCutouts
+        wallDirection="east"
+        wallDimensions={{
+          width: length,
+          height: wallHeight,
+          thickness: wallThickness,
+          position: [width/2 - wallThickness/2, wallCenterY, 0],
+          rotation: [0, Math.PI/2, 0]
+        }}
+        cutouts={windowCutouts}
+        material={createMaterialFromTexture(
+          roomTextures.walls['east'],
+          draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+          'wall_east'
+        )}
         name="wall-east"
-        position={[width/2 - wallThickness/2, wallCenterY, 0]}
-        rotation={[0, Math.PI/2, 0]}
         userData={{ wallId: 'east', surfaceType: 'wall' }}
-        receiveShadow={true}
-        castShadow={true}
-      >
-        <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <primitive
-          object={createMaterialFromTexture(
-            roomTextures.walls['east'],
-            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
-            'wall_east'
-          )}
-        />
-      </mesh>
+      />
 
       {/* Parede Oeste */}
       <mesh
