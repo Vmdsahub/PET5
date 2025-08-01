@@ -62,20 +62,39 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setRoomUpdateKey(prev => prev + 1);
     };
 
+    // Handler para zoom suave com scroll do mouse
+    const handleWheel = useCallback((event: WheelEvent) => {
+      if (!controlsRef.current || draggedTexture) return;
+
+      event.preventDefault();
+
+      // Sensibilidade do zoom (menor = mais suave)
+      const zoomSensitivity = 0.5;
+      const zoomStep = event.deltaY * 0.001 * zoomSensitivity;
+
+      // Calcular novo zoom alvo
+      const newTargetZoom = Math.max(2, Math.min(35, targetZoomRef.current + zoomStep));
+      targetZoomRef.current = newTargetZoom;
+    }, [draggedTexture]);
+
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
     window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+
+    // Adicionar listener de scroll para zoom suave
+    window.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       // Cleanup event listeners
       window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
       window.removeEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+      window.removeEventListener('wheel', handleWheel);
 
       // Cleanup transformUpdateRef debounce timeout
       if (transformUpdateRef.current) {
         clearTimeout(transformUpdateRef.current);
       }
     };
-  }, []);
+  }, [draggedTexture]);
 
 
   const cameraRef = useRef<THREE.Camera>();
