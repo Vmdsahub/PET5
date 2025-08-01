@@ -460,32 +460,33 @@ onContextMenu={(e) => {
       {/* Controles de edição intuitivos - apenas para admins */}
       {selected && editMode && isAdmin && (
         <>
-          {/* Círculo branco opaco para rotação */}
-          <mesh
-            position={[0, 0.05, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              handleRotateMode();
-              setInitialMousePos({ x: e.clientX, y: e.clientY });
-              setInitialTransform({
-                position: meshRef.current!.position.clone(),
-                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
-                scale: meshRef.current!.scale.clone()
-              });
-              setEditTool('rotate');
-              setIsDragging(true);
-              onDragStart();
-            }}
-          >
-            <torusGeometry args={[0.8, 0.03, 8, 32]} />
-            <meshBasicMaterial
-              color={furniture.furnitureType === 'janela' ? "#00ff88" : "#ffffff"}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-
+          {/* Círculo de rotação - apenas para móveis simples */}
+          {furniture.furnitureType !== 'janela' && (
+            <mesh
+              position={[0, 0.05, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handleRotateMode();
+                setInitialMousePos({ x: e.clientX, y: e.clientY });
+                setInitialTransform({
+                  position: meshRef.current!.position.clone(),
+                  rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                  scale: meshRef.current!.scale.clone()
+                });
+                setEditTool('rotate');
+                setIsDragging(true);
+                onDragStart();
+              }}
+            >
+              <torusGeometry args={[0.8, 0.03, 8, 32]} />
+              <meshBasicMaterial
+                color="#ffffff"
+                transparent
+                opacity={0.8}
+              />
+            </mesh>
+          )}
 
         </>
       )}
