@@ -525,7 +525,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         }}
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
-          state.gl.setClearColor('#1a2845', 0.8); // Semi-transparent to show stars
+          state.gl.setClearColor('#1a2845', 0); // Transparent to show stars behind
           state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
 
