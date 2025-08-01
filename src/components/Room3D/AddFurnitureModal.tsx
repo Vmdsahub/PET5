@@ -146,7 +146,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       description: '',
       category: availableSections[0]?.value || 'basicos',
       price: '',
-      currency: 'xenocoins'
+      currency: 'xenocoins',
+      furnitureType: 'simples'
     });
     setGlbFile(null);
     setErrors({});
