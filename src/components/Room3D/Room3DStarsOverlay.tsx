@@ -118,59 +118,49 @@ export const Room3DStarsOverlay: React.FC = () => {
 
   // Listen for camera changes from OrbitControls
   useEffect(() => {
+    const handleCameraChange = (event: CustomEvent) => {
+      const { position, target, zoom, deltaX, deltaY, deltaZ } = event.detail;
+
+      // Atualizar estado da câmera baseado nos dados reais do Three.js
+      setCameraState(prev => ({
+        x: prev.x + deltaX * 50, // Amplificar movimento para efeito parallax
+        y: prev.y + deltaY * 50,
+        zoom: zoom,
+      }));
+    };
+
     const handleMouseMove = (event: MouseEvent) => {
-      // Detectar movimento do mouse para simular movimento da câmera
-      if (event.buttons === 2) { // Botão direito pressionado
+      // Detectar movimento do mouse durante rotação da câmera
+      if (event.buttons === 2 || event.buttons === 1) { // Botão direito ou esquerdo
         const deltaX = event.movementX;
         const deltaY = event.movementY;
-        
+
         setCameraState(prev => ({
           ...prev,
-          x: prev.x + deltaX * 0.1,
-          y: prev.y + deltaY * 0.1,
+          x: prev.x + deltaX * 0.3,
+          y: prev.y + deltaY * 0.3,
         }));
       }
     };
 
     const handleWheel = (event: WheelEvent) => {
       // Detectar zoom para adicionar efeito parallax no zoom
-      const zoomDelta = event.deltaY * 0.001;
+      const zoomDelta = event.deltaY * 0.003;
       setCameraState(prev => ({
         ...prev,
         zoom: Math.max(2, Math.min(35, prev.zoom + zoomDelta)),
       }));
     };
 
-    // Listener personalizado para mudanças da câmera do three.js
-    const handleCameraChange = () => {
-      // Este evento será disparado quando a câmera mudar
-      setCameraState(prev => ({
-        x: prev.x + Math.random() * 0.5 - 0.25, // Pequeno movimento aleatório para simular
-        y: prev.y + Math.random() * 0.5 - 0.25,
-        zoom: prev.zoom,
-      }));
-    };
-
+    // Listener para mudanças da câmera do three.js
+    window.addEventListener('cameraChange', handleCameraChange as EventListener);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('wheel', handleWheel, { passive: true });
-    
-    // Simular mudanças da câmera a cada movimento
-    const interval = setInterval(() => {
-      // Smooth movement simulation
-      setCameraState(prev => {
-        const newState = {
-          x: prev.x + (Math.random() - 0.5) * 0.1,
-          y: prev.y + (Math.random() - 0.5) * 0.1,
-          zoom: prev.zoom,
-        };
-        return newState;
-      });
-    }, 100);
 
     return () => {
+      window.removeEventListener('cameraChange', handleCameraChange as EventListener);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('wheel', handleWheel);
-      clearInterval(interval);
     };
   }, []);
 
