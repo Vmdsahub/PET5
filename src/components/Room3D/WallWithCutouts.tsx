@@ -36,9 +36,19 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
     const { width, height, thickness } = wallDimensions;
     
     // Filtrar cutouts relevantes para esta parede
-    const relevantCutouts = cutouts.filter(cutout => cutout.wallDirection === wallDirection);
+    console.log(`\n=== WALL ${wallDirection.toUpperCase()} PROCESSING ===`);
+    console.log(`Total cutouts received:`, cutouts.length);
+    cutouts.forEach((cutout, i) => {
+      console.log(`Cutout ${i}: wallDirection="${cutout.wallDirection}", should match "${wallDirection}": ${cutout.wallDirection === wallDirection}`);
+    });
 
-    console.log(`Wall ${wallDirection}: ${relevantCutouts.length} cutouts`);
+    const relevantCutouts = cutouts.filter(cutout => {
+      const matches = cutout.wallDirection === wallDirection;
+      console.log(`Filtering cutout with wallDirection="${cutout.wallDirection}" for wall "${wallDirection}": ${matches}`);
+      return matches;
+    });
+
+    console.log(`Wall ${wallDirection}: ${relevantCutouts.length} relevant cutouts out of ${cutouts.length} total`);
 
     if (relevantCutouts.length === 0) {
       // Se não há cutouts, usar geometria simples
