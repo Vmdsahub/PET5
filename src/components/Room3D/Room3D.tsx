@@ -720,6 +720,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onDimensionsUpdate={handleRoomDimensionsUpdate}
           lightingSettings={lightingSettings}
           onLightingChange={setLightingSettings}
+          isAdmin={isAdmin}
+          onShowLightHelpers={setShowLightHelpers}
+          showLightHelpers={showLightHelpers}
         />
       )}
     </div>
