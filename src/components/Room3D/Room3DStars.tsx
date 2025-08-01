@@ -113,7 +113,7 @@ const StarPoint: React.FC<StarPointProps> = ({ position, size, color, twinkleSpe
   useFrame((state) => {
     if (meshRef.current) {
       const time = state.clock.getElapsedTime();
-      const twinkle = 0.3 + 0.7 * (1 + Math.sin(time * twinkleSpeed + twinklePhase)) / 2;
+      const twinkle = 0.4 + 0.4 * (1 + Math.sin(time * twinkleSpeed + twinklePhase)) / 2;
       const material = meshRef.current.material as THREE.MeshBasicMaterial;
       material.opacity = twinkle;
     }
