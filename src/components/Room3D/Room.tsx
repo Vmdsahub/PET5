@@ -217,6 +217,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         )}
         name="wall-north"
         userData={{ wallId: 'north', surfaceType: 'wall' }}
+        wallRef={wallNorthRef}
       />
 
       {/* Parede Sul */}
