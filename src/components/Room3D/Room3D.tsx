@@ -578,6 +578,14 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               }
             }}
           />
+
+          {/* Controlador de zoom suave */}
+          <SmoothZoomController
+            controlsRef={controlsRef}
+            targetZoomRef={targetZoomRef}
+            currentZoomRef={currentZoomRef}
+            enabled={!draggedTexture}
+          />
           
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
