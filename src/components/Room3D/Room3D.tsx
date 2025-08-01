@@ -568,28 +568,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
-            enableZoom={false} // Desabilitamos o zoom padrão para implementar o nosso
+            enableZoom={!draggedTexture}
             enableRotate={!draggedTexture}
             enabled={!draggedTexture}
             minDistance={2} // Zoom mínimo mais próximo
             maxDistance={35} // Zoom máximo mais distante
             maxPolarAngle={Math.PI / 2}
             target={[0, 0, 0]}
-            onChange={() => {
-              // Quando os controles mudarem, atualizamos nossa referência de zoom atual
-              if (controlsRef.current && !draggedTexture) {
-                currentZoomRef.current = controlsRef.current.getDistance();
-                targetZoomRef.current = currentZoomRef.current;
-              }
-            }}
-          />
-
-          {/* Controlador de zoom suave */}
-          <SmoothZoomController
-            controlsRef={controlsRef}
-            targetZoomRef={targetZoomRef}
-            currentZoomRef={currentZoomRef}
-            enabled={!draggedTexture}
+            zoomSpeed={2.5} // Velocidade do zoom aumentada
+            enableDamping={true} // Suavização nativa
+            dampingFactor={0.05} // Fator de suavização
           />
           
           {/* Handler para detecção de texturas */}
