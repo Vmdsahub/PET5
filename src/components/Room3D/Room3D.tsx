@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useRef, useEffect, useCallback } from 'react';
+import React, { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
 // import { EffectComposer, FXAA, SSAO, Bloom } from '@react-three/postprocessing';
@@ -458,7 +458,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
       `
     }}>
-      {/* Botões no canto superior direito */}
+      {/* Bot��es no canto superior direito */}
       <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
         <button
           onClick={() => setUse2DMode(true)}
