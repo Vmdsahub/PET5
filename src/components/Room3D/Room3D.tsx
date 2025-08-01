@@ -512,9 +512,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             maxDistance={35} // Zoom máximo mais distante
             maxPolarAngle={Math.PI / 2}
             target={[0, 0, 0]}
-            zoomSpeed={2.5} // Velocidade do zoom aumentada
+            zoomSpeed={1.0} // Velocidade normal
             enableDamping={true} // Suavização nativa
-            dampingFactor={0.05} // Fator de suavização
+            dampingFactor={0.08} // Fator de suavização mais forte para mais suavidade
           />
           
           {/* Handler para detecção de texturas */}
