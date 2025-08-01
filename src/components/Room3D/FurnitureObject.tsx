@@ -292,32 +292,36 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       if (furniture.furnitureType === 'janela') {
         const deltaX = event.clientX - initialMousePos.x;
         const deltaY = event.clientY - initialMousePos.y;
-
-        // Movimento simples e direto baseado no movimento do mouse
         const sensitivity = 0.01;
+
+        // Posição inicial
         const basePos = initialTransform.position;
 
+        // Movimento vertical direto (sempre funciona)
+        const newY = Math.max(0.5, Math.min(4.0, basePos.y - (deltaY * sensitivity)));
+
+        // Movimento horizontal baseado na parede atual
         let newX = basePos.x;
-        let newY = basePos.y - (deltaY * sensitivity); // Movimento vertical direto
         let newZ = basePos.z;
 
-        // Movimento horizontal baseado na parede onde está
-        if (Math.abs(basePos.z + 4.7) < 0.3 || Math.abs(basePos.z - 4.7) < 0.3) {
-          // Paredes norte/sul - mover em X
-          newX = basePos.x + (deltaX * sensitivity);
-          newX = Math.max(-4.5, Math.min(4.5, newX));
-          // Manter Z fixo na parede
-          newZ = Math.abs(basePos.z + 4.7) < 0.3 ? -4.7 : 4.7;
-        } else {
-          // Paredes leste/oeste - mover em Z
-          newZ = basePos.z + (deltaX * sensitivity);
-          newZ = Math.max(-4.5, Math.min(4.5, newZ));
-          // Manter X fixo na parede
-          newX = Math.abs(basePos.x + 4.7) < 0.3 ? -4.7 : 4.7;
+        // Detectar qual parede e mover apropriadamente
+        if (basePos.z < -4) {
+          // Parede norte
+          newX = Math.max(-4.5, Math.min(4.5, basePos.x + (deltaX * sensitivity)));
+          newZ = -4.7; // Fixo na parede norte
+        } else if (basePos.z > 4) {
+          // Parede sul
+          newX = Math.max(-4.5, Math.min(4.5, basePos.x + (deltaX * sensitivity)));
+          newZ = 4.7; // Fixo na parede sul
+        } else if (basePos.x > 4) {
+          // Parede leste
+          newZ = Math.max(-4.5, Math.min(4.5, basePos.z + (deltaX * sensitivity)));
+          newX = 4.7; // Fixo na parede leste
+        } else if (basePos.x < -4) {
+          // Parede oeste
+          newZ = Math.max(-4.5, Math.min(4.5, basePos.z + (deltaX * sensitivity)));
+          newX = -4.7; // Fixo na parede oeste
         }
-
-        // Limitar altura Y
-        newY = Math.max(0.5, Math.min(4.0, newY));
 
         meshRef.current.position.set(newX, newY, newZ);
       } else {
