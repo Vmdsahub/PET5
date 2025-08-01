@@ -3,14 +3,20 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
 import { useRoomTextures } from '../../hooks/useRoomTextures';
+import { WallWithCutouts } from './WallWithCutouts';
 
 interface RoomProps {
   dimensions?: RoomDimensions;
   userId?: string;
   draggedTexture?: any;
+  windowCutouts?: Array<{
+    position: [number, number, number];
+    wallDirection: 'north' | 'south' | 'east' | 'west';
+    size: [number, number];
+  }>;
 }
 
-export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture }) => {
+export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture, windowCutouts = [] }) => {
   const roomDimensions = dimensions || mockStorageService.getRoomDimensions();
   const { width, length, height, floorThickness, wallThickness, ceilingThickness } = roomDimensions;
 
@@ -86,28 +92,15 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       });
     }
 
-    // Atualizar paredes de forma assíncrona
-    const wallRefs = [wallNorthRef, wallSouthLeftRef, wallSouthRightRef, wallEastRef, wallWestRef];
-    const wallIds = ['north', 'south-left', 'south-right', 'east', 'west'];
-
-    for (let i = 0; i < wallRefs.length; i++) {
-      if (wallRefs[i].current) {
-        await updateChunk(() => {
-          if (wallRefs[i].current) {
-            const wallTexture = roomTextures.walls[wallIds[i]];
-            wallRefs[i].current.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
-          }
-        });
-      }
-    }
+    // Atualizar paredes com cutouts através de eventos
+    // As paredes agora são componentes WallWithCutouts que se atualizam automaticamente
   };
 
   // Refs para cada superfície
   const floorRef = useRef<THREE.Mesh>(null);
   const ceilingRef = useRef<THREE.Mesh>(null);
   const wallNorthRef = useRef<THREE.Mesh>(null);
-  const wallSouthLeftRef = useRef<THREE.Mesh>(null);
-  const wallSouthRightRef = useRef<THREE.Mesh>(null);
+  const wallSouthRef = useRef<THREE.Mesh>(null);
   const wallEastRef = useRef<THREE.Mesh>(null);
   const wallWestRef = useRef<THREE.Mesh>(null);
 
@@ -152,13 +145,8 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         wallWestRef.current.visible = cameraPos.x > -width/2 + 0.3;
       }
 
-      // Paredes do sul (com entrada)
-      if (wallSouthLeftRef.current) {
-        wallSouthLeftRef.current.visible = cameraPos.z < length/2 - 0.3;
-      }
-
-      if (wallSouthRightRef.current) {
-        wallSouthRightRef.current.visible = cameraPos.z < length/2 - 0.3;
+      if (wallSouthRef.current) {
+        wallSouthRef.current.visible = cameraPos.z < length/2 - 0.3;
       }
     });
   });
@@ -212,84 +200,88 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       </mesh>
 
       {/* Parede Norte */}
-      <mesh
-        ref={wallNorthRef}
+      <WallWithCutouts
+        wallDirection="north"
+        wallDimensions={{
+          width: width,
+          height: wallHeight,
+          thickness: wallThickness,
+          position: [0, wallCenterY, -length/2 + wallThickness/2],
+          rotation: [0, 0, 0]
+        }}
+        cutouts={windowCutouts}
+        material={createMaterialFromTexture(
+          roomTextures.walls['north'],
+          draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+          'wall_north'
+        )}
         name="wall-north"
-        position={[0, wallCenterY, -length/2 + wallThickness/2]}
-        rotation={[0, 0, 0]}
         userData={{ wallId: 'north', surfaceType: 'wall' }}
-        receiveShadow={true}
-        castShadow={true}
-      >
-        <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <primitive
-          object={createMaterialFromTexture(
-            roomTextures.walls['north'],
-            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
-            'wall_north'
-          )}
-        />
-      </mesh>
+        wallRef={wallNorthRef}
+      />
 
       {/* Parede Sul */}
-      <mesh
-        ref={wallSouthLeftRef}
+      <WallWithCutouts
+        wallDirection="south"
+        wallDimensions={{
+          width: width,
+          height: wallHeight,
+          thickness: wallThickness,
+          position: [0, wallCenterY, length/2 - wallThickness/2],
+          rotation: [0, 0, 0]
+        }}
+        cutouts={windowCutouts}
+        material={createMaterialFromTexture(
+          roomTextures.walls['south'],
+          draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+          'wall_south'
+        )}
         name="wall-south"
-        position={[0, wallCenterY, length/2 - wallThickness/2]}
-        rotation={[0, 0, 0]}
         userData={{ wallId: 'south', surfaceType: 'wall' }}
-        receiveShadow={true}
-        castShadow={true}
-      >
-        <boxGeometry args={[width, wallHeight, wallThickness]} />
-        <primitive
-          object={createMaterialFromTexture(
-            roomTextures.walls['south'],
-            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
-            'wall_south'
-          )}
-        />
-      </mesh>
+        wallRef={wallSouthRef}
+      />
 
       {/* Parede Leste */}
-      <mesh
-        ref={wallEastRef}
+      <WallWithCutouts
+        wallDirection="east"
+        wallDimensions={{
+          width: length,
+          height: wallHeight,
+          thickness: wallThickness,
+          position: [width/2 - wallThickness/2, wallCenterY, 0],
+          rotation: [0, Math.PI/2, 0]
+        }}
+        cutouts={windowCutouts}
+        material={createMaterialFromTexture(
+          roomTextures.walls['east'],
+          draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+          'wall_east'
+        )}
         name="wall-east"
-        position={[width/2 - wallThickness/2, wallCenterY, 0]}
-        rotation={[0, Math.PI/2, 0]}
         userData={{ wallId: 'east', surfaceType: 'wall' }}
-        receiveShadow={true}
-        castShadow={true}
-      >
-        <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <primitive
-          object={createMaterialFromTexture(
-            roomTextures.walls['east'],
-            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
-            'wall_east'
-          )}
-        />
-      </mesh>
+        wallRef={wallEastRef}
+      />
 
       {/* Parede Oeste */}
-      <mesh
-        ref={wallWestRef}
+      <WallWithCutouts
+        wallDirection="west"
+        wallDimensions={{
+          width: length,
+          height: wallHeight,
+          thickness: wallThickness,
+          position: [-width/2 + wallThickness/2, wallCenterY, 0],
+          rotation: [0, Math.PI/2, 0]
+        }}
+        cutouts={windowCutouts}
+        material={createMaterialFromTexture(
+          roomTextures.walls['west'],
+          draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
+          'wall_west'
+        )}
         name="wall-west"
-        position={[-width/2 + wallThickness/2, wallCenterY, 0]}
-        rotation={[0, Math.PI/2, 0]}
         userData={{ wallId: 'west', surfaceType: 'wall' }}
-        receiveShadow={true}
-        castShadow={true}
-      >
-        <boxGeometry args={[length, wallHeight, wallThickness]} />
-        <primitive
-          object={createMaterialFromTexture(
-            roomTextures.walls['west'],
-            draggedTexture?.type === 'wall' ? '#f8f8f8' : '#f5f5f5',
-            'wall_west'
-          )}
-        />
-      </mesh>
+        wallRef={wallWestRef}
+      />
     </group>
   );
 };

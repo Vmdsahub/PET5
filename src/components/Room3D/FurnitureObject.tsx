@@ -138,6 +138,26 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
           clonedScene.scale.setScalar(scale);
         }
 
+        // Rotacionar janelas para alinhar com a parede
+        if (furniture.furnitureType === 'janela') {
+          const [x, y, z] = furniture.position;
+
+          // Determinar orientação baseada na posição da parede
+          if (Math.abs(z + 4.7) < 0.3) {
+            // Parede norte - janela olha para o sul
+            clonedScene.rotation.y = 0;
+          } else if (Math.abs(z - 4.7) < 0.3) {
+            // Parede sul - janela olha para o norte
+            clonedScene.rotation.y = Math.PI;
+          } else if (Math.abs(x - 4.7) < 0.3) {
+            // Parede leste - janela olha para o oeste
+            clonedScene.rotation.y = Math.PI / 2;
+          } else if (Math.abs(x + 4.7) < 0.3) {
+            // Parede oeste - janela olha para o leste
+            clonedScene.rotation.y = -Math.PI / 2;
+          }
+        }
+
         // Otimizar materiais para qualidade visual em jogos de decoração
         clonedScene.traverse((child) => {
           if (child instanceof THREE.Mesh) {
@@ -268,24 +288,61 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     if (!meshRef.current || !editMode || !isDragging) return;
 
     if (editTool === 'move') {
-      const mousePosition = new Vector3(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
-        0
-      );
+      // Lógica especial para móveis do tipo janela
+      if (furniture.furnitureType === 'janela') {
+        const deltaX = event.clientX - initialMousePos.x;
+        const deltaY = event.clientY - initialMousePos.y;
+        const sensitivity = 0.01;
 
-      raycaster.setFromCamera(mousePosition, camera);
-      const intersectPoint = new Vector3();
-      raycaster.ray.intersectPlane(plane, intersectPoint);
+        // Posição inicial
+        const basePos = initialTransform.position;
 
-      const newPosition = intersectPoint.add(dragOffset);
+        // Movimento vertical direto (sempre funciona)
+        const newY = Math.max(0.5, Math.min(4.0, basePos.y - (deltaY * sensitivity)));
 
-      // Limitar posição dentro do quarto (10x10)
-      newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
-      newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
-      newPosition.y = 0; // Manter móveis no chão
+        // Movimento horizontal baseado na parede atual
+        let newX = basePos.x;
+        let newZ = basePos.z;
 
-      meshRef.current.position.copy(newPosition);
+        // Detectar qual parede e mover apropriadamente
+        if (basePos.z < -4) {
+          // Parede norte
+          newX = Math.max(-4.5, Math.min(4.5, basePos.x + (deltaX * sensitivity)));
+          newZ = -4.7; // Fixo na parede norte
+        } else if (basePos.z > 4) {
+          // Parede sul
+          newX = Math.max(-4.5, Math.min(4.5, basePos.x + (deltaX * sensitivity)));
+          newZ = 4.7; // Fixo na parede sul
+        } else if (basePos.x > 4) {
+          // Parede leste
+          newZ = Math.max(-4.5, Math.min(4.5, basePos.z + (deltaX * sensitivity)));
+          newX = 4.7; // Fixo na parede leste
+        } else if (basePos.x < -4) {
+          // Parede oeste
+          newZ = Math.max(-4.5, Math.min(4.5, basePos.z + (deltaX * sensitivity)));
+          newX = -4.7; // Fixo na parede oeste
+        }
+
+        meshRef.current.position.set(newX, newY, newZ);
+      } else {
+        // Lógica normal para móveis simples
+        const mousePosition = new Vector3(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0
+        );
+
+        raycaster.setFromCamera(mousePosition, camera);
+        const intersectPoint = new Vector3();
+        raycaster.ray.intersectPlane(plane, intersectPoint);
+
+        const newPosition = intersectPoint.add(dragOffset);
+        newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
+        newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
+        newPosition.y = 0; // Manter móveis no chão
+
+        meshRef.current.position.copy(newPosition);
+      }
     } else if (editTool === 'rotate') {
       const deltaX = event.clientX - initialMousePos.x;
       const rotationSpeed = 0.01;
@@ -398,35 +455,44 @@ onContextMenu={(e) => {
     >
       {/* Contorno de seleção removido conforme solicitado */}
 
+      {/* Indicador visual para móveis tipo janela */}
+      {furniture.furnitureType === 'janela' && selected && (
+        <mesh position={[0, 2, 0]}>
+          <sphereGeometry args={[0.1, 8, 8]} />
+          <meshBasicMaterial color="#00ff88" transparent opacity={0.8} />
+        </mesh>
+      )}
+
       {/* Controles de edição intuitivos - apenas para admins */}
       {selected && editMode && isAdmin && (
         <>
-          {/* Círculo branco opaco para rotação */}
-          <mesh
-            position={[0, 0.05, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              handleRotateMode();
-              setInitialMousePos({ x: e.clientX, y: e.clientY });
-              setInitialTransform({
-                position: meshRef.current!.position.clone(),
-                rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
-                scale: meshRef.current!.scale.clone()
-              });
-              setEditTool('rotate');
-              setIsDragging(true);
-              onDragStart();
-            }}
-          >
-            <torusGeometry args={[0.8, 0.03, 8, 32]} />
-            <meshBasicMaterial
-              color="#ffffff"
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-
+          {/* Círculo de rotação - apenas para móveis simples */}
+          {furniture.furnitureType !== 'janela' && (
+            <mesh
+              position={[0, 0.05, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handleRotateMode();
+                setInitialMousePos({ x: e.clientX, y: e.clientY });
+                setInitialTransform({
+                  position: meshRef.current!.position.clone(),
+                  rotation: new Vector3(meshRef.current!.rotation.x, meshRef.current!.rotation.y, meshRef.current!.rotation.z),
+                  scale: meshRef.current!.scale.clone()
+                });
+                setEditTool('rotate');
+                setIsDragging(true);
+                onDragStart();
+              }}
+            >
+              <torusGeometry args={[0.8, 0.03, 8, 32]} />
+              <meshBasicMaterial
+                color="#ffffff"
+                transparent
+                opacity={0.8}
+              />
+            </mesh>
+          )}
 
         </>
       )}

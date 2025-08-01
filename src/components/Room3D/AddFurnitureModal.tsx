@@ -58,7 +58,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     description: '',
     category: 'basicos',
     price: '',
-    currency: 'xenocoins' as 'xenocoins' | 'xenocash'
+    currency: 'xenocoins' as 'xenocoins' | 'xenocash',
+    furnitureType: 'simples' as 'simples' | 'janela'
   });
 
   // Usar React.useMemo para atualizar dinamicamente as seções
@@ -128,7 +129,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
         currency: formData.currency,
         model: modelUrl,
         isCustom: true,
-        fileKey: fileKey // Chave para recuperar do cache
+        fileKey: fileKey, // Chave para recuperar do cache
+        furnitureType: formData.furnitureType
       };
 
       onAddFurniture(furnitureData);
@@ -144,7 +146,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
       description: '',
       category: availableSections[0]?.value || 'basicos',
       price: '',
-      currency: 'xenocoins'
+      currency: 'xenocoins',
+      furnitureType: 'simples'
     });
     setGlbFile(null);
     setErrors({});
@@ -218,6 +221,32 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
             placeholder="Descreva o móvel e suas características..."
           />
           {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+        </div>
+
+        {/* Tipo de Móvel */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Móvel
+          </label>
+          <select
+            value={formData.furnitureType}
+            onChange={(e) => setFormData(prev => ({ ...prev, furnitureType: e.target.value as 'simples' | 'janela' }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="simples">Simples</option>
+            <option value="janela">Janela</option>
+          </select>
+          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 font-medium mb-1">
+              {formData.furnitureType === 'simples' ? '🪑 Móvel Simples' : '🪟 Móvel Janela'}
+            </p>
+            <p className="text-xs text-blue-600">
+              {formData.furnitureType === 'simples'
+                ? 'Móvel que pode ser colocado em qualquer lugar do ambiente'
+                : 'Móvel exclusivo para paredes. Ao ser colocado, criará um "buraco" na parede, integrando-se perfeitamente ao ambiente'
+              }
+            </p>
+          </div>
         </div>
 
         {/* Seção */}

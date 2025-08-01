@@ -517,7 +517,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             title="Configurar propriedades do quarto"
           >
-            ⚙️ Propriedades
+            ��️ Propriedades
           </button>
         )}
       </div>
@@ -636,6 +636,44 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
+            windowCutouts={(() => {
+              // Sistema ULTRA simples: filtrar janelas reais apenas
+              const realWindows = placedFurniture.filter(furniture =>
+                furniture.furnitureType === 'janela'
+              );
+
+              console.log(`REAL WINDOWS COUNT: ${realWindows.length}`);
+
+              // Se não há janelas, retornar array vazio
+              if (realWindows.length === 0) {
+                return [];
+              }
+
+              // Processar apenas a primeira janela real para evitar duplicação
+              const window = realWindows[0];
+              const [x, y, z] = window.position;
+
+              let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
+
+              // Determinar parede baseado na posição com tolerância
+              if (Math.abs(z + 4.7) < 1.0) wallDirection = 'north';
+              else if (Math.abs(z - 4.7) < 1.0) wallDirection = 'south';
+              else if (Math.abs(x - 4.7) < 1.0) wallDirection = 'east';
+              else if (Math.abs(x + 4.7) < 1.0) wallDirection = 'west';
+
+              console.log(`WINDOW: id=${window.id}, pos=[${x.toFixed(1)},${y.toFixed(1)},${z.toFixed(1)}], wall=${wallDirection}`);
+
+              const cutout = {
+                id: window.id,
+                position: window.position,
+                wallDirection,
+                size: [1.0, 1.0] as [number, number]
+              };
+
+              console.log(`CUTOUT CREATED:`, cutout);
+
+              return [cutout];
+            })()}
           />
 
           {/* Móveis colocados */}
@@ -663,6 +701,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               />
             );
           })}
+
+          {/* As aberturas das janelas agora são criadas diretamente nas paredes através do WallWithCutouts */}
 
           {/* Post-Processing Effects removido temporariamente devido a incompatibilidade de versões */}
           {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as dependências forem atualizadas */}

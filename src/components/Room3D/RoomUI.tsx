@@ -103,14 +103,59 @@ export const RoomUI: React.FC<RoomUIProps> = ({
     event.preventDefault();
 
     if (draggedItem) {
-      // Lógica original para móveis
       const canvas = document.querySelector('canvas');
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
-        const z = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
 
-        onPlaceFurniture(draggedItem.id, [x, 0, z]);
+        // Verificar se é um móvel tipo janela
+        if (draggedItem.furnitureType === 'janela') {
+          // Para móveis tipo janela, usar raycasting mais preciso
+          const mouseX = (event.clientX - rect.left) / rect.width * 2 - 1;
+          const mouseY = -(event.clientY - rect.top) / rect.height * 2 + 1;
+
+          // Converter para coordenadas do mundo baseado na posição do mouse
+          const x = mouseX * 5; // Amplificar para cobrir o quarto
+          const z = -mouseY * 5; // Inverter Y para Z, amplificar
+          const y = (1 - Math.abs(mouseY)) * 3 + 0.5; // Altura baseada na posição vertical do mouse
+
+          // Determinar qual parede está mais próxima e ajustar posição
+          const distances = {
+            north: Math.abs(z + 4.9),
+            south: Math.abs(z - 4.9),
+            east: Math.abs(x - 4.9),
+            west: Math.abs(x + 4.9)
+          };
+
+          const nearestWall = Object.keys(distances).reduce((a, b) =>
+            distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
+          );
+
+          let finalPosition: [number, number, number];
+
+          switch (nearestWall) {
+            case 'north':
+              finalPosition = [Math.max(-4.5, Math.min(4.5, x)), Math.max(0.5, Math.min(4, y)), -4.7];
+              break;
+            case 'south':
+              finalPosition = [Math.max(-4.5, Math.min(4.5, x)), Math.max(0.5, Math.min(4, y)), 4.7];
+              break;
+            case 'east':
+              finalPosition = [4.7, Math.max(0.5, Math.min(4, y)), Math.max(-4.5, Math.min(4.5, z))];
+              break;
+            case 'west':
+              finalPosition = [-4.7, Math.max(0.5, Math.min(4, y)), Math.max(-4.5, Math.min(4.5, z))];
+              break;
+            default:
+              finalPosition = [x, y, z];
+          }
+
+          onPlaceFurniture(draggedItem.id, finalPosition);
+        } else {
+          // Lógica original para móveis simples
+          const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+          const z = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
+          onPlaceFurniture(draggedItem.id, [x, 0, z]);
+        }
       }
       setDraggedItem(null);
       setDragPosition(null);
