@@ -53,28 +53,32 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
     wallShape.lineTo(-width/2, height/2);
     wallShape.closePath();
     
-    // Adicionar buraco para cada cutout na posição exata
+    // Adicionar buraco para cada cutout na posição EXATA
     relevantCutouts.forEach(cutout => {
       const [furnitureX, furnitureY, furnitureZ] = cutout.position;
-      const cutoutSize = 1.2; // Tamanho um pouco maior que a janela
+      const cutoutSize = 1.2;
 
       // Calcular posição relativa do buraco na parede 2D
       let relativeX = 0;
-      let relativeY = furnitureY - wallDimensions.position[1]; // Altura relativa
+      let relativeY = furnitureY - wallDimensions.position[1];
 
-      // Coordenada horizontal EXATA baseada na parede
-      switch (wallDirection) {
-        case 'north':
-        case 'south':
-          relativeX = furnitureX; // Para paredes norte/sul, usar X
-          break;
-        case 'east':
-        case 'west':
-          relativeX = furnitureZ; // Para paredes leste/oeste, usar Z
-          break;
+      // DEBUG: Log para verificar coordenadas
+      console.log(`Creating cutout for ${wallDirection}: furniture at [${furnitureX.toFixed(1)}, ${furnitureY.toFixed(1)}, ${furnitureZ.toFixed(1)}]`);
+
+      // Coordenada horizontal baseada na orientação da parede
+      if (wallDirection === 'north' || wallDirection === 'south') {
+        // Paredes horizontais - usar X como coordenada horizontal
+        relativeX = furnitureX;
+        console.log(`Horizontal wall: using X=${furnitureX.toFixed(1)} as relativeX`);
+      } else {
+        // Paredes verticais (east/west) - usar Z como coordenada horizontal
+        relativeX = furnitureZ;
+        console.log(`Vertical wall: using Z=${furnitureZ.toFixed(1)} as relativeX`);
       }
 
-      // Criar buraco quadrado na posição EXATA
+      console.log(`Final cutout position: [${relativeX.toFixed(1)}, ${relativeY.toFixed(1)}] on wall ${wallDirection}`);
+
+      // Criar buraco quadrado
       const hole = new THREE.Path();
       const half = cutoutSize / 2;
       hole.moveTo(relativeX - half, relativeY - half);
