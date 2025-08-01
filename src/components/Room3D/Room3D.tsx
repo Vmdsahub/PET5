@@ -15,6 +15,7 @@ import { Room2DFallback } from './Room2DFallback';
 import { RoomPropertiesModal } from './RoomPropertiesModal';
 import { Room3DStarsOverlay } from './Room3DStarsOverlay';
 import { LightingControls, LightingSettings } from './LightingControls';
+import { LightHelpers } from './LightHelpers';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
@@ -47,18 +48,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
-    ambientIntensity: 0.4,
+    ambientIntensity: 0.6,
     ambientColor: '#f0f8ff',
-    directionalIntensity: 0.8,
-    directionalColor: '#ffffff',
-    directionalPosition: [5, 10, 5],
-    castShadows: true,
-    pointIntensity: 0.4,
+    directionalIntensity: 0.3, // Reduzida para não atravessar tanto
+    directionalColor: '#fff8e7',
+    directionalPosition: [10, 15, 8], // Mais longe para ser mais sutil
+    castShadows: true, // Sombras realistas
+    pointIntensity: 0.0, // Mantida removida
     pointColor: '#fff8dc',
     pointPosition: [0, 4, 0],
     pointDistance: 15,
     pointDecay: 2,
   });
+  const [showLightHelpers, setShowLightHelpers] = useState(false);
   const controlsRef = useRef<any>();
   const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
   const currentZoomRef = useRef<number>(12); // Valor atual interpolado
@@ -279,6 +281,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Componente para interpolação suave do zoom
   const SmoothZoomController = () => {
     const { camera } = useThree();
+    const lastCameraPosition = useRef(new THREE.Vector3());
+    const lastCameraTarget = useRef(new THREE.Vector3());
 
     useFrame((state, delta) => {
       if (!controlsRef.current) return;
@@ -300,6 +304,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
       camera.position.copy(newPosition);
       controls.update();
+
+      // Detectar mudanças na câmera e comunicar para as estrelas
+      const currentPosition = camera.position.clone();
+      const currentTarget = controls.target.clone();
+
+      if (!lastCameraPosition.current.equals(currentPosition) ||
+          !lastCameraTarget.current.equals(currentTarget) ||
+          Math.abs(currentZoomRef.current - targetZoomRef.current) > 0.1) {
+
+        // Disparar evento personalizado com informações da câmera
+        window.dispatchEvent(new CustomEvent('cameraChange', {
+          detail: {
+            position: currentPosition,
+            target: currentTarget,
+            zoom: currentZoomRef.current,
+            deltaX: currentPosition.x - lastCameraPosition.current.x,
+            deltaY: currentPosition.y - lastCameraPosition.current.y,
+            deltaZ: currentPosition.z - lastCameraPosition.current.z,
+          }
+        }));
+
+        lastCameraPosition.current.copy(currentPosition);
+        lastCameraTarget.current.copy(currentTarget);
+      }
     });
 
     return null;
@@ -545,7 +573,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação PBR dinâmica controlada por interface */}
+          {/* Iluminação com luz ambiente e direcional */}
           <ambientLight
             intensity={lightingSettings.ambientIntensity}
             color={lightingSettings.ambientColor}
@@ -555,25 +583,26 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             intensity={lightingSettings.directionalIntensity}
             color={lightingSettings.directionalColor}
             castShadow={lightingSettings.castShadows}
-            shadow-mapSize={[2048, 2048]}
+            shadow-mapSize={[4096, 4096]}
             shadow-camera-near={0.1}
-            shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
-            shadow-bias={-0.0001}
+            shadow-camera-far={30}
+            shadow-camera-left={-8}
+            shadow-camera-right={8}
+            shadow-camera-top={8}
+            shadow-camera-bottom={-8}
+            shadow-bias={-0.0005}
+            shadow-normalBias={0.02}
+            shadow-radius={4}
           />
-          <pointLight
-            position={lightingSettings.pointPosition}
-            intensity={lightingSettings.pointIntensity}
-            color={lightingSettings.pointColor}
-            distance={lightingSettings.pointDistance}
-            decay={lightingSettings.pointDecay}
-            castShadow={true}
-            shadow-mapSize={[1024, 1024]}
-          />
-          
+
+          {/* Helpers visuais para luzes (apenas admin) */}
+          {isAdmin && (
+            <LightHelpers
+              lightingSettings={lightingSettings}
+              show={showLightHelpers}
+            />
+          )}
+
           {/* Controles de câmera */}
           <OrbitControls
             ref={controlsRef}
@@ -684,6 +713,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           onDimensionsUpdate={handleRoomDimensionsUpdate}
           lightingSettings={lightingSettings}
           onLightingChange={setLightingSettings}
+          isAdmin={isAdmin}
+          onShowLightHelpers={setShowLightHelpers}
+          showLightHelpers={showLightHelpers}
         />
       )}
     </div>

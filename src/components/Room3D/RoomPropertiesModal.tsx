@@ -11,6 +11,9 @@ interface RoomPropertiesModalProps {
   onDimensionsUpdate?: (dimensions: RoomDimensions) => void;
   lightingSettings?: LightingSettings;
   onLightingChange?: (settings: LightingSettings) => void;
+  isAdmin?: boolean;
+  onShowLightHelpers?: (show: boolean) => void;
+  showLightHelpers?: boolean;
 }
 
 export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
@@ -18,7 +21,10 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
   onClose,
   onDimensionsUpdate,
   lightingSettings,
-  onLightingChange
+  onLightingChange,
+  isAdmin = false,
+  onShowLightHelpers,
+  showLightHelpers = false,
 }) => {
   const [activeTab, setActiveTab] = useState<'dimensions' | 'lighting'>('dimensions');
   const [dimensions, setDimensions] = useState<RoomDimensions>({
@@ -270,6 +276,9 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
           <LightingControls
             settings={lightingSettings}
             onChange={onLightingChange}
+            isAdmin={isAdmin}
+            onShowLightHelpers={onShowLightHelpers}
+            showLightHelpers={showLightHelpers}
           />
         )}
       </div>

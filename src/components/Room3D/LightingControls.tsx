@@ -22,11 +22,17 @@ export interface LightingSettings {
 interface LightingControlsProps {
   settings: LightingSettings;
   onChange: (settings: LightingSettings) => void;
+  isAdmin?: boolean;
+  onShowLightHelpers?: (show: boolean) => void;
+  showLightHelpers?: boolean;
 }
 
 export const LightingControls: React.FC<LightingControlsProps> = ({
   settings,
   onChange,
+  isAdmin = false,
+  onShowLightHelpers,
+  showLightHelpers = false,
 }) => {
   const updateSetting = <K extends keyof LightingSettings>(
     key: K,
@@ -49,13 +55,13 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
 
   const resetToDefaults = () => {
     onChange({
-      ambientIntensity: 0.4,
+      ambientIntensity: 0.6,
       ambientColor: '#f0f8ff',
-      directionalIntensity: 0.8,
-      directionalColor: '#ffffff',
-      directionalPosition: [5, 10, 5],
-      castShadows: true,
-      pointIntensity: 0.4,
+      directionalIntensity: 0.3, // Reduzida para não atravessar tanto
+      directionalColor: '#fff8e7',
+      directionalPosition: [10, 15, 8], // Mais longe para ser mais sutil
+      castShadows: true, // Sombras realistas
+      pointIntensity: 0.0, // Mantida removida
       pointColor: '#fff8dc',
       pointPosition: [0, 4, 0],
       pointDistance: 15,
@@ -67,12 +73,26 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800">⚡ Controles de Iluminação</h3>
-        <button
-          onClick={resetToDefaults}
-          className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors"
-        >
-          🔄 Resetar
-        </button>
+        <div className="flex gap-2">
+          {isAdmin && onShowLightHelpers && (
+            <button
+              onClick={() => onShowLightHelpers(!showLightHelpers)}
+              className={`text-sm px-3 py-1 rounded-md transition-colors ${
+                showLightHelpers
+                  ? 'bg-yellow-200 hover:bg-yellow-300 text-yellow-800'
+                  : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {showLightHelpers ? '👁️ Ocultar Trajetos' : '👁️ Ver Trajetos'}
+            </button>
+          )}
+          <button
+            onClick={resetToDefaults}
+            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors"
+          >
+            🔄 Resetar
+          </button>
+        </div>
       </div>
 
       {/* Ambient Light */}
@@ -108,6 +128,9 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
       {/* Directional Light */}
       <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
         <h4 className="font-medium text-yellow-800 mb-3">☀️ Luz Direcional (Sol)</h4>
+        <p className="text-sm text-gray-600 mb-3">
+          🪟 Preparada para quando janelas forem adicionadas ao quarto.
+        </p>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -123,7 +146,7 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Cor</label>
             <input
@@ -139,8 +162,8 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
               <label className="block text-xs text-gray-600">X: {settings.directionalPosition[0]}</label>
               <input
                 type="range"
-                min="-10"
-                max="10"
+                min="-15"
+                max="15"
                 step="0.5"
                 value={settings.directionalPosition[0]}
                 onChange={(e) => updateDirectionalPosition(0, parseFloat(e.target.value))}
@@ -151,8 +174,8 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
               <label className="block text-xs text-gray-600">Y: {settings.directionalPosition[1]}</label>
               <input
                 type="range"
-                min="0"
-                max="20"
+                min="5"
+                max="25"
                 step="0.5"
                 value={settings.directionalPosition[1]}
                 onChange={(e) => updateDirectionalPosition(1, parseFloat(e.target.value))}
@@ -163,8 +186,8 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
               <label className="block text-xs text-gray-600">Z: {settings.directionalPosition[2]}</label>
               <input
                 type="range"
-                min="-10"
-                max="10"
+                min="-15"
+                max="15"
                 step="0.5"
                 value={settings.directionalPosition[2]}
                 onChange={(e) => updateDirectionalPosition(2, parseFloat(e.target.value))}
@@ -187,106 +210,9 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
         </div>
       </div>
 
-      {/* Point Light */}
-      <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-        <h4 className="font-medium text-orange-800 mb-3">💡 Luz Pontual (Lâmpada)</h4>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Intensidade: {settings.pointIntensity.toFixed(2)}
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="2"
-              step="0.1"
-              value={settings.pointIntensity}
-              onChange={(e) => updateSetting('pointIntensity', parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cor</label>
-            <input
-              type="color"
-              value={settings.pointColor}
-              onChange={(e) => updateSetting('pointColor', e.target.value)}
-              className="w-full h-8 rounded cursor-pointer"
-            />
-          </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <label className="block text-xs text-gray-600">X: {settings.pointPosition[0]}</label>
-              <input
-                type="range"
-                min="-10"
-                max="10"
-                step="0.5"
-                value={settings.pointPosition[0]}
-                onChange={(e) => updatePointPosition(0, parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600">Y: {settings.pointPosition[1]}</label>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                step="0.5"
-                value={settings.pointPosition[1]}
-                onChange={(e) => updatePointPosition(1, parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600">Z: {settings.pointPosition[2]}</label>
-              <input
-                type="range"
-                min="-10"
-                max="10"
-                step="0.5"
-                value={settings.pointPosition[2]}
-                onChange={(e) => updatePointPosition(2, parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs text-gray-600">
-                Alcance: {settings.pointDistance}
-              </label>
-              <input
-                type="range"
-                min="5"
-                max="30"
-                step="1"
-                value={settings.pointDistance}
-                onChange={(e) => updateSetting('pointDistance', parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600">
-                Decay: {settings.pointDecay}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="5"
-                step="0.1"
-                value={settings.pointDecay}
-                onChange={(e) => updateSetting('pointDecay', parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
