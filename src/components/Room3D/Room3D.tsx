@@ -601,7 +601,15 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             castShadow={true}
             shadow-mapSize={[1024, 1024]}
           />
-          
+
+          {/* Helpers visuais para luzes (apenas admin) */}
+          {isAdmin && (
+            <LightHelpers
+              lightingSettings={lightingSettings}
+              show={showLightHelpers}
+            />
+          )}
+
           {/* Controles de câmera */}
           <OrbitControls
             ref={controlsRef}
