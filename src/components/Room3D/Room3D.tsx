@@ -244,7 +244,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     );
 
     if (confirmClear) {
-      // Pegar todos os móveis colocados
+      // Pegar todos os m��veis colocados
       const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
 
       // Remover todos os móveis um por um (isso vai movê-los para o inventário)
@@ -636,50 +636,39 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
-            windowCutouts={placedFurniture
-              .filter((furniture) => furniture.furnitureType === 'janela')
-              .filter((furniture, index, arr) => {
-                // Evitar duplicatas baseadas na posição
-                return arr.findIndex(f =>
-                  f.position[0] === furniture.position[0] &&
-                  f.position[1] === furniture.position[1] &&
-                  f.position[2] === furniture.position[2]
-                ) === index;
-              })
-              .map((windowFurniture) => {
-                // Determinar direção da parede baseado na posição
-                const getWallDirection = (position: [number, number, number]): 'north' | 'south' | 'east' | 'west' => {
-                  const [x, y, z] = position;
+            windowCutouts={(() => {
+              // Coletar todas as janelas válidas
+              const windowFurnitures = placedFurniture.filter((furniture) =>
+                furniture.furnitureType === 'janela'
+              );
 
-                  // Verificar qual coordenada está mais próxima das paredes
-                  if (Math.abs(z + 4.7) < 0.5) return 'north';  // z ≈ -4.7
-                  if (Math.abs(z - 4.7) < 0.5) return 'south';  // z ≈ 4.7
-                  if (Math.abs(x - 4.7) < 0.5) return 'east';   // x ≈ 4.7
-                  if (Math.abs(x + 4.7) < 0.5) return 'west';   // x ≈ -4.7
+              // Criar um Set para evitar duplicatas baseadas em ID único
+              const uniqueWindows = new Map();
 
-                  // Fallback: usar distância mínima
-                  const distances = {
-                    north: Math.abs(z + 4.7),
-                    south: Math.abs(z - 4.7),
-                    east: Math.abs(x - 4.7),
-                    west: Math.abs(x + 4.7)
-                  };
+              windowFurnitures.forEach(windowFurniture => {
+                // Usar ID como chave para garantir unicidade
+                if (!uniqueWindows.has(windowFurniture.id)) {
+                  // Determinar direção da parede
+                  const [x, y, z] = windowFurniture.position;
+                  let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
 
-                  return Object.keys(distances).reduce((a, b) =>
-                    distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
-                  ) as 'north' | 'south' | 'east' | 'west';
-                };
+                  if (Math.abs(z + 4.7) < 0.3) wallDirection = 'north';
+                  else if (Math.abs(z - 4.7) < 0.3) wallDirection = 'south';
+                  else if (Math.abs(x - 4.7) < 0.3) wallDirection = 'east';
+                  else if (Math.abs(x + 4.7) < 0.3) wallDirection = 'west';
 
-                const wallDirection = getWallDirection(windowFurniture.position);
-                const furnitureScale = windowFurniture.scale || [1, 1, 1];
+                  const furnitureScale = windowFurniture.scale || [1, 1, 1];
 
-                return {
-                  position: windowFurniture.position,
-                  wallDirection,
-                  size: [furnitureScale[0] * 1.2, furnitureScale[1] * 1.2] as [number, number]
-                };
-              })
-            }
+                  uniqueWindows.set(windowFurniture.id, {
+                    position: windowFurniture.position,
+                    wallDirection,
+                    size: [furnitureScale[0] * 1.0, furnitureScale[1] * 1.0] as [number, number]
+                  });
+                }
+              });
+
+              return Array.from(uniqueWindows.values());
+            })()}
           />
 
           {/* Móveis colocados */}
