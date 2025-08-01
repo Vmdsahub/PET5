@@ -9,6 +9,8 @@ interface RoomPropertiesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDimensionsUpdate?: (dimensions: RoomDimensions) => void;
+  lightingSettings?: LightingSettings;
+  onLightingChange?: (settings: LightingSettings) => void;
 }
 
 export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
