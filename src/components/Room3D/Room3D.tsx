@@ -572,9 +572,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           {/* Sistema de zoom com interpolação suave */}
           <SmoothZoomController />
 
-          {/* Fog atmosférico para profundidade */}
-          <fog attach="fog" args={['#1a2845', 40, 120]} />
-
           {/* Campo de estrelas para sensação de profundidade */}
           <Room3DStars />
 
