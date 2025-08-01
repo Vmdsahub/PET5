@@ -244,7 +244,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     );
 
     if (confirmClear) {
-      // Pegar todos os m��veis colocados
+      // Pegar todos os móveis colocados
       const currentPlacedFurniture = mockStorageService.getPlacedFurniture(userId);
 
       // Remover todos os móveis um por um (isso vai movê-los para o inventário)
@@ -636,39 +636,25 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
-            windowCutouts={(() => {
-              // Coletar todas as janelas válidas
-              const windowFurnitures = placedFurniture.filter((furniture) =>
-                furniture.furnitureType === 'janela'
-              );
+            windowCutouts={placedFurniture
+              .filter((furniture) => furniture.furnitureType === 'janela')
+              .map((windowFurniture) => {
+                const [x, y, z] = windowFurniture.position;
+                let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
 
-              // Criar um Set para evitar duplicatas baseadas em ID único
-              const uniqueWindows = new Map();
+                // Determinar parede de forma simples
+                if (z < -4) wallDirection = 'north';
+                else if (z > 4) wallDirection = 'south';
+                else if (x > 4) wallDirection = 'east';
+                else if (x < -4) wallDirection = 'west';
 
-              windowFurnitures.forEach(windowFurniture => {
-                // Usar ID como chave para garantir unicidade
-                if (!uniqueWindows.has(windowFurniture.id)) {
-                  // Determinar direção da parede
-                  const [x, y, z] = windowFurniture.position;
-                  let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
-
-                  if (Math.abs(z + 4.7) < 0.3) wallDirection = 'north';
-                  else if (Math.abs(z - 4.7) < 0.3) wallDirection = 'south';
-                  else if (Math.abs(x - 4.7) < 0.3) wallDirection = 'east';
-                  else if (Math.abs(x + 4.7) < 0.3) wallDirection = 'west';
-
-                  const furnitureScale = windowFurniture.scale || [1, 1, 1];
-
-                  uniqueWindows.set(windowFurniture.id, {
-                    position: windowFurniture.position,
-                    wallDirection,
-                    size: [furnitureScale[0] * 1.0, furnitureScale[1] * 1.0] as [number, number]
-                  });
-                }
-              });
-
-              return Array.from(uniqueWindows.values());
-            })()}
+                return {
+                  position: windowFurniture.position,
+                  wallDirection,
+                  size: [1.0, 1.0] as [number, number] // Tamanho fixo e simples
+                };
+              })
+            }
           />
 
           {/* Móveis colocados */}
