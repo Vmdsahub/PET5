@@ -13,7 +13,7 @@ import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
 import { Room2DFallback } from './Room2DFallback';
 import { RoomPropertiesModal } from './RoomPropertiesModal';
-import { Room3DStars } from './Room3DStars';
+import { Room3DStarsOverlay } from './Room3DStarsOverlay';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
