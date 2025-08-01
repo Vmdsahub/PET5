@@ -641,27 +641,38 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               const windowIds = new Set();
               const uniqueWindows = [];
 
+              console.log('=== DEBUG CUTOUTS ===');
+              console.log('Total furniture:', placedFurniture.length);
+
               for (const furniture of placedFurniture) {
                 if (furniture.furnitureType === 'janela' && !windowIds.has(furniture.id)) {
                   windowIds.add(furniture.id);
 
                   const [x, y, z] = furniture.position;
-                  let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
+                  let wallDirection: 'north' | 'south' | 'east' | 'west' | null = null;
 
-                  // Determinar parede de forma bem simples
-                  if (z < -4) wallDirection = 'north';
-                  else if (z > 4) wallDirection = 'south';
-                  else if (x > 4) wallDirection = 'east';
-                  else if (x < -4) wallDirection = 'west';
+                  // Determinar parede com tolerância rigorosa
+                  if (Math.abs(z + 4.7) < 0.2) wallDirection = 'north';
+                  else if (Math.abs(z - 4.7) < 0.2) wallDirection = 'south';
+                  else if (Math.abs(x - 4.7) < 0.2) wallDirection = 'east';
+                  else if (Math.abs(x + 4.7) < 0.2) wallDirection = 'west';
 
-                  uniqueWindows.push({
-                    id: furniture.id,
-                    position: furniture.position,
-                    wallDirection,
-                    size: [1.0, 1.0] as [number, number]
-                  });
+                  console.log(`Janela ${furniture.id}: posição [${x}, ${y}, ${z}] → parede: ${wallDirection}`);
+
+                  // Só adicionar se a parede foi determinada corretamente
+                  if (wallDirection) {
+                    uniqueWindows.push({
+                      id: furniture.id,
+                      position: furniture.position,
+                      wallDirection,
+                      size: [1.0, 1.0] as [number, number]
+                    });
+                  }
                 }
               }
+
+              console.log('Cutouts criados:', uniqueWindows.length);
+              console.log('=== FIM DEBUG ===');
 
               return uniqueWindows;
             })()}
