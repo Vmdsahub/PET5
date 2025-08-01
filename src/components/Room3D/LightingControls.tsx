@@ -30,6 +30,9 @@ interface LightingControlsProps {
 export const LightingControls: React.FC<LightingControlsProps> = ({
   settings,
   onChange,
+  isAdmin = false,
+  onShowLightHelpers,
+  showLightHelpers = false,
 }) => {
   const updateSetting = <K extends keyof LightingSettings>(
     key: K,
