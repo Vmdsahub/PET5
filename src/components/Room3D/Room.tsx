@@ -8,6 +8,11 @@ interface RoomProps {
   dimensions?: RoomDimensions;
   userId?: string;
   draggedTexture?: any;
+  windowCutouts?: Array<{
+    position: [number, number, number];
+    wallDirection: 'north' | 'south' | 'east' | 'west';
+    size: [number, number];
+  }>;
 }
 
 export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', draggedTexture }) => {
