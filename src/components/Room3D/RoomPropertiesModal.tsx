@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Home, Settings } from 'lucide-react';
+import { X, Home, Settings, Lightbulb } from 'lucide-react';
 import { SimpleModal } from './SimpleModal';
 import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
+import { LightingControls, LightingSettings } from './LightingControls';
 import '../../styles/sliders.css';
 
 interface RoomPropertiesModalProps {
