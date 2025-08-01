@@ -279,6 +279,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Componente para interpolação suave do zoom
   const SmoothZoomController = () => {
     const { camera } = useThree();
+    const lastCameraPosition = useRef(new THREE.Vector3());
+    const lastCameraTarget = useRef(new THREE.Vector3());
 
     useFrame((state, delta) => {
       if (!controlsRef.current) return;
@@ -300,6 +302,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
       camera.position.copy(newPosition);
       controls.update();
+
+      // Detectar mudanças na câmera e comunicar para as estrelas
+      const currentPosition = camera.position.clone();
+      const currentTarget = controls.target.clone();
+
+      if (!lastCameraPosition.current.equals(currentPosition) ||
+          !lastCameraTarget.current.equals(currentTarget) ||
+          Math.abs(currentZoomRef.current - targetZoomRef.current) > 0.1) {
+
+        // Disparar evento personalizado com informações da câmera
+        window.dispatchEvent(new CustomEvent('cameraChange', {
+          detail: {
+            position: currentPosition,
+            target: currentTarget,
+            zoom: currentZoomRef.current,
+            deltaX: currentPosition.x - lastCameraPosition.current.x,
+            deltaY: currentPosition.y - lastCameraPosition.current.y,
+            deltaZ: currentPosition.z - lastCameraPosition.current.z,
+          }
+        }));
+
+        lastCameraPosition.current.copy(currentPosition);
+        lastCameraTarget.current.copy(currentTarget);
+      }
     });
 
     return null;
