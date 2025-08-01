@@ -130,8 +130,8 @@ export const Room3DStarsOverlay: React.FC = () => {
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      // Detectar movimento do mouse durante rotação da câmera
-      if (event.buttons === 2 || event.buttons === 1) { // Botão direito ou esquerdo
+      // Detectar movimento do mouse APENAS durante rotação com botão direito
+      if (event.buttons === 2) { // Apenas botão direito
         const deltaX = event.movementX;
         const deltaY = event.movementY;
 
@@ -141,15 +141,6 @@ export const Room3DStarsOverlay: React.FC = () => {
           y: prev.y + deltaY * 0.3,
         }));
       }
-    };
-
-    const handleWheel = (event: WheelEvent) => {
-      // Detectar zoom para adicionar efeito parallax no zoom
-      const zoomDelta = event.deltaY * 0.003;
-      setCameraState(prev => ({
-        ...prev,
-        zoom: Math.max(2, Math.min(35, prev.zoom + zoomDelta)),
-      }));
     };
 
     // Listener para mudanças da câmera do three.js
