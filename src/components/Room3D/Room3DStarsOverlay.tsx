@@ -109,25 +109,43 @@ export const Room3DStarsOverlay: React.FC = () => {
         const wrappedX = ((x % (canvas.width + 400)) + (canvas.width + 400)) % (canvas.width + 400) - 200;
         const wrappedY = ((y % (canvas.height + 400)) + (canvas.height + 400)) % (canvas.height + 400) - 200;
 
-        // Draw tiny star - SpaceMap style
-        ctx.save();
-        ctx.globalAlpha = currentOpacity;
+        // Only draw stars that are visible on screen (with small margin)
+        if (wrappedX >= -10 && wrappedX <= canvas.width + 10 &&
+            wrappedY >= -10 && wrappedY <= canvas.height + 10) {
 
-        // Just a tiny dot for most stars
-        ctx.fillStyle = star.color;
-        ctx.beginPath();
-        ctx.arc(wrappedX, wrappedY, star.size, 0, Math.PI * 2);
-        ctx.fill();
+          // Draw tiny star - SpaceMap style
+          ctx.save();
+          ctx.globalAlpha = currentOpacity;
 
-        // Tiny bright center only for slightly larger stars
-        if (star.size > 0.8) {
-          ctx.fillStyle = "#ffffff";
+          // Very subtle glow for the brightest stars only
+          if (star.size > 1.0 && currentOpacity > 0.6) {
+            const gradient = ctx.createRadialGradient(wrappedX, wrappedY, 0, wrappedX, wrappedY, star.size * 1.5);
+            gradient.addColorStop(0, star.color);
+            gradient.addColorStop(0.7, star.color + '40');
+            gradient.addColorStop(1, star.color + '00');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(wrappedX, wrappedY, star.size * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Main star dot
+          ctx.fillStyle = star.color;
           ctx.beginPath();
-          ctx.arc(wrappedX, wrappedY, star.size * 0.3, 0, Math.PI * 2);
+          ctx.arc(wrappedX, wrappedY, star.size, 0, Math.PI * 2);
           ctx.fill();
-        }
 
-        ctx.restore();
+          // Tiny bright center for larger stars
+          if (star.size > 0.9) {
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(wrappedX, wrappedY, star.size * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        }
       });
 
       animationRef.current = requestAnimationFrame(animate);
