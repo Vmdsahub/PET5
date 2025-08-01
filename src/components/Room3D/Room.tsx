@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { mockStorageService, RoomDimensions } from '../../services/mockStorage';
 import { useRoomTextures } from '../../hooks/useRoomTextures';
+import { WallWithCutouts } from './WallWithCutouts';
 
 interface RoomProps {
   dimensions?: RoomDimensions;
