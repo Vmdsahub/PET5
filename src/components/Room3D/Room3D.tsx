@@ -526,6 +526,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             enableDamping={true} // Suavização nativa
             dampingFactor={0.08} // Fator de suavização mais forte para mais suavidade
           />
+
+          {/* Atualizador contínuo para garantir que o damping funcione */}
+          <CameraUpdater />
           
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
