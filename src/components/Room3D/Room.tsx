@@ -71,14 +71,18 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
     // Atualizar chão
     if (floorRef.current) {
       await updateChunk(() => {
-        floorRef.current!.material = createMaterialFromTexture(roomTextures.floor, '#8B7355', 'floor');
+        if (floorRef.current) {
+          floorRef.current.material = createMaterialFromTexture(roomTextures.floor, '#8B7355', 'floor');
+        }
       });
     }
 
     // Atualizar teto
     if (ceilingRef.current) {
       await updateChunk(() => {
-        ceilingRef.current!.material = createMaterialFromTexture(roomTextures.ceiling, '#f8f8f8', 'ceiling');
+        if (ceilingRef.current) {
+          ceilingRef.current.material = createMaterialFromTexture(roomTextures.ceiling, '#f8f8f8', 'ceiling');
+        }
       });
     }
 
