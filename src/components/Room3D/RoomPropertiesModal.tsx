@@ -276,6 +276,9 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
           <LightingControls
             settings={lightingSettings}
             onChange={onLightingChange}
+            isAdmin={isAdmin}
+            onShowLightHelpers={onShowLightHelpers}
+            showLightHelpers={showLightHelpers}
           />
         )}
       </div>
