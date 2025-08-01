@@ -140,7 +140,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const handleAddFurniture = async (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
 
-    // Atualizar catálogo de forma assíncrona
+    // Atualizar cat��logo de forma assíncrona
     requestAnimationFrame(() => {
       requestIdleCallback(() => {
         const newCatalog = mockStorageService.getFurnitureCatalog();
@@ -521,6 +521,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           state.gl.setClearColor('#1a2845', 1);
           state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
+
+          // Inicializar valores de zoom com a distância inicial da câmera
+          const initialDistance = state.camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+          targetZoomRef.current = initialDistance;
+          currentZoomRef.current = initialDistance;
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
