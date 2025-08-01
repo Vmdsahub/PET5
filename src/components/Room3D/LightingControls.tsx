@@ -55,11 +55,11 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
 
   const resetToDefaults = () => {
     onChange({
-      ambientIntensity: 0.4,
+      ambientIntensity: 0.6,
       ambientColor: '#f0f8ff',
-      directionalIntensity: 0.6, // Restaurada para futuras janelas
+      directionalIntensity: 0.3, // Reduzida para não atravessar tanto
       directionalColor: '#fff8e7',
-      directionalPosition: [8, 12, 6],
+      directionalPosition: [10, 15, 8], // Mais longe para ser mais sutil
       castShadows: true, // Sombras realistas
       pointIntensity: 0.0, // Mantida removida
       pointColor: '#fff8dc',
