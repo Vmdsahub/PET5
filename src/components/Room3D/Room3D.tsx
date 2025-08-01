@@ -583,14 +583,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             intensity={lightingSettings.directionalIntensity}
             color={lightingSettings.directionalColor}
             castShadow={lightingSettings.castShadows}
-            shadow-mapSize={[2048, 2048]}
+            shadow-mapSize={[4096, 4096]}
             shadow-camera-near={0.1}
-            shadow-camera-far={50}
-            shadow-camera-left={-15}
-            shadow-camera-right={15}
-            shadow-camera-top={15}
-            shadow-camera-bottom={-15}
-            shadow-bias={-0.0001}
+            shadow-camera-far={30}
+            shadow-camera-left={-8}
+            shadow-camera-right={8}
+            shadow-camera-top={8}
+            shadow-camera-bottom={-8}
+            shadow-bias={-0.0005}
+            shadow-normalBias={0.02}
+            shadow-radius={4}
           />
 
           {/* Helpers visuais para luzes (apenas admin) */}
