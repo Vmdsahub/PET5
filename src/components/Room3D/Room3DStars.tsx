@@ -14,7 +14,7 @@ export const Room3DStars: React.FC = () => {
   // Generate star field with depth
   const stars = useMemo<StarData[]>(() => {
     const starArray: StarData[] = [];
-    const starCount = 150;
+    const starCount = 120;
 
     for (let i = 0; i < starCount; i++) {
       // Create stars in multiple depth layers for better atmosphere
