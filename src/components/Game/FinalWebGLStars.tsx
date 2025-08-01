@@ -77,7 +77,7 @@ export const FinalWebGLStars: React.FC<FinalWebGLStarsProps> = ({
     // Renderer setup
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: false,
+      antialias: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);

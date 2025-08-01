@@ -33,6 +33,18 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
     }
   }, [isOpen]);
 
+  // Cleanup do debounce
+  useEffect(() => {
+    return () => {
+      if (debouncedUpdate.current) {
+        clearTimeout(debouncedUpdate.current);
+      }
+    };
+  }, []);
+
+  // Debounce para evitar atualizações excessivas
+  const debouncedUpdate = React.useRef<NodeJS.Timeout>();
+
   const handleInputChange = (field: keyof RoomDimensions, value: number) => {
     const newDimensions = {
       ...dimensions,
@@ -40,9 +52,18 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
     };
     setDimensions(newDimensions);
 
-    // Atualizar em tempo real
-    mockStorageService.updateRoomDimensions(newDimensions);
-    onDimensionsUpdate?.(newDimensions);
+    // Limpar timeout anterior
+    if (debouncedUpdate.current) {
+      clearTimeout(debouncedUpdate.current);
+    }
+
+    // Atualizar com debounce para evitar travamentos
+    debouncedUpdate.current = setTimeout(() => {
+      requestAnimationFrame(() => {
+        mockStorageService.updateRoomDimensions(newDimensions);
+        onDimensionsUpdate?.(newDimensions);
+      });
+    }, 150);
   };
 
 

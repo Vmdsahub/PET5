@@ -1,6 +1,7 @@
 import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
+// import { EffectComposer, FXAA, SSAO, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { Room } from './Room';
 import { FurnitureObject } from './FurnitureObject';
@@ -44,6 +45,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const controlsRef = useRef<any>();
+  const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
+  const currentZoomRef = useRef<number>(12); // Valor atual interpolado
 
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture, clearAllTextures } = useRoomTextures(userId);
@@ -54,9 +57,40 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setRoomUpdateKey(prev => prev + 1);
     };
 
+    const handleRoomTextureUpdate = () => {
+      setRoomUpdateKey(prev => prev + 1);
+    };
+
+    // Handler para capturar scroll e definir zoom alvo
+    const handleWheel = (event: WheelEvent) => {
+      if (draggedTexture) return;
+
+      event.preventDefault();
+
+      // Calcular novo zoom alvo baseado no scroll
+      const zoomSensitivity = 1.5;
+      const zoomDelta = event.deltaY * 0.001 * zoomSensitivity;
+
+      // Atualizar zoom alvo (limitado entre 2 e 35)
+      targetZoomRef.current = Math.max(2, Math.min(35, targetZoomRef.current + zoomDelta));
+    };
+
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
-    return () => window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
-  }, []);
+    window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      // Cleanup event listeners
+      window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
+      window.removeEventListener('roomTextureUpdate', handleRoomTextureUpdate);
+      window.removeEventListener('wheel', handleWheel);
+
+      // Cleanup transformUpdateRef debounce timeout
+      if (transformUpdateRef.current) {
+        clearTimeout(transformUpdateRef.current);
+      }
+    };
+  }, [draggedTexture]);
 
 
   const cameraRef = useRef<THREE.Camera>();
@@ -99,26 +133,30 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     return newItem;
   };
 
-  const handleAddFurniture = (furnitureData: any) => {
+  const handleAddFurniture = async (furnitureData: any) => {
     mockStorageService.addCustomFurniture(furnitureData);
 
-    // Forçar atualização do catálogo com delay para garantir que seja processado
-    setTimeout(() => {
-      const newCatalog = mockStorageService.getFurnitureCatalog();
-      setCatalog([...newCatalog]); // Usar spread para forçar re-render
-      console.log('Catálogo atualizado com novo móvel:', furnitureData.name);
-    }, 100);
+    // Atualizar catálogo de forma assíncrona
+    requestAnimationFrame(() => {
+      requestIdleCallback(() => {
+        const newCatalog = mockStorageService.getFurnitureCatalog();
+        setCatalog([...newCatalog]);
+        console.log('Catálogo atualizado com novo móvel:', furnitureData.name);
+      });
+    });
   };
 
-  const handleAddTexture = (textureData: any) => {
+  const handleAddTexture = async (textureData: any) => {
     mockStorageService.addCustomTexture(textureData);
 
-    // Forçar atualização do catálogo com delay para garantir que seja processado
-    setTimeout(() => {
-      const newCatalog = mockStorageService.getFurnitureCatalog();
-      setCatalog([...newCatalog]); // Usar spread para forçar re-render
-      console.log('Catálogo atualizado com nova textura:', textureData.name);
-    }, 100);
+    // Atualizar catálogo de forma assíncrona
+    requestAnimationFrame(() => {
+      requestIdleCallback(() => {
+        const newCatalog = mockStorageService.getFurnitureCatalog();
+        setCatalog([...newCatalog]);
+        console.log('Catálogo atualizado com nova textura:', textureData.name);
+      });
+    });
   };
 
   const handleTextureApplied = (surfaceType: string, wallId?: string) => {
@@ -220,20 +258,67 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     console.log('Dimensões do quarto atualizadas:', newDimensions);
   };
 
-  const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
-    mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
-    setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+  // Debounce para updates de transform
+  const transformUpdateRef = useRef<NodeJS.Timeout>();
+
+  // Componente para interpolação suave do zoom
+  const SmoothZoomController = () => {
+    const { camera } = useThree();
+
+    useFrame((state, delta) => {
+      if (!controlsRef.current) return;
+
+      // Interpolar suavemente entre zoom atual e zoom alvo
+      const lerpSpeed = 6; // Velocidade da interpolação
+      currentZoomRef.current = THREE.MathUtils.lerp(
+        currentZoomRef.current,
+        targetZoomRef.current,
+        delta * lerpSpeed
+      );
+
+      // Aplicar o zoom interpolado
+      const controls = controlsRef.current;
+      const direction = camera.position.clone().sub(controls.target).normalize();
+      const newPosition = controls.target.clone().add(
+        direction.multiplyScalar(currentZoomRef.current)
+      );
+
+      camera.position.copy(newPosition);
+      controls.update();
+    });
+
+    return null;
   };
 
-  const handleUpdateCatalogItem = (furnitureId: string, newScale: [number, number, number]) => {
-    if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
-      // Recarregar catálogo para refletir mudanças
-      setCatalog(mockStorageService.getFurnitureCatalog());
 
-      // Mostrar notificação
-      setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
-      setTimeout(() => setCatalogUpdateNotification(null), 3000);
+
+  const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
+    // Debounce para evitar atualizações excessivas durante drag
+    if (transformUpdateRef.current) {
+      clearTimeout(transformUpdateRef.current);
     }
+
+    transformUpdateRef.current = setTimeout(() => {
+      requestIdleCallback(() => {
+        mockStorageService.updateFurnitureTransform(userId, id, position, rotation, scale);
+        setPlacedFurniture(mockStorageService.getPlacedFurniture(userId));
+      });
+    }, 50);
+  };
+
+  const handleUpdateCatalogItem = async (furnitureId: string, newScale: [number, number, number]) => {
+    requestAnimationFrame(() => {
+      if (mockStorageService.updateCatalogItemScale(furnitureId, newScale)) {
+        // Recarregar catálogo de forma assíncrona
+        requestIdleCallback(() => {
+          setCatalog(mockStorageService.getFurnitureCatalog());
+
+          // Mostrar notificação
+          setCatalogUpdateNotification('Escala atualizada permanentemente no catálogo!');
+          setTimeout(() => setCatalogUpdateNotification(null), 3000);
+        });
+      }
+    });
   };
 
   const handleContextMenu = (event: any, furnitureId: string) => {
@@ -299,7 +384,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onClick={() => setUse2DMode(!use2DMode)}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             >
-              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
+              {use2DMode ? '�� Modo 3D' : '📱 Modo 2D'}
             </button>
           )}
           {!webglSupport.hasSupport && (
@@ -369,7 +454,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Alternar para modo 2D"
         >
-          📱 Modo 2D
+          ���� Modo 2D
         </button>
 
         <button
@@ -410,10 +495,26 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           far: 100
         }}
         className="w-full h-full"
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1,
+          outputColorSpace: THREE.SRGBColorSpace,
+          shadowMap: {
+            enabled: true,
+            type: THREE.PCFSoftShadowMap
+          }
+        }}
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
           state.gl.setClearColor('#1a2845', 1);
+          state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
+
+          // Inicializar zoom com distância atual da câmera
+          const initialDistance = state.camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+          targetZoomRef.current = initialDistance;
+          currentZoomRef.current = initialDistance;
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
@@ -426,34 +527,49 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação Simples e Estável */}
-          <ambientLight intensity={0.6} color="#ffffff" />
+          {/* Iluminação PBR otimizada */}
+          <ambientLight intensity={0.4} color="#f0f8ff" />
           <directionalLight
-            position={[0, 10, 0]}
+            position={[5, 10, 5]}
             intensity={0.8}
             color="#ffffff"
-            castShadow={false}
+            castShadow={true}
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-near={0.1}
+            shadow-camera-far={50}
+            shadow-camera-left={-10}
+            shadow-camera-right={10}
+            shadow-camera-top={10}
+            shadow-camera-bottom={-10}
+            shadow-bias={-0.0001}
           />
           <pointLight
             position={[0, 4, 0]}
-            intensity={0.3}
+            intensity={0.4}
             color="#fff8dc"
             distance={15}
             decay={2}
+            castShadow={true}
+            shadow-mapSize={[1024, 1024]}
           />
           
           {/* Controles de câmera */}
           <OrbitControls
             ref={controlsRef}
             enablePan={!draggedTexture}
-            enableZoom={!draggedTexture}
+            enableZoom={false} // Desabilitado para usar nosso sistema customizado
             enableRotate={!draggedTexture}
             enabled={!draggedTexture}
-            minDistance={5}
-            maxDistance={20}
+            minDistance={2}
+            maxDistance={35}
             maxPolarAngle={Math.PI / 2}
             target={[0, 0, 0]}
+            enableDamping={true}
+            dampingFactor={0.05}
           />
+
+          {/* Sistema de zoom com interpolação suave */}
+          <SmoothZoomController />
           
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
@@ -495,6 +611,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               />
             );
           })}
+
+          {/* Post-Processing Effects removido temporariamente devido a incompatibilidade de versões */}
+          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as dependências forem atualizadas */}
         </Suspense>
       </Canvas>
 
