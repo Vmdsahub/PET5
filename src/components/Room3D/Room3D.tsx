@@ -59,26 +59,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       setRoomUpdateKey(prev => prev + 1);
     };
 
-    // Handler para zoom suave com scroll do mouse
-    const handleWheel = (event: WheelEvent) => {
-      if (!controlsRef.current || draggedTexture) return;
-
-      event.preventDefault();
-
-      // Sensibilidade do zoom (menor = mais suave, maior = mais responsivo)
-      const zoomSensitivity = 3.0;
-      const zoomStep = event.deltaY * 0.001 * zoomSensitivity;
-
-      // Calcular novo zoom alvo (limitado entre 2 e 35 unidades)
-      const newTargetZoom = Math.max(2, Math.min(35, targetZoomRef.current + zoomStep));
-      targetZoomRef.current = newTargetZoom;
-    };
-
     window.addEventListener('forceRoomUpdate', handleForceRoomUpdate);
     window.addEventListener('roomTextureUpdate', handleRoomTextureUpdate);
-
-    // Adicionar listener de scroll para zoom suave
-    window.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       // Cleanup event listeners
