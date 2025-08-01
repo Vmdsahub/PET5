@@ -636,25 +636,35 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
-            windowCutouts={placedFurniture
-              .filter((furniture) => furniture.furnitureType === 'janela')
-              .map((windowFurniture) => {
-                const [x, y, z] = windowFurniture.position;
-                let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
+            windowCutouts={(() => {
+              // Sistema super simples: coletar apenas janelas únicas
+              const windowIds = new Set();
+              const uniqueWindows = [];
 
-                // Determinar parede de forma simples
-                if (z < -4) wallDirection = 'north';
-                else if (z > 4) wallDirection = 'south';
-                else if (x > 4) wallDirection = 'east';
-                else if (x < -4) wallDirection = 'west';
+              for (const furniture of placedFurniture) {
+                if (furniture.furnitureType === 'janela' && !windowIds.has(furniture.id)) {
+                  windowIds.add(furniture.id);
 
-                return {
-                  position: windowFurniture.position,
-                  wallDirection,
-                  size: [1.0, 1.0] as [number, number] // Tamanho fixo e simples
-                };
-              })
-            }
+                  const [x, y, z] = furniture.position;
+                  let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
+
+                  // Determinar parede de forma bem simples
+                  if (z < -4) wallDirection = 'north';
+                  else if (z > 4) wallDirection = 'south';
+                  else if (x > 4) wallDirection = 'east';
+                  else if (x < -4) wallDirection = 'west';
+
+                  uniqueWindows.push({
+                    id: furniture.id,
+                    position: furniture.position,
+                    wallDirection,
+                    size: [1.0, 1.0] as [number, number]
+                  });
+                }
+              }
+
+              return uniqueWindows;
+            })()}
           />
 
           {/* Móveis colocados */}
