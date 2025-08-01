@@ -22,9 +22,9 @@ export const Room3DStarsOverlay: React.FC = () => {
       starArray.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
-        size: 1 + Math.random() * 2, // 1-3px stars
-        opacity: 0.6 + Math.random() * 0.4, // 0.6-1.0 opacity
-        color: Math.random() < 0.8 ? "#ffffff" : "#87CEEB", // Mostly white, some blue
+        size: 1.5 + Math.random() * 2.5, // 1.5-4px stars - bigger
+        opacity: 0.8 + Math.random() * 0.2, // 0.8-1.0 opacity - brighter
+        color: Math.random() < 0.7 ? "#ffffff" : "#4FC3F7", // Bright blue contrast
         twinklePhase: Math.random() * Math.PI * 2,
       });
     }
