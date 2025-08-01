@@ -92,20 +92,8 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
       });
     }
 
-    // Atualizar paredes de forma assíncrona
-    const wallRefs = [wallNorthRef, wallSouthLeftRef, wallSouthRightRef, wallEastRef, wallWestRef];
-    const wallIds = ['north', 'south-left', 'south-right', 'east', 'west'];
-
-    for (let i = 0; i < wallRefs.length; i++) {
-      if (wallRefs[i].current) {
-        await updateChunk(() => {
-          if (wallRefs[i].current) {
-            const wallTexture = roomTextures.walls[wallIds[i]];
-            wallRefs[i].current.material = createMaterialFromTexture(wallTexture, '#f0f0f0', 'wall');
-          }
-        });
-      }
-    }
+    // Atualizar paredes com cutouts através de eventos
+    // As paredes agora são componentes WallWithCutouts que se atualizam automaticamente
   };
 
   // Refs para cada superfície
