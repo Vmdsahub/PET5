@@ -67,7 +67,7 @@ interface StarPointProps {
 }
 
 const StarPoint: React.FC<StarPointProps> = ({ position, size, color, twinkleSpeed, twinklePhase }) => {
-  const meshRef = React.useRef<THREE.Mesh>(null);
+  const meshRef = React.useRef<THREE.Mesh>(null!);
 
   useFrame((state) => {
     if (meshRef.current) {
