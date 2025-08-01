@@ -278,7 +278,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       if (!controlsRef.current || !enabled) return;
 
       // Interpolar suavemente entre o zoom atual e o zoom alvo
-      const lerpFactor = Math.min(delta * 8, 1); // Velocidade da suavização (8 = velocidade)
+      const lerpFactor = Math.min(delta * 15, 1); // Velocidade da suavização (15 = velocidade)
       currentZoomRef.current = THREE.MathUtils.lerp(
         currentZoomRef.current,
         targetZoomRef.current,
