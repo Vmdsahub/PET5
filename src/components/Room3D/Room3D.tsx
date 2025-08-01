@@ -69,7 +69,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       event.preventDefault();
 
       // Sensibilidade do zoom (menor = mais suave, maior = mais responsivo)
-      const zoomSensitivity = 1.2;
+      const zoomSensitivity = 3.0;
       const zoomStep = event.deltaY * 0.001 * zoomSensitivity;
 
       // Calcular novo zoom alvo (limitado entre 2 e 35 unidades)
