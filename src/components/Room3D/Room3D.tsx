@@ -572,8 +572,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           {/* Sistema de zoom com interpolação suave */}
           <SmoothZoomController />
 
-          {/* Campo de estrelas para sensação de profundidade */}
-          <Room3DStars />
+          {/* Removido - usando overlay 2D fora do Canvas */}
 
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
