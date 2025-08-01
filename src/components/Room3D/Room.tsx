@@ -128,27 +128,8 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         ceilingRef.current.visible = cameraPos.y < height - 0.2;
       }
 
-      // Paredes - mostrar apenas quando visualizadas de fora
-      if (wallNorthRef.current) {
-        wallNorthRef.current.visible = cameraPos.z > -length/2 + 0.3;
-      }
-
-      if (wallEastRef.current) {
-        wallEastRef.current.visible = cameraPos.x < width/2 - 0.3;
-      }
-
-      if (wallWestRef.current) {
-        wallWestRef.current.visible = cameraPos.x > -width/2 + 0.3;
-      }
-
-      // Paredes do sul (com entrada)
-      if (wallSouthLeftRef.current) {
-        wallSouthLeftRef.current.visible = cameraPos.z < length/2 - 0.3;
-      }
-
-      if (wallSouthRightRef.current) {
-        wallSouthRightRef.current.visible = cameraPos.z < length/2 - 0.3;
-      }
+      // Sistema de culling para WallWithCutouts será implementado posteriormente se necessário
+      // Por enquanto, as paredes serão sempre visíveis para garantir que os cutouts funcionem
     });
   });
 
