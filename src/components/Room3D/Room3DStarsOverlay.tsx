@@ -40,8 +40,8 @@ export const Room3DStarsOverlay: React.FC = () => {
         y: Math.random() * window.innerHeight,
         baseX: Math.random() * window.innerWidth,
         baseY: Math.random() * window.innerHeight,
-        size: 0.3 + Math.random() * 0.5, // Very small
-        opacity: 0.2 + Math.random() * 0.3, // Very subtle
+        size: 0.5 + Math.random() * 0.8, // Slightly larger
+        opacity: 0.4 + Math.random() * 0.4, // More visible
         color: Math.random() < 0.95 ? "#ffffff" : generateStarColor(),
         twinkleSpeed: 0.1 + Math.random() * 0.3,
         twinklePhase: Math.random() * Math.PI * 2,
