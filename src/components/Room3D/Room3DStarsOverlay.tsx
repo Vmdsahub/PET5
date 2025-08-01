@@ -1,0 +1,166 @@
+import React, { useEffect, useRef, useMemo } from 'react';
+
+interface Star {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  color: string;
+  twinkleSpeed: number;
+  twinklePhase: number;
+  parallax: number;
+}
+
+export const Room3DStarsOverlay: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+  const startTimeRef = useRef<number>(Date.now());
+
+  // Generate stars like in SpaceMap
+  const stars = useMemo<Star[]>(() => {
+    const starArray: Star[] = [];
+    
+    // Generate random star colors like in SpaceMap
+    const generateRandomStarColor = () => {
+      const colors = [
+        "#87CEEB", "#87CEFA", "#4169E1", "#6495ED", "#00BFFF", "#1E90FF",
+        "#90EE90", "#98FB98", "#00FF7F", "#32CD32", "#00FA9A",
+        "#DA70D6", "#BA55D3", "#9370DB", "#8A2BE2", "#DDA0DD",
+        "#FF69B4", "#FFB6C1", "#FF1493", "#FFA500", "#FF8C00"
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    };
+
+    // Create layered stars with different parallax like SpaceMap
+    // Layer 1: Deep background
+    for (let i = 0; i < 150; i++) {
+      starArray.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: 0.5 + Math.random() * 1.0,
+        opacity: 0.3 + Math.random() * 0.4,
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        twinkleSpeed: 0.5 + Math.random() * 1.5,
+        twinklePhase: Math.random() * Math.PI * 2,
+        parallax: 0.1, // Very subtle movement
+      });
+    }
+
+    // Layer 2: Mid background
+    for (let i = 0; i < 100; i++) {
+      starArray.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: 0.7 + Math.random() * 1.2,
+        opacity: 0.4 + Math.random() * 0.4,
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        twinkleSpeed: 0.3 + Math.random() * 1.2,
+        twinklePhase: Math.random() * Math.PI * 2,
+        parallax: 0.2,
+      });
+    }
+
+    // Layer 3: Foreground
+    for (let i = 0; i < 50; i++) {
+      starArray.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: 1.0 + Math.random() * 1.5,
+        opacity: 0.5 + Math.random() * 0.4,
+        color: Math.random() < 0.92 ? "#ffffff" : generateRandomStarColor(),
+        twinkleSpeed: 0.2 + Math.random() * 1.0,
+        twinklePhase: Math.random() * Math.PI * 2,
+        parallax: 0.3,
+      });
+    }
+
+    return starArray;
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size
+    const updateCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const currentTime = (Date.now() - startTimeRef.current) * 0.001; // Convert to seconds
+
+      stars.forEach(star => {
+        // Calculate twinkle effect
+        const twinkle = 0.3 + 0.7 * (1 + Math.sin(currentTime * star.twinkleSpeed + star.twinklePhase)) / 2;
+        const currentOpacity = star.opacity * twinkle;
+
+        // Subtle parallax movement
+        const offsetX = Math.sin(currentTime * 0.1) * star.parallax * 2;
+        const offsetY = Math.cos(currentTime * 0.15) * star.parallax * 1.5;
+
+        const x = star.x + offsetX;
+        const y = star.y + offsetY;
+
+        // Draw star like in SpaceMap
+        ctx.save();
+        ctx.globalAlpha = currentOpacity;
+
+        // Outer glow
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, star.size * 3);
+        gradient.addColorStop(0, star.color);
+        gradient.addColorStop(0.4, star.color + '80'); // Semi-transparent
+        gradient.addColorStop(1, star.color + '00'); // Fully transparent
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, star.size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main star body
+        ctx.fillStyle = star.color;
+        ctx.beginPath();
+        ctx.arc(x, y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright center
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(x, y, star.size * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      });
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [stars]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{
+        mixBlendMode: 'screen', // Blends nicely with the background
+        opacity: 0.6, // Subtle effect
+      }}
+    />
+  );
+};
