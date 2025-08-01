@@ -637,6 +637,34 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             dimensions={roomDimensions}
             userId={userId}
             draggedTexture={draggedTexture}
+            windowCutouts={placedFurniture
+              .filter((furniture) => furniture.furnitureType === 'janela')
+              .map((windowFurniture) => {
+                // Determinar direção da parede baseado na posição
+                const getWallDirection = (position: [number, number, number]): 'north' | 'south' | 'east' | 'west' => {
+                  const [x, y, z] = position;
+                  const distances = {
+                    north: Math.abs(z + 4.7),  // Parede norte (z ≈ -4.7)
+                    south: Math.abs(z - 4.7),  // Parede sul (z ≈ 4.7)
+                    east: Math.abs(x - 4.7),   // Parede leste (x ≈ 4.7)
+                    west: Math.abs(x + 4.7)    // Parede oeste (x ≈ -4.7)
+                  };
+
+                  return Object.keys(distances).reduce((a, b) =>
+                    distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
+                  ) as 'north' | 'south' | 'east' | 'west';
+                };
+
+                const wallDirection = getWallDirection(windowFurniture.position);
+                const furnitureScale = windowFurniture.scale || [1, 1, 1];
+
+                return {
+                  position: windowFurniture.position,
+                  wallDirection,
+                  size: [furnitureScale[0] * 1.5, furnitureScale[1] * 1.8] as [number, number]
+                };
+              })
+            }
           />
 
           {/* Móveis colocados */}
@@ -704,7 +732,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             })}
 
           {/* Post-Processing Effects removido temporariamente devido a incompatibilidade de versões */}
-          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as depend��ncias forem atualizadas */}
+          {/* EffectComposer com FXAA, SSAO e Bloom será reimplementado quando as dependências forem atualizadas */}
         </Suspense>
       </Canvas>
 
