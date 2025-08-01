@@ -95,12 +95,9 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
         </div>
       </div>
 
-      {/* Ambient Light - Única fonte de luz em quarto fechado */}
+      {/* Ambient Light */}
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
         <h4 className="font-medium text-blue-800 mb-3">🌌 Luz Ambiente</h4>
-        <p className="text-sm text-gray-600 mb-3">
-          💡 Em um quarto fechado sem janelas, apenas a luz ambiente é realista.
-        </p>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -108,8 +105,8 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
             </label>
             <input
               type="range"
-              min="0.1"
-              max="1.5"
+              min="0"
+              max="1"
               step="0.05"
               value={settings.ambientIntensity}
               onChange={(e) => updateSetting('ambientIntensity', parseFloat(e.target.value))}
@@ -128,14 +125,89 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
         </div>
       </div>
 
-      {/* Nota explicativa */}
+      {/* Directional Light */}
       <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-        <h4 className="font-medium text-yellow-800 mb-2">ℹ️ Realismo Físico</h4>
-        <p className="text-sm text-yellow-700">
-          As luzes direcional (sol) e pontual foram removidas porque não são realistas
-          para um quarto fechado sem janelas ou aberturas. A luz ambiente simula
-          a iluminação difusa que existiria no ambiente.
+        <h4 className="font-medium text-yellow-800 mb-3">☀️ Luz Direcional (Sol)</h4>
+        <p className="text-sm text-gray-600 mb-3">
+          🪟 Preparada para quando janelas forem adicionadas ao quarto.
         </p>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Intensidade: {settings.directionalIntensity.toFixed(2)}
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={settings.directionalIntensity}
+              onChange={(e) => updateSetting('directionalIntensity', parseFloat(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+            <input
+              type="color"
+              value={settings.directionalColor}
+              onChange={(e) => updateSetting('directionalColor', e.target.value)}
+              className="w-full h-8 rounded cursor-pointer"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <label className="block text-xs text-gray-600">X: {settings.directionalPosition[0]}</label>
+              <input
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                value={settings.directionalPosition[0]}
+                onChange={(e) => updateDirectionalPosition(0, parseFloat(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600">Y: {settings.directionalPosition[1]}</label>
+              <input
+                type="range"
+                min="5"
+                max="25"
+                step="0.5"
+                value={settings.directionalPosition[1]}
+                onChange={(e) => updateDirectionalPosition(1, parseFloat(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600">Z: {settings.directionalPosition[2]}</label>
+              <input
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                value={settings.directionalPosition[2]}
+                onChange={(e) => updateDirectionalPosition(2, parseFloat(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={settings.castShadows}
+                onChange={(e) => updateSetting('castShadows', e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm text-gray-700">Projetar sombras</span>
+            </label>
+          </div>
+        </div>
       </div>
 
       {/* Directional Light */}
