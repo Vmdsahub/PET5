@@ -66,7 +66,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
       // Cleanup event listeners
       window.removeEventListener('forceRoomUpdate', handleForceRoomUpdate);
       window.removeEventListener('roomTextureUpdate', handleRoomTextureUpdate);
-      window.removeEventListener('wheel', handleWheel);
 
       // Cleanup transformUpdateRef debounce timeout
       if (transformUpdateRef.current) {
