@@ -517,7 +517,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             title="Configurar propriedades do quarto"
           >
-            ⚙️ Propriedades
+            ��️ Propriedades
           </button>
         )}
       </div>
@@ -660,7 +660,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
                 return {
                   position: windowFurniture.position,
                   wallDirection,
-                  size: [furnitureScale[0] * 1.5, furnitureScale[1] * 1.8] as [number, number]
+                  size: [furnitureScale[0] * 1.2, furnitureScale[1] * 1.2] as [number, number]
                 };
               })
             }
