@@ -58,7 +58,8 @@ export const AddFurnitureModal: React.FC<AddFurnitureModalProps> = ({
     description: '',
     category: 'basicos',
     price: '',
-    currency: 'xenocoins' as 'xenocoins' | 'xenocash'
+    currency: 'xenocoins' as 'xenocoins' | 'xenocash',
+    furnitureType: 'simples' as 'simples' | 'janela'
   });
 
   // Usar React.useMemo para atualizar dinamicamente as seções
