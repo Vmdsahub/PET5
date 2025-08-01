@@ -61,6 +61,25 @@ export const Room3DStars: React.FC = () => {
       });
     }
 
+    // Add some nebula dust points for extra atmosphere
+    for (let i = 0; i < 30; i++) {
+      const radius = 45 + Math.random() * 30;
+      const phi = Math.acos(-1 + (2 * Math.random()));
+      const theta = Math.random() * 2 * Math.PI;
+
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+
+      starArray.push({
+        position: [x, y, z],
+        size: 0.3 + Math.random() * 0.6,
+        color: '#3b82f6', // Blue nebula color
+        twinkleSpeed: 0.1 + Math.random() * 0.3,
+        twinklePhase: Math.random() * Math.PI * 2,
+      });
+    }
+
     return starArray;
   }, []);
 
