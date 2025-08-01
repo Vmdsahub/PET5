@@ -118,16 +118,7 @@ export const Room3DStarsOverlay: React.FC = () => {
 
   // Listen for camera changes from OrbitControls
   useEffect(() => {
-    const handleCameraChange = (event: CustomEvent) => {
-      const { position, target, zoom, deltaX, deltaY, deltaZ } = event.detail;
 
-      // Atualizar estado da câmera baseado nos dados reais do Three.js
-      setCameraState(prev => ({
-        x: prev.x + deltaX * 50, // Amplificar movimento para efeito parallax
-        y: prev.y + deltaY * 50,
-        zoom: zoom,
-      }));
-    };
 
     const handleMouseMove = (event: MouseEvent) => {
       // Detectar movimento do mouse APENAS durante rotação com botão direito
