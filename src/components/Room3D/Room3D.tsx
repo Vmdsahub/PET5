@@ -60,6 +60,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
     pointDistance: 15,
     pointDecay: 2,
   });
+  const [showLightHelpers, setShowLightHelpers] = useState(false);
   const controlsRef = useRef<any>();
   const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
   const currentZoomRef = useRef<number>(12); // Valor atual interpolado
