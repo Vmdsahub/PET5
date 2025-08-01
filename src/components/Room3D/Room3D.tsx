@@ -48,13 +48,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
-    ambientIntensity: 0.8,
-    ambientColor: '#f8f8ff',
-    directionalIntensity: 0.0, // Removida - quarto fechado
-    directionalColor: '#ffffff',
-    directionalPosition: [5, 10, 5],
-    castShadows: false, // Sem sombras sem luz direcional
-    pointIntensity: 0.0, // Removida
+    ambientIntensity: 0.4,
+    ambientColor: '#f0f8ff',
+    directionalIntensity: 0.6, // Restaurada para futuras janelas
+    directionalColor: '#fff8e7',
+    directionalPosition: [8, 12, 6], // Posição mais natural do sol
+    castShadows: true, // Sombras realistas
+    pointIntensity: 0.0, // Mantida removida
     pointColor: '#fff8dc',
     pointPosition: [0, 4, 0],
     pointDistance: 15,
