@@ -20,6 +20,7 @@ interface WallWithCutoutsProps {
   material: THREE.Material;
   name: string;
   userData: any;
+  wallRef?: React.RefObject<THREE.Mesh>;
 }
 
 export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
