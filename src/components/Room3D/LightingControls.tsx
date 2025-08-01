@@ -95,9 +95,12 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
         </div>
       </div>
 
-      {/* Ambient Light */}
+      {/* Ambient Light - Única fonte de luz em quarto fechado */}
       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
         <h4 className="font-medium text-blue-800 mb-3">🌌 Luz Ambiente</h4>
+        <p className="text-sm text-gray-600 mb-3">
+          💡 Em um quarto fechado sem janelas, apenas a luz ambiente é realista.
+        </p>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -105,8 +108,8 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
             </label>
             <input
               type="range"
-              min="0"
-              max="1"
+              min="0.1"
+              max="1.5"
               step="0.05"
               value={settings.ambientIntensity}
               onChange={(e) => updateSetting('ambientIntensity', parseFloat(e.target.value))}
@@ -123,6 +126,16 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
             />
           </div>
         </div>
+      </div>
+
+      {/* Nota explicativa */}
+      <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+        <h4 className="font-medium text-yellow-800 mb-2">ℹ️ Realismo Físico</h4>
+        <p className="text-sm text-yellow-700">
+          As luzes direcional (sol) e pontual foram removidas porque não são realistas
+          para um quarto fechado sem janelas ou aberturas. A luz ambiente simula
+          a iluminação difusa que existiria no ambiente.
+        </p>
       </div>
 
       {/* Directional Light */}
