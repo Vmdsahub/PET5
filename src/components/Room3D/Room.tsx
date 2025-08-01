@@ -218,6 +218,8 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         position={[0, wallCenterY, -length/2 + wallThickness/2]}
         rotation={[0, 0, 0]}
         userData={{ wallId: 'north', surfaceType: 'wall' }}
+        receiveShadow={true}
+        castShadow={true}
       >
         <boxGeometry args={[width, wallHeight, wallThickness]} />
         <primitive
