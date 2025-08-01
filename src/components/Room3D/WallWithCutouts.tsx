@@ -38,6 +38,8 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
     // Filtrar cutouts relevantes para esta parede
     const relevantCutouts = cutouts.filter(cutout => cutout.wallDirection === wallDirection);
 
+    console.log(`Parede ${wallDirection}: ${relevantCutouts.length} cutouts`, relevantCutouts.map(c => c.id));
+
     if (relevantCutouts.length === 0) {
       // Se não há cutouts, usar geometria simples
       return new THREE.BoxGeometry(width, height, thickness);
