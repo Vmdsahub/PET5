@@ -282,9 +282,6 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
 
       // Lógica especial para móveis do tipo janela
       if (furniture.furnitureType === 'janela') {
-        // Móveis tipo janela só podem ser colocados em paredes
-        const wallThreshold = 4.3; // Distância próxima às paredes
-
         // Verificar qual parede está mais próxima
         const distances = {
           north: Math.abs(newPosition.z + 4.9),  // Parede norte (z = -4.9)
@@ -298,28 +295,30 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
           distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
         );
 
-        // Encaixar na parede mais próxima
+        // Encaixar na parede mais próxima, mas manter movimento livre ao longo da parede
         switch (nearestWall) {
           case 'north':
-            newPosition.z = -4.7; // Posicionar na parede norte
-            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
+            newPosition.z = -4.7; // Fixar na parede norte
+            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x)); // Movimento livre horizontal
+            // Manter a posição Y do mouse (permitir movimento vertical)
+            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
             break;
           case 'south':
-            newPosition.z = 4.7; // Posicionar na parede sul
-            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
+            newPosition.z = 4.7; // Fixar na parede sul
+            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x)); // Movimento livre horizontal
+            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
             break;
           case 'east':
-            newPosition.x = 4.7; // Posicionar na parede leste
-            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
+            newPosition.x = 4.7; // Fixar na parede leste
+            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z)); // Movimento livre na profundidade
+            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
             break;
           case 'west':
-            newPosition.x = -4.7; // Posicionar na parede oeste
-            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
+            newPosition.x = -4.7; // Fixar na parede oeste
+            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z)); // Movimento livre na profundidade
+            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
             break;
         }
-
-        // Ajustar altura para móveis tipo janela (podem ficar suspensos)
-        newPosition.y = 1.2; // Altura típica de janela
       } else {
         // Lógica normal para móveis simples
         newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
