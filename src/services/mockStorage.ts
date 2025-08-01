@@ -10,6 +10,7 @@ export interface FurnitureItem {
   price: number;
   description: string;
   quantity?: number;
+  furnitureType?: 'simples' | 'janela';
 }
 
 export interface RoomDimensions {
