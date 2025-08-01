@@ -129,13 +129,23 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       if (scene) {
         const clonedScene = scene.clone();
 
+        // Flip horizontal para móveis tipo janela
+        if (furniture.furnitureType === 'janela') {
+          clonedScene.scale.x = -1; // Flip horizontal
+        }
+
         // Calcular bounding box para escalar adequadamente
         const box = new THREE.Box3().setFromObject(clonedScene);
         const size = box.getSize(new THREE.Vector3());
         const maxDimension = Math.max(size.x, size.y, size.z);
         if (maxDimension > 0) {
           const scale = 1.5 / maxDimension;
-          clonedScene.scale.setScalar(scale);
+          // Preservar o flip horizontal se for janela
+          if (furniture.furnitureType === 'janela') {
+            clonedScene.scale.set(-scale, scale, scale);
+          } else {
+            clonedScene.scale.setScalar(scale);
+          }
         }
 
         // Otimizar materiais para qualidade visual em jogos de decoração
