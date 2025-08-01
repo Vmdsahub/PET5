@@ -22,6 +22,9 @@ export interface LightingSettings {
 interface LightingControlsProps {
   settings: LightingSettings;
   onChange: (settings: LightingSettings) => void;
+  isAdmin?: boolean;
+  onShowLightHelpers?: (show: boolean) => void;
+  showLightHelpers?: boolean;
 }
 
 export const LightingControls: React.FC<LightingControlsProps> = ({
