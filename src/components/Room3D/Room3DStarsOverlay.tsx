@@ -156,10 +156,10 @@ export const Room3DStarsOverlay: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 pointer-events-none"
       style={{
-        mixBlendMode: 'screen', // Blends nicely with the background
-        opacity: 0.6, // Subtle effect
+        zIndex: 1,
+        opacity: 0.8, // More visible
       }}
     />
   );
