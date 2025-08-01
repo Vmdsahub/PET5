@@ -129,22 +129,32 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
       if (scene) {
         const clonedScene = scene.clone();
 
-        // Flip horizontal para móveis tipo janela
-        if (furniture.furnitureType === 'janela') {
-          clonedScene.scale.x = -1; // Flip horizontal
-        }
-
         // Calcular bounding box para escalar adequadamente
         const box = new THREE.Box3().setFromObject(clonedScene);
         const size = box.getSize(new THREE.Vector3());
         const maxDimension = Math.max(size.x, size.y, size.z);
         if (maxDimension > 0) {
           const scale = 1.5 / maxDimension;
-          // Preservar o flip horizontal se for janela
-          if (furniture.furnitureType === 'janela') {
-            clonedScene.scale.set(-scale, scale, scale);
-          } else {
-            clonedScene.scale.setScalar(scale);
+          clonedScene.scale.setScalar(scale);
+        }
+
+        // Rotacionar janelas para alinhar com a parede
+        if (furniture.furnitureType === 'janela') {
+          const [x, y, z] = furniture.position;
+
+          // Determinar orientação baseada na posição da parede
+          if (Math.abs(z + 4.7) < 0.3) {
+            // Parede norte - janela olha para o sul
+            clonedScene.rotation.y = 0;
+          } else if (Math.abs(z - 4.7) < 0.3) {
+            // Parede sul - janela olha para o norte
+            clonedScene.rotation.y = Math.PI;
+          } else if (Math.abs(x - 4.7) < 0.3) {
+            // Parede leste - janela olha para o oeste
+            clonedScene.rotation.y = Math.PI / 2;
+          } else if (Math.abs(x + 4.7) < 0.3) {
+            // Parede oeste - janela olha para o leste
+            clonedScene.rotation.y = -Math.PI / 2;
           }
         }
 
