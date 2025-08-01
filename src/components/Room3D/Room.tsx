@@ -198,6 +198,8 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         position={[0, height - ceilingThickness/2, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         userData={{ surfaceType: 'ceiling' }}
+        receiveShadow={true}
+        castShadow={true}
       >
         <boxGeometry args={[width, length, ceilingThickness]} />
         <primitive
