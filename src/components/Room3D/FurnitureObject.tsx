@@ -268,65 +268,65 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     if (!meshRef.current || !editMode || !isDragging) return;
 
     if (editTool === 'move') {
-      const mousePosition = new Vector3(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
-        0
-      );
-
-      raycaster.setFromCamera(mousePosition, camera);
-      const intersectPoint = new Vector3();
-      raycaster.ray.intersectPlane(plane, intersectPoint);
-
-      const newPosition = intersectPoint.add(dragOffset);
-
       // Lógica especial para móveis do tipo janela
       if (furniture.furnitureType === 'janela') {
-        // Verificar qual parede está mais próxima
-        const distances = {
-          north: Math.abs(newPosition.z + 4.9),  // Parede norte (z = -4.9)
-          south: Math.abs(newPosition.z - 4.9),  // Parede sul (z = 4.9)
-          east: Math.abs(newPosition.x - 4.9),   // Parede leste (x = 4.9)
-          west: Math.abs(newPosition.x + 4.9)    // Parede oeste (x = -4.9)
-        };
+        // Para janelas, usar movimento 2D na parede
+        const currentPos = meshRef.current.position;
+        const deltaX = event.clientX - initialMousePos.x;
+        const deltaY = event.clientY - initialMousePos.y;
 
-        // Encontrar a parede mais próxima
-        const nearestWall = Object.keys(distances).reduce((a, b) =>
-          distances[a as keyof typeof distances] < distances[b as keyof typeof distances] ? a : b
-        );
+        // Determinar qual parede o móvel está anexado
+        const wallPosition = { x: currentPos.x, z: currentPos.z };
+        let isVerticalWall = false; // false = north/south, true = east/west
 
-        // Encaixar na parede mais próxima, mas manter movimento livre ao longo da parede
-        switch (nearestWall) {
-          case 'north':
-            newPosition.z = -4.7; // Fixar na parede norte
-            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x)); // Movimento livre horizontal
-            // Manter a posição Y do mouse (permitir movimento vertical)
-            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
-            break;
-          case 'south':
-            newPosition.z = 4.7; // Fixar na parede sul
-            newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x)); // Movimento livre horizontal
-            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
-            break;
-          case 'east':
-            newPosition.x = 4.7; // Fixar na parede leste
-            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z)); // Movimento livre na profundidade
-            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
-            break;
-          case 'west':
-            newPosition.x = -4.7; // Fixar na parede oeste
-            newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z)); // Movimento livre na profundidade
-            newPosition.y = Math.max(0.5, Math.min(4, newPosition.y));
-            break;
+        if (Math.abs(currentPos.z + 4.7) < 0.5 || Math.abs(currentPos.z - 4.7) < 0.5) {
+          // Parede norte ou sul
+          isVerticalWall = false;
+        } else {
+          // Parede leste ou oeste
+          isVerticalWall = true;
         }
+
+        let newX = currentPos.x;
+        let newY = currentPos.y;
+        let newZ = currentPos.z;
+
+        // Movimento baseado na orientação da parede
+        if (isVerticalWall) {
+          // Paredes leste/oeste: Z = horizontal, Y = vertical
+          newZ = initialTransform.position.z + (deltaX * 0.01);
+          newY = initialTransform.position.y - (deltaY * 0.01); // Inverter Y
+          newZ = Math.max(-4.5, Math.min(4.5, newZ));
+        } else {
+          // Paredes norte/sul: X = horizontal, Y = vertical
+          newX = initialTransform.position.x + (deltaX * 0.01);
+          newY = initialTransform.position.y - (deltaY * 0.01); // Inverter Y
+          newX = Math.max(-4.5, Math.min(4.5, newX));
+        }
+
+        // Limitar altura
+        newY = Math.max(0.5, Math.min(4, newY));
+
+        meshRef.current.position.set(newX, newY, newZ);
       } else {
         // Lógica normal para móveis simples
+        const mousePosition = new Vector3(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0
+        );
+
+        raycaster.setFromCamera(mousePosition, camera);
+        const intersectPoint = new Vector3();
+        raycaster.ray.intersectPlane(plane, intersectPoint);
+
+        const newPosition = intersectPoint.add(dragOffset);
         newPosition.x = Math.max(-4.5, Math.min(4.5, newPosition.x));
         newPosition.z = Math.max(-4.5, Math.min(4.5, newPosition.z));
         newPosition.y = 0; // Manter móveis no chão
-      }
 
-      meshRef.current.position.copy(newPosition);
+        meshRef.current.position.copy(newPosition);
+      }
     } else if (editTool === 'rotate') {
       const deltaX = event.clientX - initialMousePos.x;
       const rotationSpeed = 0.01;
