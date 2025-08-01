@@ -290,42 +290,34 @@ export const FurnitureObject: React.FC<FurnitureObjectProps> = ({
     if (editTool === 'move') {
       // Lógica especial para móveis do tipo janela
       if (furniture.furnitureType === 'janela') {
-        // Para janelas, usar movimento 2D na parede
-        const currentPos = meshRef.current.position;
         const deltaX = event.clientX - initialMousePos.x;
         const deltaY = event.clientY - initialMousePos.y;
 
-        // Determinar qual parede o móvel está anexado
-        const wallPosition = { x: currentPos.x, z: currentPos.z };
-        let isVerticalWall = false; // false = north/south, true = east/west
+        // Movimento simples e direto baseado no movimento do mouse
+        const sensitivity = 0.01;
+        const basePos = initialTransform.position;
 
-        if (Math.abs(currentPos.z + 4.7) < 0.5 || Math.abs(currentPos.z - 4.7) < 0.5) {
-          // Parede norte ou sul
-          isVerticalWall = false;
-        } else {
-          // Parede leste ou oeste
-          isVerticalWall = true;
-        }
+        let newX = basePos.x;
+        let newY = basePos.y - (deltaY * sensitivity); // Movimento vertical direto
+        let newZ = basePos.z;
 
-        let newX = currentPos.x;
-        let newY = currentPos.y;
-        let newZ = currentPos.z;
-
-        // Movimento baseado na orientação da parede
-        if (isVerticalWall) {
-          // Paredes leste/oeste: Z = horizontal, Y = vertical
-          newZ = initialTransform.position.z + (deltaX * 0.01);
-          newY = initialTransform.position.y - (deltaY * 0.01); // Inverter Y
-          newZ = Math.max(-4.5, Math.min(4.5, newZ));
-        } else {
-          // Paredes norte/sul: X = horizontal, Y = vertical
-          newX = initialTransform.position.x + (deltaX * 0.01);
-          newY = initialTransform.position.y - (deltaY * 0.01); // Inverter Y
+        // Movimento horizontal baseado na parede onde está
+        if (Math.abs(basePos.z + 4.7) < 0.3 || Math.abs(basePos.z - 4.7) < 0.3) {
+          // Paredes norte/sul - mover em X
+          newX = basePos.x + (deltaX * sensitivity);
           newX = Math.max(-4.5, Math.min(4.5, newX));
+          // Manter Z fixo na parede
+          newZ = Math.abs(basePos.z + 4.7) < 0.3 ? -4.7 : 4.7;
+        } else {
+          // Paredes leste/oeste - mover em Z
+          newZ = basePos.z + (deltaX * sensitivity);
+          newZ = Math.max(-4.5, Math.min(4.5, newZ));
+          // Manter X fixo na parede
+          newX = Math.abs(basePos.x + 4.7) < 0.3 ? -4.7 : 4.7;
         }
 
-        // Limitar altura
-        newY = Math.max(0.5, Math.min(4, newY));
+        // Limitar altura Y
+        newY = Math.max(0.5, Math.min(4.0, newY));
 
         meshRef.current.position.set(newX, newY, newZ);
       } else {
