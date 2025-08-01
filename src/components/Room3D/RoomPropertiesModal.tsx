@@ -107,9 +107,38 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
       maxHeight="90vh"
     >
       <div className="p-4 space-y-4">
-        {/* Dimensões principais */}
-        <div className="space-y-3">
-          <h3 className="text-base font-semibold text-gray-800">Dimensões</h3>
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <button
+            onClick={() => setActiveTab('dimensions')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'dimensions'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Home className="w-4 h-4" />
+            <span>Dimensões</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('lighting')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'lighting'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Lightbulb className="w-4 h-4" />
+            <span>Iluminação</span>
+          </button>
+        </div>
+
+        {/* Conteúdo das tabs */}
+        {activeTab === 'dimensions' && (
+          <>
+            {/* Dimensões principais */}
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-gray-800">Dimensões</h3>
 
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -217,22 +246,32 @@ export const RoomPropertiesModal: React.FC<RoomPropertiesModalProps> = ({
           </div>
         </div>
 
-        {/* Botões */}
-        <div className="flex space-x-2 pt-3 border-t border-gray-200">
-          <button
-            onClick={handleReset}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm transition-colors"
-          >
-            Padrão
-          </button>
+            {/* Botões */}
+            <div className="flex space-x-2 pt-3 border-t border-gray-200">
+              <button
+                onClick={handleReset}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm transition-colors"
+              >
+                Padrão
+              </button>
 
-          <button
-            onClick={onClose}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm transition-colors"
-          >
-            Fechar
-          </button>
-        </div>
+              <button
+                onClick={onClose}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded text-sm transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Tab de Iluminação */}
+        {activeTab === 'lighting' && lightingSettings && onLightingChange && (
+          <LightingControls
+            settings={lightingSettings}
+            onChange={onLightingChange}
+          />
+        )}
       </div>
     </SimpleModal>
   );
