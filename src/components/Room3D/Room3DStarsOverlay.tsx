@@ -84,20 +84,30 @@ export const Room3DStarsOverlay: React.FC = () => {
       const currentTime = Date.now() * 0.001;
 
       stars.forEach((star, index) => {
-        // Very subtle twinkle like SpaceMap
-        const twinkle = 0.7 + 0.3 * Math.sin(currentTime * 0.5 + star.twinklePhase);
+        // Subtle twinkle with varying speeds
+        const twinkleSpeed = 0.3 + (index % 3) * 0.2; // Vary twinkle speed per star
+        const twinkle = 0.6 + 0.4 * Math.sin(currentTime * twinkleSpeed + star.twinklePhase);
         const currentOpacity = star.opacity * twinkle;
 
-        // Very subtle parallax movement
-        const parallaxX = Math.sin(currentTime * star.parallaxSpeed + index) * 1;
-        const parallaxY = Math.cos(currentTime * star.parallaxSpeed * 0.7 + index) * 0.8;
+        // Multi-layered movement for depth
+        // Primary drift - different directions for each layer
+        const primaryDriftX = Math.sin(currentTime * star.parallaxSpeed + index * 0.1) * 2;
+        const primaryDriftY = Math.cos(currentTime * star.parallaxSpeed * 0.8 + index * 0.15) * 1.5;
 
-        const x = star.x + parallaxX;
-        const y = star.y + parallaxY;
+        // Secondary micro-movement for liveliness
+        const microDriftX = Math.sin(currentTime * (star.parallaxSpeed * 3) + index * 0.5) * 0.5;
+        const microDriftY = Math.cos(currentTime * (star.parallaxSpeed * 2.5) + index * 0.7) * 0.4;
 
-        // Wrap around screen
-        const wrappedX = ((x % canvas.width) + canvas.width) % canvas.width;
-        const wrappedY = ((y % canvas.height) + canvas.height) % canvas.height;
+        // Slow global flow - like stellar wind
+        const globalFlowX = Math.sin(currentTime * 0.008) * 0.8;
+        const globalFlowY = Math.cos(currentTime * 0.006) * 0.6;
+
+        const x = star.x + primaryDriftX + microDriftX + globalFlowX;
+        const y = star.y + primaryDriftY + microDriftY + globalFlowY;
+
+        // Extended wrap around for stars that go beyond edges
+        const wrappedX = ((x % (canvas.width + 400)) + (canvas.width + 400)) % (canvas.width + 400) - 200;
+        const wrappedY = ((y % (canvas.height + 400)) + (canvas.height + 400)) % (canvas.height + 400) - 200;
 
         // Draw tiny star - SpaceMap style
         ctx.save();
