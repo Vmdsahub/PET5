@@ -13,6 +13,8 @@ import { RoomUI } from './RoomUI';
 import { WebGLFallback } from './WebGLFallback';
 import { Room2DFallback } from './Room2DFallback';
 import { RoomPropertiesModal } from './RoomPropertiesModal';
+import { Room3DStarsOverlay } from './Room3DStarsOverlay';
+import { LightingControls, LightingSettings } from './LightingControls';
 import { detectWebGLSupport, getWebGLErrorMessage } from '../../utils/webglDetection';
 
 interface Room3DProps {
@@ -44,6 +46,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [roomDimensions, setRoomDimensions] = useState<RoomDimensions>(mockStorageService.getRoomDimensions());
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
+  const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
+    ambientIntensity: 0.4,
+    ambientColor: '#f0f8ff',
+    directionalIntensity: 0.8,
+    directionalColor: '#ffffff',
+    directionalPosition: [5, 10, 5],
+    castShadows: true,
+    pointIntensity: 0.4,
+    pointColor: '#fff8dc',
+    pointPosition: [0, 4, 0],
+    pointDistance: 15,
+    pointDecay: 2,
+  });
   const controlsRef = useRef<any>();
   const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
   const currentZoomRef = useRef<number>(12); // Valor atual interpolado
@@ -447,6 +462,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         linear-gradient(135deg, #1a2845 0%, #0f1c38 40%, #0a1228 70%, #050a18 100%)
       `
     }}>
+      {/* Overlay de estrelas 2D como background */}
+      <Room3DStarsOverlay />
+
       {/* Botões no canto superior direito */}
       <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
         <button
@@ -507,7 +525,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         }}
         onCreated={(state) => {
           console.log('Canvas 3D criado com sucesso');
-          state.gl.setClearColor('#1a2845', 1);
+          state.gl.setClearColor('#1a2845', 0); // Transparent to show stars behind
           state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
 
@@ -527,13 +545,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação PBR otimizada */}
-          <ambientLight intensity={0.4} color="#f0f8ff" />
+          {/* Iluminação PBR dinâmica controlada por interface */}
+          <ambientLight
+            intensity={lightingSettings.ambientIntensity}
+            color={lightingSettings.ambientColor}
+          />
           <directionalLight
-            position={[5, 10, 5]}
-            intensity={0.8}
-            color="#ffffff"
-            castShadow={true}
+            position={lightingSettings.directionalPosition}
+            intensity={lightingSettings.directionalIntensity}
+            color={lightingSettings.directionalColor}
+            castShadow={lightingSettings.castShadows}
             shadow-mapSize={[2048, 2048]}
             shadow-camera-near={0.1}
             shadow-camera-far={50}
@@ -544,11 +565,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             shadow-bias={-0.0001}
           />
           <pointLight
-            position={[0, 4, 0]}
-            intensity={0.4}
-            color="#fff8dc"
-            distance={15}
-            decay={2}
+            position={lightingSettings.pointPosition}
+            intensity={lightingSettings.pointIntensity}
+            color={lightingSettings.pointColor}
+            distance={lightingSettings.pointDistance}
+            decay={lightingSettings.pointDecay}
             castShadow={true}
             shadow-mapSize={[1024, 1024]}
           />
@@ -570,7 +591,9 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
           {/* Sistema de zoom com interpolação suave */}
           <SmoothZoomController />
-          
+
+          {/* Removido - usando overlay 2D fora do Canvas */}
+
           {/* Handler para detecção de texturas */}
           <TextureDropHandler
             draggedTexture={draggedTexture}
@@ -659,6 +682,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           isOpen={showRoomProperties}
           onClose={() => setShowRoomProperties(false)}
           onDimensionsUpdate={handleRoomDimensionsUpdate}
+          lightingSettings={lightingSettings}
+          onLightingChange={setLightingSettings}
         />
       )}
     </div>
