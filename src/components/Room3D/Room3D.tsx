@@ -1,5 +1,5 @@
-import React, { Suspense, useState, useRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { Suspense, useState, useRef, useEffect, useCallback } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows, Html } from '@react-three/drei';
 // import { EffectComposer, FXAA, SSAO, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
@@ -338,7 +338,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
               onClick={() => setUse2DMode(!use2DMode)}
               className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
             >
-              {use2DMode ? '🎮 Modo 3D' : '📱 Modo 2D'}
+              {use2DMode ? '🎮 Modo 3D' : '��� Modo 2D'}
             </button>
           )}
           {!webglSupport.hasSupport && (
