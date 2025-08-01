@@ -573,10 +573,24 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação ambiente para quarto fechado */}
+          {/* Iluminação com luz ambiente e direcional */}
           <ambientLight
             intensity={lightingSettings.ambientIntensity}
             color={lightingSettings.ambientColor}
+          />
+          <directionalLight
+            position={lightingSettings.directionalPosition}
+            intensity={lightingSettings.directionalIntensity}
+            color={lightingSettings.directionalColor}
+            castShadow={lightingSettings.castShadows}
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-near={0.1}
+            shadow-camera-far={50}
+            shadow-camera-left={-15}
+            shadow-camera-right={15}
+            shadow-camera-top={15}
+            shadow-camera-bottom={-15}
+            shadow-bias={-0.0001}
           />
 
           {/* Helpers visuais para luzes (apenas admin) */}
