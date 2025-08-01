@@ -504,9 +504,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
         </div>
       )}
 
-      {/* Overlay de estrelas 2D como no space map */}
-      <Room3DStarsOverlay />
-
       {/* Canvas 3D */}
       <Canvas
         camera={{
