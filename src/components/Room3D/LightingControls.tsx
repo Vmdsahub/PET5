@@ -73,12 +73,26 @@ export const LightingControls: React.FC<LightingControlsProps> = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800">⚡ Controles de Iluminação</h3>
-        <button
-          onClick={resetToDefaults}
-          className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors"
-        >
-          🔄 Resetar
-        </button>
+        <div className="flex gap-2">
+          {isAdmin && onShowLightHelpers && (
+            <button
+              onClick={() => onShowLightHelpers(!showLightHelpers)}
+              className={`text-sm px-3 py-1 rounded-md transition-colors ${
+                showLightHelpers
+                  ? 'bg-yellow-200 hover:bg-yellow-300 text-yellow-800'
+                  : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {showLightHelpers ? '👁️ Ocultar Trajetos' : '👁️ Ver Trajetos'}
+            </button>
+          )}
+          <button
+            onClick={resetToDefaults}
+            className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors"
+          >
+            🔄 Resetar
+          </button>
+        </div>
       </div>
 
       {/* Ambient Light */}
