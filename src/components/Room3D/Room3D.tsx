@@ -510,6 +510,11 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           state.gl.setClearColor('#1a2845', 1);
           state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           cameraRef.current = state.camera;
+
+          // Inicializar zoom com distância atual da câmera
+          const initialDistance = state.camera.position.distanceTo(new THREE.Vector3(0, 0, 0));
+          targetZoomRef.current = initialDistance;
+          currentZoomRef.current = initialDistance;
         }}
         onError={(error) => {
           console.error('Erro no Canvas 3D:', error);
