@@ -440,6 +440,14 @@ onContextMenu={(e) => {
     >
       {/* Contorno de seleção removido conforme solicitado */}
 
+      {/* Indicador visual para móveis tipo janela */}
+      {furniture.furnitureType === 'janela' && selected && (
+        <mesh position={[0, 2, 0]}>
+          <sphereGeometry args={[0.1, 8, 8]} />
+          <meshBasicMaterial color="#00ff88" transparent opacity={0.8} />
+        </mesh>
+      )}
+
       {/* Controles de edição intuitivos - apenas para admins */}
       {selected && editMode && isAdmin && (
         <>
@@ -463,7 +471,7 @@ onContextMenu={(e) => {
           >
             <torusGeometry args={[0.8, 0.03, 8, 32]} />
             <meshBasicMaterial
-              color="#ffffff"
+              color={furniture.furnitureType === 'janela' ? "#00ff88" : "#ffffff"}
               transparent
               opacity={0.8}
             />
