@@ -682,6 +682,8 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           isOpen={showRoomProperties}
           onClose={() => setShowRoomProperties(false)}
           onDimensionsUpdate={handleRoomDimensionsUpdate}
+          lightingSettings={lightingSettings}
+          onLightingChange={setLightingSettings}
         />
       )}
     </div>
