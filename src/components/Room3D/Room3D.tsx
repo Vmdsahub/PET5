@@ -663,12 +663,16 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
               console.log(`WINDOW: id=${window.id}, pos=[${x.toFixed(1)},${y.toFixed(1)},${z.toFixed(1)}], wall=${wallDirection}`);
 
-              return [{
+              const cutout = {
                 id: window.id,
                 position: window.position,
                 wallDirection,
                 size: [1.0, 1.0] as [number, number]
-              }];
+              };
+
+              console.log(`CUTOUT CREATED:`, cutout);
+
+              return [cutout];
             })()}
           />
 
