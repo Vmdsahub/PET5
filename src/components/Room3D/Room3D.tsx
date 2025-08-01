@@ -243,43 +243,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   // Debounce para updates de transform
   const transformUpdateRef = useRef<NodeJS.Timeout>();
 
-  // Componente interno para controlar o zoom suave
-  const SmoothZoomController = ({ controlsRef, targetZoomRef, currentZoomRef, enabled }: {
-    controlsRef: React.RefObject<any>;
-    targetZoomRef: React.MutableRefObject<number>;
-    currentZoomRef: React.MutableRefObject<number>;
-    enabled: boolean;
-  }) => {
-    const { camera } = useThree();
 
-    useFrame((state, delta) => {
-      if (!controlsRef.current || !enabled) return;
-
-      // Interpolar suavemente entre o zoom atual e o zoom alvo
-      const lerpFactor = Math.min(delta * 15, 1); // Velocidade da suavização (15 = velocidade)
-      currentZoomRef.current = THREE.MathUtils.lerp(
-        currentZoomRef.current,
-        targetZoomRef.current,
-        lerpFactor
-      );
-
-      // Aplicar o zoom interpolado
-      const controls = controlsRef.current;
-      const currentDistance = controls.getDistance();
-
-      // Só aplicar se a diferença for significativa para evitar tremulação
-      if (Math.abs(currentDistance - currentZoomRef.current) > 0.01) {
-        // Calcular a direção da câmera
-        const direction = camera.position.clone().sub(controls.target).normalize();
-        const newPosition = controls.target.clone().add(direction.multiplyScalar(currentZoomRef.current));
-
-        camera.position.copy(newPosition);
-        controls.update();
-      }
-    });
-
-    return null;
-  };
 
   const handleUpdateTransform = (id: string, position: [number, number, number], rotation: [number, number, number], scale: [number, number, number]) => {
     // Debounce para evitar atualizações excessivas durante drag
