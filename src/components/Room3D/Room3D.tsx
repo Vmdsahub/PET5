@@ -500,7 +500,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Alternar para modo 2D"
         >
-          ����� Modo 2D
+          ���� Modo 2D
         </button>
 
         <button
@@ -573,33 +573,10 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
             <div className="text-white text-xl">Carregando quarto...</div>
           </Html>
         }>
-          {/* Iluminação PBR dinâmica controlada por interface */}
+          {/* Iluminação ambiente para quarto fechado */}
           <ambientLight
             intensity={lightingSettings.ambientIntensity}
             color={lightingSettings.ambientColor}
-          />
-          <directionalLight
-            position={lightingSettings.directionalPosition}
-            intensity={lightingSettings.directionalIntensity}
-            color={lightingSettings.directionalColor}
-            castShadow={lightingSettings.castShadows}
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-near={0.1}
-            shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
-            shadow-bias={-0.0001}
-          />
-          <pointLight
-            position={lightingSettings.pointPosition}
-            intensity={lightingSettings.pointIntensity}
-            color={lightingSettings.pointColor}
-            distance={lightingSettings.pointDistance}
-            decay={lightingSettings.pointDecay}
-            castShadow={true}
-            shadow-mapSize={[1024, 1024]}
           />
 
           {/* Helpers visuais para luzes (apenas admin) */}
