@@ -655,13 +655,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
 
               let wallDirection: 'north' | 'south' | 'east' | 'west' = 'north';
 
-              // Determinar parede baseado na posição
-              if (z < -4) wallDirection = 'north';
-              else if (z > 4) wallDirection = 'south';
-              else if (x > 4) wallDirection = 'east';
-              else if (x < -4) wallDirection = 'west';
+              // Determinar parede baseado na posição com tolerância
+              if (Math.abs(z + 4.7) < 1.0) wallDirection = 'north';
+              else if (Math.abs(z - 4.7) < 1.0) wallDirection = 'south';
+              else if (Math.abs(x - 4.7) < 1.0) wallDirection = 'east';
+              else if (Math.abs(x + 4.7) < 1.0) wallDirection = 'west';
 
-              console.log(`WINDOW: id=${window.id}, pos=[${x},${y},${z}], wall=${wallDirection}`);
+              console.log(`WINDOW: id=${window.id}, pos=[${x.toFixed(1)},${y.toFixed(1)},${z.toFixed(1)}], wall=${wallDirection}`);
 
               return [{
                 id: window.id,
