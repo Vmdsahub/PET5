@@ -642,11 +642,19 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
                 // Determinar direção da parede baseado na posição
                 const getWallDirection = (position: [number, number, number]): 'north' | 'south' | 'east' | 'west' => {
                   const [x, y, z] = position;
+
+                  // Verificar qual coordenada está mais próxima das paredes
+                  if (Math.abs(z + 4.7) < 0.5) return 'north';  // z ≈ -4.7
+                  if (Math.abs(z - 4.7) < 0.5) return 'south';  // z ≈ 4.7
+                  if (Math.abs(x - 4.7) < 0.5) return 'east';   // x ≈ 4.7
+                  if (Math.abs(x + 4.7) < 0.5) return 'west';   // x ≈ -4.7
+
+                  // Fallback: usar distância mínima
                   const distances = {
-                    north: Math.abs(z + 4.7),  // Parede norte (z ≈ -4.7)
-                    south: Math.abs(z - 4.7),  // Parede sul (z ≈ 4.7)
-                    east: Math.abs(x - 4.7),   // Parede leste (x ≈ 4.7)
-                    west: Math.abs(x + 4.7)    // Parede oeste (x ≈ -4.7)
+                    north: Math.abs(z + 4.7),
+                    south: Math.abs(z - 4.7),
+                    east: Math.abs(x - 4.7),
+                    west: Math.abs(x + 4.7)
                   };
 
                   return Object.keys(distances).reduce((a, b) =>
