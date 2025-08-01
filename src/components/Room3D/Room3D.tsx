@@ -45,9 +45,6 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const controlsRef = useRef<any>();
-  const targetZoomRef = useRef<number>(12); // Valor alvo do zoom
-  const currentZoomRef = useRef<number>(12); // Valor atual do zoom (para interpolação)
-  const zoomAnimationRef = useRef<number | null>(null);
 
   // Hook para gerenciar texturas do quarto
   const { applyFloorTexture, applyCeilingTexture, applyWallTexture, clearAllTextures } = useRoomTextures(userId);
