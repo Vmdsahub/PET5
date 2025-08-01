@@ -54,26 +54,39 @@ export const WallWithCutouts: React.FC<WallWithCutoutsProps> = ({
     // Adicionar buracos para cada cutout
     relevantCutouts.forEach(cutout => {
       const [cutoutWidth, cutoutHeight] = cutout.size;
-      const [x, y, z] = cutout.position;
-      
-      // Calcular posição relativa do buraco na parede
-      let relativeX = x;
-      let relativeY = y - wallDimensions.position[1]; // Ajustar pela posição central da parede
-      
-      // Para paredes leste/oeste, usar Z como coordenada horizontal
-      if (wallDirection === 'east' || wallDirection === 'west') {
-        relativeX = z;
+      const [furnitureX, furnitureY, furnitureZ] = cutout.position;
+
+      // Calcular posição relativa do buraco na parede 2D
+      let relativeX = 0;
+      let relativeY = furnitureY - wallDimensions.position[1]; // Altura relativa
+
+      // Determinar coordenada horizontal baseada na direção da parede
+      switch (wallDirection) {
+        case 'north':
+        case 'south':
+          relativeX = furnitureX; // Usar X como horizontal
+          break;
+        case 'east':
+        case 'west':
+          relativeX = furnitureZ; // Usar Z como horizontal
+          break;
       }
-      
-      // Criar buraco retangular
-      const hole = new THREE.Path();
-      hole.moveTo(relativeX - cutoutWidth/2, relativeY - cutoutHeight/2);
-      hole.lineTo(relativeX + cutoutWidth/2, relativeY - cutoutHeight/2);
-      hole.lineTo(relativeX + cutoutWidth/2, relativeY + cutoutHeight/2);
-      hole.lineTo(relativeX - cutoutWidth/2, relativeY + cutoutHeight/2);
-      hole.closePath();
-      
-      wallShape.holes.push(hole);
+
+      // Verificar se o buraco está dentro dos limites da parede
+      const maxX = width / 2;
+      const maxY = height / 2;
+
+      if (Math.abs(relativeX) < maxX && Math.abs(relativeY) < maxY) {
+        // Criar buraco retangular
+        const hole = new THREE.Path();
+        hole.moveTo(relativeX - cutoutWidth/2, relativeY - cutoutHeight/2);
+        hole.lineTo(relativeX + cutoutWidth/2, relativeY - cutoutHeight/2);
+        hole.lineTo(relativeX + cutoutWidth/2, relativeY + cutoutHeight/2);
+        hole.lineTo(relativeX - cutoutWidth/2, relativeY + cutoutHeight/2);
+        hole.closePath();
+
+        wallShape.holes.push(hole);
+      }
     });
     
     // Criar geometria extrudada
