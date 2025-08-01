@@ -280,6 +280,7 @@ export const Room: React.FC<RoomProps> = ({ dimensions, userId = 'default', drag
         )}
         name="wall-west"
         userData={{ wallId: 'west', surfaceType: 'wall' }}
+        wallRef={wallWestRef}
       />
     </group>
   );
