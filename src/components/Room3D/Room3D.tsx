@@ -48,13 +48,13 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
   const [draggedTexture, setDraggedTexture] = useState<any>(null);
   const [roomUpdateKey, setRoomUpdateKey] = useState(0);
   const [lightingSettings, setLightingSettings] = useState<LightingSettings>({
-    ambientIntensity: 0.4,
-    ambientColor: '#f0f8ff',
-    directionalIntensity: 0.8,
+    ambientIntensity: 0.8,
+    ambientColor: '#f8f8ff',
+    directionalIntensity: 0.0, // Removida - quarto fechado
     directionalColor: '#ffffff',
     directionalPosition: [5, 10, 5],
-    castShadows: true,
-    pointIntensity: 0.4,
+    castShadows: false, // Sem sombras sem luz direcional
+    pointIntensity: 0.0, // Removida
     pointColor: '#fff8dc',
     pointPosition: [0, 4, 0],
     pointDistance: 15,
@@ -500,7 +500,7 @@ export const Room3D: React.FC<Room3DProps> = ({ userId, isAdmin = false }) => {
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg shadow-lg transition-colors"
           title="Alternar para modo 2D"
         >
-          ���� Modo 2D
+          ����� Modo 2D
         </button>
 
         <button
